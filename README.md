@@ -1,5 +1,7 @@
 # Murdoku Editor
 
+🌐 **Gioca online:** [osdgdt.github.io/murdoku](https://osdgdt.github.io/murdoku/) — nessuna installazione richiesta, funziona direttamente nel browser.
+
 Editor e player per puzzle **Murdoku**: un ibrido tra Sudoku e deduzione investigativa. Su una griglia si piazzano personaggi (uno per riga/colonna) rispettando indizi legati a una mappa con stanze, zone colorate e oggetti; una vittima va piazzata anch'essa, e a fine gioco si rivela l'assassino.
 
 Una regola base, sempre valida, non aggirabile con indizi: **la vittima si trova sempre in una stanza con esattamente un'altra persona**, e quella persona è l'assassino. Non basta un indizio a definirlo: è imposto ovunque (validazione, solver, suggerimenti) — un piazzamento con la vittima da sola o con due o più persone nella sua stanza non è mai una soluzione valida. Righe e colonne vuote sono invece del tutto ammesse (non serve un personaggio per ognuna): se vuoi che restino vuote in una soluzione specifica, basta dirlo con un indizio generale ("nessuno era nella riga/colonna X").

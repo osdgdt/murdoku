@@ -1,0 +1,181 @@
+.hero {
+  max-width: 760px;
+  margin: 4.5rem auto 3rem;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.hero .eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+}
+
+.hero h1 {
+  font-size: 2.6rem;
+  font-style: italic;
+  line-height: 1.2;
+  margin-bottom: 0.6rem;
+}
+
+.hero p.lede {
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  max-width: 46em;
+  margin: 0 auto;
+}
+
+.hero-divider {
+  width: 90px;
+  height: 3px;
+  margin: 1.6rem auto;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--gold), var(--accent), transparent);
+}
+
+.card-links {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.card-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 250px;
+  padding: 2rem 1.25rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.card-link:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gold);
+}
+
+.card-link .icon-badge {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  background: linear-gradient(155deg, var(--accent-soft), var(--gold-soft));
+  margin-bottom: 0.25rem;
+}
+
+.card-link h3 { color: var(--accent); margin-bottom: 0.15em; }
+.card-link p { margin: 0; text-align: center; }
+
+.section-label {
+  max-width: 760px;
+  margin: 3rem auto 0;
+  padding: 0 1.5rem;
+}
+
+#saved-list {
+  max-width: 760px;
+  margin: 1.25rem auto 4rem;
+  padding: 0 1.5rem;
+}
+
+.saved-list-header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.saved-list-header h2 { margin-bottom: 0; }
+.saved-list-header select { font-size: 0.82rem; }
+
+#saved-list .panel { padding: 0.5rem 0.75rem; }
+
+.difficulty-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  margin-right: 0.5em;
+  background: var(--panel-alt);
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+}
+.difficulty-very-easy { background: var(--success-soft); color: var(--success); border-color: transparent; }
+.difficulty-easy { background: #e4f0dc; color: #4a7a2e; border-color: transparent; }
+.difficulty-medium { background: #fbf0d6; color: #8a6100; border-color: transparent; }
+.difficulty-hard { background: #f6ddd0; color: #a5501f; border-color: transparent; }
+.difficulty-expert { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+
+.completed-badge {
+  display: inline-block;
+  color: var(--success);
+  font-weight: 700;
+  margin-right: 0.35em;
+}
+
+.saved-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0.6rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+.saved-row:last-child { border-bottom: none; }
+.saved-row:hover { background: var(--panel-alt); border-radius: var(--radius-sm); }
+
+.saved-row .title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.saved-row .meta { font-size: 0.78rem; color: var(--ink-soft); display: block; margin-top: 0.1rem; }
+
+.saved-row .actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.saved-row .actions a {
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4em 0.85em;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--ink-soft);
+  transition: all 0.14s ease;
+}
+.saved-row .actions a:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.saved-row .actions a.play { color: #fdf3e6; background: var(--accent); border-color: var(--accent-dark); }
+.saved-row .actions a.play:hover { background: var(--accent-dark); color: #fdf3e6; }
+
+.saved-row .actions button.delete,
+.saved-row .actions button.duplicate {
+  font-size: 0.85rem;
+  padding: 0.4em 0.7em;
+  border-radius: 999px;
+  box-shadow: none;
+}
+.saved-row .actions button.delete:hover {
+  color: #fff;
+  background: var(--danger);
+  border-color: var(--danger);
+  transform: none;
+}
+.saved-row .actions button.duplicate:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: none;
+}
+
+.footer-note {
+  text-align: center;
+  padding: 2rem 1rem 3rem;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}

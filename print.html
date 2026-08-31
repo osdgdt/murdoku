@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stampa Murdoku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/print.css" />
+</head>
+<body>
+  <div class="no-print field-row" style="padding:1.25rem 1.5rem; justify-content:center">
+    <button class="primary" onclick="window.print()">🖨 Stampa</button>
+    <a href="javascript:history.back()">← Torna indietro</a>
+  </div>
+  <div id="print-root"></div>
+
+  <script type="module">
+    import * as store from "./src/storage/puzzleStore.js";
+    import { renderPrintView } from "./src/print/printView.js";
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+    const puzzle = id ? store.get(id) : null;
+    const root = document.getElementById("print-root");
+    if (!puzzle) {
+      root.innerHTML = '<p style="padding:1rem">Puzzle non trovato.</p>';
+    } else {
+      renderPrintView(root, puzzle);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+.player-title {
+  margin: 0;
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--accent);
+  flex: 1;
+  text-align: center;
+}
+
+.topbar-right { display: flex; align-items: center; gap: 1rem; }
+.timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.picker-wrap { max-width: 640px; margin: 3rem auto; padding: 0 1.5rem; }
+.picker-wrap h2 { text-align: center; }
+.picker-wrap h2::after { left: 50%; transform: translateX(-50%); }
+.picker-wrap .panel { margin-top: 1.25rem; }
+
+.game-toolstrip { padding: 1rem 1.5rem 0; }
+
+.player-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem 2.5rem;
+  align-items: start;
+}
+
+.player-toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.85rem; flex-wrap: wrap; }
+.player-toolbar .char-chip {
+  display: flex; align-items: center; gap: 0.35rem;
+  padding: 0.38em 0.85em;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.player-toolbar .char-chip:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.player-toolbar .char-chip svg { width: 16px; height: 16px; color: var(--accent); }
+.player-toolbar .char-chip.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
+.player-toolbar .char-chip.used { opacity: 0.45; }
+
+.candidate-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.candidate-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.candidate-mark {
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  font-family: var(--font-ui);
+  border-radius: 50%;
+  transition: transform 0.12s ease;
+}
+
+/* Every note for the selected character pops, so you can spot at a glance
+   every cell you've already suspected them in. */
+.candidate-mark.highlighted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  color: #fdf3e6 !important;
+  background: var(--mark-color, var(--accent));
+  box-shadow: 0 0 0 2px var(--panel), 0 0 4px 2px rgba(36, 26, 12, 0.35);
+  transform: scale(1.35);
+}
+
+.board-cell.x-mark::before, .board-cell.x-mark::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 68%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--danger);
+  top: 50%;
+  left: 16%;
+  opacity: 0.85;
+}
+.board-cell.x-mark::before { transform: rotate(45deg); }
+.board-cell.x-mark::after { transform: rotate(-45deg); }
+
+.hint-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: -0.4rem 0 0.75rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+.hint-nav button { padding: 0.2em 0.7em; font-size: 0.9rem; }
+
+.result-banner.hint-success { background: var(--success-soft); color: var(--success); border-color: #bfe3cb; }
+.result-banner.hint-info { background: var(--accent-soft); color: var(--accent-dark); border-color: var(--border); }
+.result-banner.hint-warning { background: #fbf0d6; color: #8a6100; border-color: #f0dfa9; }
+.result-banner.hint-error { background: var(--danger-soft); color: var(--danger); border-color: #e9c3bb; }
+
+/* "Perché" explanation under a hint step's banner — which specific clues (or
+   the always-on victim/murderer base rule) make that step's deduction
+   certain. Sits between the banner and the ‹ › step nav. */
+.hint-explain {
+  margin: -0.4rem 0 0.85rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+}
+.hint-explain-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 0.2rem;
+}
+.hint-explain-note {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.hint-clue-list {
+  margin: 0.2em 0 0;
+  padding-left: 1.2em;
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+.hint-clue-list li { margin: 0.15em 0; }
+
+/* While a hint is showing, every other cell dims — on a busy board (zone
+   textures, wall borders, character tokens, candidate marks) a thin ring
+   alone can get lost, so the biggest visibility win is making everything
+   ELSE recede instead of just making the ring itself louder. */
+.board-grid.hint-active .board-cell:not(.hint-target):not(.hint-info):not(.hint-culprit) {
+  opacity: 0.4;
+  filter: saturate(0.4);
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.board-cell.hint-target,
+.board-cell.hint-info,
+.board-cell.hint-culprit {
+  z-index: 3;
+  transition: box-shadow 0.15s ease;
+}
+
+.board-cell.hint-target {
+  box-shadow: 0 0 0 4px var(--gold), 0 0 16px 4px var(--gold-soft);
+  animation: hint-pulse-gold 1.2s ease-in-out infinite;
+}
+.board-cell.hint-info {
+  box-shadow: 0 0 0 4px var(--accent), 0 0 16px 4px var(--accent-soft);
+  animation: hint-pulse-info 1.6s ease-in-out infinite;
+}
+.board-cell.hint-culprit {
+  box-shadow: 0 0 0 4px var(--danger), 0 0 16px 4px var(--danger-soft);
+  animation: hint-pulse-danger 1.2s ease-in-out infinite;
+}
+@keyframes hint-pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 4px var(--gold), 0 0 16px 4px var(--gold-soft); }
+  50% { box-shadow: 0 0 0 7px var(--gold), 0 0 24px 8px var(--gold-soft); }
+}
+@keyframes hint-pulse-info {
+  0%, 100% { box-shadow: 0 0 0 4px var(--accent), 0 0 16px 4px var(--accent-soft); }
+  50% { box-shadow: 0 0 0 6px var(--accent), 0 0 22px 6px var(--accent-soft); }
+}
+@keyframes hint-pulse-danger {
+  0%, 100% { box-shadow: 0 0 0 4px var(--danger), 0 0 16px 4px var(--danger-soft); }
+  50% { box-shadow: 0 0 0 7px var(--danger), 0 0 24px 8px var(--danger-soft); }
+}
+
+.clue-card {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.8rem;
+  margin-bottom: 0.6rem;
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  transition: box-shadow 0.15s ease;
+}
+.clue-card:hover { box-shadow: var(--shadow-md); }
+.clue-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.6rem; bottom: 0.6rem;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--clue-accent, var(--gold-soft));
+}
+.clue-card.victim::before { background: var(--danger); }
+.clue-card.generic { background: var(--panel-alt); }
+.clue-card.generic::before { background: var(--accent); }
+
+/* A confirmed placement fades its card, like a name crossed off a list. */
+.clue-card.placed { opacity: 0.5; filter: grayscale(0.6); }
+.clue-card.placed:hover { opacity: 0.75; filter: grayscale(0.3); }
+
+/* Selecting a character (toolbar chip) rings their card in their own color,
+   so all of their clues are easy to spot while placing them. */
+.clue-card.active {
+  box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--clue-accent, var(--gold)), var(--shadow-md);
+}
+.clue-card.active.placed { opacity: 0.7; }
+.clue-card .row { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.35rem; }
+.clue-card .row svg { width: 22px; height: 22px; color: var(--accent); }
+.clue-card ul { margin: 0.35em 0 0; padding-left: 1.3em; font-size: 0.85rem; color: var(--ink-soft); }
+.clue-card .bio-text { margin: 0 0 0.4em; font-size: 0.8rem; font-style: italic; color: var(--ink-soft); }
+
+.briefing-panel { margin-bottom: 1rem; }
+.briefing-panel h3 { margin-bottom: 0.4rem; }
+.briefing-panel p { font-family: var(--font-display); font-style: italic; line-height: 1.5; color: var(--ink); margin: 0; }
+.clue-card li { margin: 0.15em 0; }
+
+#notes-btn.primary { background: linear-gradient(155deg, var(--gold), #8f651f); border-color: #8f651f; }
+
+#notes-hint { font-style: italic; }
+
+.result-banner {
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius);
+  margin-bottom: 0.85rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid transparent;
+}
+.result-banner.success { background: var(--success-soft); color: var(--success); border-color: #bfe3cb; }
+.result-banner.partial { background: #fbf0d6; color: #8a6100; border-color: #f0dfa9; }
+
+.win-panel { text-align: center; padding: 1.75rem 1.25rem; }
+.win-panel div:first-child { font-family: var(--font-display); font-size: 1.15rem; }
+.win-panel .resolution-note { font-family: var(--font-display); font-style: italic; margin-top: 0.75rem; color: var(--ink-soft); }

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <title>Murdoku — Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 1.5rem; }
+    .pass { color: #2e7d32; }
+    .fail { color: #b3261e; }
+    li { margin: 0.2em 0; }
+  </style>
+</head>
+<body>
+  <h1>Murdoku — Test Suite</h1>
+  <p id="summary"></p>
+  <ul id="results"></ul>
+
+  <script type="module">
+    import { tests as modelTests } from "./test-model.js";
+    import { tests as solverTests } from "./test-solver.js";
+    import { tests as playerTests } from "./test-player.js";
+    import { tests as hintTests } from "./test-hints.js";
+    import { tests as propagationTests } from "./test-propagation.js";
+
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests];
+    const resultsEl = document.getElementById("results");
+    let passed = 0;
+
+    for (const { name, fn } of allTests) {
+      const li = document.createElement("li");
+      try {
+        fn();
+        li.className = "pass";
+        li.textContent = `✓ ${name}`;
+        passed++;
+      } catch (err) {
+        li.className = "fail";
+        li.textContent = `✗ ${name} — ${err.message}`;
+        console.error(name, err);
+      }
+      resultsEl.appendChild(li);
+    }
+
+    document.getElementById("summary").textContent = `${passed} / ${allTests.length} test superati`;
+  </script>
+</body>
+</html>

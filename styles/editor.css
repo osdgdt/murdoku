@@ -1,0 +1,532 @@
+.title-fields { display: flex; align-items: baseline; gap: 0.75rem; flex: 1; min-width: 0; justify-content: center; }
+.title-input {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: center;
+  border-bottom: 1px dashed var(--border) !important;
+  border-radius: 0 !important;
+  padding: 0.2em 0.3em !important;
+  width: 22em;
+  max-width: 40vw;
+}
+.title-input:focus { border-bottom-color: var(--gold) !important; }
+.author-input {
+  font-size: 0.8rem !important;
+  color: var(--ink-soft);
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px dashed var(--border-soft) !important;
+  border-radius: 0 !important;
+  padding: 0.2em 0.3em !important;
+  width: 10em;
+}
+.difficulty-input {
+  font-size: 0.8rem !important;
+  color: var(--ink-soft);
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px dashed var(--border-soft) !important;
+  border-radius: 0 !important;
+  padding: 0.2em 0.3em !important;
+}
+
+.topbar-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
+.topbar-actions button { font-size: 0.8rem; padding: 0.45em 0.8em; }
+
+.editor-toolstrip {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.6rem 1.5rem;
+  background: var(--panel-alt);
+  border-bottom: 1px solid var(--border-soft);
+  flex-wrap: wrap;
+}
+.tab-group { display: flex; gap: 0.35rem; }
+#tab-map, #tab-solution { border-radius: 999px; }
+
+.dossier-panel {
+  margin: 1rem 1.5rem 0;
+  padding: 0.4rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.dossier-panel summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 0.6rem 0;
+  list-style: none;
+}
+.dossier-panel summary::-webkit-details-marker { display: none; }
+.dossier-fields { display: flex; flex-direction: column; gap: 0.3rem; padding-bottom: 0.9rem; }
+.dossier-fields label { font-size: 0.8rem; color: var(--ink-soft); font-weight: 600; }
+.dossier-fields textarea { font-family: var(--font-ui); resize: vertical; width: 100%; }
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 270px 1fr 380px;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem 2.5rem;
+  align-items: start;
+}
+
+.editor-layout h3 {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--border);
+}
+.editor-layout h3:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+.board-grid {
+  display: grid;
+  gap: 3px;
+  background: linear-gradient(155deg, var(--cell-border), var(--gold));
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-sm);
+  width: fit-content;
+  padding: 3px;
+  box-shadow: var(--shadow-lg);
+  /* Reserved room for room-name labels, which hang off the left of the row
+     gutter (outside the grid entirely) instead of sitting on any cell. */
+  margin-left: 120px;
+}
+
+.board-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  background: var(--panel-alt);
+  border-radius: 3px;
+  user-select: none;
+}
+
+.board-label-row { position: relative; }
+
+.board-cell {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  background: var(--cell-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.08s ease;
+  box-shadow: inset 0 0 0 1px rgba(36, 26, 12, 0.05);
+  /* A press-and-drag across cells (see boardRender.js) must never be
+     hijacked into a native image-drag or text selection. */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.board-cell * { -webkit-user-drag: none; }
+
+.board-cell:hover {
+  box-shadow: inset 0 0 0 2px var(--gold);
+  z-index: 1;
+}
+
+.board-cell.blocked {
+  background: repeating-linear-gradient(45deg, #d9cba4, #d9cba4 5px, #c2af80 5px, #c2af80 10px);
+  cursor: pointer;
+}
+
+/* Subtle terrain texture over any painted zone, so flat color fields read
+   more like a tiled floor and less like a flat UI block. */
+.board-cell.zoned::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.055) 0 3px, transparent 3px 10px);
+  pointer-events: none;
+}
+
+/* Bold borders only at true zone boundaries (different zone, or zone vs. the
+   open/blocked outside) — internal cells of the same zone stay seamless. */
+.board-cell.wall-t { border-top: 3px solid var(--ink); }
+.board-cell.wall-r { border-right: 3px solid var(--ink); }
+.board-cell.wall-b { border-bottom: 3px solid var(--ink); }
+.board-cell.wall-l { border-left: 3px solid var(--ink); }
+
+.board-cell .obj-icon {
+  position: relative;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fffaf0, #ecdfbe 75%);
+  box-shadow: 0 2px 5px rgba(36, 26, 12, 0.3), inset 0 0 0 1px rgba(36, 26, 12, 0.14);
+  pointer-events: none;
+}
+.board-cell .obj-icon svg { width: 22px; height: 22px; display: block; }
+
+/* Anchored to the row-label gutter (outside every playable cell), aligned
+   with whichever row the room actually starts on, and hanging further left
+   into the margin .board-grid reserves for exactly this — so a label can
+   never sit where a candidate, token, or X gets marked. When two rooms
+   anchor to the same row, their tags stack vertically here instead of both
+   centering on the row and overlapping. */
+.room-label-stack {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 6px);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+/* A small pointer connecting the stack back to its row, like a map callout. */
+.room-label-stack::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -5px;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-left-color: rgba(36, 26, 12, 0.85);
+}
+
+.room-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  max-width: 130px;
+  padding: 0.22em 0.55em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fdf3e6;
+  background: rgba(36, 26, 12, 0.85);
+  border-radius: 6px;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.room-label-swatch {
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px rgba(253, 243, 230, 0.85), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.room-label-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.board-cell .char-token {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fdf3e6;
+  font-size: 0.7rem;
+  font-weight: bold;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(36, 26, 12, 0.35), inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+  z-index: 2;
+  animation: token-pop 0.16s ease;
+}
+@keyframes token-pop {
+  from { transform: scale(0.6); }
+  to { transform: scale(1); }
+}
+
+.board-cell .char-token svg { width: 22px; height: 22px; }
+
+.zone-swatch-list, .object-palette, .icon-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.6rem;
+}
+
+.swatch {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--panel);
+  box-shadow: 0 0 0 1.5px var(--border);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.swatch:hover { transform: scale(1.08); }
+.swatch.selected { box-shadow: 0 0 0 2.5px var(--accent); transform: scale(1.08); }
+
+.palette-item {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+.palette-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.palette-item.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.palette-item svg { width: 22px; height: 22px; color: var(--ink-soft); }
+
+.character-list, .clue-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.character-card {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.75rem;
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.character-card:hover { box-shadow: var(--shadow-md); }
+.character-card.victim { border-color: var(--danger); background: linear-gradient(180deg, var(--panel), var(--danger-soft) 220%); }
+.character-card .row { display: flex; align-items: center; gap: 0.55rem; margin: 0.2rem 0; }
+.character-card .row svg { width: 22px; height: 22px; color: var(--accent); }
+.character-card .bio-input {
+  width: 100%;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  resize: vertical;
+}
+
+/* One clue, as a small self-contained card: a description header (with the
+   negate/remove actions) on top, its configuration fields below in a wrapping
+   grid. Everything inside is width-capped (see the select/input rule at the
+   bottom) so a long option label can never force the card — or the panel
+   around it — wider than the space actually available. */
+.clue-card {
+  font-size: 0.85rem;
+  padding: 0.55rem 0.65rem;
+  background: var(--panel-alt);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  max-width: 100%;
+}
+
+.clue-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.clue-card-header .clue-text {
+  flex: 1 1 10em;
+  min-width: 0;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+.clue-card-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.clue-negate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.clue-remove {
+  padding: 0.1em 0.55em;
+  line-height: 1;
+  font-size: 0.95rem;
+  color: var(--danger);
+  border-color: var(--danger-soft);
+}
+.clue-remove:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+/* The clue's own parameters, as a wrapping row of labeled fields instead of
+   a run of bare dropdowns — each field shrinks (min-width:0) and wraps onto
+   its own line rather than pushing the card wider than its container. */
+.clue-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.clue-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1 1 9em;
+  min-width: 0;
+  max-width: 100%;
+}
+.clue-field-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
+/* The "orClue" combinator: two branches stacked full-width (not side by
+   side) so each has room to lay out its own fields without competing for
+   horizontal space with the other. */
+.clue-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.clue-branch {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  padding: 0.4rem 0.5rem;
+}
+.clue-branch-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+.clue-branch-joiner {
+  align-self: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+/* A nested clue picker — the `orClue` branches above, or any `clueRef` param
+   ("...who also satisfied: <condition>") — reuses .clue-fields styling for
+   whatever params the chosen sub-type needs. */
+.clue-nested { display: flex; flex-direction: column; gap: 0.4rem; }
+.clue-nested > .clue-fields { margin-top: 0; }
+
+/* Multi-target picker (e.g. "condivide riga/colonna con uno tra più
+   bersagli") — tall enough to show several options without scrolling. */
+.clue-card select[multiple] { min-height: 4.4em; }
+
+/* The actual overflow fix: no select or number input anywhere in the clue
+   builder — a clue card's own fields, or the plain "+ Indizio" type picker
+   sitting below the list — may ever grow past its container, however long
+   its longest option's label is (some clue-type labels are full sentences).
+   Long labels truncate with an ellipsis; the field's own title/hover still
+   shows the full text for the field ones (see labeledControl in
+   clueBuilder.js), and the browser's native tooltip covers the plain
+   type-picker selects. */
+.character-card select,
+.character-card input[type="number"] {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.character-card select:not([multiple]) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.clue-card select,
+.clue-card input[type="number"] {
+  width: 100%;
+}
+
+.validation-panel {
+  margin-top: 1.1rem;
+  padding: 0.9rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.validation-panel:empty { display: none; }
+.violation {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin: 0.3em 0;
+  padding-left: 1.2em;
+  position: relative;
+}
+.violation::before { content: "✕"; position: absolute; left: 0; font-weight: 700; }
+.ok-message {
+  color: var(--success);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* Compact read-only grids showing every alternative solution "Verifica
+   unicità" found, so an ambiguous puzzle can be scanned at a glance instead
+   of only being told "it's ambiguous." Purpose-built and tiny — unrelated to
+   the full interactive .board-grid, which assumes much larger cells. */
+.solution-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--border);
+}
+.solution-preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.solution-preview-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.solution-preview-grid {
+  display: grid;
+  gap: 1px;
+  width: 96px;
+  height: 96px;
+  background: var(--cell-border);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.solution-preview-cell {
+  background: var(--cell-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.solution-preview-cell.blocked {
+  background: repeating-linear-gradient(45deg, #d9cba4, #d9cba4 3px, #c2af80 3px, #c2af80 6px);
+}
+.solution-preview-token {
+  width: 78%;
+  height: 78%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fdf3e6;
+  font-size: 0.55rem;
+  font-weight: 800;
+  box-shadow: 0 1px 3px rgba(36, 26, 12, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.tool-toggle { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }

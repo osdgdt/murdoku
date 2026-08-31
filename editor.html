@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Murdoku Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/editor.css" />
+  <script>
+    try {
+      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">🔎 Murdoku</a>
+    <div class="title-fields">
+      <input id="puzzle-title" class="title-input" type="text" placeholder="Titolo del caso" />
+      <input id="puzzle-author" class="author-input" type="text" placeholder="Autore" />
+      <select id="puzzle-difficulty" class="difficulty-input" title="Difficoltà"></select>
+    </div>
+    <nav class="topbar-actions">
+      <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+      <button id="save-btn">💾 Salva</button>
+      <button id="export-btn">⬇ Esporta</button>
+      <button type="button" onclick="document.getElementById('import-input').click()">⬆ Importa</button>
+      <input id="import-input" type="file" accept=".json" class="hidden" />
+      <button id="duplicate-btn" title="Duplica questo caso">📋 Duplica</button>
+      <button id="print-btn">🖨 Stampa</button>
+      <button id="play-btn" class="primary">▶ Gioca</button>
+      <button id="delete-btn" class="danger" title="Elimina questo caso">🗑 Elimina</button>
+    </nav>
+  </div>
+
+  <div class="editor-toolstrip">
+    <div class="tab-group">
+      <button id="tab-map">🗺️ Mappa</button>
+      <button id="tab-solution">🔑 Soluzione</button>
+    </div>
+    <div class="tab-group">
+      <button id="editor-undo-btn" title="Annulla" disabled>↶ Annulla</button>
+      <button id="editor-redo-btn" title="Ripeti" disabled>↷ Ripeti</button>
+    </div>
+    <div class="tab-group">
+      <button id="validate-btn">✓ Valida soluzione</button>
+      <button id="unique-btn">? Verifica unicità</button>
+    </div>
+    <span id="status" class="muted"></span>
+  </div>
+
+  <details class="dossier-panel">
+    <summary>📖 Dossier del caso</summary>
+    <div class="dossier-fields">
+      <label for="puzzle-briefing">Testo introduttivo (mostrato al giocatore prima degli indizi)</label>
+      <textarea id="puzzle-briefing" rows="3" placeholder="Es. La sera del 12 ottobre, il corpo di Lord Ashford viene trovato nella biblioteca..."></textarea>
+      <label for="puzzle-resolution">Nota di chiusura (mostrata insieme alla rivelazione dell'assassino)</label>
+      <textarea id="puzzle-resolution" rows="2" placeholder="Es. Con le prove raccolte, il caso è ufficialmente chiuso..."></textarea>
+    </div>
+  </details>
+
+  <div class="editor-layout">
+    <div id="left-panel" class="panel"></div>
+    <div>
+      <div id="board"></div>
+      <div id="validation-panel" class="validation-panel"></div>
+    </div>
+    <div>
+      <div id="right-panel-top" class="panel" style="margin-bottom:1rem"></div>
+      <div id="right-panel-bottom" class="panel"></div>
+    </div>
+  </div>
+
+  <script type="module" src="src/editor/editorApp.js"></script>
+</body>
+</html>

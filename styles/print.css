@@ -1,0 +1,103 @@
+.print-page {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem 2.25rem;
+  background: #fff;
+  color: #1a1a1a;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.print-title {
+  text-align: center;
+  margin-bottom: 0.15rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
+}
+.print-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.print-briefing {
+  max-width: 34em;
+  margin: 0.75rem auto 1.5rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.print-bio { margin: 0 0 0.4em; font-size: 0.78rem; font-style: italic; color: #555; }
+
+.print-blank-heading {
+  text-align: center;
+  margin: 2rem 0 0.75rem;
+  font-size: 1.15rem;
+}
+.print-blank-heading::after { left: 50%; transform: translateX(-50%); }
+
+.print-board {
+  display: grid;
+  gap: 1px;
+  background: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: 3px;
+  width: fit-content;
+  margin: 0 auto 1rem;
+  overflow: hidden;
+}
+
+.print-label {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: #555;
+}
+
+.print-cell.blocked {
+  background: repeating-linear-gradient(45deg, #eee, #eee 3px, #ccc 3px, #ccc 6px);
+}
+
+.print-cell {
+  width: 42px; height: 42px;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  font-size: 0.6rem;
+}
+.print-cell svg { width: 20px; height: 20px; color: #333; }
+.print-cell .zone-label { position: absolute; top: 1px; left: 2px; font-size: 0.45rem; color: #555; font-weight: 600; }
+
+.print-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.print-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  break-inside: avoid;
+}
+.print-card h3 { margin: 0 0 0.35em; font-size: 1rem; font-family: var(--font-display); }
+.print-card ul { margin: 0.3em 0 0; padding-left: 1.2em; font-size: 0.8rem; }
+.print-card li { margin: 0.15em 0; }
+.print-card.generic { grid-column: 1 / -1; background: #f7f7f7; }
+
+.no-print { }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff !important; background-image: none !important; }
+  .print-page { padding: 0; margin: 0; box-shadow: none; border-radius: 0; max-width: none; }
+  @page { margin: 1.2cm; }
+}

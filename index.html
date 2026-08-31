@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Murdoku Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+  <script>
+    try {
+      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">🔎 Murdoku</span>
+    <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow">Archivio dei casi</span>
+    <h1>Crea e gioca i tuoi casi Murdoku</h1>
+    <div class="hero-divider"></div>
+    <p class="lede">Costruisci la mappa del caso, i personaggi, gli indizi — poi gioca, stampa o condividi il file del puzzle.</p>
+    <div class="card-links">
+      <a class="card-link" href="editor.html">
+        <span class="icon-badge">✏️</span>
+        <h3>Nuovo puzzle</h3>
+        <p class="muted">Apri l'editor per creare un caso da zero.</p>
+      </a>
+      <a class="card-link" href="player.html">
+        <span class="icon-badge">🔍</span>
+        <h3>Gioca</h3>
+        <p class="muted">Scegli un caso salvato e risolvilo.</p>
+      </a>
+    </div>
+  </div>
+
+  <div id="saved-list" class="hidden">
+    <div class="saved-list-header">
+      <h2>I tuoi puzzle</h2>
+      <select id="sort-select">
+        <option value="updated">Aggiornati di recente</option>
+        <option value="title">Titolo</option>
+        <option value="difficulty">Difficoltà</option>
+      </select>
+    </div>
+    <div class="panel"><div id="saved-items"></div></div>
+  </div>
+
+  <p class="footer-note">Murdoku Editor — creato, giocato e stampato interamente sul tuo computer.</p>
+
+  <script type="module">
+    import * as store from "./src/storage/puzzleStore.js";
+    import { duplicatePuzzle, difficultyLabel, DIFFICULTY_LEVELS } from "./src/model/puzzle.js";
+    import { wireThemeToggle } from "./src/util/theme.js";
+    wireThemeToggle();
+
+    const listPanel = document.getElementById("saved-list");
+    const items = document.getElementById("saved-items");
+    const sortSelect = document.getElementById("sort-select");
+    const difficultyOrder = DIFFICULTY_LEVELS.map((d) => d.value);
+
+    function sortPuzzles(puzzles) {
+      const sorted = [...puzzles];
+      if (sortSelect.value === "title") {
+        sorted.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sortSelect.value === "difficulty") {
+        sorted.sort((a, b) => difficultyOrder.indexOf(a.difficulty || "") - difficultyOrder.indexOf(b.difficulty || ""));
+      } else {
+        sorted.sort((a, b) => b.updatedAt - a.updatedAt);
+      }
+      return sorted;
+    }
+
+    function render() {
+      const puzzles = sortPuzzles(store.list());
+      items.innerHTML = "";
+      listPanel.classList.toggle("hidden", puzzles.length === 0);
+      for (const p of puzzles) {
+        const row = document.createElement("div");
+        row.className = "saved-row";
+        const updated = new Date(p.updatedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+        const badge = p.difficulty ? `<span class="difficulty-badge difficulty-${p.difficulty}">${difficultyLabel(p.difficulty)}</span>` : "";
+        const completedBadge = p.completed ? `<span class="completed-badge" title="Completato">✓</span>` : "";
+        row.innerHTML = `
+          <div>
+            <span class="title">${completedBadge}${p.title}</span>
+            ${badge}
+            <span class="meta">Aggiornato il ${updated}</span>
+          </div>
+          <div class="actions">
+            <a href="editor.html?id=${p.id}">Modifica</a>
+            <a class="play" href="player.html?id=${p.id}">Gioca</a>
+            <button class="duplicate" type="button" data-duplicate-id="${p.id}" title="Duplica">📋</button>
+            <button class="delete" type="button" data-delete-id="${p.id}" data-delete-title="${p.title.replace(/"/g, "&quot;")}" title="Elimina">🗑</button>
+          </div>`;
+        items.appendChild(row);
+      }
+    }
+
+    sortSelect.addEventListener("change", render);
+
+    items.addEventListener("click", (e) => {
+      const deleteBtn = e.target.closest("[data-delete-id]");
+      if (deleteBtn) {
+        const ok = confirm(`Eliminare definitivamente il caso "${deleteBtn.dataset.deleteTitle}"? L'azione non è reversibile.`);
+        if (!ok) return;
+        store.remove(deleteBtn.dataset.deleteId);
+        render();
+        return;
+      }
+      const duplicateBtn = e.target.closest("[data-duplicate-id]");
+      if (duplicateBtn) {
+        const original = store.get(duplicateBtn.dataset.duplicateId);
+        if (!original) return;
+        store.save(duplicatePuzzle(original));
+        render();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

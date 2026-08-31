@@ -1,0 +1,564 @@
+{
+  "schemaVersion": 1,
+  "id": "puzzle_mtfwd772ikyx6vlb",
+  "title": "Nuovo caso",
+  "author": "",
+  "difficulty": "",
+  "completed": false,
+  "briefing": "Qualcuno ha ordinato un kebab vegano...\nIl movente è chiaro, l'identità dell'assassino no.\nPer quanto moralmente giustificato, un detective del tuo calibro deve consegnare il CARNEfice alla giustizia.",
+  "resolutionNote": "",
+  "createdAt": 1788099654062,
+  "updatedAt": 1788101652831,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 7
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mtfwf3i0yu7p2w4b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwez3umf4etf2x",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwez3umf4etf2x",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwez3umf4etf2x",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfidoaozefq6j",
+          "objectId": "obj_mtfwlu9kp6qyfxwj",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfidoaozefq6j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfidoaozefq6j",
+          "objectId": "obj_mtfwxeex2vlv3bur",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mtfwf3i0yu7p2w4b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwez3umf4etf2x",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwwugayrogtqpk",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwltv23m904yu6",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwwv08uh3poriy",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwwv7e23mx6l01",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwwvdlz1w4d0lc",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mtfwf3i0yu7p2w4b",
+          "objectId": "obj_mtfwlqvw1mlkdxdh",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwez3umf4etf2x",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwxc862y4fwx9r",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwvr4f6i8yeudk",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwvrrdbqtqh5v1",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfwvrzv5fthlwr3",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfwfmdrk6uhepw3",
+          "objectId": "obj_mtfww2as16pqvdl9",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": "obj_mtfwwixk2k9i9wd2",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": "obj_mtfx1ucvevkx21er",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": "obj_mtfww81j0pctfohn",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": "obj_mtfwwfkj31b0yji0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": "obj_mtfwlecivtof9xoq",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mtfweatseuoh7e04",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mtfweatseuoh7e04",
+        "name": "Sala clienti",
+        "color": "#f4c2c2"
+      },
+      {
+        "id": "zone_mtfwez3umf4etf2x",
+        "name": "Corridoio",
+        "color": "#c2e0f4"
+      },
+      {
+        "id": "zone_mtfwf3i0yu7p2w4b",
+        "name": "Bagno",
+        "color": "#c9f4c2"
+      },
+      {
+        "id": "zone_mtfwfidoaozefq6j",
+        "name": "Magazzino",
+        "color": "#f4ecc2"
+      },
+      {
+        "id": "zone_mtfwfmdrk6uhepw3",
+        "name": "Cucina",
+        "color": "#e0c2f4"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mtfwlecivtof9xoq",
+        "typeId": "door",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "obj_mtfwlqvw1mlkdxdh",
+        "typeId": "door",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "obj_mtfwltv23m904yu6",
+        "typeId": "door",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "id": "obj_mtfwlu9kp6qyfxwj",
+        "typeId": "door",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "obj_mtfwvr4f6i8yeudk",
+        "typeId": "table",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "obj_mtfwvrrdbqtqh5v1",
+        "typeId": "table",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "id": "obj_mtfwvrzv5fthlwr3",
+        "typeId": "table",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "obj_mtfww2as16pqvdl9",
+        "typeId": "table",
+        "row": 2,
+        "col": 6
+      },
+      {
+        "id": "obj_mtfww81j0pctfohn",
+        "typeId": "table",
+        "row": 4,
+        "col": 6
+      },
+      {
+        "id": "obj_mtfwwfkj31b0yji0",
+        "typeId": "table",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "obj_mtfwwixk2k9i9wd2",
+        "typeId": "table",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "obj_mtfwwugayrogtqpk",
+        "typeId": "carpet",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "obj_mtfwwv08uh3poriy",
+        "typeId": "carpet",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "id": "obj_mtfwwv7e23mx6l01",
+        "typeId": "carpet",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "obj_mtfwwvdlz1w4d0lc",
+        "typeId": "carpet",
+        "row": 1,
+        "col": 6
+      },
+      {
+        "id": "obj_mtfwxc862y4fwx9r",
+        "typeId": "table",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "id": "obj_mtfwxeex2vlv3bur",
+        "typeId": "tv",
+        "row": 0,
+        "col": 6
+      },
+      {
+        "id": "obj_mtfx1ucvevkx21er",
+        "typeId": "table",
+        "row": 4,
+        "col": 4
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mtfwhzhenwf1g8ul",
+      "name": "Dav",
+      "iconId": "glasses",
+      "isVictim": true,
+      "bio": "Nel braccio della morte si cucinano ultimi pasti migliori ...",
+      "color": "#8a1f2d",
+      "gender": "male"
+    },
+    {
+      "id": "char_mtfwn4os0uv16ga7",
+      "name": "Leo",
+      "iconId": "detective",
+      "isVictim": false,
+      "bio": "Se non piange dal naso, il kebab torna in cucina",
+      "color": "#b0813a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mtfwocf48rr4hqfn",
+      "name": "Modo",
+      "iconId": "person1",
+      "isVictim": false,
+      "bio": "Ora il re di coppe tornerà a lui, che sia quello il vero movente?",
+      "color": "#6b3f8a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mtfwr9y5fkhscc8i",
+      "name": "Mustafa",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "Il cuoco. Non lo pagano abbastanza per questo schifo...",
+      "color": "#b0813a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mtfwsqlnf8dy92xb",
+      "name": "Ayse",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "La cameriera. Che abbiano avvelenato il kebab? In attesa dei risultati degli esami del sangue, bisogna comunque proseguire.",
+      "color": "#b3541e",
+      "gender": "female"
+    },
+    {
+      "id": "char_mtfx0l6z71bc8pyk",
+      "name": "Vad",
+      "iconId": "person2",
+      "isVictim": false,
+      "bio": "Il falso Dav. Ricercato in 15 stati per furto d'identità. Un testimone lo colloca sulla scena del crimine all'ora del delitto.",
+      "color": "#1f7a7a",
+      "gender": null
+    }
+  ],
+  "clues": [
+    {
+      "id": "clue_mtfx9tkv6d60d29s",
+      "characterId": "char_mtfwsqlnf8dy92xb",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 6
+      }
+    },
+    {
+      "id": "clue_mtfxarusntsfwzcn",
+      "characterId": "char_mtfwocf48rr4hqfn",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "clue_mtfxb35xdu4vqime",
+      "characterId": "char_mtfwn4os0uv16ga7",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "clue_mtfxbcxwj3gvg5gy",
+      "characterId": "char_mtfwn4os0uv16ga7",
+      "type": "diagonal",
+      "params": {
+        "targetId": "char_mtfwocf48rr4hqfn"
+      }
+    },
+    {
+      "id": "clue_mtfxdafngwqrcnxl",
+      "characterId": "char_mtfwocf48rr4hqfn",
+      "type": "directionDistance",
+      "params": {
+        "direction": "east",
+        "distance": 1,
+        "targetId": "char_mtfwn4os0uv16ga7"
+      }
+    },
+    {
+      "id": "clue_mtfxegfw5opf62wm",
+      "characterId": "char_mtfwn4os0uv16ga7",
+      "type": "extremeInDirection",
+      "params": {
+        "direction": "north",
+        "scope": "room",
+        "property": "",
+        "objectTypeId": "shelf"
+      }
+    },
+    {
+      "id": "clue_mtfxfz4ytuq9ghv2",
+      "characterId": "char_mtfx0l6z71bc8pyk",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 2
+      }
+    },
+    {
+      "id": "clue_mtfxhczrdytzbas0",
+      "characterId": "char_mtfwr9y5fkhscc8i",
+      "type": "orClue",
+      "params": {
+        "a": {
+          "type": "rowOrColWith",
+          "params": {
+            "axis": "row",
+            "targetId": "objtype:tv"
+          }
+        },
+        "b": {
+          "type": "rowOrColWith",
+          "params": {
+            "axis": "col",
+            "targetId": "objtype:tv"
+          }
+        }
+      }
+    },
+    {
+      "id": "clue_mtfxjsn855szo63g",
+      "characterId": "char_mtfwsqlnf8dy92xb",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "col",
+        "targetId": "objtype:carpet"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mtfwhzhenwf1g8ul",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "characterId": "char_mtfwr9y5fkhscc8i",
+        "row": 1,
+        "col": 6
+      },
+      {
+        "characterId": "char_mtfx0l6z71bc8pyk",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "characterId": "char_mtfwocf48rr4hqfn",
+        "row": 4,
+        "col": 5
+      },
+      {
+        "characterId": "char_mtfwn4os0uv16ga7",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "characterId": "char_mtfwsqlnf8dy92xb",
+        "row": 5,
+        "col": 2
+      }
+    ]
+  }
+}

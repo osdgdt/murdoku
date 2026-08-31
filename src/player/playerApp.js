@@ -6,13 +6,38 @@ import { createBoardState, handleCellClick, handleCellDrag, undo, clearAll, rend
 import { renderClueCards } from "./clueCards.js";
 import { computeHintChain } from "../solver/hints.js";
 import { describeClue } from "../model/clueTypes.js";
-import { duplicatePuzzle, difficultyLabel, characterColor } from "../model/puzzle.js";
+import { duplicatePuzzle, difficultyLabel, characterColor, validatePuzzleShape } from "../model/puzzle.js";
 import { wireThemeToggle } from "../util/theme.js";
 
 wireThemeToggle();
 
 const params = new URLSearchParams(location.search);
-const puzzleId = params.get("id");
+let puzzleId = params.get("id");
+let importError = null;
+
+// Share-by-link: `player.html?import=<url>` fetches a puzzle from anywhere
+// (typically a .murdoku.json sitting right next to this file, e.g. exported
+// from the editor and committed alongside it) and plays it directly, instead
+// of asking the recipient to save the file and use the editor's manual
+// "Importa" file picker. A puzzle already saved under that id (the recipient
+// revisiting the same link mid-game) is never overwritten, so their progress
+// survives — this just resolves the link to its id and continues exactly
+// like the normal `?id=` flow below.
+const importUrl = params.get("import");
+if (!puzzleId && importUrl) {
+  try {
+    const res = await fetch(importUrl);
+    if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
+    const imported = await res.json();
+    const { valid, errors } = validatePuzzleShape(imported);
+    if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
+    if (!store.get(imported.id)) store.save(imported);
+    puzzleId = imported.id;
+    history.replaceState(null, "", `player.html?id=${puzzleId}`);
+  } catch (err) {
+    importError = err.message;
+  }
+}
 
 const pickerEl = qs("#puzzle-picker");
 const gameEl = qs("#game");
@@ -84,6 +109,9 @@ function showPicker() {
   pickerEl.classList.remove("hidden");
   gameEl.classList.add("hidden");
   clear(pickerEl);
+  if (importError) {
+    pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a importare il caso dal link: ${importError}`));
+  }
   const puzzles = sortPuzzleEntries(store.list());
   pickerEl.appendChild(
     el("div", { class: "saved-list-header" }, [

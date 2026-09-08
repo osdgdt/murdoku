@@ -137,6 +137,17 @@
   z-index: 1;
 }
 
+/* Keyboard focus ring (see boardRender.js's arrow-key navigation) —
+   deliberately distinct from :hover's gold inset so a keyboard user can
+   always tell which cell has focus vs. whatever the mouse happens to be
+   resting on. :focus-visible (not bare :focus) so a mouse click doesn't
+   also paint the ring. */
+.board-cell:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  z-index: 2;
+}
+
 .board-cell.blocked {
   background: repeating-linear-gradient(45deg, #d9cba4, #d9cba4 5px, #c2af80 5px, #c2af80 10px);
   cursor: pointer;

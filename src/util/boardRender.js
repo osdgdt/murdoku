@@ -41,6 +41,31 @@ if (typeof document !== "undefined") {
 export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellDown, onCellEnter, decorateCell, showLabels = true } = {}) {
   clear(container);
   container.classList.add("board-grid");
+  container.setAttribute("role", "grid");
+
+  // Enter/Space on a focused cell replicates a single click: `onCellClick`
+  // for the editor boards, or just `onCellDown` for the player board (its
+  // own handler already performs the complete action — press-and-drag is a
+  // mouse-only *extension* on top of that single action, not a prerequisite
+  // for it, so a bare onCellDown call is a faithful keyboard equivalent).
+  // Never touches `dragActive`/`dragDownCell` — those are only ever set by
+  // real mouse events, so keyboard activation can't leave the board stuck
+  // mid-drag.
+  function activateCell(r, c) {
+    if (onCellClick) onCellClick(r, c);
+    else if (onCellDown) onCellDown(r, c);
+  }
+
+  // Arrow-key navigation between cells. Silently does nothing when the
+  // target is out of bounds, blocked (not focusable, see below), or absent
+  // for any other reason — a rough edge accepted for this first pass rather
+  // than adding logic to skip over blocked cells to the next usable one.
+  function focusCell(r, c) {
+    if (r < 0 || r >= grid.size.rows || c < 0 || c >= grid.size.cols) return;
+    const node = container.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+    if (node && node.tabIndex >= 0) node.focus();
+  }
+
   const gutter = showLabels ? `${LABEL_SIZE}px ` : "";
   container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, ${CELL_SIZE}px)`;
   container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, ${CELL_SIZE}px)`;
@@ -99,6 +124,16 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
       if (wallBetween(r, c, r + 1, c)) classes += " wall-b";
       if (wallBetween(r, c, r, c - 1)) classes += " wall-l";
 
+      // Baseline, generic aria-label — every caller (editor map, editor
+      // solution, player board) gets this for free with no changes on their
+      // side. It doesn't know about occupants/candidates (that's `state`
+      // the caller alone holds, added later via `decorateCell`) — a richer,
+      // per-caller description is a natural follow-up, not required for
+      // this first accessibility pass to be useful.
+      let cellLabel = `Riga ${r + 1}, colonna ${c + 1}`;
+      if (cellData.blocked) cellLabel += ", bloccata";
+      else if (zone) cellLabel += `, stanza ${zone.name}`;
+
       const cellNode = el("div", {
         class: classes,
         dataset: { row: String(r), col: String(c) },
@@ -110,6 +145,11 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
         style: zone ? `background-color:${zone.color}` : "",
+        role: "gridcell",
+        "aria-label": cellLabel,
+        // Blocked cells get no tabindex at all (never focusable) — they
+        // have no click handler either, matching existing mouse behavior.
+        tabindex: cellData.blocked ? undefined : "0",
         onClick: () => onCellClick && onCellClick(r, c),
         onContextmenu: (e) => {
           if (onCellRightClick) {
@@ -123,6 +163,19 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           dragActive = true;
           dragDownCell = { row: r, col: c };
           if (onCellDown) onCellDown(r, c);
+        },
+        onKeydown: cellData.blocked ? undefined : (e) => {
+          switch (e.key) {
+            case "ArrowUp": e.preventDefault(); focusCell(r - 1, c); break;
+            case "ArrowDown": e.preventDefault(); focusCell(r + 1, c); break;
+            case "ArrowLeft": e.preventDefault(); focusCell(r, c - 1); break;
+            case "ArrowRight": e.preventDefault(); focusCell(r, c + 1); break;
+            case "Enter":
+            case " ":
+              e.preventDefault();
+              activateCell(r, c);
+              break;
+          }
         },
         onMouseenter: () => {
           if (!dragActive || !onCellEnter) return;

@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isOwner() { return isSignedIn() && request.auth.uid == "say3jOf6WkaXDmjyn3kmAKNYbCh1"; }
+
+    match /campaigns/{campaignId} {
+      allow read: if isSignedIn();
+      allow write: if isOwner();
+    }
+
+    match /users/{userId}/campaignProgress/{campaignId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}

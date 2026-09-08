@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modalità campagna — Murdoku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="stylesheet" href="styles/editor.css" />
+  <link rel="stylesheet" href="styles/player.css" />
+  <script>
+    try {
+      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">🔎 Murdoku</a>
+    <h2 id="campaign-header-title" style="margin:0">Modalità campagna</h2>
+    <div class="topbar-right" style="display:flex;align-items:center;gap:0.6rem">
+      <span id="timer" class="timer hidden">⏱ 0:00</span>
+      <span id="auth-bar" style="display:flex;align-items:center;gap:0.6rem"></span>
+      <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+    </div>
+  </div>
+
+  <div id="gate" class="hero"></div>
+
+  <div id="campaign-list-view" class="hidden" style="max-width:900px;margin:1.5rem auto;padding:0 1.5rem">
+    <div class="saved-list-header"><h2>Scegli una campagna</h2></div>
+    <div class="panel"><div id="campaign-list"></div></div>
+  </div>
+
+  <div id="case-list-view" class="hidden" style="max-width:900px;margin:1.5rem auto;padding:0 1.5rem">
+    <p><a href="campaign.html">← Tutte le campagne</a></p>
+    <h2 id="case-list-title"></h2>
+    <p id="case-list-description" class="muted"></p>
+    <div class="panel"><div id="case-list"></div></div>
+  </div>
+
+  <div id="game" class="hidden">
+    <p style="padding:0 1.5rem"><a id="back-to-cases-link" href="campaign.html">← Torna all'elenco dei casi</a></p>
+    <div id="case-error-panel"></div>
+    <div id="game-content" class="hidden">
+      <div class="game-toolstrip">
+        <div id="player-toolbar" class="player-toolbar"></div>
+        <div class="field-row">
+          <button id="notes-btn">✏️ Note</button>
+          <button id="undo-btn">↶ Annulla</button>
+          <button id="clear-btn" title="Tieni premuto per cancellare tutto">🧹 Pulisci tutto (tieni premuto)</button>
+          <button id="hint-btn">💡 Suggerimento</button>
+          <button id="submit-btn" class="primary">✓ Verifica soluzione</button>
+        </div>
+        <p id="notes-hint" class="muted"></p>
+        <div id="hint-panel"></div>
+        <div id="result-panel"></div>
+      </div>
+      <div class="player-layout">
+        <div id="board"></div>
+        <div>
+          <div id="briefing-panel" class="panel briefing-panel hidden"></div>
+          <div id="clues-panel" class="panel"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/campaign/campaignApp.js"></script>
+</body>
+</html>

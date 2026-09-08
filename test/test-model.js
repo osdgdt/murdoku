@@ -1,4 +1,4 @@
-import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, genericClues, cluesForCharacter, difficultyLabel } from "../src/model/puzzle.js";
+import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes } from "../src/model/puzzle.js";
 import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import * as store from "../src/storage/puzzleStore.js";
@@ -235,6 +235,22 @@ export const tests = [
       const puzzle = createPuzzle("Test difficoltà");
       assertEqual(puzzle.difficulty, "");
       assertEqual(puzzle.completed, false);
+      assertEqual(puzzle.bestTimeSeconds, null);
+    },
+  },
+  {
+    name: "estimateDifficultyFromNodes mappa il conteggio dei nodi in una fascia di difficoltà crescente",
+    fn: () => {
+      assertEqual(estimateDifficultyFromNodes(5), "very-easy");
+      assertEqual(estimateDifficultyFromNodes(29), "very-easy");
+      assertEqual(estimateDifficultyFromNodes(30), "easy");
+      assertEqual(estimateDifficultyFromNodes(149), "easy");
+      assertEqual(estimateDifficultyFromNodes(150), "medium");
+      assertEqual(estimateDifficultyFromNodes(799), "medium");
+      assertEqual(estimateDifficultyFromNodes(800), "hard");
+      assertEqual(estimateDifficultyFromNodes(3999), "hard");
+      assertEqual(estimateDifficultyFromNodes(4000), "expert");
+      assertEqual(estimateDifficultyFromNodes(1000000), "expert");
     },
   },
   {
@@ -258,6 +274,23 @@ export const tests = [
         assert(entry, "la voce deve comparire nell'indice");
         assertEqual(entry.difficulty, "medium");
         assertEqual(entry.completed, true);
+      } finally {
+        store.remove(puzzle.id);
+      }
+    },
+  },
+  {
+    name: "puzzleStore.save() include bestTimeSeconds nella voce d'indice, null se mai risolto",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      store.save(puzzle);
+      try {
+        let entry = store.list().find((p) => p.id === puzzle.id);
+        assertEqual(entry.bestTimeSeconds, null, "un puzzle mai risolto non ha un miglior tempo");
+        puzzle.bestTimeSeconds = 42;
+        store.save(puzzle);
+        entry = store.list().find((p) => p.id === puzzle.id);
+        assertEqual(entry.bestTimeSeconds, 42);
       } finally {
         store.remove(puzzle.id);
       }

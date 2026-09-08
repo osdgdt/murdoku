@@ -1,5 +1,5 @@
 import { el, qs } from "../util/dom.js";
-import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS } from "../model/puzzle.js";
+import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { validateSolution, checkUniqueness } from "../solver/validator.js";
@@ -45,6 +45,7 @@ const undoBtn = qs("#editor-undo-btn");
 const redoBtn = qs("#editor-redo-btn");
 const validateBtn = qs("#validate-btn");
 const uniqueBtn = qs("#unique-btn");
+const estimateBtn = qs("#estimate-btn");
 const statusEl = qs("#status");
 
 // Snapshot-based undo/redo: every mutating sub-editor (mapEditor, characterEditor,
@@ -279,6 +280,31 @@ uniqueBtn.addEventListener("click", () => {
     );
     validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
   }
+});
+
+estimateBtn.addEventListener("click", () => {
+  const report = checkUniqueness(puzzle, {
+    maxSolutions: 2,
+    maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
+  });
+  validationPanel.innerHTML = "";
+  if (report.solutionCount !== 1) {
+    // A stima only means something once the puzzle has exactly one solution
+    // — with zero or several, "how hard was it to find" isn't a meaningful
+    // question yet (fix that first, via Verifica unicità, before estimating).
+    validationPanel.appendChild(
+      el("p", { class: "violation" }, "La stima richiede una soluzione unica: usa prima \"Verifica unicità\".")
+    );
+    return;
+  }
+  const estimate = estimateDifficultyFromNodes(report.nodesVisited);
+  validationPanel.appendChild(
+    el(
+      "p",
+      { class: "ok-message" },
+      `Stima difficoltà: ${difficultyLabel(estimate)} (nodi esplorati dal solver: ${report.nodesVisited}). È solo un'indicazione — il campo "Difficoltà" in alto resta una scelta manuale dell'autore.`
+    )
+  );
 });
 
 render();

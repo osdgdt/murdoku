@@ -35,6 +35,7 @@ export function save(puzzle) {
     updatedAt: puzzle.updatedAt,
     difficulty: puzzle.difficulty || "",
     completed: !!puzzle.completed,
+    bestTimeSeconds: typeof puzzle.bestTimeSeconds === "number" ? puzzle.bestTimeSeconds : null,
   });
   writeIndex(index);
 }

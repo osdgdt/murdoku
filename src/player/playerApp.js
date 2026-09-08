@@ -4,6 +4,7 @@ import { createBoardState, serializeBoardState, deserializeBoardState } from "./
 import { duplicatePuzzle, difficultyLabel, validatePuzzleShape } from "../model/puzzle.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
+import { formatElapsed } from "../util/time.js";
 
 wireThemeToggle();
 
@@ -109,6 +110,7 @@ function showPicker() {
             entry.title,
           ]),
           entry.difficulty ? el("span", { class: `difficulty-badge difficulty-${entry.difficulty}` }, difficultyLabel(entry.difficulty)) : null,
+          typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: "Miglior tempo" }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
           el("span", { class: "meta" }, `Aggiornato il ${updated}`),
         ]),
         el("div", { class: "actions" }, [
@@ -152,11 +154,12 @@ if (!puzzle) {
     puzzle,
     state,
     persistProgress,
-    onSolved: () => {
-      if (!puzzle.completed) {
-        puzzle.completed = true;
-        store.save(puzzle);
+    onSolved: (elapsedSeconds) => {
+      puzzle.completed = true;
+      if (puzzle.bestTimeSeconds == null || elapsedSeconds < puzzle.bestTimeSeconds) {
+        puzzle.bestTimeSeconds = elapsedSeconds;
       }
+      store.save(puzzle);
     },
   });
   screen.start();

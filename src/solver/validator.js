@@ -65,5 +65,6 @@ export function checkUniqueness(puzzle, { maxSolutions = 2, maxNodes = Infinity 
     unique: solutions.length === 1,
     solutions,
     truncated: solutions.length >= maxSolutions || !!stats.nodeCapHit,
+    nodesVisited: stats.nodesVisited,
   };
 }

@@ -185,6 +185,16 @@ export const tests = [
     },
   },
   {
+    name: "checkUniqueness espone nodesVisited, usato dall'editor per la stima di difficoltà",
+    fn: () => {
+      const puzzle = basePuzzle(2, 2);
+      addCharacter(puzzle, "A", "person1");
+      addCharacter(puzzle, "B", "person2");
+      const report = checkUniqueness(puzzle, { maxSolutions: 10 });
+      assert(typeof report.nodesVisited === "number" && report.nodesVisited > 0, "nodesVisited deve essere un numero positivo per una ricerca che ha esplorato lo spazio");
+    },
+  },
+  {
     name: "solvePuzzle non piazza mai personaggi su celle bloccate (mappa a L)",
     fn: () => {
       const puzzle = basePuzzle(3, 3);

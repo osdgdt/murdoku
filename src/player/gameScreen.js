@@ -6,6 +6,7 @@ import { describeClue } from "../model/clueTypes.js";
 import { handleCellClick, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
 import { computeHintChain } from "../solver/hints.js";
+import { formatElapsed } from "../util/time.js";
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
 // hint-chain stepping, and submit-check. player.html and campaign.html's
@@ -41,15 +42,10 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
   let hintChain = [];
   let hintChainIndex = 0;
   let timerInterval = null;
-
-  function formatElapsed(totalSeconds) {
-    const m = Math.floor(totalSeconds / 60);
-    const s = totalSeconds % 60;
-    return `${m}:${String(s).padStart(2, "0")}`;
-  }
+  let startedAt = null; // hoisted out of startTimer so onSubmit can also read it, for the elapsed time passed to onSolved
 
   function startTimer() {
-    const startedAt = Date.now();
+    startedAt = Date.now();
     timerEl.textContent = "⏱ 0:00";
     timerInterval = setInterval(() => {
       timerEl.textContent = `⏱ ${formatElapsed(Math.floor((Date.now() - startedAt) / 1000))}`;
@@ -239,13 +235,31 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
     }
 
     if (correct === total && state.placements.size === total) {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      const previousBest = puzzle.bestTimeSeconds;
       stopTimer();
-      await onSolved();
+      await onSolved(elapsed);
       const murderer = murdererName();
+      // `bestTimeSeconds` only exists on puzzles onSolved actually tracks it
+      // for (single-puzzle play, via playerApp.js) — campaign mode's onSolved
+      // doesn't set it, so this block simply doesn't render there instead of
+      // needing a separate flag.
+      let timeLine = null;
+      if (typeof puzzle.bestTimeSeconds === "number") {
+        const isNewBest = previousBest == null || elapsed <= previousBest;
+        timeLine = el(
+          "div",
+          { class: "time-result" },
+          isNewBest
+            ? `⏱ Tempo: ${formatElapsed(elapsed)} — nuovo record personale!`
+            : `⏱ Tempo: ${formatElapsed(elapsed)} (miglior tempo: ${formatElapsed(puzzle.bestTimeSeconds)})`
+        );
+      }
       resultEl.appendChild(
         el("div", { class: "win-panel result-banner success" }, [
           el("div", {}, "🎉 Caso risolto! Tutti i piazzamenti sono corretti."),
           murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
+          timeLine,
           puzzle.resolutionNote ? el("p", { class: "resolution-note" }, puzzle.resolutionNote) : null,
         ])
       );

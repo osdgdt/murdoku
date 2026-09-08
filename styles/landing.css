@@ -120,6 +120,18 @@
   margin-right: 0.35em;
 }
 
+.best-time-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  margin-right: 0.5em;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-variant-numeric: tabular-nums;
+}
+
 .saved-row {
   display: flex;
   align-items: center;

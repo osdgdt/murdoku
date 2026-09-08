@@ -17,6 +17,22 @@ export function difficultyLabel(value) {
   return DIFFICULTY_LEVELS.find((d) => d.value === value)?.label || DIFFICULTY_LEVELS[0].label;
 }
 
+// Rough, informational-only proxy for the editor's "estimate difficulty"
+// button — never overwrites the author's own manual rating. Nodes visited
+// by the plain backtracking search (see solvePuzzle's `stats.nodesVisited`)
+// isn't a precise measure of how hard a human would find the puzzle (search
+// order affects it independently of clue quality), but a well-clued puzzle
+// prunes dead branches fast while an underconstrained one takes many nodes
+// to pin down, so it's a reasonable at-a-glance signal at zero extra
+// computation cost (the search already runs for "Verifica unicità").
+export function estimateDifficultyFromNodes(nodesVisited) {
+  if (nodesVisited < 30) return "very-easy";
+  if (nodesVisited < 150) return "easy";
+  if (nodesVisited < 800) return "medium";
+  if (nodesVisited < 4000) return "hard";
+  return "expert";
+}
+
 // Distinct, saturated per-character colors (token backgrounds, clue-card
 // accents) — kept separate from the pale ZONE_COLORS palette in mapEditor.js,
 // which needs to stay soft since it fills whole cell backgrounds.
@@ -39,6 +55,7 @@ export function createPuzzle(title = "Nuovo caso") {
     author: "",
     difficulty: "",
     completed: false,
+    bestTimeSeconds: null,
     briefing: "",
     resolutionNote: "",
     createdAt: Date.now(),

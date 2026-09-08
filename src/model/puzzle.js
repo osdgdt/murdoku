@@ -140,10 +140,27 @@ export function placementFor(puzzle, characterId) {
 
 // --- Shape validation -------------------------------------------------
 
+// Same bound the editor's own grid-size inputs already clamp to
+// (src/editor/mapEditor.js) — enforced here too because that clamp is UI-only
+// and never runs on an imported/shared puzzle (editor "Importa", player.html
+// ?import=, campaign editor's "aggiungi caso"). Outside this range,
+// renderBoard (src/util/boardRender.js) builds one real DOM node per cell
+// with no virtualization, so an oversized grid can hang or crash the tab
+// well before the solver ever runs.
+const MIN_GRID_SIZE = 3;
+const MAX_GRID_SIZE = 9;
+
 export function validatePuzzleShape(puzzle) {
   const errors = [];
   if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: ["Il puzzle non è un oggetto valido."] };
-  if (!puzzle.grid || !puzzle.grid.size) errors.push("Manca la griglia.");
+  if (!puzzle.grid || !puzzle.grid.size) {
+    errors.push("Manca la griglia.");
+  } else {
+    const { rows, cols } = puzzle.grid.size;
+    if (!(rows >= MIN_GRID_SIZE && rows <= MAX_GRID_SIZE) || !(cols >= MIN_GRID_SIZE && cols <= MAX_GRID_SIZE)) {
+      errors.push(`Le dimensioni della griglia devono essere comprese tra ${MIN_GRID_SIZE} e ${MAX_GRID_SIZE} (trovato ${rows}×${cols}).`);
+    }
+  }
   if (!Array.isArray(puzzle.characters)) errors.push("Manca l'elenco personaggi.");
   if (!Array.isArray(puzzle.clues)) errors.push("Manca l'elenco indizi.");
   if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push("Manca la soluzione.");
@@ -158,6 +175,19 @@ export function validatePuzzleShape(puzzle) {
     }
     if (puzzle.characters.length > 0 && victims !== 1) {
       errors.push(`Deve esserci esattamente una vittima (trovate: ${victims}).`);
+    }
+    // Mirrors solvePuzzle's own guard (src/solver/solver.js) — one character
+    // per row AND per column means more characters than rows/cols can never
+    // have a valid solution. Also closes a real bug: board.js's note-mode
+    // candidate grid has exactly 9 fixed slots and silently drops any
+    // character past the 9th with no warning, so this keeps that invariant
+    // true at the validation boundary instead of relying on the editor's
+    // own 3-9 UI clamp (which never runs on an imported puzzle).
+    if (puzzle.grid?.size) {
+      const { rows, cols } = puzzle.grid.size;
+      if (puzzle.characters.length > rows || puzzle.characters.length > cols) {
+        errors.push(`Troppi personaggi (${puzzle.characters.length}) per una griglia ${rows}×${cols}: al massimo uno per riga e uno per colonna.`);
+      }
     }
   }
 

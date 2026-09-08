@@ -44,6 +44,27 @@ export const tests = [
     },
   },
   {
+    name: "una griglia fuori dai limiti 3-9 viene rifiutata",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      puzzle.grid = resizeGrid(puzzle.grid, 12, 12);
+      const { valid, errors } = validatePuzzleShape(puzzle);
+      assert(!valid, "atteso non valido");
+      assert(errors.some((e) => e.includes("dimensioni della griglia")), "errore atteso sulle dimensioni della griglia");
+    },
+  },
+  {
+    name: "più personaggi delle righe/colonne disponibili vengono rifiutati (nessuna soluzione può esistere)",
+    fn: () => {
+      const puzzle = buildValidPuzzle(); // griglia 3x3
+      addCharacter(puzzle, "Carla", "person1");
+      addCharacter(puzzle, "Dario", "person2"); // 4 personaggi, griglia 3x3
+      const { valid, errors } = validatePuzzleShape(puzzle);
+      assert(!valid, "atteso non valido");
+      assert(errors.some((e) => e.includes("Troppi personaggi")), "errore atteso sul numero di personaggi");
+    },
+  },
+  {
     name: "piazzamento fuori dai limiti della griglia viene rifiutato",
     fn: () => {
       const puzzle = buildValidPuzzle();

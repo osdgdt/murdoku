@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editor campagne — Murdoku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="stylesheet" href="styles/editor.css" />
+  <script>
+    try {
+      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">🔎 Murdoku</a>
+    <h2 style="margin:0">Editor campagne</h2>
+    <div class="topbar-right" id="auth-bar" style="display:flex;align-items:center;gap:0.6rem">
+      <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+    </div>
+  </div>
+
+  <div id="gate" class="hero"></div>
+
+  <div id="app" class="hidden" style="max-width:900px;margin:1.5rem auto;padding:0 1.5rem">
+    <div id="list-view">
+      <div class="saved-list-header">
+        <h2>Le tue campagne</h2>
+        <button id="new-campaign-btn" class="primary">+ Nuova campagna</button>
+      </div>
+      <div class="panel"><div id="campaign-list"></div></div>
+    </div>
+
+    <div id="detail-view" class="hidden">
+      <p><a href="campaign-editor.html">← Tutte le campagne</a></p>
+      <div class="panel">
+        <div class="field-row">
+          <label for="campaign-title">Titolo</label>
+          <input id="campaign-title" type="text" placeholder="Titolo della campagna" style="flex:1" />
+        </div>
+        <div class="field-row">
+          <label for="campaign-description">Descrizione</label>
+          <textarea id="campaign-description" rows="2" placeholder="Di cosa parla questa campagna" style="flex:1"></textarea>
+        </div>
+        <p id="detail-status" class="muted"></p>
+      </div>
+
+      <div class="panel" style="margin-top:1rem">
+        <h3>Casi (in ordine)</h3>
+        <div id="case-list"></div>
+        <div class="field-row" style="margin-top:0.8rem">
+          <label for="add-case-url">Nuovo caso</label>
+          <input id="add-case-url" type="text" placeholder="URL del file .murdoku.json (es. regalo_leo.murdoku.json)" style="flex:1" />
+          <button id="add-case-btn">Aggiungi</button>
+        </div>
+        <p id="add-case-status" class="muted"></p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="src/campaign/campaignEditorApp.js"></script>
+</body>
+</html>

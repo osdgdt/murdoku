@@ -21,8 +21,9 @@
     import { tests as playerTests } from "./test-player.js";
     import { tests as hintTests } from "./test-hints.js";
     import { tests as propagationTests } from "./test-propagation.js";
+    import { tests as campaignTests } from "./test-campaign.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

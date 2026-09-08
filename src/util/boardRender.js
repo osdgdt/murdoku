@@ -20,10 +20,47 @@ let dragActive = false;
 // silently appears to do nothing. Suppressing onCellEnter for this one cell
 // closes that gap; it's already been handled via onCellDown regardless.
 let dragDownCell = null;
+// The last cell a touch-drag reported via onCellEnter — touchmove, unlike
+// mouseenter, isn't inherently a per-element event (it keeps firing on
+// whatever element the touch *started* on, not whatever's currently
+// underneath the finger), so this is what makes repeated touchmove events
+// over the same still-under-the-finger cell a no-op instead of calling
+// onCellEnter on every single event.
+let lastTouchCell = null;
+// Which render's onCellEnter a touch-drag should call — touchmove is
+// handled by ONE document-level listener (registered once below, not
+// per-cell like mouseenter can be, since it needs `elementFromPoint` to
+// find the actual cell under the finger), so it needs this module-level
+// pointer to know which board is currently interactive, refreshed on every
+// renderBoard() call under the same "only one board interactive at a time"
+// assumption `dragActive` itself already relies on.
+let currentOnCellEnter = null;
 if (typeof document !== "undefined") {
-  const stopDrag = () => { dragActive = false; dragDownCell = null; };
+  const stopDrag = () => { dragActive = false; dragDownCell = null; lastTouchCell = null; };
   document.addEventListener("mouseup", stopDrag);
   document.addEventListener("dragend", stopDrag);
+  document.addEventListener("touchend", stopDrag);
+  document.addEventListener("touchcancel", stopDrag);
+  document.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!dragActive || !currentOnCellEnter) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const targetCell = document.elementFromPoint(touch.clientX, touch.clientY)?.closest(".board-cell");
+      if (!targetCell) return;
+      e.preventDefault(); // dragging across the board must never also scroll the page
+      const tRow = Number(targetCell.dataset.row);
+      const tCol = Number(targetCell.dataset.col);
+      if (lastTouchCell && lastTouchCell.row === tRow && lastTouchCell.col === tCol) return;
+      lastTouchCell = { row: tRow, col: tCol };
+      // Same phantom-re-entry guard as onMouseenter above: the cell that
+      // received the initial touchstart already got onCellDown.
+      if (dragDownCell && dragDownCell.row === tRow && dragDownCell.col === tCol) return;
+      currentOnCellEnter(tRow, tCol);
+    },
+    { passive: false }
+  );
 }
 
 // Shared board rendering: draws the grid with zone background colors/textures,
@@ -42,6 +79,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   clear(container);
   container.classList.add("board-grid");
   container.setAttribute("role", "grid");
+  currentOnCellEnter = onCellEnter || null; // see the module-level comment on this variable
 
   // Enter/Space on a focused cell replicates a single click: `onCellClick`
   // for the editor boards, or just `onCellDown` for the player board (its
@@ -147,8 +185,11 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         style: zone ? `background-color:${zone.color}` : "",
         role: "gridcell",
         "aria-label": cellLabel,
-        // Blocked cells get no tabindex at all (never focusable) — they
-        // have no click handler either, matching existing mouse behavior.
+        // Blocked cells still get onClick/onMousedown wired below (callers
+        // like handleCellClick already reject them via isOccupiable), but
+        // are deliberately left out of the tab order — a "wall" cell has
+        // nothing useful to land keyboard focus on, and skipping it here is
+        // simpler than adding tab-order logic that jumps over it.
         tabindex: cellData.blocked ? undefined : "0",
         onClick: () => onCellClick && onCellClick(r, c),
         onContextmenu: (e) => {
@@ -183,6 +224,25 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           onCellEnter(r, c);
         },
       });
+
+      // Touch equivalent of onMousedown above. Attached directly (not
+      // through el()'s props, which always adds listeners as passive) so
+      // `{ passive: false }` can actually take effect — needed so
+      // preventDefault() here can stop the touch from also scrolling/
+      // selecting the page, matching attachHoldToConfirm's existing pattern
+      // (src/util/dom.js) for the same reason. touchmove itself is handled
+      // by the single document-level listener registered above, not here.
+      cellNode.addEventListener(
+        "touchstart",
+        (e) => {
+          e.preventDefault();
+          dragActive = true;
+          dragDownCell = { row: r, col: c };
+          lastTouchCell = { row: r, col: c };
+          if (onCellDown) onCellDown(r, c);
+        },
+        { passive: false }
+      );
 
       if (cellData.blocked) {
         container.appendChild(cellNode);

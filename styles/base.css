@@ -164,6 +164,7 @@ input::placeholder { color: var(--ink-faint); }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 1rem;
   padding: 0.85rem 1.5rem;
   background: linear-gradient(180deg, var(--panel), var(--panel-alt));

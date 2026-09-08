@@ -42,6 +42,7 @@
 .editor-toolstrip {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1.25rem;
   padding: 0.6rem 1.5rem;
   background: var(--panel-alt);
@@ -79,6 +80,16 @@
   align-items: start;
 }
 
+/* Stack into one column below the three fixed-ish tracks' natural minimum
+   (270+380px of side panels alone already exceeds a phone viewport) instead
+   of forcing the whole page to scroll horizontally. Tier-1 responsive fix
+   only — cell/touch-target sizing itself is unchanged, see README. */
+@media (max-width: 860px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .editor-layout h3 {
   margin-top: 1.1rem;
   padding-top: 1.1rem;
@@ -98,6 +109,26 @@
   /* Reserved room for room-name labels, which hang off the left of the row
      gutter (outside the grid entirely) instead of sitting on any cell. */
   margin-left: 120px;
+}
+
+/* #board (editor.html/player.html/campaign.html) is the exact element
+   .board-grid's class lands on — a direct grid item of .player-layout on
+   the player/campaign screens, but sitting in normal block flow inside its
+   own unnamed wrapper div on the editor screen (verified by testing both,
+   not just assumed). Both `min-width: 0` (the standard fix for a grid
+   item's default `auto` minimum refusing to shrink below its content) and
+   `max-width: 100%` (which is what actually constrains #board itself,
+   independent of whether it's a grid item, against .board-grid's own
+   `width: fit-content` wanting to grow past its container) are needed to
+   cover both structures with one rule. Always on, not just under a
+   breakpoint: harmless on a wide screen (no scrollbar appears unless the
+   board genuinely doesn't fit), and it's what keeps a large grid from
+   blowing out the page on a narrow one instead of a bigger, more invasive
+   layout change. */
+#board {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .board-label {

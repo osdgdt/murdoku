@@ -30,6 +30,15 @@
   align-items: start;
 }
 
+/* Same Tier-1 responsive fix as .editor-layout (styles/editor.css) — stack
+   instead of forcing the page to scroll horizontally. Applies to
+   campaign.html's game screen too, which reuses this exact class. */
+@media (max-width: 860px) {
+  .player-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .player-toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.85rem; flex-wrap: wrap; }
 .player-toolbar .char-chip {
   display: flex; align-items: center; gap: 0.35rem;

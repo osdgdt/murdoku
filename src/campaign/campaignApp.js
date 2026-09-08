@@ -1,13 +1,9 @@
-import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
+import { el, clear, qs } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
-import { characterIcon } from "../model/icons.js";
-import { zoneOfCell } from "../model/grid.js";
-import { validatePuzzleShape, characterColor } from "../model/puzzle.js";
-import { describeClue } from "../model/clueTypes.js";
-import { createBoardState, handleCellClick, handleCellDrag, undo, clearAll, renderPlayerBoard, serializeBoardState, deserializeBoardState } from "../player/board.js";
-import { renderClueCards } from "../player/clueCards.js";
-import { computeHintChain } from "../solver/hints.js";
+import { validatePuzzleShape } from "../model/puzzle.js";
+import { createBoardState, serializeBoardState, deserializeBoardState } from "../player/board.js";
+import { createGameScreen } from "../player/gameScreen.js";
 import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
 
@@ -36,18 +32,6 @@ const gameEl = qs("#game");
 const backToCasesLink = qs("#back-to-cases-link");
 const caseErrorPanel = qs("#case-error-panel");
 const gameContentEl = qs("#game-content");
-const toolbarEl = qs("#player-toolbar");
-const boardEl = qs("#board");
-const cluesEl = qs("#clues-panel");
-const briefingEl = qs("#briefing-panel");
-const resultEl = qs("#result-panel");
-const notesBtn = qs("#notes-btn");
-const notesHint = qs("#notes-hint");
-const undoBtn = qs("#undo-btn");
-const clearBtn = qs("#clear-btn");
-const hintBtn = qs("#hint-btn");
-const hintPanel = qs("#hint-panel");
-const submitBtn = qs("#submit-btn");
 
 let currentUserState = null;
 let campaign = null;
@@ -56,10 +40,6 @@ let currentCase = null;
 let currentCaseIndex = -1;
 let puzzle = null;
 let state = createBoardState();
-let hintHighlight = null;
-let hintChain = [];
-let hintChainIndex = 0;
-let timerInterval = null;
 
 // Groups board-state saves a few seconds apart instead of on every single
 // placement/note (reduces Firestore writes against the shared daily quota).
@@ -215,213 +195,6 @@ async function showCaseListView(campaignId) {
   });
 }
 
-// --- Gameplay (mirrors src/player/playerApp.js's game screen; kept as a
-// deliberately separate, duplicated orchestration rather than sharing code
-// with playerApp.js, so the localStorage-backed single-puzzle flow there
-// stays byte-for-byte untouched by anything campaign-related.) ---
-
-function formatElapsed(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-function startTimer() {
-  const startedAt = Date.now();
-  timerEl.textContent = "⏱ 0:00";
-  timerInterval = setInterval(() => {
-    timerEl.textContent = `⏱ ${formatElapsed(Math.floor((Date.now() - startedAt) / 1000))}`;
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-}
-
-function selectTool(tool) {
-  state.selectedTool = tool;
-  renderToolbar();
-  renderBoardAndClues();
-}
-
-function renderToolbar() {
-  clear(toolbarEl);
-  for (const character of puzzle.characters) {
-    const placed = state.placements.has(character.id);
-    const chip = el("div", {
-      class: "char-chip" + (state.selectedTool?.kind === "character" && state.selectedTool.id === character.id ? " selected" : "") + (placed ? " used" : ""),
-      onClick: () => selectTool({ kind: "character", id: character.id }),
-    });
-    const iconWrap = el("span", { style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}` });
-    iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
-    chip.appendChild(iconWrap);
-    if (!character.isVictim) chip.style.borderLeft = `3px solid ${characterColor(character)}`;
-    chip.appendChild(document.createTextNode(character.name + (character.isVictim ? " (V)" : "")));
-    toolbarEl.appendChild(chip);
-  }
-  toolbarEl.appendChild(el("div", { class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""), onClick: () => selectTool({ kind: "x" }) }, "✕ Segna"));
-  toolbarEl.appendChild(el("div", { class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""), onClick: () => selectTool({ kind: "erase" }) }, "🧹 Gomma"));
-}
-
-function updateNotesUI() {
-  notesBtn.classList.toggle("primary", state.notesMode);
-  notesHint.textContent = state.notesMode
-    ? "Modalità note attiva: seleziona un personaggio e clicca una cella per segnarlo come candidato in quella casella (notazione a griglia 3x3, come le matite del sudoku)."
-    : "Modalità piazzamento: seleziona un personaggio e clicca una cella per confermarlo.";
-}
-
-function applyHintHighlight() {
-  boardEl.classList.toggle("hint-active", !!hintHighlight);
-  if (!hintHighlight) return;
-  for (const { row, col, cls } of hintHighlight.cells) {
-    const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-    if (node) node.classList.add(cls);
-  }
-}
-
-function clearHint() {
-  hintHighlight = null;
-  hintChain = [];
-  hintChainIndex = 0;
-  clear(hintPanel);
-}
-
-function renderBoardAndClues() {
-  renderPlayerBoard(
-    boardEl, puzzle, state,
-    (row, col) => {
-      clearHint();
-      handleCellClick(state, puzzle.grid, row, col);
-      persistProgress();
-      renderToolbar();
-      renderBoardAndClues();
-    },
-    (row, col) => {
-      handleCellDrag(state, puzzle.grid, row, col);
-      persistProgress();
-      renderBoardAndClues();
-    }
-  );
-  applyHintHighlight();
-  renderClueCards(cluesEl, puzzle, state);
-}
-
-function murdererName() {
-  const victim = puzzle.characters.find((c) => c.isVictim);
-  if (!victim) return null;
-  const vPlacement = puzzle.solution.placements.find((p) => p.characterId === victim.id);
-  if (!vPlacement) return null;
-  const vZone = zoneOfCell(puzzle.grid, vPlacement.row, vPlacement.col);
-  if (vZone === null) return null;
-  const sameZoneChars = puzzle.solution.placements.filter((p) => p.characterId !== victim.id && zoneOfCell(puzzle.grid, p.row, p.col) === vZone);
-  if (sameZoneChars.length !== 1) return null;
-  const murderer = puzzle.characters.find((c) => c.id === sameZoneChars[0].characterId);
-  return murderer ? murderer.name : null;
-}
-
-function renderHintExplanation(result) {
-  if (result.type === "contradiction" && result.cause === "clue") {
-    return el("div", { class: "hint-explain" }, [
-      el("div", { class: "hint-explain-label" }, "Indizio in conflitto:"),
-      el("ul", { class: "hint-clue-list" }, result.clueIds.map((id) => {
-        const clue = puzzle.clues.find((c) => c.id === id);
-        if (!clue) return null;
-        const owner = clue.characterId && puzzle.characters.find((c) => c.id === clue.characterId);
-        return el("li", {}, (owner ? owner.name + ": " : "") + describeClue(clue, puzzle));
-      })),
-    ]);
-  }
-  if (result.type !== "forcedPlacement" && result.type !== "eliminatedCell") return null;
-  if (result.jointlyDetermined) {
-    return el("div", { class: "hint-explain" }, el("p", { class: "hint-explain-note" }, "Questa deduzione dipende dalla combinazione di più indizi insieme."));
-  }
-  const blocks = [];
-  if (result.involvedClues?.length) {
-    blocks.push(el("div", { class: "hint-explain-label" }, "Perché:"));
-    blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedClues.map((c) => el("li", {}, (c.ownerName ? c.ownerName + ": " : "") + c.description))));
-  }
-  if (result.involvedGroups?.length) {
-    blocks.push(el("div", { class: "hint-explain-label" }, "Interazione tra personaggi:"));
-    blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedGroups.map((g) =>
-      el("li", {}, `${g.characterNames.join(" e ")} possono stare solo in ${g.cellLabels.join(" o ")}: nessun altro personaggio può occupare quelle celle.`)
-    )));
-  }
-  if (blocks.length === 0) return null;
-  return el("div", { class: "hint-explain" }, blocks);
-}
-
-function showHintStep() {
-  const result = hintChain[hintChainIndex];
-  hintHighlight = null;
-
-  if (result.type === "forcedPlacement") {
-    hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-target" }] };
-    state.selectedTool = { kind: "character", id: result.characterId };
-  } else if (result.type === "eliminatedCell") {
-    hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-info" }] };
-  } else if (result.type === "contradiction" && result.culprits.length > 0) {
-    hintHighlight = {
-      cells: result.culprits.map((id) => state.placements.get(id)).filter(Boolean).map((pos) => ({ row: pos.row, col: pos.col, cls: "hint-culprit" })),
-    };
-    if (result.culprits.length === 1) state.selectedTool = { kind: "erase" };
-  }
-
-  clear(hintPanel);
-  hintPanel.appendChild(el("div", { class: `result-banner hint-${result.variant}` }, result.message));
-  const explanation = renderHintExplanation(result);
-  if (explanation) hintPanel.appendChild(explanation);
-  if (hintChain.length > 1) {
-    hintPanel.appendChild(
-      el("div", { class: "hint-nav" }, [
-        el("button", { onClick: () => { hintChainIndex--; showHintStep(); }, disabled: hintChainIndex === 0 || undefined }, "‹"),
-        el("span", {}, `Passo ${hintChainIndex + 1} di ${hintChain.length}`),
-        el("button", { onClick: () => { hintChainIndex++; showHintStep(); }, disabled: hintChainIndex === hintChain.length - 1 || undefined }, "›"),
-      ])
-    );
-  }
-  renderToolbar();
-  renderBoardAndClues();
-}
-
-function onHint() {
-  hintChain = computeHintChain(puzzle, state.placements, state.candidates);
-  hintChainIndex = 0;
-  showHintStep();
-}
-
-async function onSubmit() {
-  clear(resultEl);
-  const total = puzzle.characters.length;
-  let correct = 0;
-  for (const p of puzzle.solution.placements) {
-    const placed = state.placements.get(p.characterId);
-    if (placed && placed.row === p.row && placed.col === p.col) correct++;
-  }
-
-  if (correct === total && state.placements.size === total) {
-    stopTimer();
-    boardSaver.flush();
-    try {
-      await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex);
-    } catch (err) {
-      console.error("Impossibile registrare il completamento del caso:", err);
-    }
-    const murderer = murdererName();
-    resultEl.appendChild(
-      el("div", { class: "win-panel result-banner success" }, [
-        el("div", {}, "🎉 Caso risolto! Tutti i piazzamenti sono corretti."),
-        murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
-        puzzle.resolutionNote ? el("p", { class: "resolution-note" }, puzzle.resolutionNote) : null,
-      ])
-    );
-  } else {
-    resultEl.appendChild(el("div", { class: "result-banner partial" }, "Non è ancora tutto corretto. Continua a dedurre dagli indizi."));
-  }
-}
-
 async function showGameView(campaignId, caseId) {
   showView("game");
   gameContentEl.classList.add("hidden");
@@ -479,50 +252,20 @@ async function showGameView(campaignId, caseId) {
   state = deserializeBoardState(progressStore.boardStateFromProgress(progress, currentCase.id));
   gameContentEl.classList.remove("hidden");
 
-  renderToolbar();
-  renderBoardAndClues();
-  updateNotesUI();
-  startTimer();
-  clear(briefingEl);
-  briefingEl.classList.toggle("hidden", !puzzle.briefing);
-  if (puzzle.briefing) {
-    briefingEl.appendChild(el("h3", {}, "Il caso"));
-    briefingEl.appendChild(el("p", {}, puzzle.briefing));
-  }
-  clear(resultEl);
-  wireGameControlsOnce();
-}
-
-// Wired only once a puzzle has actually loaded (mirrors playerApp.js's
-// `if (!puzzle) {...} else { ...wire listeners... }` guard) rather than
-// unconditionally at module load — `#game`'s controls are hidden until then,
-// but this avoids any listener ever touching a still-null `puzzle`/`state`.
-let gameControlsWired = false;
-function wireGameControlsOnce() {
-  if (gameControlsWired) return;
-  gameControlsWired = true;
-  notesBtn.addEventListener("click", () => {
-    state.notesMode = !state.notesMode;
-    persistProgress();
-    updateNotesUI();
+  const screen = createGameScreen({
+    puzzle,
+    state,
+    persistProgress,
+    onSolved: async () => {
+      boardSaver.flush();
+      try {
+        await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex);
+      } catch (err) {
+        console.error("Impossibile registrare il completamento del caso:", err);
+      }
+    },
   });
-  undoBtn.addEventListener("click", () => {
-    clearHint();
-    undo(state);
-    persistProgress();
-    renderToolbar();
-    renderBoardAndClues();
-  });
-  attachHoldToConfirm(clearBtn, 700, () => {
-    clearHint();
-    clearAll(state);
-    persistProgress();
-    renderToolbar();
-    renderBoardAndClues();
-    clear(resultEl);
-  });
-  hintBtn.addEventListener("click", onHint);
-  submitBtn.addEventListener("click", onSubmit);
+  screen.start();
 }
 
 onAuthChange((user) => {

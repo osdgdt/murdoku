@@ -1,8 +1,9 @@
 import { el, qs } from "../util/dom.js";
-import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes } from "../model/puzzle.js";
+import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { validateSolution, checkUniqueness } from "../solver/validator.js";
+import { deriveSolution } from "../solver/deriveSolution.js";
 import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
@@ -46,6 +47,7 @@ const redoBtn = qs("#editor-redo-btn");
 const validateBtn = qs("#validate-btn");
 const uniqueBtn = qs("#unique-btn");
 const estimateBtn = qs("#estimate-btn");
+const calcSolutionBtn = qs("#calc-solution-btn");
 const statusEl = qs("#status");
 
 // Snapshot-based undo/redo: every mutating sub-editor (mapEditor, characterEditor,
@@ -305,6 +307,37 @@ estimateBtn.addEventListener("click", () => {
       `Stima difficoltà: ${difficultyLabel(estimate)} (nodi esplorati dal solver: ${report.nodesVisited}). È solo un'indicazione — il campo "Difficoltà" in alto resta una scelta manuale dell'autore.`
     )
   );
+});
+
+calcSolutionBtn.addEventListener("click", () => {
+  const hasExistingSolution = puzzle.solution.placements.length > 0;
+  // Confirm only when this would replace a declared solution that ISN'T
+  // already valid (partial or wrong, likely still being placed by hand) —
+  // if it's already valid, recomputing is provably harmless: either the
+  // puzzle is genuinely unique (deriveSolution reproduces the same values)
+  // or it isn't (in which case nothing gets overwritten below anyway).
+  if (hasExistingSolution && !validateSolution(puzzle).valid) {
+    const ok = confirm('Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?');
+    if (!ok) return;
+  }
+
+  validationPanel.innerHTML = "";
+  const result = deriveSolution(puzzle);
+
+  if (result.status === "unique") {
+    for (const character of puzzle.characters) {
+      const p = result.placements.find((pl) => pl.characterId === character.id);
+      setSolutionPlacement(puzzle, character.id, p ? p.row : null, p ? p.col : null);
+    }
+    handleChange(); // one combined undo step for the whole auto-fill
+    validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi."));
+  } else if (result.status === "unsatisfiable") {
+    validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata."));
+  } else if (result.status === "ambiguous") {
+    validationPanel.appendChild(el("p", { class: "violation" }, "Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata."));
+  } else {
+    validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."));
+  }
 });
 
 render();

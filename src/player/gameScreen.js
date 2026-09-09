@@ -6,7 +6,16 @@ import { describeClue } from "../model/clueTypes.js";
 import { handleCellClick, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
 import { computeHintChain } from "../solver/hints.js";
+import { validateSolution } from "../solver/validator.js";
+import { deriveSolution } from "../solver/deriveSolution.js";
 import { formatElapsed } from "../util/time.js";
+
+const SOLUTION_UNSATISFIABLE_MSG =
+  "Gli indizi di questo caso non ammettono nessuna soluzione: il caso non può essere risolto così com'è. Se sei l'autore, correggilo nell'editor.";
+const SOLUTION_AMBIGUOUS_MSG =
+  "Gli indizi di questo caso ammettono più soluzioni diverse: non è possibile stabilire con certezza quale sia quella corretta. Se sei l'autore, usa \"Verifica unicità\" nell'editor per individuare l'ambiguità.";
+const SOLUTION_INCONCLUSIVE_MSG =
+  "Non riesco a stabilire con certezza la soluzione di questo caso: gli indizi lasciano lo spazio di ricerca troppo ampio anche per un'analisi approfondita. Se sei l'autore, aggiungi indizi più stringenti.";
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
 // hint-chain stepping, and submit-check. player.html and campaign.html's
@@ -43,6 +52,26 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
   let hintChainIndex = 0;
   let timerInterval = null;
   let startedAt = null; // hoisted out of startTimer so onSubmit can also read it, for the elapsed time passed to onSolved
+  let effectiveSolutionCache = null; // memoized: { status, placements } — see getEffectiveSolution()
+
+  // The answer key used for win-checking, the murderer reveal, and the
+  // hint system's last-resort fallback. A declared solution that already
+  // passes validateSolution() (row/col-distinct, satisfies every clue) is a
+  // genuine proof — trusting it costs nothing and changes nothing. Anything
+  // else (missing, incomplete, or actually wrong) falls back to deriving a
+  // solution straight from the clues (deriveSolution, never from
+  // puzzle.solution.placements) — so a bad declared solution is never
+  // silently trusted. Computed lazily (only when onSubmit/onHint first need
+  // it, not at start()) and memoized: the common case (a valid declared
+  // solution) costs nothing regardless, and the expensive fallback search
+  // only ever runs once per puzzle load even if it's needed.
+  function getEffectiveSolution() {
+    if (effectiveSolutionCache) return effectiveSolutionCache;
+    effectiveSolutionCache = validateSolution(puzzle).valid
+      ? { status: "unique", placements: puzzle.solution.placements }
+      : deriveSolution(puzzle);
+    return effectiveSolutionCache;
+  }
 
   function startTimer() {
     startedAt = Date.now();
@@ -134,13 +163,15 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
   }
 
   function murdererName() {
+    const effective = getEffectiveSolution();
+    if (effective.status !== "unique") return null;
     const victim = puzzle.characters.find((c) => c.isVictim);
     if (!victim) return null;
-    const vPlacement = puzzle.solution.placements.find((p) => p.characterId === victim.id);
+    const vPlacement = effective.placements.find((p) => p.characterId === victim.id);
     if (!vPlacement) return null;
     const vZone = zoneOfCell(puzzle.grid, vPlacement.row, vPlacement.col);
     if (vZone === null) return null;
-    const sameZoneChars = puzzle.solution.placements.filter((p) => p.characterId !== victim.id && zoneOfCell(puzzle.grid, p.row, p.col) === vZone);
+    const sameZoneChars = effective.placements.filter((p) => p.characterId !== victim.id && zoneOfCell(puzzle.grid, p.row, p.col) === vZone);
     if (sameZoneChars.length !== 1) return null;
     const murderer = puzzle.characters.find((c) => c.id === sameZoneChars[0].characterId);
     return murderer ? murderer.name : null;
@@ -165,6 +196,13 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
       ]);
     }
     if (result.type !== "forcedPlacement" && result.type !== "eliminatedCell") return null;
+    if (result.viaDerivedSolution) {
+      return el(
+        "div",
+        { class: "hint-explain" },
+        el("p", { class: "hint-explain-note" }, "Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso.")
+      );
+    }
     if (result.jointlyDetermined) {
       return el("div", { class: "hint-explain" }, el("p", { class: "hint-explain-note" }, "Questa deduzione dipende dalla combinazione di più indizi insieme."));
     }
@@ -219,17 +257,74 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
     renderBoardAndClues();
   }
 
+  // Extends a freshly-computed hint chain with exactly ONE additional
+  // oracle-backed placement — never the rest of the solution at once — when
+  // pure logical deduction (computeHintChain) hit a genuine "too complex"
+  // wall but a deeper, one-time brute-force pass has ALSO established the
+  // puzzle's unique solution. Mutates `chain` in place.
+  //
+  // Soundness: if computeHintChain didn't report a contradiction, the
+  // player's current placements are consistent with the clues; if the
+  // puzzle's clues admit only ONE full solution, any clue-consistent
+  // assignment that can still be completed at all must be a subset of that
+  // one true solution — so the revealed placement can never conflict with
+  // anything the player (or an earlier step in this same chain) already
+  // confirmed.
+  function extendChainWithOracleStep(chain) {
+    const last = chain[chain.length - 1];
+    if (!last || last.type !== "tooComplex") return; // only extend the honest "stuck" case
+    const effective = getEffectiveSolution();
+    if (effective.status !== "unique") return; // never reveal a guess, only a proven answer
+
+    const confirmed = new Map(state.placements);
+    for (const step of chain) {
+      if (step.type === "forcedPlacement") confirmed.set(step.characterId, { row: step.row, col: step.col });
+    }
+    // Deterministic, stable choice: first still-unplaced character in
+    // puzzle.characters order — simple and reproducible across repeated
+    // clicks on the same board state.
+    const next = puzzle.characters.find((c) => !confirmed.has(c.id));
+    if (!next) return; // defensive: shouldn't happen if the chain genuinely stopped early
+    const target = effective.placements.find((p) => p.characterId === next.id);
+    if (!target) return; // defensive
+
+    const zoneId = zoneOfCell(puzzle.grid, target.row, target.col);
+    const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
+    const where = zone ? ` (nella zona "${zone.name}")` : "";
+    chain.push({
+      type: "forcedPlacement",
+      variant: "success",
+      characterId: next.id,
+      row: target.row,
+      col: target.col,
+      viaDerivedSolution: true,
+      message: `${next.name} deve trovarsi nella cella evidenziata${where}: lo rivela un'analisi completa del caso, non uno specifico indizio.`,
+    });
+  }
+
   function onHint() {
     hintChain = computeHintChain(puzzle, state.placements, state.candidates);
+    extendChainWithOracleStep(hintChain);
     hintChainIndex = 0;
     showHintStep();
   }
 
   async function onSubmit() {
     clear(resultEl);
+    const effective = getEffectiveSolution();
+    if (effective.status !== "unique") {
+      const message =
+        effective.status === "unsatisfiable" ? SOLUTION_UNSATISFIABLE_MSG :
+        effective.status === "ambiguous" ? SOLUTION_AMBIGUOUS_MSG :
+        SOLUTION_INCONCLUSIVE_MSG;
+      const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
+      resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
+      return;
+    }
+
     const total = puzzle.characters.length;
     let correct = 0;
-    for (const p of puzzle.solution.placements) {
+    for (const p of effective.placements) {
       const placed = state.placements.get(p.characterId);
       if (placed && placed.row === p.row && placed.col === p.col) correct++;
     }

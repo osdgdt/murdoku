@@ -195,6 +195,43 @@ export const tests = [
     },
   },
   {
+    name: "checkUniqueness: omettere forwardCheck equivale esplicitamente a forwardCheck:false (nessun cambiamento di comportamento di default)",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const zone = addZone(puzzle.grid, "StanzaCondivisa", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      paintCellZone(puzzle.grid, 0, 1, zone.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zone.id });
+      addClue(puzzle, b.id, "inRoom", { zoneId: zone.id });
+
+      const withoutOption = checkUniqueness(puzzle, { maxSolutions: 10 });
+      const explicitFalse = checkUniqueness(puzzle, { maxSolutions: 10, forwardCheck: false });
+      assertEqual(withoutOption.nodesVisited, explicitFalse.nodesVisited, "il calibrato di Stima difficoltà dipende da questo comportamento di default rimasto invariato");
+      assertEqual(withoutOption.solutionCount, explicitFalse.solutionCount);
+    },
+  },
+  {
+    name: "checkUniqueness: forwardCheck:true (opt-in) visita meno nodi del default su un ramo strutturalmente morto",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const zone = addZone(puzzle.grid, "StanzaCondivisa", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      paintCellZone(puzzle.grid, 0, 1, zone.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zone.id });
+      addClue(puzzle, b.id, "inRoom", { zoneId: zone.id });
+
+      const withoutFC = checkUniqueness(puzzle, { maxSolutions: 10 });
+      const withFC = checkUniqueness(puzzle, { maxSolutions: 10, forwardCheck: true });
+      assertEqual(withoutFC.solutionCount, 0);
+      assertEqual(withFC.solutionCount, 0);
+      assert(withFC.nodesVisited < withoutFC.nodesVisited, `forwardCheck:true doveva visitare meno nodi (${withFC.nodesVisited} vs ${withoutFC.nodesVisited})`);
+    },
+  },
+  {
     name: "solvePuzzle non piazza mai personaggi su celle bloccate (mappa a L)",
     fn: () => {
       const puzzle = basePuzzle(3, 3);

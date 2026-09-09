@@ -23,8 +23,9 @@
     import { tests as propagationTests } from "./test-propagation.js";
     import { tests as campaignTests } from "./test-campaign.js";
     import { tests as geometryTests } from "./test-geometry.js";
+    import { tests as deriveSolutionTests } from "./test-derive-solution.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

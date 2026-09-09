@@ -57,9 +57,15 @@ export function validateSolution(puzzle) {
 // higher `maxSolutions`. `truncated` tells them honestly whether `solutions`
 // is the complete set or just however many were found before hitting a cap —
 // never claim "these are all of them" when a cap, not exhaustion, ended the search.
-export function checkUniqueness(puzzle, { maxSolutions = 2, maxNodes = Infinity } = {}) {
+// `forwardCheck` is an opt-in pass-through too (default false, matching
+// solvePuzzle's own default) — existing callers (editorApp.js's "Verifica
+// unicità"/"Stima difficoltà" buttons, and every existing test) don't pass it
+// and see byte-identical behavior; src/solver/deriveSolution.js is the first
+// caller to opt in, since forward-checking is exactly the "smart" pruning
+// that makes a one-time full-puzzle brute force fast.
+export function checkUniqueness(puzzle, { maxSolutions = 2, maxNodes = Infinity, forwardCheck = false } = {}) {
   const stats = {};
-  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats });
+  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats, forwardCheck });
   return {
     solutionCount: solutions.length,
     unique: solutions.length === 1,

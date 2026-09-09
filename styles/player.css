@@ -262,3 +262,19 @@
 .win-panel div:first-child { font-family: var(--font-display); font-size: 1.15rem; }
 .win-panel .resolution-note { font-family: var(--font-display); font-style: italic; margin-top: 0.75rem; color: var(--ink-soft); }
 .win-panel .time-result { margin-top: 0.5rem; font-size: 0.9rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.win-panel .hint-result { margin-top: 0.5rem; font-size: 0.9rem; color: var(--ink-soft); }
+
+.achievement-banner { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.achievement-unlocked {
+  background: linear-gradient(155deg, var(--gold-soft), var(--accent-soft));
+  border: 1px solid var(--gold);
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  animation: achievement-pop 0.4s ease;
+}
+.achievement-unlocked-title { font-family: var(--font-display); font-weight: 700; color: var(--accent-dark); }
+.achievement-unlocked-desc { margin: 0.2rem 0 0; font-size: 0.85rem; color: var(--ink-soft); }
+@keyframes achievement-pop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

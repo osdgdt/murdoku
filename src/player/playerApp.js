@@ -6,6 +6,7 @@ import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
+import * as recentActivity from "../storage/recentActivityStore.js";
 
 wireThemeToggle();
 
@@ -147,6 +148,12 @@ if (!puzzle) {
   pickerEl.classList.add("hidden");
   gameEl.classList.remove("hidden");
   titleEl.textContent = puzzle.title;
+  recentActivity.recordOpened({
+    kind: "puzzle",
+    id: puzzle.id,
+    title: puzzle.title,
+    url: `player.html?id=${puzzle.id}`,
+  });
   const screen = createGameScreen({
     puzzle,
     state,

@@ -12,6 +12,12 @@ export function createBoardState() {
     notesMode: false,
     undoStack: [],
     selectedTool: null, // {kind:'character', id} | {kind:'x'} | {kind:'erase'}
+    // Count of hint-button clicks that disclosed real information during
+    // this solve (see gameScreen.js's onHint). Unlike undoStack/selectedTool,
+    // this DOES need to survive serialize/deserialize + reload: the "solved
+    // without hints" achievement must stay honest even if the player
+    // reloads mid-solve after already using a hint.
+    hintsUsed: 0,
   };
 }
 
@@ -30,6 +36,7 @@ export function serializeBoardState(state) {
     candidates: [...state.candidates.entries()].map(([k, set]) => [k, [...set]]),
     autoXByCharacter: [...state.autoXByCharacter.entries()],
     notesMode: state.notesMode,
+    hintsUsed: state.hintsUsed,
   };
 }
 
@@ -45,6 +52,9 @@ export function deserializeBoardState(saved) {
     state.candidates = new Map((saved.candidates || []).map(([k, arr]) => [k, new Set(arr)]));
     state.autoXByCharacter = new Map(saved.autoXByCharacter || []);
     state.notesMode = !!saved.notesMode;
+    // Progress saved before this feature existed lacks `hintsUsed` — fall
+    // back to 0 (assume hint-free) instead of leaving it undefined.
+    state.hintsUsed = Number.isFinite(saved.hintsUsed) && saved.hintsUsed >= 0 ? saved.hintsUsed : 0;
   } catch {
     return createBoardState();
   }
@@ -287,6 +297,10 @@ export function clearAll(state) {
   state.candidates.clear();
   state.autoXByCharacter.clear();
   state.undoStack = [];
+  // hintsUsed is deliberately NOT reset here: "pulisci tutto" wipes the
+  // board, not the player's memory of what a hint already revealed —
+  // resetting it would let someone hint once, clear everything, then refill
+  // from memory and still qualify for "solved senza indizi".
 }
 
 // Fixed "box cell" position (like Sudoku pencil marks): each character keeps

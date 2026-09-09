@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Traguardi — Murdoku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="stylesheet" href="styles/achievements.css" />
+  <script>
+    try {
+      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html">🔎 Murdoku</a>
+    <nav class="topbar-nav">
+      <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+      <a href="index.html">← Torna alla home</a>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <span class="eyebrow">Il tuo taccuino</span>
+    <h1>Traguardi</h1>
+    <div class="hero-divider"></div>
+    <p class="lede">Ogni traguardo è personale: nessun confronto con altri giocatori, solo i tuoi progressi su questo dispositivo.</p>
+  </div>
+
+  <div id="achievements-root"></div>
+
+  <p class="footer-note">Murdoku — i tuoi traguardi restano su questo dispositivo, non vengono condivisi con nessuno.</p>
+
+  <script type="module">
+    import { wireThemeToggle } from "./src/util/theme.js";
+    import { renderAchievementsPage } from "./src/achievements/achievementsView.js";
+    wireThemeToggle();
+    renderAchievementsPage(document.getElementById("achievements-root"));
+  </script>
+</body>
+</html>

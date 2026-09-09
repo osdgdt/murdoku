@@ -8,6 +8,13 @@ import { renderClueCards } from "./clueCards.js";
 import { validateSolution } from "../solver/validator.js";
 import { computeHintChainAsync, deriveSolutionAsync } from "../solver/solverClient.js";
 import { formatElapsed } from "../util/time.js";
+import * as achievementsStore from "../storage/achievementsStore.js";
+
+// Which computeHintChain step types count as "a hint actually helped" — see
+// onHint() below. tooComplex/noHint alone disclose zero new information
+// about the puzzle, so they don't cost the player their "solved without
+// hints" achievement.
+const REAL_HINT_STEP_TYPES = new Set(["forcedPlacement", "eliminatedCell", "contradiction"]);
 
 const SOLUTION_UNSATISFIABLE_MSG =
   "Gli indizi di questo caso non ammettono nessuna soluzione: il caso non può essere risolto così com'è. Se sei l'autore, correggilo nell'editor.";
@@ -317,6 +324,13 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
     try {
       hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates);
       await extendChainWithOracleStep(hintChain);
+      // Counts once per click that discloses something real — never for the
+      // ‹ › nav buttons re-showing an already-computed chain (they call
+      // showHintStep() directly, never onHint()).
+      if (hintChain.some((step) => REAL_HINT_STEP_TYPES.has(step.type))) {
+        state.hintsUsed++;
+        persistProgress();
+      }
       hintChainIndex = 0;
       showHintStep(); // already clears and re-renders hintPanel
     } catch (err) {
@@ -357,6 +371,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
         stopTimer();
         await onSolved(elapsed);
         const murderer = murdererName(effective);
+        const hintsUsedForThisSolve = state.hintsUsed;
+        const newlyUnlocked = achievementsStore.recordSolve({ elapsedSeconds: elapsed, hintsUsed: hintsUsedForThisSolve });
         // `bestTimeSeconds` only exists on puzzles onSolved actually tracks it
         // for (single-puzzle play, via playerApp.js) — campaign mode's onSolved
         // doesn't set it, so this block simply doesn't render there instead of
@@ -372,11 +388,30 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
               : `⏱ Tempo: ${formatElapsed(elapsed)} (miglior tempo: ${formatElapsed(puzzle.bestTimeSeconds)})`
           );
         }
+        const hintLine = el(
+          "div",
+          { class: "hint-result" },
+          hintsUsedForThisSolve === 0 ? "🎉 Risolto senza alcun suggerimento!" : `💡 Suggerimenti usati: ${hintsUsedForThisSolve}`
+        );
+        const achievementBanner = newlyUnlocked.length > 0
+          ? el(
+              "div",
+              { class: "achievement-banner" },
+              newlyUnlocked.map((a) =>
+                el("div", { class: "achievement-unlocked" }, [
+                  el("div", { class: "achievement-unlocked-title" }, `🏆 Nuovo traguardo: ${a.title}`),
+                  el("p", { class: "achievement-unlocked-desc" }, a.description),
+                ])
+              )
+            )
+          : null;
         resultEl.appendChild(
           el("div", { class: "win-panel result-banner success" }, [
             el("div", {}, "🎉 Caso risolto! Tutti i piazzamenti sono corretti."),
             murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
             timeLine,
+            hintLine,
+            achievementBanner,
             puzzle.resolutionNote ? el("p", { class: "resolution-note" }, puzzle.resolutionNote) : null,
           ])
         );

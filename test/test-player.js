@@ -322,4 +322,21 @@ export const tests = [
       assertEqual(deserializeBoardState({ placements: 42 }).placements.size, 0, "un valore non iterabile deve ricadere su uno stato vuoto, non lanciare");
     },
   },
+  {
+    name: "hintsUsed sopravvive al round-trip serialize/deserialize",
+    fn: () => {
+      const state = createBoardState();
+      state.hintsUsed = 3;
+      const restored = deserializeBoardState(JSON.parse(JSON.stringify(serializeBoardState(state))));
+      assertEqual(restored.hintsUsed, 3);
+    },
+  },
+  {
+    name: "deserializeBoardState su hintsUsed mancante o malformato ricade su 0",
+    fn: () => {
+      assertEqual(deserializeBoardState({}).hintsUsed, 0, "progresso salvato prima di questa funzionalità");
+      assertEqual(deserializeBoardState({ hintsUsed: -1 }).hintsUsed, 0);
+      assertEqual(deserializeBoardState({ hintsUsed: "3" }).hintsUsed, 0, "una stringa non è un numero valido");
+    },
+  },
 ];

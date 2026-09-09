@@ -16,6 +16,10 @@ function progressRef(uid, campaignId) {
 // shape) for placements/candidates/autoXByCharacter — Firestore rejects
 // nested arrays outright. Converted to arrays-of-objects here, on the way
 // in/out, so board.js itself never needs to know Firestore exists.
+// NOTE: this is a strict field allowlist, not a shallow passthrough — a new
+// scalar field added to serializeBoardState()'s output (e.g. hintsUsed)
+// still has to be listed here explicitly in both directions, or it's
+// silently dropped before ever reaching Firestore.
 function toFirestoreSafe(serialized) {
   return {
     placements: serialized.placements.map(([charId, pos]) => ({ charId, row: pos.row, col: pos.col })),
@@ -23,6 +27,7 @@ function toFirestoreSafe(serialized) {
     candidates: serialized.candidates.map(([key, ids]) => ({ key, ids })),
     autoXByCharacter: serialized.autoXByCharacter.map(([charId, cells]) => ({ charId, cells })),
     notesMode: serialized.notesMode,
+    hintsUsed: serialized.hintsUsed,
   };
 }
 
@@ -36,6 +41,7 @@ function fromFirestoreSafe(saved) {
     candidates: (saved.candidates || []).map((c) => [c.key, c.ids]),
     autoXByCharacter: (saved.autoXByCharacter || []).map((a) => [a.charId, a.cells]),
     notesMode: !!saved.notesMode,
+    hintsUsed: typeof saved.hintsUsed === "number" ? saved.hintsUsed : 0,
   };
 }
 

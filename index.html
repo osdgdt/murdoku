@@ -26,6 +26,13 @@
     <h1>Crea e gioca i tuoi casi Murdoku</h1>
     <div class="hero-divider"></div>
     <p class="lede">Costruisci la mappa del caso, i personaggi, gli indizi — poi gioca, stampa o condividi il file del puzzle.</p>
+    <a id="resume-banner" class="resume-banner hidden" href="#">
+      <span class="icon-badge">▶</span>
+      <span class="resume-text">
+        <span class="resume-label">Continua l'ultimo caso</span>
+        <strong id="resume-title"></strong>
+      </span>
+    </a>
     <div class="card-links">
       <a class="card-link" href="editor.html">
         <span class="icon-badge">✏️</span>
@@ -41,6 +48,11 @@
         <span class="icon-badge">🕵️</span>
         <h3>Modalità Campagna</h3>
         <p class="muted">Accedi per giocare le campagne a episodi.</p>
+      </a>
+      <a class="card-link" href="achievements.html">
+        <span class="icon-badge">🏆</span>
+        <h3>Traguardi</h3>
+        <p class="muted">Rivedi i tuoi progressi e i traguardi sbloccati.</p>
       </a>
     </div>
   </div>
@@ -63,7 +75,29 @@
     import * as store from "./src/storage/puzzleStore.js";
     import { duplicatePuzzle, difficultyLabel, DIFFICULTY_LEVELS } from "./src/model/puzzle.js";
     import { wireThemeToggle } from "./src/util/theme.js";
+    import * as recentActivity from "./src/storage/recentActivityStore.js";
     wireThemeToggle();
+
+    const resumeBanner = document.getElementById("resume-banner");
+    const resumeTitle = document.getElementById("resume-title");
+
+    function renderResumeBanner() {
+      const recent = recentActivity.getRecent();
+      if (!recent) { resumeBanner.classList.add("hidden"); return; }
+      if (recent.kind === "puzzle" && !store.get(recent.id)) {
+        // Deleted since — cheap, synchronous check, no Firebase needed.
+        resumeBanner.classList.add("hidden");
+        return;
+      }
+      // Campaign cases can't be checked without Firebase auth, which
+      // index.html deliberately never loads — shown optimistically; a
+      // since-deleted/locked case is handled by campaign.html's own
+      // existing error panel instead.
+      resumeTitle.textContent = recent.title;
+      resumeBanner.href = recent.url;
+      resumeBanner.classList.remove("hidden");
+    }
+    renderResumeBanner();
 
     const listPanel = document.getElementById("saved-list");
     const items = document.getElementById("saved-items");

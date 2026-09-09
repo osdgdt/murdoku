@@ -7,6 +7,7 @@ import { createGameScreen } from "../player/gameScreen.js";
 import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
 import { formatElapsed } from "../util/time.js";
+import * as recentActivity from "../storage/recentActivityStore.js";
 
 wireThemeToggle();
 
@@ -251,6 +252,15 @@ async function showGameView(campaignId, caseId) {
 
   clear(caseErrorPanel);
   puzzle = fetchedPuzzle;
+  recentActivity.recordOpened({
+    kind: "campaign",
+    campaignId: campaign.id,
+    campaignTitle: campaign.title,
+    caseId: currentCase.id,
+    caseLabel: currentCase.label || currentCase.puzzleId,
+    title: `${campaign.title} — ${currentCase.label || currentCase.puzzleId}`,
+    url: `campaign.html?campaign=${campaign.id}&case=${currentCase.id}`,
+  });
   state = deserializeBoardState(progressStore.boardStateFromProgress(progress, currentCase.id));
   gameContentEl.classList.remove("hidden");
 

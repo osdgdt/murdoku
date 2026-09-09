@@ -7,18 +7,9 @@ const LABEL_SIZE = 24;
 // Shared "is the mouse button currently held while over the board" flag, so a
 // press-and-drag across cells can paint each one it enters (candidates, X
 // marks…) instead of requiring a separate click per cell. Module-level and
-// reset on any mouseup, since only one board is ever interactive at a time.
+// reset on release, since only one board is ever interactive at a time.
 let dragActive = false;
-// The cell that received the mousedown starting this stroke. onCellDown's
-// callback typically re-renders the whole board synchronously (to show the
-// change it just made) — that replaces the cell element sitting under the
-// still-stationary cursor with a brand new one, and the browser reacts by
-// firing a genuine mouseenter on it, even though the pointer never actually
-// moved. Left unguarded, that phantom enter immediately re-triggers
-// onCellEnter on the very cell onCellDown just handled — e.g. re-adding a
-// candidate mark that onCellDown had just toggled off, so the toggle
-// silently appears to do nothing. Suppressing onCellEnter for this one cell
-// closes that gap; it's already been handled via onCellDown regardless.
+// The cell that received the mousedown/touchstart starting this press.
 let dragDownCell = null;
 // The last cell a touch-drag reported via onCellEnter — touchmove, unlike
 // mouseenter, isn't inherently a per-element event (it keeps firing on
@@ -27,24 +18,82 @@ let dragDownCell = null;
 // over the same still-under-the-finger cell a no-op instead of calling
 // onCellEnter on every single event.
 let lastTouchCell = null;
-// Which render's onCellEnter a touch-drag should call — touchmove is
+// Which render's onCellEnter/onCellTap a press should call — touchmove is
 // handled by ONE document-level listener (registered once below, not
 // per-cell like mouseenter can be, since it needs `elementFromPoint` to
-// find the actual cell under the finger), so it needs this module-level
-// pointer to know which board is currently interactive, refreshed on every
+// find the actual cell under the finger), so these need to be module-level
+// pointers to know which board is currently interactive, refreshed on every
 // renderBoard() call under the same "only one board interactive at a time"
 // assumption `dragActive` itself already relies on.
 let currentOnCellEnter = null;
+let currentOnCellTap = null;
+
+// Threshold for "hold" vs "tap": press-and-release before this elapses (and
+// without leaving the pressed cell) is a tap; staying down past it, still on
+// the same cell, is a hold. Kept in sync by hand with the `cell-hold-fill`
+// CSS animation duration in styles/player.css (same manual-duplication
+// tradeoff attachHoldToConfirm/700ms already accepts, src/util/dom.js).
+const HOLD_THRESHOLD_MS = 400;
+// Timer counting down a hold-in-progress; null whenever no press is pending a
+// hold decision (nothing down, hold already fired, or already converted to a
+// drag).
+let holdTimer = null;
+// True once onCellHold has actually fired for the current press — guards
+// against also firing onCellTap on the eventual release, and against
+// onCellEnter re-triggering drag-painting after a hold already confirmed a
+// placement.
+let holdFired = false;
+// True once the current press has been reinterpreted as a drag (the pointer
+// left dragDownCell before the hold timer elapsed) — guards against firing
+// onCellTap on release once painting has already started.
+let dragConverted = false;
+// The DOM node currently wearing the "holding" class, so it can be cleared
+// directly (no full re-render) when a hold is cancelled/converted/completed.
+let holdingCellNode = null;
+
+function clearHoldTimer() {
+  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+}
+function clearHoldingVisual() {
+  if (holdingCellNode) { holdingCellNode.classList.remove("holding"); holdingCellNode = null; }
+}
+// Reinterprets the current press as a drag: cancels the pending hold, and —
+// since the down-cell itself never got a tap or a hold — feeds it through
+// onCellEnter as the first cell of the paint stroke (drag semantics: force
+// on, never toggle off — see handleCellDrag in board.js).
+function convertToDrag() {
+  if (dragConverted || holdFired || !dragDownCell) return;
+  dragConverted = true;
+  clearHoldTimer();
+  clearHoldingVisual();
+  if (currentOnCellEnter) currentOnCellEnter(dragDownCell.row, dragDownCell.col);
+}
+
 if (typeof document !== "undefined") {
-  const stopDrag = () => { dragActive = false; dragDownCell = null; lastTouchCell = null; };
-  document.addEventListener("mouseup", stopDrag);
-  document.addEventListener("dragend", stopDrag);
-  document.addEventListener("touchend", stopDrag);
-  document.addEventListener("touchcancel", stopDrag);
+  const resetPressState = () => {
+    dragActive = false; dragDownCell = null; lastTouchCell = null;
+    clearHoldTimer(); holdFired = false; dragConverted = false; clearHoldingVisual();
+  };
+  // A genuine release (mouseup/touchend) that never moved off the down-cell
+  // and never held long enough to trigger onCellHold is a completed tap.
+  const releasePress = () => {
+    if (dragActive && dragDownCell && !holdFired && !dragConverted && currentOnCellTap) {
+      currentOnCellTap(dragDownCell.row, dragDownCell.col);
+    }
+    resetPressState();
+  };
+  document.addEventListener("mouseup", releasePress);
+  // draggable="false" is set on every cell, so this should never fire in
+  // practice; if it ever does, treat it as an aborted gesture, not a
+  // completed tap.
+  document.addEventListener("dragend", resetPressState);
+  document.addEventListener("touchend", releasePress);
+  // System-aborted gesture (e.g. an incoming call) — never a completed tap.
+  document.addEventListener("touchcancel", resetPressState);
   document.addEventListener(
     "touchmove",
     (e) => {
-      if (!dragActive || !currentOnCellEnter) return;
+      if (!dragActive || holdFired) return;
       const touch = e.touches[0];
       if (!touch) return;
       const targetCell = document.elementFromPoint(touch.clientX, touch.clientY)?.closest(".board-cell");
@@ -54,10 +103,11 @@ if (typeof document !== "undefined") {
       const tCol = Number(targetCell.dataset.col);
       if (lastTouchCell && lastTouchCell.row === tRow && lastTouchCell.col === tCol) return;
       lastTouchCell = { row: tRow, col: tCol };
-      // Same phantom-re-entry guard as onMouseenter above: the cell that
-      // received the initial touchstart already got onCellDown.
+      // Same phantom-re-entry guard as onMouseenter below: the down-cell is
+      // fed through convertToDrag() instead, exactly once.
       if (dragDownCell && dragDownCell.row === tRow && dragDownCell.col === tCol) return;
-      currentOnCellEnter(tRow, tCol);
+      convertToDrag();
+      if (currentOnCellEnter) currentOnCellEnter(tRow, tCol);
     },
     { passive: false }
   );
@@ -71,27 +121,51 @@ if (typeof document !== "undefined") {
 // included by default — pass `showLabels: false` to omit them.
 //
 // Two interaction models are supported: `onCellClick` (click-based, used by
-// the editor boards) or `onCellDown`/`onCellEnter` (mousedown-based, used by
-// the player board so a press-and-drag can paint several cells in one
-// stroke — `onCellDown` fires once on press, `onCellEnter` fires again for
-// every new cell the pointer enters while still held).
-export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellDown, onCellEnter, decorateCell, showLabels = true } = {}) {
+// the editor boards) or `onCellTap`/`onCellHold`/`onCellEnter` (used by the
+// player board): `onCellTap` fires on a plain press-and-release, `onCellHold`
+// fires when the press stays still on the same cell past HOLD_THRESHOLD_MS,
+// and `onCellEnter` fires again for every new cell the pointer enters while
+// dragging (a drag is what a press becomes the moment it leaves the pressed
+// cell before the hold timer fires — see convertToDrag above).
+export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellTap, onCellHold, onCellEnter, decorateCell, showLabels = true } = {}) {
   clear(container);
   container.classList.add("board-grid");
   container.setAttribute("role", "grid");
   currentOnCellEnter = onCellEnter || null; // see the module-level comment on this variable
+  currentOnCellTap = onCellTap || null;
 
-  // Enter/Space on a focused cell replicates a single click: `onCellClick`
-  // for the editor boards, or just `onCellDown` for the player board (its
-  // own handler already performs the complete action — press-and-drag is a
-  // mouse-only *extension* on top of that single action, not a prerequisite
-  // for it, so a bare onCellDown call is a faithful keyboard equivalent).
-  // Never touches `dragActive`/`dragDownCell` — those are only ever set by
-  // real mouse events, so keyboard activation can't leave the board stuck
-  // mid-drag.
+  // Starts a press on cell (r,c): if the caller wants hold-detection
+  // (onCellHold provided — only the player board does), arms the hold timer
+  // and shows the "holding" fill animation; otherwise just marks the press
+  // as active (editor boards: onCellClick alone handles everything, this is
+  // a harmless no-op setup shared with the player-board path). Shared by
+  // onmousedown and touchstart below to avoid duplicating the hold-timer
+  // logic per input type.
+  function startPress(r, c, node) {
+    dragActive = true; dragDownCell = { row: r, col: c }; holdFired = false; dragConverted = false;
+    if (onCellHold) {
+      node.classList.add("holding");
+      holdingCellNode = node;
+      holdTimer = setTimeout(() => {
+        holdTimer = null; holdFired = true; clearHoldingVisual();
+        onCellHold(r, c);
+      }, HOLD_THRESHOLD_MS);
+    }
+  }
+
+  // Enter/Space on a focused cell replicates a single click/tap: `onCellClick`
+  // for the editor boards, or `onCellTap` for the player board. Shift+Enter
+  // is the keyboard equivalent of a hold (confirm/place) — a distinct
+  // combination since Enter/Space alone already means "tap" (note), and a
+  // keyboard can't naturally express "held down for 400ms". Neither ever
+  // touches `dragActive`/`dragDownCell` — those are only ever set by real
+  // press events, so keyboard activation can't leave the board stuck mid-drag.
   function activateCell(r, c) {
     if (onCellClick) onCellClick(r, c);
-    else if (onCellDown) onCellDown(r, c);
+    else if (onCellTap) onCellTap(r, c);
+  }
+  function activateCellHold(r, c) {
+    if (onCellHold) onCellHold(r, c);
   }
 
   // Arrow-key navigation between cells. Silently does nothing when the
@@ -186,7 +260,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers
-        // like handleCellClick already reject them via isOccupiable), but
+        // like handleCellTap/handleCellHold already reject them via isOccupiable), but
         // are deliberately left out of the tab order — a "wall" cell has
         // nothing useful to land keyboard focus on, and skipping it here is
         // simpler than adding tab-order logic that jumps over it.
@@ -201,9 +275,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         onMousedown: (e) => {
           if (e.button !== 0) return;
           e.preventDefault();
-          dragActive = true;
-          dragDownCell = { row: r, col: c };
-          if (onCellDown) onCellDown(r, c);
+          startPress(r, c, cellNode);
         },
         onKeydown: cellData.blocked ? undefined : (e) => {
           switch (e.key) {
@@ -212,6 +284,10 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
             case "ArrowLeft": e.preventDefault(); focusCell(r, c - 1); break;
             case "ArrowRight": e.preventDefault(); focusCell(r, c + 1); break;
             case "Enter":
+              e.preventDefault();
+              if (e.shiftKey) activateCellHold(r, c);
+              else activateCell(r, c);
+              break;
             case " ":
               e.preventDefault();
               activateCell(r, c);
@@ -219,9 +295,10 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           }
         },
         onMouseenter: () => {
-          if (!dragActive || !onCellEnter) return;
+          if (!dragActive || holdFired) return;
           if (dragDownCell && dragDownCell.row === r && dragDownCell.col === c) return;
-          onCellEnter(r, c);
+          convertToDrag();
+          if (currentOnCellEnter) currentOnCellEnter(r, c);
         },
       });
 
@@ -236,10 +313,8 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         "touchstart",
         (e) => {
           e.preventDefault();
-          dragActive = true;
-          dragDownCell = { row: r, col: c };
           lastTouchCell = { row: r, col: c };
-          if (onCellDown) onCellDown(r, c);
+          startPress(r, c, cellNode);
         },
         { passive: false }
       );

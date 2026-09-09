@@ -26,7 +26,6 @@ function toFirestoreSafe(serialized) {
     xMarks: serialized.xMarks,
     candidates: serialized.candidates.map(([key, ids]) => ({ key, ids })),
     autoXByCharacter: serialized.autoXByCharacter.map(([charId, cells]) => ({ charId, cells })),
-    notesMode: serialized.notesMode,
     hintsUsed: serialized.hintsUsed,
   };
 }
@@ -40,7 +39,6 @@ function fromFirestoreSafe(saved) {
     xMarks: saved.xMarks || [],
     candidates: (saved.candidates || []).map((c) => [c.key, c.ids]),
     autoXByCharacter: (saved.autoXByCharacter || []).map((a) => [a.charId, a.cells]),
-    notesMode: !!saved.notesMode,
     hintsUsed: typeof saved.hintsUsed === "number" ? saved.hintsUsed : 0,
   };
 }

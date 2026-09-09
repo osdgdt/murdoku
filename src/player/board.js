@@ -9,7 +9,6 @@ export function createBoardState() {
     xMarks: new Set(), // "row,col"
     candidates: new Map(), // "row,col" -> Set<characterId>
     autoXByCharacter: new Map(), // characterId -> [{row,col}...] X's auto-marked alongside that placement
-    notesMode: false,
     undoStack: [],
     selectedTool: null, // {kind:'character', id} | {kind:'x'} | {kind:'erase'}
     // Count of hint-button clicks that disclosed real information during
@@ -35,7 +34,6 @@ export function serializeBoardState(state) {
     xMarks: [...state.xMarks],
     candidates: [...state.candidates.entries()].map(([k, set]) => [k, [...set]]),
     autoXByCharacter: [...state.autoXByCharacter.entries()],
-    notesMode: state.notesMode,
     hintsUsed: state.hintsUsed,
   };
 }
@@ -51,7 +49,6 @@ export function deserializeBoardState(saved) {
     state.xMarks = new Set(saved.xMarks || []);
     state.candidates = new Map((saved.candidates || []).map(([k, arr]) => [k, new Set(arr)]));
     state.autoXByCharacter = new Map(saved.autoXByCharacter || []);
-    state.notesMode = !!saved.notesMode;
     // Progress saved before this feature existed lacks `hintsUsed` — fall
     // back to 0 (assume hint-free) instead of leaving it undefined.
     state.hintsUsed = Number.isFinite(saved.hintsUsed) && saved.hintsUsed >= 0 ? saved.hintsUsed : 0;
@@ -138,35 +135,35 @@ function removePlacement(state, characterId) {
   return true;
 }
 
-export function handleCellClick(state, grid, row, col) {
+// Removes characterId from every cell that has a candidate note for them,
+// anywhere on the board (not just the destination cell) — placing a
+// character resolves the question their notes were tracking, so old
+// suspicions elsewhere on the board no longer mean anything. Returns the
+// touched cell keys, so undo() can restore exactly those and only those.
+function clearCandidatesForCharacter(state, characterId) {
+  const cleared = [];
+  for (const [k, set] of state.candidates) {
+    if (set.has(characterId)) {
+      set.delete(characterId);
+      cleared.push(k);
+      if (set.size === 0) state.candidates.delete(k);
+    }
+  }
+  return cleared;
+}
+
+// A single tap (press-and-release without leaving the pressed cell, or a
+// keyboard Enter/Space — see boardRender.js): segna/toglie una nota for the
+// selected character, or behaves as before for X/eraser (unaffected by the
+// tap-vs-hold gesture split — they never depended on a mode flag).
+export function handleCellTap(state, grid, row, col) {
   const tool = state.selectedTool;
   if (!tool) return { ok: false };
   if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
 
   if (tool.kind === "character") {
-    if (state.notesMode) {
-      if (occupiedBy(state, row, col)) return { ok: false, reason: "cell-occupied" };
-      toggleCandidate(state, tool.id, row, col);
-      return { ok: true };
-    }
-    const occupant = occupiedBy(state, row, col);
-    if (occupant === tool.id) {
-      // Clicking the cell they're already confirmed in removes them.
-      removePlacement(state, tool.id);
-      return { ok: true };
-    }
-    if (occupant) return { ok: false, reason: "cell-occupied" };
-    if (rowColUsed(state, row, col, tool.id)) {
-      return { ok: false, reason: "row-col-conflict" };
-    }
-    const before = state.placements.get(tool.id) || null;
-    const removedAutoX = takeAutoX(state, tool.id); // stale X's from their old cell, if moving
-    state.placements.set(tool.id, { row, col });
-    state.xMarks.delete(key(row, col));
-    state.candidates.delete(key(row, col));
-    const autoXMarks = autoMarkRowCol(state, grid, row, col);
-    state.autoXByCharacter.set(tool.id, autoXMarks);
-    state.undoStack.push({ type: "place", characterId: tool.id, before, removedAutoX, autoXMarks });
+    if (occupiedBy(state, row, col)) return { ok: false, reason: "cell-occupied" };
+    toggleCandidate(state, tool.id, row, col);
     return { ok: true };
   }
 
@@ -207,18 +204,52 @@ export function handleCellClick(state, grid, row, col) {
   return { ok: false };
 }
 
-// Continuation of a mouse drag started with handleCellClick: paints (forces
-// on) instead of toggling, so dragging back over an already-marked cell
-// doesn't flip it off again. Placement itself never drags — only the first
-// cell of a stroke can confirm a character; a stroke past it only marks
-// candidates (notes mode), X's, or erases.
+// A press held still on one cell past the hold threshold (see
+// boardRender.js's HOLD_THRESHOLD_MS), or Shift+Enter from the keyboard:
+// confirms the selected character there, wiping every candidate note they
+// had anywhere else on the board. For X/eraser this has no meaning distinct
+// from a tap — delegates straight to handleCellTap so an unusually slow
+// press on those tools doesn't just do nothing.
+export function handleCellHold(state, grid, row, col) {
+  const tool = state.selectedTool;
+  if (!tool) return { ok: false };
+  if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
+  if (tool.kind !== "character") return handleCellTap(state, grid, row, col);
+
+  const occupant = occupiedBy(state, row, col);
+  if (occupant === tool.id) {
+    // Holding the cell they're already confirmed in removes them.
+    removePlacement(state, tool.id);
+    return { ok: true };
+  }
+  if (occupant) return { ok: false, reason: "cell-occupied" };
+  if (rowColUsed(state, row, col, tool.id)) {
+    return { ok: false, reason: "row-col-conflict" };
+  }
+  const before = state.placements.get(tool.id) || null;
+  const removedAutoX = takeAutoX(state, tool.id); // stale X's from their old cell, if moving
+  const clearedCandidates = clearCandidatesForCharacter(state, tool.id);
+  state.placements.set(tool.id, { row, col });
+  state.xMarks.delete(key(row, col));
+  state.candidates.delete(key(row, col));
+  const autoXMarks = autoMarkRowCol(state, grid, row, col);
+  state.autoXByCharacter.set(tool.id, autoXMarks);
+  state.undoStack.push({ type: "place", characterId: tool.id, before, removedAutoX, autoXMarks, clearedCandidates });
+  return { ok: true };
+}
+
+// Continuation of a drag started by a hold-timer conversion (see
+// boardRender.js's convertToDrag): paints (forces on) instead of toggling, so
+// dragging back over an already-marked cell doesn't flip it off again.
+// Placement never drags — only handleCellHold confirms a character; a
+// dragged stroke always means "note" (or X/erase, unchanged from before).
 export function handleCellDrag(state, grid, row, col) {
   const tool = state.selectedTool;
   if (!tool) return { ok: false };
   if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
 
   if (tool.kind === "character") {
-    if (!state.notesMode || occupiedBy(state, row, col)) return { ok: false };
+    if (occupiedBy(state, row, col)) return { ok: false };
     const k = key(row, col);
     let set = state.candidates.get(k);
     if (set && set.has(tool.id)) return { ok: true };
@@ -243,8 +274,8 @@ export function handleCellDrag(state, grid, row, col) {
 
   if (tool.kind === "erase") {
     // Erasing is already a one-way removal (no toggle), so it's inherently
-    // safe to repeat per dragged-over cell — just reuse the click handler.
-    return handleCellClick(state, grid, row, col);
+    // safe to repeat per dragged-over cell — just reuse the tap handler.
+    return handleCellTap(state, grid, row, col);
   }
 
   return { ok: false };
@@ -263,6 +294,14 @@ export function undo(state) {
     for (const { row, col } of action.removedAutoX || []) state.xMarks.add(key(row, col));
     if (action.before) state.autoXByCharacter.set(action.characterId, action.removedAutoX || []);
     else state.autoXByCharacter.delete(action.characterId);
+    // Restore this character's notes that were wiped when this placement was
+    // made (see clearCandidatesForCharacter in handleCellHold) — precise,
+    // cell-by-cell restoration, mirroring the autoX undo above.
+    for (const k of action.clearedCandidates || []) {
+      let set = state.candidates.get(k);
+      if (!set) { set = new Set(); state.candidates.set(k, set); }
+      set.add(action.characterId);
+    }
   } else if (action.type === "remove") {
     state.placements.set(action.characterId, action.before);
     for (const { row, col } of action.removedAutoX || []) state.xMarks.add(key(row, col));
@@ -338,13 +377,16 @@ function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId) {
   cellNode.appendChild(grid);
 }
 
-// `onCellDown` fires once when a cell is pressed (identical to the old
-// click-based behavior); `onCellEnter` fires again for each further cell the
-// pointer enters while still held, letting a single drag stroke mark
-// candidates/X's across several cells instead of one click each.
-export function renderPlayerBoard(container, puzzle, state, onCellDown, onCellEnter) {
+// `onCellTap` fires on a plain tap (or Enter/Space from the keyboard);
+// `onCellHold` fires when the press stays still on the same cell past the
+// hold threshold (or Shift+Enter); `onCellEnter` fires again for each further
+// cell the pointer enters while dragging, letting a single stroke mark
+// candidates/X's across several cells instead of one tap each. See
+// src/util/boardRender.js for the gesture state machine.
+export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter) {
   renderBoard(container, puzzle.grid, {
-    onCellDown,
+    onCellTap,
+    onCellHold,
     onCellEnter,
     decorateCell: (cellNode, row, col) => {
       const occupant = occupiedBy(state, row, col);

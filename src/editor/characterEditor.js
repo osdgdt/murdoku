@@ -1,6 +1,6 @@
 import { el, clear } from "../util/dom.js";
 import { addCharacter, removeCharacter, setVictim, characterColor, CHARACTER_COLORS } from "../model/puzzle.js";
-import { CHARACTER_ICONS, characterIcon } from "../model/icons.js";
+import { CHARACTER_ICONS, characterIcon, SELECTABLE_CHARACTER_ICON_IDS } from "../model/icons.js";
 
 // Enter/Space equivalent of a click, for the custom (non-<button>) color
 // swatches below — plain <div>s, so tabindex/role need wiring alongside this.
@@ -18,12 +18,16 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
   container.appendChild(el("h3", {}, "Personaggi"));
 
   const nameInput = el("input", { type: "text", placeholder: "Nome personaggio" });
+  // Auto-assigned round-robin, mirroring CHARACTER_COLORS's own rotation in
+  // addCharacter() — the select simply defaults to whichever icon is next in
+  // rotation; picking a different one from the menu still fully overrides it.
+  const nextIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
   const iconSelect = el(
     "select",
     {},
-    Object.entries(CHARACTER_ICONS)
-      .filter(([id]) => id !== "victim")
-      .map(([id, def]) => el("option", { value: id }, def.label))
+    SELECTABLE_CHARACTER_ICON_IDS.map((id) =>
+      el("option", { value: id, selected: id === nextIconId || undefined }, CHARACTER_ICONS[id].label)
+    )
   );
   const addBtn = el("button", {
     onClick: () => {

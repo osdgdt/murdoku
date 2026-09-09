@@ -41,7 +41,7 @@ function positionsInZone(puzzle, zoneId) {
 // the room's cells satisfies the geometric check.
 // Returns null when the target is a character not yet placed (undetermined,
 // distinct from a determined-but-empty list, which is a hard "no such object").
-function resolveTargetPositions(placementMap, puzzle, targetId) {
+export function resolveTargetPositions(placementMap, puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
     const typeId = parseObjectTypeTarget(targetId);
     return puzzle.grid.objects.filter((o) => o.typeId === typeId).map((o) => ({ row: o.row, col: o.col }));
@@ -126,7 +126,7 @@ function isStrictlyBetween(owner, a, b) {
   return false;
 }
 
-function victimId(puzzle) {
+export function victimId(puzzle) {
   return puzzle.characters.find((c) => c.isVictim)?.id || null;
 }
 

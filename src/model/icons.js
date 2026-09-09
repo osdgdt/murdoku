@@ -95,24 +95,34 @@ export const OBJECT_TYPES = {
 };
 
 // Every themed icon reuses this head+shoulders silhouette, topped with a
-// distinguishing prop, so the whole roster stays visually consistent.
+// bold, structurally distinct prop (varied overall shape — dome, brim,
+// square, wedge — not just a small detail) so the roster stays readable even
+// at the smallest real render size (16px toolbar chip).
 const PERSON_BASE = '<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/>';
 
 export const CHARACTER_ICONS = {
   person1: { label: "Persona 1", icon: svg(PERSON_BASE) },
   person2: { label: "Persona 2", icon: svg('<circle cx="12" cy="7" r="3"/><rect x="7" y="12" width="10" height="8" rx="2"/>') },
-  hat: { label: "Cappello", icon: svg('<ellipse cx="12" cy="16" rx="8" ry="2.2"/><path d="M8 16c0-5 1.5-9 4-9s4 4 4 9"/>') },
-  glasses: { label: "Occhiali", icon: svg('<circle cx="7" cy="12" r="3.5"/><circle cx="17" cy="12" r="3.5"/><path d="M10.5 12h3"/>') },
-  detective: { label: "Detective", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="5.2" rx="4.5" ry="1.8"/><circle cx="19" cy="16" r="2.3"/><path d="M20.8 17.8L22.5 19.5"/>') },
-  butler: { label: "Maggiordomo", icon: svg(PERSON_BASE + '<path d="M9.5 13l2.5 1.1 2.5-1.1v1.8l-2.5 1.1-2.5-1.1z"/>') },
-  chef: { label: "Cuoco/a", icon: svg(PERSON_BASE + '<rect x="8.8" y="3.6" width="6.4" height="2.2" rx="1.1"/><circle cx="10.2" cy="2.6" r="1.6"/><circle cx="13.8" cy="2.6" r="1.6"/>') },
-  maid: { label: "Cameriera", icon: svg(PERSON_BASE + '<path d="M8.6 6.4c1.1-1.6 2.1-2.4 3.4-2.4s2.3.8 3.4 2.4"/><circle cx="16.2" cy="6" r="0.9" fill="currentColor" stroke="none"/>') },
-  gardener: { label: "Giardiniere", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="6.4" rx="6.2" ry="1.5"/><path d="M9 6.2c0-2.1 1.3-3.4 3-3.4s3 1.3 3 3.4"/>') },
-  driver: { label: "Autista", icon: svg(PERSON_BASE + '<path d="M8.2 6c0-2.1 1.8-3.4 3.8-3.4s3.8 1.3 3.8 3.4"/><path d="M15.8 6.2h2.6"/>') },
-  professor: { label: "Professore", icon: svg(PERSON_BASE + '<path d="M7 5.2L12 3.2L17 5.2L12 7.2Z"/><path d="M12 7.2v1.6"/><circle cx="12" cy="9.2" r="0.6" fill="currentColor" stroke="none"/>') },
-  artist: { label: "Artista", icon: svg(PERSON_BASE + '<path d="M8.4 6c0-2.3 1.6-3.7 3.6-3.7s3.6 1.4 3.6 3.7c0 .5-.3.6-.6.4-.9-.5-1.8-.3-3-.3s-2.1-.2-3 .3c-.3.2-.6.1-.6-.4z"/><circle cx="12" cy="1.8" r="0.5" fill="currentColor" stroke="none"/>') },
+  // Ids stay stable (referenced by saved puzzles' character.iconId) even
+  // though these two used to be bodyless accessory icons — now real people,
+  // for a consistent "always a person" roster.
+  hat: { label: "Cronista", icon: svg(PERSON_BASE + '<path d="M7.5 5C7.5 1.8 9.5 0 12 0s4.5 1.8 4.5 5" fill="none"/><ellipse cx="12" cy="5" rx="7.5" ry="1.6"/>') },
+  glasses: { label: "Studioso/a", icon: svg(PERSON_BASE + '<circle cx="10" cy="8.2" r="1.9"/><circle cx="14" cy="8.2" r="1.9"/><path d="M11.9 8.2h0.2"/><path d="M7.9 8h-1.4M16.1 8h1.4"/>') },
+  detective: { label: "Detective", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="4.8" rx="5.5" ry="2.2"/><circle cx="19" cy="16" r="2.8"/><path d="M21.2 18.2L23 20"/>') },
+  butler: { label: "Maggiordomo", icon: svg(PERSON_BASE + '<path d="M7.5 13.2L12 15l4.5-1.8v4l-4.5-1.8-4.5 1.8z"/>') },
+  chef: { label: "Cuoco/a", icon: svg(PERSON_BASE + '<rect x="8.3" y="4.6" width="7.4" height="2.6" rx="1.3"/><circle cx="9.6" cy="2.4" r="2.1"/><circle cx="12" cy="1.6" r="2.3"/><circle cx="14.4" cy="2.4" r="2.1"/>') },
+  maid: { label: "Cameriera/e", icon: svg(PERSON_BASE + '<path d="M6.3 6c0-3.4 2.4-5.5 5.7-5.5S17.7 2.6 17.7 6" fill="none"/><path d="M5.8 6.3h12.4"/><circle cx="18.3" cy="7.3" r="1.4" fill="currentColor" stroke="none"/>') },
+  gardener: { label: "Giardiniere/a", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="5.6" rx="8" ry="1.8"/><path d="M9 5.6c0-2.6 1.3-4.2 3-4.2s3 1.6 3 4.2" fill="none"/>') },
+  driver: { label: "Autista", icon: svg(PERSON_BASE + '<path d="M7.8 6.2c0-2.5 1.9-4.2 4.2-4.2s4.2 1.7 4.2 4.2" fill="none"/><path d="M7.3 6.2h7.4"/><path d="M14.7 6.2l3.3 0.7-0.4 1.3-3.3-0.5z" fill="currentColor" stroke="none"/>') },
+  professor: { label: "Professore/essa", icon: svg(PERSON_BASE + '<path d="M6 5L12 2.5L18 5L12 7.5Z"/><path d="M18 5v3"/><path d="M12 7.5v1.6"/><circle cx="12" cy="9.7" r="0.7" fill="currentColor" stroke="none"/>') },
+  artist: { label: "Artista", icon: svg(PERSON_BASE + '<path d="M7.8 5.6c0-2.6 1.8-4.2 4.2-4.2s4.2 1.6 4.2 4.2c0 .6-.3.7-.7.5-1-.6-2.1-.3-3.5-.3s-2.5-.3-3.5.3c-.4.2-.7.1-.7-.5z"/><ellipse cx="19" cy="17" rx="3" ry="2.2" transform="rotate(-20 19 17)"/><circle cx="17.7" cy="16.3" r="0.5" fill="currentColor" stroke="none"/><circle cx="19.3" cy="15.6" r="0.5" fill="currentColor" stroke="none"/><circle cx="20.6" cy="16.8" r="0.5" fill="currentColor" stroke="none"/>') },
   victim: { label: "Vittima", icon: svg('<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/><path d="M6 6l12 12"/>') },
 };
+
+// Ordered, stable ids for round-robin auto-assignment (characterEditor.js) —
+// same pattern as CHARACTER_COLORS in puzzle.js. Excludes "victim" (never
+// user-selectable for a regular character).
+export const SELECTABLE_CHARACTER_ICON_IDS = Object.keys(CHARACTER_ICONS).filter((id) => id !== "victim");
 
 export function objectIcon(typeId) {
   return OBJECT_TYPES[typeId] || null;

@@ -1,12 +1,13 @@
 import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { zoneOfCell } from "../model/grid.js";
-import { characterColor } from "../model/puzzle.js";
+import { characterColor, cluesForCharacter } from "../model/puzzle.js";
 import { describeClue } from "../model/clueTypes.js";
-import { handleCellClick, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
+import { handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
 import { validateSolution } from "../solver/validator.js";
 import { computeHintChainAsync, deriveSolutionAsync } from "../solver/solverClient.js";
+import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 
@@ -39,17 +40,17 @@ const SOLUTION_INCONCLUSIVE_MSG =
 // Queries its own DOM refs by id rather than taking them as a parameter —
 // player.html and campaign.html deliberately use the exact same ids for
 // every element this module touches (#player-toolbar, #board, #clues-panel,
-// #briefing-panel, #result-panel, #notes-btn, #notes-hint, #undo-btn,
-// #clear-btn, #hint-btn, #hint-panel, #submit-btn, #timer). Keep it that way
-// if either page's markup changes.
+// #briefing-panel, #result-panel, #undo-btn, #clear-btn, #hint-btn,
+// #hint-panel, #submit-btn, #timer). Keep it that way if either page's
+// markup changes. #notes-hint also exists in both pages but is a static
+// instruction paragraph now (no mode toggle to reflect) — this module never
+// touches it.
 export function createGameScreen({ puzzle, state, persistProgress, onSolved, achievementKey }) {
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
   const cluesEl = qs("#clues-panel");
   const briefingEl = qs("#briefing-panel");
   const resultEl = qs("#result-panel");
-  const notesBtn = qs("#notes-btn");
-  const notesHint = qs("#notes-hint");
   const undoBtn = qs("#undo-btn");
   const clearBtn = qs("#clear-btn");
   const hintBtn = qs("#hint-btn");
@@ -124,6 +125,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       const chip = el("div", {
         class: "char-chip" + (state.selectedTool?.kind === "character" && state.selectedTool.id === character.id ? " selected" : "") + (placed ? " used" : ""),
         onClick: () => selectTool({ kind: "character", id: character.id }),
+        onMouseenter: () => showCharacterHover(character.id),
+        onMouseleave: clearHover,
       });
       const iconWrap = el("span", { style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}` });
       iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
@@ -136,11 +139,27 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     toolbarEl.appendChild(el("div", { class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""), onClick: () => selectTool({ kind: "erase" }) }, "🧹 Gomma"));
   }
 
-  function updateNotesUI() {
-    notesBtn.classList.toggle("primary", state.notesMode);
-    notesHint.textContent = state.notesMode
-      ? "Modalità note attiva: seleziona un personaggio e clicca una cella per segnarlo come candidato in quella casella (notazione a griglia 3x3, come le matite del sudoku)."
-      : "Modalità piazzamento: seleziona un personaggio e clicca una cella per confermarlo.";
+  // Ephemeral, non-serialized cell highlighting for hover — mirrors
+  // hintHighlight/applyHintHighlight below, but deliberately lighter-weight:
+  // no full re-render, no dimming of the rest of the board (hover is a
+  // frequent, transient touch, not a deliberate "look here" moment like a
+  // hint). Classes are applied/removed directly on already-rendered nodes.
+  function applyHoverCells(cells) {
+    for (const { row, col } of cells) {
+      const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      if (node) node.classList.add("hover-target");
+    }
+  }
+  function clearHover() {
+    boardEl.querySelectorAll(".hover-target").forEach((n) => n.classList.remove("hover-target"));
+  }
+  function showCharacterHover(characterId) {
+    clearHover();
+    applyHoverCells(cluesForCharacter(puzzle, characterId).flatMap((clue) => resolveClueHoverCells(clue, puzzle, state.placements)));
+  }
+  function showClueHover(clue) {
+    clearHover();
+    applyHoverCells(resolveClueHoverCells(clue, puzzle, state.placements));
   }
 
   // Dims every other cell while a hint is showing (see player.css) so the
@@ -165,21 +184,28 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   function renderBoardAndClues() {
     renderPlayerBoard(
       boardEl, puzzle, state,
-      (row, col) => {
+      (row, col) => { // onCellTap — segna/toglie una nota (o X/gomma, invariati)
         clearHint();
-        handleCellClick(state, puzzle.grid, row, col);
+        handleCellTap(state, puzzle.grid, row, col);
         persistProgress();
         renderToolbar();
         renderBoardAndClues();
       },
-      (row, col) => {
+      (row, col) => { // onCellHold — conferma il personaggio selezionato qui
+        clearHint();
+        handleCellHold(state, puzzle.grid, row, col);
+        persistProgress();
+        renderToolbar();
+        renderBoardAndClues();
+      },
+      (row, col) => { // onCellEnter — continuazione del trascinamento, note su più caselle
         handleCellDrag(state, puzzle.grid, row, col);
         persistProgress();
         renderBoardAndClues();
       }
     );
     applyHintHighlight();
-    renderClueCards(cluesEl, puzzle, state);
+    renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);
   }
 
   function murdererName(effective) {
@@ -442,11 +468,6 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   }
 
   function wireControls() {
-    notesBtn.addEventListener("click", () => {
-      state.notesMode = !state.notesMode;
-      persistProgress();
-      updateNotesUI();
-    });
     undoBtn.addEventListener("click", () => {
       clearHint();
       undo(state);
@@ -474,7 +495,6 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   function start() {
     renderToolbar();
     renderBoardAndClues();
-    updateNotesUI();
     renderBriefing();
     clear(resultEl);
     startTimer();

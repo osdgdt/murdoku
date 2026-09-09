@@ -1,5 +1,5 @@
 import { createGrid, placeObject } from "../src/model/grid.js";
-import { createBoardState, handleCellClick, undo, clearAll, serializeBoardState, deserializeBoardState } from "../src/player/board.js";
+import { createBoardState, handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, serializeBoardState, deserializeBoardState } from "../src/player/board.js";
 import { assert, assertEqual } from "./assert.js";
 
 function grid3x3() {
@@ -8,27 +8,25 @@ function grid3x3() {
 
 export const tests = [
   {
-    name: "in modalità note, click su una cella segna un candidato senza confermare il piazzamento",
+    name: "un tap su una cella segna un candidato senza confermare il piazzamento",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      const result = handleCellClick(state, grid, 0, 0);
+      const result = handleCellTap(state, grid, 0, 0);
       assert(result.ok, "il segno del candidato deve riuscire");
       assertEqual(state.placements.size, 0, "non deve esserci un piazzamento confermato");
       assert(state.candidates.get("0,0").has("anna"), "anna deve essere candidata in (0,0)");
     },
   },
   {
-    name: "in modalità note, un secondo click sullo stesso personaggio rimuove il candidato",
+    name: "un secondo tap sullo stesso personaggio rimuove il candidato",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 0, 0);
-      handleCellClick(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
       assert(!state.candidates.has("0,0"), "il candidato deve essere stato rimosso");
     },
   },
@@ -37,25 +35,22 @@ export const tests = [
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellTap(state, grid, 1, 1);
       state.selectedTool = { kind: "character", id: "bruno" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellTap(state, grid, 1, 1);
       const set = state.candidates.get("1,1");
       assertEqual(set.size, 2, "entrambi i candidati devono coesistere nella stessa cella");
     },
   },
   {
-    name: "confermare un piazzamento ripulisce i candidati di quella cella",
+    name: "confermare un piazzamento (hold) ripulisce i candidati della cella di destinazione",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 0, 0);
-      state.notesMode = false;
-      handleCellClick(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
+      handleCellHold(state, grid, 0, 0);
       assert(!state.candidates.has("0,0"), "i candidati devono sparire quando la cella viene confermata");
       assertEqual(state.placements.get("anna").row, 0);
     },
@@ -66,10 +61,9 @@ export const tests = [
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 0, 0); // conferma Anna in (0,0)
-      state.notesMode = true;
+      handleCellHold(state, grid, 0, 0); // conferma Anna in (0,0)
       state.selectedTool = { kind: "character", id: "bruno" };
-      const result = handleCellClick(state, grid, 0, 0);
+      const result = handleCellTap(state, grid, 0, 0);
       assert(!result.ok, "non deve essere possibile segnare un candidato su una cella occupata");
     },
   },
@@ -78,9 +72,8 @@ export const tests = [
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
       undo(state);
       assert(!state.candidates.has("0,0"), "il candidato deve essere annullato");
     },
@@ -90,13 +83,12 @@ export const tests = [
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
       state.selectedTool = { kind: "character", id: "bruno" };
-      handleCellClick(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
       state.selectedTool = { kind: "erase" };
-      const result = handleCellClick(state, grid, 0, 0);
+      const result = handleCellTap(state, grid, 0, 0);
       assert(result.ok, "la gomma deve ripulire la cella");
       assert(!state.candidates.has("0,0"), "i candidati devono essere spariti");
       undo(state);
@@ -108,9 +100,8 @@ export const tests = [
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 0, 0);
+      handleCellTap(state, grid, 0, 0);
       clearAll(state);
       assertEqual(state.candidates.size, 0, "i candidati devono essere azzerati");
     },
@@ -121,9 +112,8 @@ export const tests = [
       const grid = grid3x3();
       grid.cells[0][0].blocked = true;
       const state = createBoardState();
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "anna" };
-      const result = handleCellClick(state, grid, 0, 0);
+      const result = handleCellTap(state, grid, 0, 0);
       assert(!result.ok, "una cella bloccata non deve accettare candidati");
     },
   },
@@ -135,23 +125,22 @@ export const tests = [
       const state = createBoardState();
 
       state.selectedTool = { kind: "character", id: "anna" };
-      assert(!handleCellClick(state, grid, 0, 0).ok, "non deve accettare un personaggio sopra lo scaffale");
+      assert(!handleCellHold(state, grid, 0, 0).ok, "non deve accettare un personaggio sopra lo scaffale");
 
       state.selectedTool = { kind: "x" };
-      assert(!handleCellClick(state, grid, 0, 0).ok, "non deve accettare un segno X sopra lo scaffale");
+      assert(!handleCellTap(state, grid, 0, 0).ok, "non deve accettare un segno X sopra lo scaffale");
 
-      state.notesMode = true;
       state.selectedTool = { kind: "character", id: "bruno" };
-      assert(!handleCellClick(state, grid, 0, 0).ok, "non deve accettare un candidato sopra lo scaffale");
+      assert(!handleCellTap(state, grid, 0, 0).ok, "non deve accettare un candidato sopra lo scaffale");
     },
   },
   {
-    name: "confermare un personaggio segna automaticamente X sul resto della riga e colonna",
+    name: "confermare un personaggio (hold) segna automaticamente X sul resto della riga e colonna",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1);
       assert(state.xMarks.has("1,0"), "resto della riga 1 deve avere una X");
       assert(state.xMarks.has("1,2"), "resto della riga 1 deve avere una X");
       assert(state.xMarks.has("0,1"), "resto della colonna 1 deve avere una X");
@@ -166,9 +155,9 @@ export const tests = [
       placeObject(grid, "shelf", 1, 0); // sulla riga di Anna, non deve ricevere una X
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "bruno" };
-      handleCellClick(state, grid, 0, 2); // Bruno già piazzato, occupa (0,2)
+      handleCellHold(state, grid, 0, 2); // Bruno già piazzato, occupa (0,2)
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1);
       assert(!state.xMarks.has("1,0"), "la cella con lo scaffale non deve ricevere una X");
       assert(state.placements.has("bruno"), "Bruno deve restare piazzato");
       assertEqual(state.placements.get("bruno").row, 0, "il piazzamento di Bruno non va toccato dall'auto-X");
@@ -180,7 +169,7 @@ export const tests = [
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1);
       assertEqual(state.xMarks.size, 4);
       undo(state);
       assertEqual(state.xMarks.size, 0, "le X automatiche devono sparire insieme al piazzamento annullato");
@@ -188,27 +177,27 @@ export const tests = [
     },
   },
   {
-    name: "cliccare di nuovo la cella del proprio personaggio lo rimuove",
+    name: "tenere premuto di nuovo sulla cella del proprio personaggio lo rimuove",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1);
       assert(state.placements.has("anna"), "anna deve essere piazzata");
-      const result = handleCellClick(state, grid, 1, 1);
-      assert(result.ok, "il secondo click sulla stessa cella deve riuscire");
+      const result = handleCellHold(state, grid, 1, 1);
+      assert(result.ok, "il secondo hold sulla stessa cella deve riuscire");
       assert(!state.placements.has("anna"), "anna deve essere stata rimossa");
     },
   },
   {
-    name: "rimuovere un personaggio (ri-cliccando la sua cella) ritira anche le sue X automatiche",
+    name: "rimuovere un personaggio (hold sulla propria cella) ritira anche le sue X automatiche",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1);
       assertEqual(state.xMarks.size, 4);
-      handleCellClick(state, grid, 1, 1); // ri-click = rimuovi
+      handleCellHold(state, grid, 1, 1); // ri-hold = rimuovi
       assertEqual(state.xMarks.size, 0, "le X automatiche devono sparire insieme al personaggio rimosso");
     },
   },
@@ -218,9 +207,9 @@ export const tests = [
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1);
       state.selectedTool = { kind: "erase" };
-      handleCellClick(state, grid, 1, 1);
+      handleCellTap(state, grid, 1, 1);
       assert(!state.placements.has("anna"), "anna deve essere stata rimossa dalla gomma");
       assertEqual(state.xMarks.size, 0, "le X automatiche devono sparire insieme al personaggio cancellato");
     },
@@ -231,21 +220,21 @@ export const tests = [
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
-      handleCellClick(state, grid, 1, 1); // rimuove
+      handleCellHold(state, grid, 1, 1);
+      handleCellHold(state, grid, 1, 1); // rimuove
       undo(state);
       assertEqual(state.placements.get("anna").row, 1, "anna deve essere ripiazzata in (1,1)");
       assertEqual(state.xMarks.size, 4, "le X automatiche devono essere ripristinate");
     },
   },
   {
-    name: "spostare un personaggio già piazzato ritira le X della vecchia cella e ne aggiunge di nuove",
+    name: "spostare un personaggio già piazzato (hold su una nuova cella) ritira le X della vecchia cella e ne aggiunge di nuove",
     fn: () => {
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1); // X su (1,0) (1,2) (0,1) (2,1)
-      handleCellClick(state, grid, 0, 0); // anna si sposta in (0,0)
+      handleCellHold(state, grid, 1, 1); // X su (1,0) (1,2) (0,1) (2,1)
+      handleCellHold(state, grid, 0, 0); // anna si sposta in (0,0)
       assert(!state.xMarks.has("1,2"), "una X della vecchia riga, non più valida, deve sparire");
       assert(!state.xMarks.has("2,1"), "una X della vecchia colonna, non più valida, deve sparire");
       assert(
@@ -262,8 +251,8 @@ export const tests = [
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1);
-      handleCellClick(state, grid, 0, 0);
+      handleCellHold(state, grid, 1, 1);
+      handleCellHold(state, grid, 0, 0);
       undo(state);
       assertEqual(state.placements.get("anna").row, 1, "anna deve tornare in (1,1)");
       assert(
@@ -282,11 +271,85 @@ export const tests = [
       placeObject(grid, "table", 2, 2);
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      assert(handleCellClick(state, grid, 0, 0).ok, "deve poter piazzare un personaggio sulla sedia");
+      assert(handleCellHold(state, grid, 0, 0).ok, "deve poter piazzare un personaggio sulla sedia");
       state.selectedTool = { kind: "character", id: "bruno" };
-      assert(handleCellClick(state, grid, 1, 1).ok, "deve poter piazzare un personaggio sul tappeto");
+      assert(handleCellHold(state, grid, 1, 1).ok, "deve poter piazzare un personaggio sul tappeto");
       state.selectedTool = { kind: "character", id: "carlo" };
-      assert(!handleCellClick(state, grid, 2, 2).ok, "non deve poter piazzare un personaggio sul tavolo");
+      assert(!handleCellHold(state, grid, 2, 2).ok, "non deve poter piazzare un personaggio sul tavolo");
+    },
+  },
+  {
+    name: "handleCellHold cancella TUTTE le note del personaggio su tutta la griglia, non solo sulla cella di destinazione",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellTap(state, grid, 0, 0); // nota altrove
+      handleCellTap(state, grid, 2, 2); // altra nota altrove ancora
+      state.selectedTool = { kind: "character", id: "bruno" };
+      handleCellTap(state, grid, 2, 2); // nota di un altro personaggio nella stessa cella — non deve sparire
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellHold(state, grid, 1, 1); // conferma anna altrove
+      assert(!state.candidates.has("0,0"), "la nota di anna in (0,0) deve essere sparita");
+      assert(state.candidates.get("2,2").has("bruno"), "la nota di bruno in (2,2) non deve essere toccata");
+      assert(!state.candidates.get("2,2").has("anna"), "la nota di anna in (2,2) deve essere sparita, non solo quella in (1,1)");
+    },
+  },
+  {
+    name: "undo dopo un handleCellHold ripristina esattamente le note cancellate",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellTap(state, grid, 0, 0);
+      handleCellTap(state, grid, 2, 2);
+      handleCellHold(state, grid, 1, 1);
+      undo(state);
+      assert(!state.placements.has("anna"), "il piazzamento deve essere annullato");
+      assert(state.candidates.get("0,0").has("anna"), "la nota in (0,0) deve essere ripristinata");
+      assert(state.candidates.get("2,2").has("anna"), "la nota in (2,2) deve essere ripristinata");
+    },
+  },
+  {
+    name: "handleCellDrag sul personaggio non richiede più alcuna modalità attiva: è sempre una nota",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellDrag(state, grid, 0, 0);
+      handleCellDrag(state, grid, 0, 1);
+      assert(state.candidates.get("0,0").has("anna"), "il trascinamento deve segnare una nota");
+      assert(state.candidates.get("0,1").has("anna"), "il trascinamento deve segnare note su più celle");
+      assertEqual(state.placements.size, 0, "il trascinamento non deve mai confermare un piazzamento");
+    },
+  },
+  {
+    name: "handleCellDrag non toglie mai una nota già segnata (dipinge, non alterna)",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellDrag(state, grid, 0, 0);
+      handleCellDrag(state, grid, 0, 0); // di nuovo sulla stessa cella durante lo stesso trascinamento
+      assert(state.candidates.get("0,0").has("anna"), "la nota deve restare, non deve essere tolta");
+    },
+  },
+  {
+    name: "handleCellHold su strumento X o gomma produce lo stesso risultato di handleCellTap",
+    fn: () => {
+      const grid = grid3x3();
+      const stateX = createBoardState();
+      stateX.selectedTool = { kind: "x" };
+      handleCellHold(stateX, grid, 0, 0);
+      assert(stateX.xMarks.has("0,0"), "hold con lo strumento X deve segnare una X, come un tap");
+
+      const stateErase = createBoardState();
+      stateErase.selectedTool = { kind: "character", id: "anna" };
+      handleCellTap(stateErase, grid, 0, 0);
+      stateErase.selectedTool = { kind: "erase" };
+      const result = handleCellHold(stateErase, grid, 0, 0);
+      assert(result.ok, "hold con la gomma deve ripulire la cella, come un tap");
+      assert(!stateErase.candidates.has("0,0"), "la nota deve essere sparita");
     },
   },
   {
@@ -295,10 +358,9 @@ export const tests = [
       const grid = grid3x3();
       const state = createBoardState();
       state.selectedTool = { kind: "character", id: "anna" };
-      handleCellClick(state, grid, 1, 1); // piazzamento confermato + auto-X
-      state.notesMode = true;
+      handleCellHold(state, grid, 1, 1); // piazzamento confermato + auto-X
       state.selectedTool = { kind: "character", id: "bruno" };
-      handleCellClick(state, grid, 0, 0); // candidato
+      handleCellTap(state, grid, 0, 0); // candidato
 
       // Il round-trip passa da JSON per verificare davvero cosa sopravvive a
       // un giro per localStorage, non solo la forma in memoria.
@@ -309,7 +371,6 @@ export const tests = [
       assert(restored.xMarks.has("1,0"), "le X automatiche devono sopravvivere");
       assertEqual(restored.xMarks.size, 4);
       assert(restored.candidates.get("0,0").has("bruno"), "il candidato deve sopravvivere");
-      assertEqual(restored.notesMode, true, "la modalità note deve sopravvivere");
       assertEqual(restored.undoStack.length, 0, "lo stack di undo è deliberatamente non persistito");
       assertEqual(restored.selectedTool, null, "lo strumento selezionato è deliberatamente non persistito");
     },

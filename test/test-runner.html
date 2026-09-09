@@ -27,8 +27,9 @@
     import { tests as solverWorkerTests } from "./test-solver-worker.js";
     import { tests as achievementsTests } from "./test-achievements.js";
     import { tests as recentActivityTests } from "./test-recent-activity.js";
+    import { tests as hoverTargetsTests } from "./test-hover-targets.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

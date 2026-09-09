@@ -5,32 +5,36 @@ import { cluesForCharacter, genericClues, characterColor } from "../model/puzzle
 
 // `state`, when passed, dims a character's card once the player has confirmed
 // them on the board — a quick visual "handled" cue, like a suspect crossed
-// off a detective's list.
-export function renderClueCards(container, puzzle, state) {
+// off a detective's list. `onClueHover`/`onClueHoverEnd`, when passed, wire a
+// per-clue-line hover that temporarily highlights that clue's target cells
+// (see gameScreen.js's showClueHover/clearHover).
+export function renderClueCards(container, puzzle, state, onClueHover, onClueHoverEnd) {
   clear(container);
   container.appendChild(el("h3", {}, "Personaggi e indizi"));
+
+  function clueLi(clue) {
+    return el("li", { onMouseenter: onClueHover ? () => onClueHover(clue) : undefined, onMouseleave: onClueHoverEnd }, describeClue(clue, puzzle));
+  }
 
   const generic = genericClues(puzzle);
   if (generic.length > 0) {
     container.appendChild(
       el("div", { class: "clue-card generic" }, [
         el("div", { class: "row" }, [el("strong", {}, "🔎 Indizi generali del caso")]),
-        el("ul", {}, generic.map((clue) => el("li", {}, describeClue(clue, puzzle)))),
+        el("ul", {}, generic.map(clueLi)),
       ])
     );
   }
 
   for (const character of puzzle.characters) {
-    const iconWrap = el("span");
+    const iconWrap = el("span", { style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}` });
     iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
 
     const clues = cluesForCharacter(puzzle, character.id);
     const list = el(
       "ul",
       {},
-      clues.length
-        ? clues.map((clue) => el("li", {}, describeClue(clue, puzzle)))
-        : [el("li", { class: "muted" }, "Nessun indizio.")]
+      clues.length ? clues.map(clueLi) : [el("li", { class: "muted" }, "Nessun indizio.")]
     );
 
     const placed = state?.placements.has(character.id);

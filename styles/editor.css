@@ -160,6 +160,10 @@
      hijacked into a native image-drag or text selection. */
   user-select: none;
   -webkit-user-drag: none;
+  /* A ~400ms stationary hold is now a deliberate, common gesture (see
+     boardRender.js's HOLD_THRESHOLD_MS) — prevents iOS's long-press callout
+     from popping up over it. */
+  -webkit-touch-callout: none;
 }
 .board-cell * { -webkit-user-drag: none; }
 
@@ -342,7 +346,7 @@
 .character-card:hover { box-shadow: var(--shadow-md); }
 .character-card.victim { border-color: var(--danger); background: linear-gradient(180deg, var(--panel), var(--danger-soft) 220%); }
 .character-card .row { display: flex; align-items: center; gap: 0.55rem; margin: 0.2rem 0; }
-.character-card .row svg { width: 22px; height: 22px; color: var(--accent); }
+.character-card .row svg { width: 22px; height: 22px; }
 .character-card .bio-input {
   width: 100%;
   margin-top: 0.4rem;

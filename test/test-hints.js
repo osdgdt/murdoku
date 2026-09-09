@@ -186,21 +186,52 @@ export const tests = [
       addClue(puzzle, b.id, "inRoom", { zoneId: zoneB.id });
       addClue(puzzle, d.id, "inRoom", { zoneId: zoneD.id });
       // Breaks the symmetry between StanzaD's two cells: only D at (2,2)
-      // with C (no clue of her own) at the remaining (3,3) keeps D strictly
-      // north of C, so D is forced before C is even reached by elimination.
+      // with C at the remaining (3,3) keeps D strictly north of C — both are
+      // forced together, in the same wave, by the exhaustive solve (neither
+      // alone collapses via propagation, since C has no clue of her own and
+      // the direction clue can't evaluate until a candidate for both exists).
       addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
 
       const chain = computeHintChain(puzzle, new Map());
-      assertEqual(chain.length, 4, "A, B, C e infine D devono risultare tutti forzati in sequenza");
+      assertEqual(chain.length, 4, "A, B, D e infine C devono risultare tutti forzati in sequenza");
       assertEqual(chain[0].characterId, a.id);
       assertEqual([chain[0].row, chain[0].col].join(","), "0,0");
       assertEqual(chain[1].characterId, b.id);
       assertEqual([chain[1].row, chain[1].col].join(","), "1,1");
-      assertEqual(chain[2].characterId, c.id, "C non ha un indizio proprio, ma resta forzata a (3,3) per eliminazione prima ancora di D");
-      assertEqual([chain[2].row, chain[2].col].join(","), "3,3");
-      assertEqual(chain[3].characterId, d.id);
-      assertEqual([chain[3].row, chain[3].col].join(","), "2,2");
+      // C (la vittima) e D sono forzati insieme dalla stessa ondata — la
+      // vittima viene mostrata per ultima anche se scoperta simultaneamente.
+      assertEqual(chain[2].characterId, d.id);
+      assertEqual([chain[2].row, chain[2].col].join(","), "2,2");
+      assertEqual(chain[3].characterId, c.id, "la vittima, pur forzata nella stessa ondata di D, viene mostrata per ultima");
+      assertEqual([chain[3].row, chain[3].col].join(","), "3,3");
       for (const step of chain) assertEqual(step.type, "forcedPlacement");
+    },
+  },
+  {
+    name: "computeHintChain: il messaggio del piazzamento forzato della vittima parla di 'unica casella rimasta libera', non del generico riferimento agli indizi",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person1", true);
+      const d = addCharacter(puzzle, "D", "person2");
+      const zoneA = addZone(puzzle.grid, "StanzaA", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zoneA.id);
+      const zoneB = addZone(puzzle.grid, "StanzaB", "#eee");
+      paintCellZone(puzzle.grid, 1, 1, zoneB.id);
+      const zoneD = addZone(puzzle.grid, "StanzaD", "#ddd");
+      paintCellZone(puzzle.grid, 2, 2, zoneD.id);
+      paintCellZone(puzzle.grid, 3, 3, zoneD.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id });
+      addClue(puzzle, b.id, "inRoom", { zoneId: zoneB.id });
+      addClue(puzzle, d.id, "inRoom", { zoneId: zoneD.id });
+      addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
+
+      const chain = computeHintChain(puzzle, new Map());
+      const cStep = chain.find((s) => s.characterId === c.id);
+      const dStep = chain.find((s) => s.characterId === d.id);
+      assert(cStep.message.includes("unica casella rimasta libera"), "il messaggio della vittima deve usare la formulazione dedicata");
+      assert(!dStep.message.includes("unica casella rimasta libera"), "un personaggio non-vittima deve mantenere la formulazione generica");
     },
   },
   {
@@ -308,7 +339,7 @@ export const tests = [
       const puzzle = basePuzzle(4, 4);
       const a = addCharacter(puzzle, "A", "person1");
       const b = addCharacter(puzzle, "B", "person2");
-      const c = addCharacter(puzzle, "C", "person1", true);
+      const c = addCharacter(puzzle, "C", "person1", true); // vittima
       const d = addCharacter(puzzle, "D", "person2");
       const zoneA = addZone(puzzle.grid, "StanzaA", "#fff");
       paintCellZone(puzzle.grid, 0, 0, zoneA.id);
@@ -320,22 +351,33 @@ export const tests = [
       addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id });
       addClue(puzzle, b.id, "inRoom", { zoneId: zoneB.id });
       addClue(puzzle, d.id, "inRoom", { zoneId: zoneD.id });
-      // Due copie IDENTICHE dell'indizio direzionale: rimuovendone una sola,
-      // l'altra basta comunque a forzare C in (3,3) -> nessuna delle due è
-      // individualmente necessaria; e senza ENTRAMBE (nessun indizio,
-      // solo la regola base) resterebbero valide 2 soluzioni per C -> nemmeno
-      // la sola regola base basta a spiegarlo da sola.
+      // Due copie IDENTICHE dell'indizio direzionale su D. La vittima C, forzata
+      // insieme a D nella stessa ondata, viene ora mostrata PER ULTIMA (vedi il
+      // test sopra) — a quel punto D è già un fatto noto, quindi la posizione
+      // di C segue direttamente dalla sola regola base (nessun indizio
+      // "coinvolto" da citare, vedi il test dedicato al messaggio). È invece D,
+      // valutato per primo (senza ancora sapere dove sarà C), a ereditare il
+      // caso "nessun indizio singolo è individualmente necessario": tolta una
+      // delle due copie identiche resta comunque l'altra, e senza ENTRAMBE (né
+      // la sola regola base, che con la vittima ancora ipotetica non basta a
+      // ricavare la riga/colonna di D) la sua posizione resta ambigua.
       addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
       addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
 
       const chain = computeHintChain(puzzle, new Map());
       const cStep = chain.find((s) => s.characterId === c.id);
+      const dStep = chain.find((s) => s.characterId === d.id);
       assert(cStep, "C deve comunque risultare forzata");
       assertEqual(cStep.type, "forcedPlacement");
       assertEqual(cStep.row, 3);
       assertEqual(cStep.col, 3);
-      assertEqual(cStep.jointlyDetermined, true);
-      assertEqual(cStep.involvedClues.length, 0);
+      assertEqual(cStep.jointlyDetermined, false, "una volta noto D, la posizione della vittima segue dalla sola regola base");
+      assertEqual(cStep.involvedClues.length, 1);
+      assert(cStep.involvedClues[0].isBaseRule, "l'unico 'indizio coinvolto' per la vittima qui è la regola base, non un indizio d'autore");
+
+      assert(dStep, "D deve comunque risultare forzato");
+      assertEqual(dStep.jointlyDetermined, true);
+      assertEqual(dStep.involvedClues.length, 0);
     },
   },
   {

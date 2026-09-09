@@ -325,10 +325,11 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     for (const step of chain) {
       if (step.type === "forcedPlacement") confirmed.set(step.characterId, { row: step.row, col: step.col });
     }
-    // Deterministic, stable choice: first still-unplaced character in
-    // puzzle.characters order — simple and reproducible across repeated
-    // clicks on the same board state.
-    const next = puzzle.characters.find((c) => !confirmed.has(c.id));
+    // Deterministic, stable choice: first still-unplaced NON-victim character
+    // in puzzle.characters order (falling back to the victim only once she's
+    // the sole one left) — same "reveal her last, if possible" preference as
+    // computeWave in hints.js, kept consistent across both hint paths.
+    const next = puzzle.characters.find((c) => !confirmed.has(c.id) && !c.isVictim) || puzzle.characters.find((c) => !confirmed.has(c.id));
     if (!next) return; // defensive: shouldn't happen if the chain genuinely stopped early
     const target = effective.placements.find((p) => p.characterId === next.id);
     if (!target) return; // defensive

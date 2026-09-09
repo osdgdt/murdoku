@@ -64,6 +64,14 @@ function buildForcedMessage(puzzle, character, row, col) {
   const zoneId = zoneOfCell(puzzle.grid, row, col);
   const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
   const where = zone ? ` (nella zona "${zone.name}")` : "";
+  // The victim rarely has clues of her own (she doesn't act) — by the time
+  // her placement is forced, it's almost always because every other
+  // row/column is already spoken for, not because of a specific clue about
+  // her. Framed accordingly, distinct from the generic "compatible with the
+  // clues" wording used for everyone else.
+  if (character.isVictim) {
+    return `${character.name} deve trovarsi nell'unica casella rimasta libera${where}.`;
+  }
   return `${character.name} deve trovarsi nella cella evidenziata${where}: è l'unica posizione compatibile con gli indizi attuali.`;
 }
 
@@ -282,7 +290,14 @@ function computeWave(puzzle, confirmed, budget, candidates) {
   const forcedByChar = new Map();
   for (const f of prop.forced) forcedByChar.set(f.characterId, { ...f, source: "propagation" });
   for (const f of exhaustiveForced) if (!forcedByChar.has(f.characterId)) forcedByChar.set(f.characterId, { ...f, source: "exhaustive" });
-  const allForced = puzzle.characters.filter((c) => forcedByChar.has(c.id)).map((c) => forcedByChar.get(c.id));
+  const forcedCharacters = puzzle.characters.filter((c) => forcedByChar.has(c.id));
+  // When several characters are forced together in the same wave, reveal the
+  // victim last if she's among them — narratively she's "whoever's left"
+  // once every suspect has a room, not a deduction in her own right. Pure
+  // display ordering: never changes which facts are found, so it can't
+  // affect soundness.
+  const orderedForcedCharacters = [...forcedCharacters.filter((c) => !c.isVictim), ...forcedCharacters.filter((c) => c.isVictim)];
+  const allForced = orderedForcedCharacters.map((c) => forcedByChar.get(c.id));
   const resolvedIds = new Set(allForced.map((f) => f.characterId));
 
   const elimKey = (e) => `${e.characterId},${e.row},${e.col}`;

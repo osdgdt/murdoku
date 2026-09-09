@@ -268,6 +268,7 @@ async function showGameView(campaignId, caseId) {
     puzzle,
     state,
     persistProgress,
+    achievementKey: `campaign:${campaign.id}:${currentCase.id}`,
     onSolved: async (elapsedSeconds) => {
       boardSaver.flush();
       try {

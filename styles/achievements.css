@@ -1,4 +1,6 @@
 .topbar-nav { display: flex; align-items: center; gap: 1rem; }
+#auth-bar { display: flex; align-items: center; gap: 0.6rem; }
+#auth-bar:empty { display: none; }
 
 .achievement-stats {
   max-width: 640px;

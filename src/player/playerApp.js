@@ -158,6 +158,7 @@ if (!puzzle) {
     puzzle,
     state,
     persistProgress,
+    achievementKey: `puzzle:${puzzle.id}`,
     onSolved: (elapsedSeconds) => {
       puzzle.completed = true;
       if (puzzle.bestTimeSeconds == null || elapsedSeconds < puzzle.bestTimeSeconds) {

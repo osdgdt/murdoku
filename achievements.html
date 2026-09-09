@@ -21,6 +21,7 @@
     <a class="brand" href="index.html">🔎 Murdoku</a>
     <nav class="topbar-nav">
       <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+      <div id="auth-bar"></div>
       <a href="index.html">← Torna alla home</a>
     </nav>
   </div>
@@ -29,18 +30,65 @@
     <span class="eyebrow">Il tuo taccuino</span>
     <h1>Traguardi</h1>
     <div class="hero-divider"></div>
-    <p class="lede">Ogni traguardo è personale: nessun confronto con altri giocatori, solo i tuoi progressi su questo dispositivo.</p>
+    <p class="lede">Ogni traguardo è personale: nessun confronto con altri giocatori.</p>
+    <p id="sync-status" class="muted"></p>
   </div>
 
   <div id="achievements-root"></div>
 
-  <p class="footer-note">Murdoku — i tuoi traguardi restano su questo dispositivo, non vengono condivisi con nessuno.</p>
+  <p class="footer-note">Murdoku — restano solo su questo dispositivo, a meno che tu non scelga di accedere con Google per sincronizzarli su più dispositivi.</p>
 
   <script type="module">
     import { wireThemeToggle } from "./src/util/theme.js";
     import { renderAchievementsPage } from "./src/achievements/achievementsView.js";
+    import { onAuthChange, signIn, signOutUser } from "./src/auth/googleAuth.js";
+    import { syncAchievements } from "./src/storage/achievementsSyncStore.js";
     wireThemeToggle();
-    renderAchievementsPage(document.getElementById("achievements-root"));
+
+    const root = document.getElementById("achievements-root");
+    const authBar = document.getElementById("auth-bar");
+    const syncStatus = document.getElementById("sync-status");
+
+    function renderAuthBar(user) {
+      authBar.innerHTML = "";
+      if (user) {
+        const emailSpan = document.createElement("span");
+        emailSpan.className = "muted";
+        emailSpan.textContent = user.email;
+        const signOutBtn = document.createElement("button");
+        signOutBtn.type = "button";
+        signOutBtn.textContent = "Esci";
+        signOutBtn.onclick = () => signOutUser();
+        authBar.append(emailSpan, signOutBtn);
+      } else {
+        const signInBtn = document.createElement("button");
+        signInBtn.type = "button";
+        signInBtn.textContent = "Accedi con Google";
+        signInBtn.onclick = () => signIn().catch((err) => { syncStatus.textContent = err.message; });
+        authBar.append(signInBtn);
+      }
+    }
+
+    // Not a gate — the page always renders local achievements regardless of
+    // sign-in state; signing in only adds the pull-merge-push sync on top
+    // (see achievementsSyncStore.js), safe to re-run every time this fires
+    // (e.g. on every load while already signed in from a previous visit).
+    onAuthChange(async (user) => {
+      renderAuthBar(user);
+      renderAchievementsPage(root);
+      if (!user) {
+        syncStatus.textContent = "Salvati solo su questo dispositivo. Accedi con Google per sincronizzarli tra più dispositivi.";
+        return;
+      }
+      syncStatus.textContent = "Sincronizzazione in corso…";
+      try {
+        await syncAchievements(user.uid);
+        syncStatus.textContent = "Sincronizzato con il tuo account Google.";
+        renderAchievementsPage(root);
+      } catch (err) {
+        syncStatus.textContent = `Impossibile sincronizzare: ${err.message} (i traguardi restano salvati su questo dispositivo).`;
+      }
+    });
   </script>
 </body>
 </html>

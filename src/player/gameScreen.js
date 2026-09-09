@@ -30,7 +30,11 @@ const SOLUTION_INCONCLUSIVE_MSG =
 // vs debounced Firestore) and what happens on a correct solve (mark a local
 // puzzle completed vs call Firestore's markCaseCompleted), both captured as
 // the `persistProgress`/`onSolved` callbacks instead of two parallel copies
-// of this file.
+// of this file. `achievementKey` is a third small per-caller input: a
+// stable string identifying THIS puzzle for achievementsStore.recordSolve
+// (`puzzle:<id>` for a standalone puzzle, `campaign:<campaignId>:<caseId>`
+// for a campaign case) — gameScreen.js itself has no notion of which
+// campaign/case a puzzle came from, only the caller does.
 //
 // Queries its own DOM refs by id rather than taking them as a parameter —
 // player.html and campaign.html deliberately use the exact same ids for
@@ -38,7 +42,7 @@ const SOLUTION_INCONCLUSIVE_MSG =
 // #briefing-panel, #result-panel, #notes-btn, #notes-hint, #undo-btn,
 // #clear-btn, #hint-btn, #hint-panel, #submit-btn, #timer). Keep it that way
 // if either page's markup changes.
-export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
+export function createGameScreen({ puzzle, state, persistProgress, onSolved, achievementKey }) {
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
   const cluesEl = qs("#clues-panel");
@@ -372,7 +376,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
         await onSolved(elapsed);
         const murderer = murdererName(effective);
         const hintsUsedForThisSolve = state.hintsUsed;
-        const newlyUnlocked = achievementsStore.recordSolve({ elapsedSeconds: elapsed, hintsUsed: hintsUsedForThisSolve });
+        const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed: hintsUsedForThisSolve });
         // `bestTimeSeconds` only exists on puzzles onSolved actually tracks it
         // for (single-puzzle play, via playerApp.js) — campaign mode's onSolved
         // doesn't set it, so this block simply doesn't render there instead of

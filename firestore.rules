@@ -12,5 +12,9 @@ service cloud.firestore {
     match /users/{userId}/campaignProgress/{campaignId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
+
+    match /users/{userId}/achievements/{docId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
   }
 }

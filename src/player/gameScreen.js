@@ -5,9 +5,8 @@ import { characterColor } from "../model/puzzle.js";
 import { describeClue } from "../model/clueTypes.js";
 import { handleCellClick, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
-import { computeHintChain } from "../solver/hints.js";
 import { validateSolution } from "../solver/validator.js";
-import { deriveSolution } from "../solver/deriveSolution.js";
+import { computeHintChainAsync, deriveSolutionAsync } from "../solver/solverClient.js";
 import { formatElapsed } from "../util/time.js";
 
 const SOLUTION_UNSATISFIABLE_MSG =
@@ -52,25 +51,35 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
   let hintChainIndex = 0;
   let timerInterval = null;
   let startedAt = null; // hoisted out of startTimer so onSubmit can also read it, for the elapsed time passed to onSolved
-  let effectiveSolutionCache = null; // memoized: { status, placements } — see getEffectiveSolution()
+  let effectiveSolutionPromise = null; // memoized Promise (not the resolved value) — see getEffectiveSolution()
 
   // The answer key used for win-checking, the murderer reveal, and the
   // hint system's last-resort fallback. A declared solution that already
   // passes validateSolution() (row/col-distinct, satisfies every clue) is a
   // genuine proof — trusting it costs nothing and changes nothing. Anything
   // else (missing, incomplete, or actually wrong) falls back to deriving a
-  // solution straight from the clues (deriveSolution, never from
-  // puzzle.solution.placements) — so a bad declared solution is never
-  // silently trusted. Computed lazily (only when onSubmit/onHint first need
-  // it, not at start()) and memoized: the common case (a valid declared
-  // solution) costs nothing regardless, and the expensive fallback search
-  // only ever runs once per puzzle load even if it's needed.
+  // solution straight from the clues (deriveSolutionAsync, off the main
+  // thread, never from puzzle.solution.placements) — so a bad declared
+  // solution is never silently trusted. Computed lazily (only when
+  // onSubmit/onHint first need it, not at start()) and memoized as an
+  // in-flight PROMISE, not just the resolved value: onSubmit and onHint's
+  // extendChainWithOracleStep can both need this close together, and
+  // memoizing the promise (rather than waiting for one to resolve before
+  // deciding whether to start a second) means they always share one
+  // deriveSolutionAsync call instead of racing into two redundant ones.
   function getEffectiveSolution() {
-    if (effectiveSolutionCache) return effectiveSolutionCache;
-    effectiveSolutionCache = validateSolution(puzzle).valid
-      ? { status: "unique", placements: puzzle.solution.placements }
-      : deriveSolution(puzzle);
-    return effectiveSolutionCache;
+    if (!effectiveSolutionPromise) {
+      effectiveSolutionPromise = validateSolution(puzzle).valid
+        ? Promise.resolve({ status: "unique", placements: puzzle.solution.placements })
+        : deriveSolutionAsync(puzzle).catch((err) => {
+            // Don't freeze a transient failure (e.g. a worker hiccup) into a
+            // permanent one for the rest of this page's life — let the next
+            // attempt retry against a fresh worker.
+            effectiveSolutionPromise = null;
+            throw err;
+          });
+    }
+    return effectiveSolutionPromise;
   }
 
   function startTimer() {
@@ -162,9 +171,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
     renderClueCards(cluesEl, puzzle, state);
   }
 
-  function murdererName() {
-    const effective = getEffectiveSolution();
-    if (effective.status !== "unique") return null;
+  function murdererName(effective) {
+    if (!effective || effective.status !== "unique") return null;
     const victim = puzzle.characters.find((c) => c.isVictim);
     if (!victim) return null;
     const vPlacement = effective.placements.find((p) => p.characterId === victim.id);
@@ -270,10 +278,10 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
   // one true solution — so the revealed placement can never conflict with
   // anything the player (or an earlier step in this same chain) already
   // confirmed.
-  function extendChainWithOracleStep(chain) {
+  async function extendChainWithOracleStep(chain) {
     const last = chain[chain.length - 1];
     if (!last || last.type !== "tooComplex") return; // only extend the honest "stuck" case
-    const effective = getEffectiveSolution();
+    const effective = await getEffectiveSolution();
     if (effective.status !== "unique") return; // never reveal a guess, only a proven answer
 
     const confirmed = new Map(state.placements);
@@ -302,66 +310,86 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved }) {
     });
   }
 
-  function onHint() {
-    hintChain = computeHintChain(puzzle, state.placements, state.candidates);
-    extendChainWithOracleStep(hintChain);
-    hintChainIndex = 0;
-    showHintStep();
+  async function onHint() {
+    hintBtn.disabled = true;
+    clear(hintPanel);
+    hintPanel.appendChild(el("div", { class: "result-banner hint-info" }, "Sto calcolando un suggerimento…"));
+    try {
+      hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates);
+      await extendChainWithOracleStep(hintChain);
+      hintChainIndex = 0;
+      showHintStep(); // already clears and re-renders hintPanel
+    } catch (err) {
+      clear(hintPanel);
+      hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a calcolare un suggerimento: ${err.message}. Riprova.`));
+    } finally {
+      hintBtn.disabled = false;
+    }
   }
 
   async function onSubmit() {
     clear(resultEl);
-    const effective = getEffectiveSolution();
-    if (effective.status !== "unique") {
-      const message =
-        effective.status === "unsatisfiable" ? SOLUTION_UNSATISFIABLE_MSG :
-        effective.status === "ambiguous" ? SOLUTION_AMBIGUOUS_MSG :
-        SOLUTION_INCONCLUSIVE_MSG;
-      const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
-      resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
-      return;
-    }
-
-    const total = puzzle.characters.length;
-    let correct = 0;
-    for (const p of effective.placements) {
-      const placed = state.placements.get(p.characterId);
-      if (placed && placed.row === p.row && placed.col === p.col) correct++;
-    }
-
-    if (correct === total && state.placements.size === total) {
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      const previousBest = puzzle.bestTimeSeconds;
-      stopTimer();
-      await onSolved(elapsed);
-      const murderer = murdererName();
-      // `bestTimeSeconds` only exists on puzzles onSolved actually tracks it
-      // for (single-puzzle play, via playerApp.js) — campaign mode's onSolved
-      // doesn't set it, so this block simply doesn't render there instead of
-      // needing a separate flag.
-      let timeLine = null;
-      if (typeof puzzle.bestTimeSeconds === "number") {
-        const isNewBest = previousBest == null || elapsed <= previousBest;
-        timeLine = el(
-          "div",
-          { class: "time-result" },
-          isNewBest
-            ? `⏱ Tempo: ${formatElapsed(elapsed)} — nuovo record personale!`
-            : `⏱ Tempo: ${formatElapsed(elapsed)} (miglior tempo: ${formatElapsed(puzzle.bestTimeSeconds)})`
-        );
+    submitBtn.disabled = true;
+    resultEl.appendChild(el("div", { class: "result-banner hint-info" }, "Sto verificando la soluzione…"));
+    try {
+      const effective = await getEffectiveSolution();
+      clear(resultEl);
+      if (effective.status !== "unique") {
+        const message =
+          effective.status === "unsatisfiable" ? SOLUTION_UNSATISFIABLE_MSG :
+          effective.status === "ambiguous" ? SOLUTION_AMBIGUOUS_MSG :
+          SOLUTION_INCONCLUSIVE_MSG;
+        const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
+        resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
+        return;
       }
-      resultEl.appendChild(
-        el("div", { class: "win-panel result-banner success" }, [
-          el("div", {}, "🎉 Caso risolto! Tutti i piazzamenti sono corretti."),
-          murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
-          timeLine,
-          puzzle.resolutionNote ? el("p", { class: "resolution-note" }, puzzle.resolutionNote) : null,
-        ])
-      );
-    } else {
-      // Deliberately doesn't say how many are right — that would let you brute
-      // force it by trial and error instead of reasoning from the clues.
-      resultEl.appendChild(el("div", { class: "result-banner partial" }, "Non è ancora tutto corretto. Continua a dedurre dagli indizi."));
+
+      const total = puzzle.characters.length;
+      let correct = 0;
+      for (const p of effective.placements) {
+        const placed = state.placements.get(p.characterId);
+        if (placed && placed.row === p.row && placed.col === p.col) correct++;
+      }
+
+      if (correct === total && state.placements.size === total) {
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        const previousBest = puzzle.bestTimeSeconds;
+        stopTimer();
+        await onSolved(elapsed);
+        const murderer = murdererName(effective);
+        // `bestTimeSeconds` only exists on puzzles onSolved actually tracks it
+        // for (single-puzzle play, via playerApp.js) — campaign mode's onSolved
+        // doesn't set it, so this block simply doesn't render there instead of
+        // needing a separate flag.
+        let timeLine = null;
+        if (typeof puzzle.bestTimeSeconds === "number") {
+          const isNewBest = previousBest == null || elapsed <= previousBest;
+          timeLine = el(
+            "div",
+            { class: "time-result" },
+            isNewBest
+              ? `⏱ Tempo: ${formatElapsed(elapsed)} — nuovo record personale!`
+              : `⏱ Tempo: ${formatElapsed(elapsed)} (miglior tempo: ${formatElapsed(puzzle.bestTimeSeconds)})`
+          );
+        }
+        resultEl.appendChild(
+          el("div", { class: "win-panel result-banner success" }, [
+            el("div", {}, "🎉 Caso risolto! Tutti i piazzamenti sono corretti."),
+            murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
+            timeLine,
+            puzzle.resolutionNote ? el("p", { class: "resolution-note" }, puzzle.resolutionNote) : null,
+          ])
+        );
+      } else {
+        // Deliberately doesn't say how many are right — that would let you brute
+        // force it by trial and error instead of reasoning from the clues.
+        resultEl.appendChild(el("div", { class: "result-banner partial" }, "Non è ancora tutto corretto. Continua a dedurre dagli indizi."));
+      }
+    } catch (err) {
+      clear(resultEl);
+      resultEl.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a verificare la soluzione: ${err.message}. Riprova.`));
+    } finally {
+      submitBtn.disabled = false;
     }
   }
 

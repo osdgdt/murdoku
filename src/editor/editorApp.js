@@ -2,8 +2,8 @@ import { el, qs } from "../util/dom.js";
 import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
-import { validateSolution, checkUniqueness } from "../solver/validator.js";
-import { deriveSolution } from "../solver/deriveSolution.js";
+import { validateSolution } from "../solver/validator.js";
+import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
 import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
@@ -262,54 +262,74 @@ function renderSolutionPreviews(puzzle, solutions) {
   );
 }
 
-uniqueBtn.addEventListener("click", () => {
-  const report = checkUniqueness(puzzle, {
-    maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS,
-    maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
-  });
+uniqueBtn.addEventListener("click", async () => {
+  uniqueBtn.disabled = true;
   validationPanel.innerHTML = "";
-  if (report.solutionCount === 0) {
-    validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi."));
-  } else if (report.solutionCount === 1) {
-    validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione unica."));
-  } else {
-    // "Almeno N" instead of a bare count when the cap (not exhaustion) is
-    // what ended the search — never claim the preview list below is complete
-    // when it might not be.
-    const countLabel = report.truncated ? `almeno ${report.solutionCount}` : `${report.solutionCount}`;
-    validationPanel.appendChild(
-      el("p", { class: "violation" }, `Il puzzle è ambiguo: esistono ${countLabel} soluzioni possibili. Aggiungi altri indizi.`)
-    );
-    validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
+  validationPanel.appendChild(el("p", { class: "muted" }, "Verifica unicità in corso…"));
+  try {
+    const report = await checkUniquenessAsync(puzzle, {
+      maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS,
+      maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
+    });
+    validationPanel.innerHTML = "";
+    if (report.solutionCount === 0) {
+      validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi."));
+    } else if (report.solutionCount === 1) {
+      validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione unica."));
+    } else {
+      // "Almeno N" instead of a bare count when the cap (not exhaustion) is
+      // what ended the search — never claim the preview list below is complete
+      // when it might not be.
+      const countLabel = report.truncated ? `almeno ${report.solutionCount}` : `${report.solutionCount}`;
+      validationPanel.appendChild(
+        el("p", { class: "violation" }, `Il puzzle è ambiguo: esistono ${countLabel} soluzioni possibili. Aggiungi altri indizi.`)
+      );
+      validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
+    }
+  } catch (err) {
+    validationPanel.innerHTML = "";
+    validationPanel.appendChild(el("p", { class: "violation" }, `Errore durante la verifica: ${err.message}`));
+  } finally {
+    uniqueBtn.disabled = false;
   }
 });
 
-estimateBtn.addEventListener("click", () => {
-  const report = checkUniqueness(puzzle, {
-    maxSolutions: 2,
-    maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
-  });
+estimateBtn.addEventListener("click", async () => {
+  estimateBtn.disabled = true;
   validationPanel.innerHTML = "";
-  if (report.solutionCount !== 1) {
-    // A stima only means something once the puzzle has exactly one solution
-    // — with zero or several, "how hard was it to find" isn't a meaningful
-    // question yet (fix that first, via Verifica unicità, before estimating).
+  validationPanel.appendChild(el("p", { class: "muted" }, "Stima in corso…"));
+  try {
+    const report = await checkUniquenessAsync(puzzle, {
+      maxSolutions: 2,
+      maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
+    });
+    validationPanel.innerHTML = "";
+    if (report.solutionCount !== 1) {
+      // A stima only means something once the puzzle has exactly one solution
+      // — with zero or several, "how hard was it to find" isn't a meaningful
+      // question yet (fix that first, via Verifica unicità, before estimating).
+      validationPanel.appendChild(
+        el("p", { class: "violation" }, "La stima richiede una soluzione unica: usa prima \"Verifica unicità\".")
+      );
+      return;
+    }
+    const estimate = estimateDifficultyFromNodes(report.nodesVisited);
     validationPanel.appendChild(
-      el("p", { class: "violation" }, "La stima richiede una soluzione unica: usa prima \"Verifica unicità\".")
+      el(
+        "p",
+        { class: "ok-message" },
+        `Stima difficoltà: ${difficultyLabel(estimate)} (nodi esplorati dal solver: ${report.nodesVisited}). È solo un'indicazione — il campo "Difficoltà" in alto resta una scelta manuale dell'autore.`
+      )
     );
-    return;
+  } catch (err) {
+    validationPanel.innerHTML = "";
+    validationPanel.appendChild(el("p", { class: "violation" }, `Errore durante la stima: ${err.message}`));
+  } finally {
+    estimateBtn.disabled = false;
   }
-  const estimate = estimateDifficultyFromNodes(report.nodesVisited);
-  validationPanel.appendChild(
-    el(
-      "p",
-      { class: "ok-message" },
-      `Stima difficoltà: ${difficultyLabel(estimate)} (nodi esplorati dal solver: ${report.nodesVisited}). È solo un'indicazione — il campo "Difficoltà" in alto resta una scelta manuale dell'autore.`
-    )
-  );
 });
 
-calcSolutionBtn.addEventListener("click", () => {
+calcSolutionBtn.addEventListener("click", async () => {
   const hasExistingSolution = puzzle.solution.placements.length > 0;
   // Confirm only when this would replace a declared solution that ISN'T
   // already valid (partial or wrong, likely still being placed by hand) —
@@ -321,22 +341,42 @@ calcSolutionBtn.addEventListener("click", () => {
     if (!ok) return;
   }
 
+  // Snapshot the puzzle's version before starting a (potentially long)
+  // background search — if the author keeps editing (undo/redo, map,
+  // characters, clues all bump this via handleChange -> touch()) while it's
+  // running, applying a since-stale result would silently clobber their
+  // newer changes.
+  const startedAtVersion = puzzle.updatedAt;
+  calcSolutionBtn.disabled = true;
   validationPanel.innerHTML = "";
-  const result = deriveSolution(puzzle);
-
-  if (result.status === "unique") {
-    for (const character of puzzle.characters) {
-      const p = result.placements.find((pl) => pl.characterId === character.id);
-      setSolutionPlacement(puzzle, character.id, p ? p.row : null, p ? p.col : null);
+  validationPanel.appendChild(el("p", { class: "muted" }, "Calcolo della soluzione in corso…"));
+  try {
+    const result = await deriveSolutionAsync(puzzle);
+    validationPanel.innerHTML = "";
+    if (puzzle.updatedAt !== startedAtVersion) {
+      validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è stato modificato nel frattempo: riprova."));
+      return;
     }
-    handleChange(); // one combined undo step for the whole auto-fill
-    validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi."));
-  } else if (result.status === "unsatisfiable") {
-    validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata."));
-  } else if (result.status === "ambiguous") {
-    validationPanel.appendChild(el("p", { class: "violation" }, "Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata."));
-  } else {
-    validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."));
+
+    if (result.status === "unique") {
+      for (const character of puzzle.characters) {
+        const p = result.placements.find((pl) => pl.characterId === character.id);
+        setSolutionPlacement(puzzle, character.id, p ? p.row : null, p ? p.col : null);
+      }
+      handleChange(); // one combined undo step for the whole auto-fill
+      validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi."));
+    } else if (result.status === "unsatisfiable") {
+      validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata."));
+    } else if (result.status === "ambiguous") {
+      validationPanel.appendChild(el("p", { class: "violation" }, "Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata."));
+    } else {
+      validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."));
+    }
+  } catch (err) {
+    validationPanel.innerHTML = "";
+    validationPanel.appendChild(el("p", { class: "violation" }, `Errore durante il calcolo: ${err.message}`));
+  } finally {
+    calcSolutionBtn.disabled = false;
   }
 });
 

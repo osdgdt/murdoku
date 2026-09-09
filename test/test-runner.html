@@ -24,15 +24,16 @@
     import { tests as campaignTests } from "./test-campaign.js";
     import { tests as geometryTests } from "./test-geometry.js";
     import { tests as deriveSolutionTests } from "./test-derive-solution.js";
+    import { tests as solverWorkerTests } from "./test-solver-worker.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 
     for (const { name, fn } of allTests) {
       const li = document.createElement("li");
       try {
-        fn();
+        await fn(); // a no-op await for the ~207 existing sync tests, needed for the new async worker round-trip test
         li.className = "pass";
         li.textContent = `✓ ${name}`;
         passed++;

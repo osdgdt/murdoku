@@ -20,6 +20,19 @@ export function exportPuzzle(puzzle) {
   URL.revokeObjectURL(url);
 }
 
+// Fetch + validate a .murdoku.json from anywhere on the web — the shared
+// core of player.html's `?import=<url>`, campaign.html's per-case fetch, and
+// campaign-editor.html's "add case by URL", which used to duplicate this
+// exact 5-line block (including the Italian error strings) three times.
+export async function importPuzzleFromUrl(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
+  const puzzle = await res.json();
+  const { valid, errors } = validatePuzzleShape(puzzle);
+  if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
+  return puzzle;
+}
+
 export function importPuzzleFromFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

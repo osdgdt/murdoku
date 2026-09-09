@@ -2,6 +2,17 @@ import { el, clear } from "../util/dom.js";
 import { addCharacter, removeCharacter, setVictim, characterColor, CHARACTER_COLORS } from "../model/puzzle.js";
 import { CHARACTER_ICONS, characterIcon } from "../model/icons.js";
 
+// Enter/Space equivalent of a click, for the custom (non-<button>) color
+// swatches below — plain <div>s, so tabindex/role need wiring alongside this.
+function onActivateKey(onActivate) {
+  return (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onActivate();
+    }
+  };
+}
+
 export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly) {
   clear(container);
   container.appendChild(el("h3", {}, "Personaggi"));
@@ -36,11 +47,16 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     const colorList = character.isVictim ? null : el("div", { class: "zone-swatch-list" });
     if (colorList) {
       for (const color of CHARACTER_COLORS) {
+        const selectColor = () => { character.color = color; onChange(); };
         colorList.appendChild(el("div", {
           class: "swatch" + (characterColor(character) === color ? " selected" : ""),
           style: `background:${color}`,
           title: "Colore del personaggio",
-          onClick: () => { character.color = color; onChange(); },
+          tabindex: "0",
+          role: "button",
+          "aria-label": `Colore ${color} per ${character.name}`,
+          onClick: selectColor,
+          onKeydown: onActivateKey(selectColor),
         }));
       }
     }

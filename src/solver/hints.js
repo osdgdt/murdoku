@@ -209,10 +209,14 @@ function toEliminatedCellStep(fact) {
 // propagation confirmed. Returns every forced placement/elimination found by
 // EITHER technique this wave, merged and deduplicated.
 function computeWave(puzzle, confirmed, budget, candidates) {
-  if (budget.expired()) {
-    return { steps: [], confirmedAfter: confirmed, contradiction: null, exhaustiveUsable: false, tooComplexReason: "budgetExhausted" };
-  }
-
+  // Contradiction checks run BEFORE the budget check, on purpose: they're
+  // already cheap/self-bounded (checkDirectClueViolation is a direct
+  // predicate evaluation, propagate() has its own internal caps), and doing
+  // so makes "no contradiction reported => confirmed is clue-consistent" —
+  // the soundness property extendChainWithOracleStep (gameScreen.js) relies
+  // on — true by construction instead of true only because the very first
+  // wave's budget happens to always be fresh (synchronous, no `await`
+  // between creating it and this first call). Costs nothing either way.
   if (checkDirectClueViolation(puzzle, confirmed)) {
     return { steps: [], confirmedAfter: confirmed, contradiction: diagnoseContradiction(puzzle, confirmed, budget), exhaustiveUsable: false, tooComplexReason: null };
   }
@@ -220,6 +224,10 @@ function computeWave(puzzle, confirmed, budget, candidates) {
   const prop = propagate(puzzle, confirmed);
   if (prop.contradiction) {
     return { steps: [], confirmedAfter: confirmed, contradiction: diagnoseContradiction(puzzle, confirmed, budget), exhaustiveUsable: false, tooComplexReason: null };
+  }
+
+  if (budget.expired()) {
+    return { steps: [], confirmedAfter: confirmed, contradiction: null, exhaustiveUsable: false, tooComplexReason: "budgetExhausted" };
   }
 
   const stats = {};

@@ -1,11 +1,12 @@
 import { el, clear, qs } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
-import { validatePuzzleShape } from "../model/puzzle.js";
+import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { createBoardState, serializeBoardState, deserializeBoardState } from "../player/board.js";
 import { createGameScreen } from "../player/gameScreen.js";
 import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
+import { formatElapsed } from "../util/time.js";
 
 wireThemeToggle();
 
@@ -180,10 +181,15 @@ async function showCaseListView(campaignId) {
   }
   campaign.cases.forEach((c, index) => {
     const unlocked = index <= progress.unlockedCaseIndex;
+    const bestTime = progress.cases[c.id]?.bestTimeSeconds;
     caseListEl.appendChild(
       el("div", { class: "saved-row" }, [
         el("div", {}, [
-          el("span", { class: "title" }, [caseStatusBadge(index, c, progress), ` ${index + 1}. ${c.label || c.puzzleId}`]),
+          el("span", { class: "title" }, [
+            caseStatusBadge(index, c, progress),
+            ` ${index + 1}. ${c.label || c.puzzleId}`,
+            typeof bestTime === "number" ? el("span", { class: "best-time-badge", title: "Miglior tempo" }, `⏱ ${formatElapsed(bestTime)}`) : null,
+          ]),
         ]),
         el("div", { class: "actions" }, [
           unlocked
@@ -236,11 +242,7 @@ async function showGameView(campaignId, caseId) {
   // campaign's cases are unaffected.
   let fetchedPuzzle;
   try {
-    const res = await fetch(currentCase.puzzleUrl);
-    if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
-    fetchedPuzzle = await res.json();
-    const { valid, errors } = validatePuzzleShape(fetchedPuzzle);
-    if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
+    fetchedPuzzle = await importPuzzleFromUrl(currentCase.puzzleUrl);
   } catch (err) {
     clear(caseErrorPanel);
     caseErrorPanel.appendChild(el("p", { class: "violation" }, `Non riesco a caricare questo caso: ${err.message}`));
@@ -256,10 +258,10 @@ async function showGameView(campaignId, caseId) {
     puzzle,
     state,
     persistProgress,
-    onSolved: async () => {
+    onSolved: async (elapsedSeconds) => {
       boardSaver.flush();
       try {
-        await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex);
+        await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex, elapsedSeconds);
       } catch (err) {
         console.error("Impossibile registrare il completamento del caso:", err);
       }

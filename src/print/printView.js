@@ -1,7 +1,7 @@
 import { el, clear } from "../util/dom.js";
 import { objectIcon, characterIcon } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
-import { cluesForCharacter, genericClues } from "../model/puzzle.js";
+import { cluesForCharacter, genericClues, difficultyLabel } from "../model/puzzle.js";
 
 function addPrintLabels(board, grid) {
   board.appendChild(el("div", { class: "print-label print-label-corner" }));
@@ -94,9 +94,12 @@ function renderBlankGrid(puzzle) {
 
 export function renderPrintView(container, puzzle) {
   clear(container);
+  const subtitleParts = [];
+  if (puzzle.author) subtitleParts.push(`di ${puzzle.author}`);
+  if (puzzle.difficulty) subtitleParts.push(`Difficoltà: ${difficultyLabel(puzzle.difficulty)}`);
   const page = el("div", { class: "print-page" }, [
     el("h1", { class: "print-title" }, puzzle.title),
-    el("p", { class: "print-subtitle" }, puzzle.author ? `di ${puzzle.author}` : ""),
+    el("p", { class: "print-subtitle" }, subtitleParts.join(" · ")),
     puzzle.briefing ? el("p", { class: "print-briefing" }, puzzle.briefing) : null,
     el("h2", { class: "print-blank-heading" }, "Mappa del caso"),
     renderMapGrid(puzzle),

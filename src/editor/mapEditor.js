@@ -7,6 +7,18 @@ const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4
 
 let tool = null; // { kind: 'zone', zoneId } | { kind: 'object', typeId } | { kind: 'block' } | { kind: 'erase' }
 
+// Enter/Space equivalent of a click, for custom (non-<button>) widgets like
+// the zone swatches and object-palette items below — they're plain <div>s so
+// they need tabindex/role wired alongside this to actually be reachable.
+function onActivateKey(onActivate) {
+  return (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onActivate();
+    }
+  };
+}
+
 export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   clear(panelEl);
 
@@ -48,14 +60,19 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
 
   const zoneList = el("div", { class: "zone-swatch-list" });
   for (const zone of puzzle.grid.zones) {
+    const selectZone = () => {
+      tool = { kind: "zone", zoneId: zone.id };
+      onChange();
+    };
     const swatch = el("div", {
       class: "swatch" + (tool?.kind === "zone" && tool.zoneId === zone.id ? " selected" : ""),
       style: `background:${zone.color}`,
       title: zone.name + " (click per dipingere, doppio click per rimuovere)",
-      onClick: () => {
-        tool = { kind: "zone", zoneId: zone.id };
-        onChange();
-      },
+      tabindex: "0",
+      role: "button",
+      "aria-label": `Stanza ${zone.name}: seleziona per dipingere`,
+      onClick: selectZone,
+      onKeydown: onActivateKey(selectZone),
       onDblclick: () => {
         removeZone(puzzle.grid, zone.id);
         if (tool?.zoneId === zone.id) tool = null;
@@ -71,13 +88,18 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(el("h3", {}, "Oggetti / Mobili"));
   const objectPalette = el("div", { class: "object-palette" });
   for (const [typeId, def] of Object.entries(OBJECT_TYPES)) {
+    const selectObject = () => {
+      tool = { kind: "object", typeId };
+      onChange();
+    };
     const item = el("div", {
       class: "palette-item" + (tool?.kind === "object" && tool.typeId === typeId ? " selected" : ""),
       title: def.label,
-      onClick: () => {
-        tool = { kind: "object", typeId };
-        onChange();
-      },
+      tabindex: "0",
+      role: "button",
+      "aria-label": `Oggetto: ${def.label}`,
+      onClick: selectObject,
+      onKeydown: onActivateKey(selectObject),
     });
     item.innerHTML = def.icon;
     objectPalette.appendChild(item);

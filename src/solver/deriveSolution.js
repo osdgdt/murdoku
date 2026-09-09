@@ -3,10 +3,16 @@ import { checkUniqueness } from "./validator.js";
 // One-time budget (per puzzle load, not per hint click — see gameScreen.js's
 // memoized getEffectiveSolution()). Larger than hints.js's HINT_MAX_NODES
 // (2,000,000, shared across every wave of a single interactive hint click)
-// since this only ever runs once per puzzle, but still bounded: if it ever
-// proves insufficient in practice, moving this search to a Web Worker (as
-// already flagged as a future option in hints.js) is the right next step,
-// not raising this cap further.
+// since this only ever runs once per puzzle, but still bounded. This now
+// runs in a Web Worker (src/solver/solverClient.js), so a slow search no
+// longer freezes the page — but that's not a reason to raise this further:
+// the worker is a single serialized queue (one Worker per page, not a
+// pool), so a very long derive still blocks every OTHER solver-backed
+// button on the same page behind it, and there's no cancellation path if an
+// author just wants to give up and add more clues instead. A puzzle that
+// needs more than 10M nodes to resolve is already deep into
+// under-constrained territory, where more search time mostly just delays
+// reaching the same "inconclusive" verdict.
 export const DERIVE_SOLUTION_MAX_NODES = 10_000_000;
 
 // Exhaustive, forward-checked search over the puzzle's CLUES ALONE — never

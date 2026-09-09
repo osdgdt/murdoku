@@ -1,7 +1,8 @@
 import { el, clear, qs } from "../util/dom.js";
 import * as store from "../storage/puzzleStore.js";
 import { createBoardState, serializeBoardState, deserializeBoardState } from "./board.js";
-import { duplicatePuzzle, difficultyLabel, validatePuzzleShape } from "../model/puzzle.js";
+import { duplicatePuzzle, difficultyLabel } from "../model/puzzle.js";
+import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
@@ -23,11 +24,7 @@ let importError = null;
 const importUrl = params.get("import");
 if (!puzzleId && importUrl) {
   try {
-    const res = await fetch(importUrl);
-    if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
-    const imported = await res.json();
-    const { valid, errors } = validatePuzzleShape(imported);
-    if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
+    const imported = await importPuzzleFromUrl(importUrl);
     if (!store.get(imported.id)) store.save(imported);
     puzzleId = imported.id;
     history.replaceState(null, "", `player.html?id=${puzzleId}`);

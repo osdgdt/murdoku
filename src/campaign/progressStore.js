@@ -72,11 +72,24 @@ export async function saveCaseBoardState(uid, campaignId, caseId, boardSnapshot)
 
 // Always called immediately (never debounced, unlike saveCaseBoardState) —
 // a rare, high-value write, not part of the continuous placement/note flow.
-export async function markCaseCompleted(uid, campaignId, caseId, caseIndex) {
+// `elapsedSeconds` is optional (gameScreen.js's onSolved callback signature
+// is shared with playerApp.js, which does track it) — when present, keeps a
+// running best time per case under `cases.<caseId>.bestTimeSeconds`, parity
+// with the same feature already shipped for single-puzzle play. Firestore's
+// `merge:true` recurses into nested map fields, so this write never touches
+// `cases.<caseId>.board`/`updatedAt` (already read once above, no extra
+// round trip) or any other case's entry.
+export async function markCaseCompleted(uid, campaignId, caseId, caseIndex, elapsedSeconds) {
   const current = await getCampaignProgress(uid, campaignId);
   const completedCaseIds = current.completedCaseIds.includes(caseId)
     ? current.completedCaseIds
     : [...current.completedCaseIds, caseId];
   const unlockedCaseIndex = Math.max(current.unlockedCaseIndex, caseIndex + 1);
-  await setDoc(progressRef(uid, campaignId), { completedCaseIds, unlockedCaseIndex }, { merge: true });
+  const update = { completedCaseIds, unlockedCaseIndex };
+  if (typeof elapsedSeconds === "number") {
+    const previousBest = current.cases[caseId]?.bestTimeSeconds;
+    const bestTimeSeconds = previousBest == null ? elapsedSeconds : Math.min(previousBest, elapsedSeconds);
+    update.cases = { [caseId]: { bestTimeSeconds } };
+  }
+  await setDoc(progressRef(uid, campaignId), update, { merge: true });
 }

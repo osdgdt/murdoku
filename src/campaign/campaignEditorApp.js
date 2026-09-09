@@ -1,9 +1,23 @@
 import { el, qs, clear } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
-import { validatePuzzleShape } from "../model/puzzle.js";
+import { importPuzzleFromUrl } from "../storage/importExport.js";
+import { validateSolution } from "../solver/validator.js";
+import { deriveSolutionAsync } from "../solver/solverClient.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
 import * as campaignStore from "./campaignStore.js";
+
+// Shown when a linked case's declared solution isn't already valid and a
+// deeper search (deriveSolutionAsync) couldn't confirm a usable one either —
+// a broken case in a campaign isn't one bad puzzle among many, it's a
+// sequential gate (progressStore's unlockedCaseIndex) blocking every player
+// who reaches it and every case after it, so this is worth flagging before
+// it goes live rather than discovering it only when a real player hits it.
+const SOLUTION_STATUS_WARNINGS = {
+  unsatisfiable: "Questo caso non ha alcuna soluzione compatibile con i suoi indizi: i giocatori non potranno mai completarlo.",
+  ambiguous: "Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta.",
+  inconclusive: "Non riesco a stabilire con certezza se questo caso ha una soluzione univoca (troppo complesso da analizzare).",
+};
 
 wireThemeToggle();
 
@@ -159,12 +173,15 @@ async function loadDetailView(id) {
 }
 
 newCampaignBtn.addEventListener("click", async () => {
+  newCampaignBtn.disabled = true;
   const created = createCampaign();
   try {
     await campaignStore.saveCampaign(created);
     location.href = `campaign-editor.html?id=${created.id}`;
   } catch (err) {
     alert("Impossibile creare la campagna: " + err.message);
+  } finally {
+    newCampaignBtn.disabled = false;
   }
 });
 
@@ -180,14 +197,25 @@ descriptionInput.addEventListener("change", () => {
 addCaseBtn.addEventListener("click", async () => {
   const url = addCaseUrlInput.value.trim();
   if (!url) return;
+  addCaseBtn.disabled = true;
   addCaseStatus.textContent = "Verifica del file…";
   addCaseStatus.className = "muted";
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
-    const puzzle = await res.json();
-    const { valid, errors } = validatePuzzleShape(puzzle);
-    if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
+    const puzzle = await importPuzzleFromUrl(url);
+
+    addCaseStatus.textContent = "Controllo della soluzione…";
+    let solutionStatus = "unique";
+    if (!validateSolution(puzzle).valid) {
+      solutionStatus = (await deriveSolutionAsync(puzzle)).status;
+    }
+    if (solutionStatus !== "unique") {
+      const ok = confirm(`${SOLUTION_STATUS_WARNINGS[solutionStatus]} Aggiungerlo comunque alla campagna?`);
+      if (!ok) {
+        addCaseStatus.textContent = "";
+        return;
+      }
+    }
+
     addCase(campaign, { puzzleId: puzzle.id, puzzleUrl: url, label: puzzle.title });
     await persistCampaign(null);
     renderCaseList();
@@ -197,6 +225,8 @@ addCaseBtn.addEventListener("click", async () => {
   } catch (err) {
     addCaseStatus.textContent = "Errore: " + err.message;
     addCaseStatus.className = "violation";
+  } finally {
+    addCaseBtn.disabled = false;
   }
 });
 

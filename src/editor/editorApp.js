@@ -1,4 +1,4 @@
-import { el, qs } from "../util/dom.js";
+import { el, qs, clear } from "../util/dom.js";
 import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
@@ -190,7 +190,7 @@ redoBtn.addEventListener("click", redoChange);
 validateBtn.addEventListener("click", () => {
   const shape = validatePuzzleShape(puzzle);
   const result = validateSolution(puzzle);
-  validationPanel.innerHTML = "";
+  clear(validationPanel);
   const allErrors = [...shape.errors, ...result.violations.map((v) => v.message)];
   if (allErrors.length === 0) {
     validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ La soluzione dichiarata soddisfa tutte le regole e gli indizi."));
@@ -264,14 +264,14 @@ function renderSolutionPreviews(puzzle, solutions) {
 
 uniqueBtn.addEventListener("click", async () => {
   uniqueBtn.disabled = true;
-  validationPanel.innerHTML = "";
-  validationPanel.appendChild(el("p", { class: "muted" }, "Verifica unicità in corso…"));
+  clear(validationPanel);
+  validationPanel.appendChild(el("p", { class: "info-message" }, "Verifica unicità in corso…"));
   try {
     const report = await checkUniquenessAsync(puzzle, {
       maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS,
       maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
     });
-    validationPanel.innerHTML = "";
+    clear(validationPanel);
     if (report.solutionCount === 0) {
       validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi."));
     } else if (report.solutionCount === 1) {
@@ -287,8 +287,8 @@ uniqueBtn.addEventListener("click", async () => {
       validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
     }
   } catch (err) {
-    validationPanel.innerHTML = "";
-    validationPanel.appendChild(el("p", { class: "violation" }, `Errore durante la verifica: ${err.message}`));
+    clear(validationPanel);
+    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a verificare l'unicità: ${err.message}. Riprova.`));
   } finally {
     uniqueBtn.disabled = false;
   }
@@ -296,14 +296,14 @@ uniqueBtn.addEventListener("click", async () => {
 
 estimateBtn.addEventListener("click", async () => {
   estimateBtn.disabled = true;
-  validationPanel.innerHTML = "";
-  validationPanel.appendChild(el("p", { class: "muted" }, "Stima in corso…"));
+  clear(validationPanel);
+  validationPanel.appendChild(el("p", { class: "info-message" }, "Stima in corso…"));
   try {
     const report = await checkUniquenessAsync(puzzle, {
       maxSolutions: 2,
       maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
     });
-    validationPanel.innerHTML = "";
+    clear(validationPanel);
     if (report.solutionCount !== 1) {
       // A stima only means something once the puzzle has exactly one solution
       // — with zero or several, "how hard was it to find" isn't a meaningful
@@ -322,8 +322,8 @@ estimateBtn.addEventListener("click", async () => {
       )
     );
   } catch (err) {
-    validationPanel.innerHTML = "";
-    validationPanel.appendChild(el("p", { class: "violation" }, `Errore durante la stima: ${err.message}`));
+    clear(validationPanel);
+    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a calcolare la stima: ${err.message}. Riprova.`));
   } finally {
     estimateBtn.disabled = false;
   }
@@ -345,15 +345,19 @@ calcSolutionBtn.addEventListener("click", async () => {
   // background search — if the author keeps editing (undo/redo, map,
   // characters, clues all bump this via handleChange -> touch()) while it's
   // running, applying a since-stale result would silently clobber their
-  // newer changes.
+  // newer changes. Capture the object reference too, not just its
+  // timestamp: undo/redo/import REASSIGN the module-level `puzzle` variable
+  // outright (not just mutate it), and a bare timestamp comparison could in
+  // principle miss a swap that lands in the same Date.now() millisecond.
   const startedAtVersion = puzzle.updatedAt;
+  const startedAtPuzzle = puzzle;
   calcSolutionBtn.disabled = true;
-  validationPanel.innerHTML = "";
-  validationPanel.appendChild(el("p", { class: "muted" }, "Calcolo della soluzione in corso…"));
+  clear(validationPanel);
+  validationPanel.appendChild(el("p", { class: "info-message" }, "Calcolo della soluzione in corso…"));
   try {
     const result = await deriveSolutionAsync(puzzle);
-    validationPanel.innerHTML = "";
-    if (puzzle.updatedAt !== startedAtVersion) {
+    clear(validationPanel);
+    if (puzzle !== startedAtPuzzle || puzzle.updatedAt !== startedAtVersion) {
       validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è stato modificato nel frattempo: riprova."));
       return;
     }
@@ -373,8 +377,8 @@ calcSolutionBtn.addEventListener("click", async () => {
       validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."));
     }
   } catch (err) {
-    validationPanel.innerHTML = "";
-    validationPanel.appendChild(el("p", { class: "violation" }, `Errore durante il calcolo: ${err.message}`));
+    clear(validationPanel);
+    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a calcolare la soluzione: ${err.message}. Riprova.`));
   } finally {
     calcSolutionBtn.disabled = false;
   }

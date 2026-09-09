@@ -312,6 +312,7 @@
 }
 .swatch:hover { transform: scale(1.08); }
 .swatch.selected { box-shadow: 0 0 0 2.5px var(--accent); transform: scale(1.08); }
+.swatch:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 .palette-item {
   width: 42px; height: 42px;
@@ -325,6 +326,7 @@
 }
 .palette-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .palette-item.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.palette-item:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .palette-item svg { width: 22px; height: 22px; color: var(--ink-soft); }
 
 .character-list, .clue-list { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -510,6 +512,15 @@
 .violation::before { content: "✕"; position: absolute; left: 0; font-weight: 700; }
 .ok-message {
   color: var(--success);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+/* "In corso…" state for the solver-backed buttons (Verifica unicità, Stima
+   difficoltà, Calcola soluzione) — same visual weight as .ok-message, in the
+   accent color instead of muted gray, so a Worker call in progress is as
+   noticeable here as gameScreen.js's matching "result-banner hint-info". */
+.info-message {
+  color: var(--accent-dark);
   font-size: 0.92rem;
   font-weight: 600;
 }

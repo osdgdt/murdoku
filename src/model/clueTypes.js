@@ -544,10 +544,6 @@ export const CLUE_TYPES = {
   },
 };
 
-export function clueTypeIds() {
-  return Object.keys(CLUE_TYPES);
-}
-
 export function characterClueTypeIds() {
   return Object.keys(CLUE_TYPES).filter((id) => CLUE_TYPES[id].scope !== "generic" && !CLUE_TYPES[id].legacy && !CLUE_TYPES[id].internal);
 }

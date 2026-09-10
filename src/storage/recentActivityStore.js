@@ -30,7 +30,3 @@ export function getRecent() {
     return null;
   }
 }
-
-export function clearRecent() {
-  localStorage.removeItem(KEY);
-}

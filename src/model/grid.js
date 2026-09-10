@@ -117,13 +117,3 @@ export function zoneOfCell(grid, row, col) {
   const cell = cellAt(grid, row, col);
   return cell ? cell.zoneId : null;
 }
-
-export function cellsInZone(grid, zoneId) {
-  const out = [];
-  for (let r = 0; r < grid.size.rows; r++) {
-    for (let c = 0; c < grid.size.cols; c++) {
-      if (grid.cells[r][c].zoneId === zoneId) out.push({ row: r, col: c });
-    }
-  }
-  return out;
-}

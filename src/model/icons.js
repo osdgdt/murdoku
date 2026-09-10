@@ -107,11 +107,15 @@ export const CHARACTER_ICONS = {
   // though these two used to be bodyless accessory icons — now real people,
   // for a consistent "always a person" roster.
   hat: { label: "Cronista", icon: svg(PERSON_BASE + '<path d="M7.5 5C7.5 1.8 9.5 0 12 0s4.5 1.8 4.5 5" fill="none"/><ellipse cx="12" cy="5" rx="7.5" ry="1.6"/>') },
-  glasses: { label: "Studioso/a", icon: svg(PERSON_BASE + '<circle cx="10" cy="8.2" r="1.9"/><circle cx="14" cy="8.2" r="1.9"/><path d="M11.9 8.2h0.2"/><path d="M7.9 8h-1.4M16.1 8h1.4"/>') },
+  glasses: { label: "Studioso/a", icon: svg(PERSON_BASE + '<circle cx="9.8" cy="8" r="1.5"/><circle cx="14.2" cy="8" r="1.5"/><path d="M11.3 8h1.4"/><path d="M8.3 7.6l-1.3-0.4M15.7 7.6l1.3-0.4"/>') },
   detective: { label: "Detective", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="4.8" rx="5.5" ry="2.2"/><circle cx="19" cy="16" r="2.8"/><path d="M21.2 18.2L23 20"/>') },
   butler: { label: "Maggiordomo", icon: svg(PERSON_BASE + '<path d="M7.5 13.2L12 15l4.5-1.8v4l-4.5-1.8-4.5 1.8z"/>') },
   chef: { label: "Cuoco/a", icon: svg(PERSON_BASE + '<rect x="8.3" y="4.6" width="7.4" height="2.6" rx="1.3"/><circle cx="9.6" cy="2.4" r="2.1"/><circle cx="12" cy="1.6" r="2.3"/><circle cx="14.4" cy="2.4" r="2.1"/>') },
-  maid: { label: "Cameriera/e", icon: svg(PERSON_BASE + '<path d="M6.3 6c0-3.4 2.4-5.5 5.7-5.5S17.7 2.6 17.7 6" fill="none"/><path d="M5.8 6.3h12.4"/><circle cx="18.3" cy="7.3" r="1.4" fill="currentColor" stroke="none"/>') },
+  // A bold bow perched on the crown, not a hat/brim shape — structurally
+  // distinct from hat/gardener/chef/driver (all "something covering the
+  // head"), and filled rather than outlined so it still reads clearly at
+  // the smallest render size.
+  maid: { label: "Cameriera/e", icon: svg(PERSON_BASE + '<path d="M12 3.6L9 2.2v2.8z" fill="currentColor" stroke="none"/><path d="M12 3.6L15 2.2v2.8z" fill="currentColor" stroke="none"/><circle cx="12" cy="3.6" r="0.7" fill="currentColor" stroke="none"/>') },
   gardener: { label: "Giardiniere/a", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="5.6" rx="8" ry="1.8"/><path d="M9 5.6c0-2.6 1.3-4.2 3-4.2s3 1.6 3 4.2" fill="none"/>') },
   driver: { label: "Autista", icon: svg(PERSON_BASE + '<path d="M7.8 6.2c0-2.5 1.9-4.2 4.2-4.2s4.2 1.7 4.2 4.2" fill="none"/><path d="M7.3 6.2h7.4"/><path d="M14.7 6.2l3.3 0.7-0.4 1.3-3.3-0.5z" fill="currentColor" stroke="none"/>') },
   professor: { label: "Professore/essa", icon: svg(PERSON_BASE + '<path d="M6 5L12 2.5L18 5L12 7.5Z"/><path d="M18 5v3"/><path d="M12 7.5v1.6"/><circle cx="12" cy="9.7" r="0.7" fill="currentColor" stroke="none"/>') },

@@ -1,4 +1,4 @@
-import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
+import { el, clear, qs, attachHoldToConfirm, onActivateKey } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { zoneOfCell } from "../model/grid.js";
 import { characterColor, cluesForCharacter } from "../model/puzzle.js";
@@ -122,11 +122,21 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     clear(toolbarEl);
     for (const character of puzzle.characters) {
       const placed = state.placements.has(character.id);
+      const selectThis = () => selectTool({ kind: "character", id: character.id });
       const chip = el("div", {
         class: "char-chip" + (state.selectedTool?.kind === "character" && state.selectedTool.id === character.id ? " selected" : "") + (placed ? " used" : ""),
-        onClick: () => selectTool({ kind: "character", id: character.id }),
+        tabindex: "0",
+        role: "button",
+        "aria-label": character.name + (character.isVictim ? " (vittima)" : ""),
+        onClick: selectThis,
+        onKeydown: onActivateKey(selectThis),
+        // Focus is the keyboard equivalent of hover here — tabbing to a chip
+        // previews its clue targets on the board exactly like mousing over
+        // it does, before committing with Enter/Space.
         onMouseenter: () => showCharacterHover(character.id),
         onMouseleave: clearHover,
+        onFocus: () => showCharacterHover(character.id),
+        onBlur: clearHover,
       });
       const iconWrap = el("span", { style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}` });
       iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
@@ -135,8 +145,18 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       chip.appendChild(document.createTextNode(character.name + (character.isVictim ? " (V)" : "")));
       toolbarEl.appendChild(chip);
     }
-    toolbarEl.appendChild(el("div", { class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""), onClick: () => selectTool({ kind: "x" }) }, "✕ Segna"));
-    toolbarEl.appendChild(el("div", { class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""), onClick: () => selectTool({ kind: "erase" }) }, "🧹 Gomma"));
+    const selectX = () => selectTool({ kind: "x" });
+    const selectErase = () => selectTool({ kind: "erase" });
+    toolbarEl.appendChild(el("div", {
+      class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""),
+      tabindex: "0", role: "button", "aria-label": "Segna X",
+      onClick: selectX, onKeydown: onActivateKey(selectX),
+    }, "✕ Segna"));
+    toolbarEl.appendChild(el("div", {
+      class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""),
+      tabindex: "0", role: "button", "aria-label": "Gomma",
+      onClick: selectErase, onKeydown: onActivateKey(selectErase),
+    }, "🧹 Gomma"));
   }
 
   // Ephemeral, non-serialized cell highlighting for hover — mirrors
@@ -182,6 +202,14 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   }
 
   function renderBoardAndClues() {
+    // Snapshotted at the instant a press begins (onPressStart, below) and
+    // read back — instead of the live state.selectedTool — when the hold
+    // timer actually fires: state.selectedTool can otherwise be reassigned
+    // while a hold is still pending (e.g. showHintStep() auto-selecting a
+    // character, reachable via a second touch on the hint nav while the
+    // first is mid-hold on the board) — pinning it here is what makes
+    // handleCellHold's own `tool` override meaningful.
+    let pressStartTool = null;
     renderPlayerBoard(
       boardEl, puzzle, state,
       (row, col) => { // onCellTap — segna/toglie una nota (o X/gomma, invariati)
@@ -191,9 +219,9 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         renderToolbar();
         renderBoardAndClues();
       },
-      (row, col) => { // onCellHold — conferma il personaggio selezionato qui
+      (row, col) => { // onCellHold — conferma qui il personaggio selezionato all'inizio della pressione
         clearHint();
-        handleCellHold(state, puzzle.grid, row, col);
+        handleCellHold(state, puzzle.grid, row, col, pressStartTool);
         persistProgress();
         renderToolbar();
         renderBoardAndClues();
@@ -202,7 +230,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         handleCellDrag(state, puzzle.grid, row, col);
         persistProgress();
         renderBoardAndClues();
-      }
+      },
+      () => { pressStartTool = state.selectedTool; } // onPressStart
     );
     applyHintHighlight();
     renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);

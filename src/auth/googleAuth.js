@@ -22,7 +22,3 @@ export function signOutUser() {
 export function onAuthChange(cb) {
   return onAuthStateChanged(auth, cb);
 }
-
-export function currentUser() {
-  return auth.currentUser;
-}

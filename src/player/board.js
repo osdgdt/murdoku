@@ -155,9 +155,10 @@ function clearCandidatesForCharacter(state, characterId) {
 // A single tap (press-and-release without leaving the pressed cell, or a
 // keyboard Enter/Space — see boardRender.js): segna/toglie una nota for the
 // selected character, or behaves as before for X/eraser (unaffected by the
-// tap-vs-hold gesture split — they never depended on a mode flag).
-export function handleCellTap(state, grid, row, col) {
-  const tool = state.selectedTool;
+// tap-vs-hold gesture split — they never depended on a mode flag). `tool`
+// defaults to the live `state.selectedTool`, but a caller can pass an
+// explicit one instead — see handleCellHold's own `tool` param for why.
+export function handleCellTap(state, grid, row, col, tool = state.selectedTool) {
   if (!tool) return { ok: false };
   if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
 
@@ -210,11 +211,19 @@ export function handleCellTap(state, grid, row, col) {
 // had anywhere else on the board. For X/eraser this has no meaning distinct
 // from a tap — delegates straight to handleCellTap so an unusually slow
 // press on those tools doesn't just do nothing.
-export function handleCellHold(state, grid, row, col) {
-  const tool = state.selectedTool;
+//
+// `tool` defaults to the live `state.selectedTool`, but gameScreen.js passes
+// an explicit one pinned at the moment the press STARTED (via renderBoard's
+// onPressStart) — the hold timer can take up to HOLD_THRESHOLD_MS to fire,
+// and during that wait something else could reassign state.selectedTool
+// (e.g. a hint step auto-selecting a character, triggered by a second,
+// unrelated touch elsewhere on the page while this hold is still pending) —
+// without pinning, the hold would confirm whatever tool ended up selected by
+// the time the timer fires, not the one the player was actually pressing for.
+export function handleCellHold(state, grid, row, col, tool = state.selectedTool) {
   if (!tool) return { ok: false };
   if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
-  if (tool.kind !== "character") return handleCellTap(state, grid, row, col);
+  if (tool.kind !== "character") return handleCellTap(state, grid, row, col, tool);
 
   const occupant = occupiedBy(state, row, col);
   if (occupant === tool.id) {
@@ -381,13 +390,18 @@ function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId) {
 // `onCellHold` fires when the press stays still on the same cell past the
 // hold threshold (or Shift+Enter); `onCellEnter` fires again for each further
 // cell the pointer enters while dragging, letting a single stroke mark
-// candidates/X's across several cells instead of one tap each. See
-// src/util/boardRender.js for the gesture state machine.
-export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter) {
+// candidates/X's across several cells instead of one tap each. `onPressStart`
+// (optional) fires once, synchronously, the instant a press begins — before
+// the hold timer starts counting down — so a caller can pin anything that
+// could otherwise change out from under a pending hold (see board.js's
+// handleCellHold `tool` param). See src/util/boardRender.js for the full
+// gesture state machine.
+export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter, onPressStart) {
   renderBoard(container, puzzle.grid, {
     onCellTap,
     onCellHold,
     onCellEnter,
+    onPressStart,
     decorateCell: (cellNode, row, col) => {
       const occupant = occupiedBy(state, row, col);
       if (occupant) {

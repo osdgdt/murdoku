@@ -195,11 +195,11 @@ export function validatePuzzleShape(puzzle) {
     }
     // Mirrors solvePuzzle's own guard (src/solver/solver.js) — one character
     // per row AND per column means more characters than rows/cols can never
-    // have a valid solution. Also closes a real bug: board.js's note-mode
-    // candidate grid has exactly 9 fixed slots and silently drops any
-    // character past the 9th with no warning, so this keeps that invariant
-    // true at the validation boundary instead of relying on the editor's
-    // own 3-9 UI clamp (which never runs on an imported puzzle).
+    // have a valid solution. Also closes a real bug: board.js's candidate-note
+    // grid has exactly 9 fixed slots and silently drops any character past
+    // the 9th with no warning, so this keeps that invariant true at the
+    // validation boundary instead of relying on the editor's own 3-9 UI
+    // clamp (which never runs on an imported puzzle).
     if (puzzle.grid?.size) {
       const { rows, cols } = puzzle.grid.size;
       if (puzzle.characters.length > rows || puzzle.characters.length > cols) {

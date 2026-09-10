@@ -18,6 +18,14 @@ let dragDownCell = null;
 // over the same still-under-the-finger cell a no-op instead of calling
 // onCellEnter on every single event.
 let lastTouchCell = null;
+// The identifier of the touch that started the current press (null when the
+// current press is mouse-driven, or when nothing is pressed). A touchend/
+// touchcancel/touchmove event that doesn't carry THIS touch belongs to some
+// OTHER, unrelated finger touching the page at the same time (e.g. a second
+// finger tapping a toolbar button while the first is mid-hold on a board
+// cell) — it must never complete, cancel, or redirect a gesture it didn't
+// start.
+let activeTouchId = null;
 // Which render's onCellEnter/onCellTap a press should call — touchmove is
 // handled by ONE document-level listener (registered once below, not
 // per-cell like mouseenter can be, since it needs `elementFromPoint` to
@@ -71,7 +79,7 @@ function convertToDrag() {
 
 if (typeof document !== "undefined") {
   const resetPressState = () => {
-    dragActive = false; dragDownCell = null; lastTouchCell = null;
+    dragActive = false; dragDownCell = null; lastTouchCell = null; activeTouchId = null;
     clearHoldTimer(); holdFired = false; dragConverted = false; clearHoldingVisual();
   };
   // A genuine release (mouseup/touchend) that never moved off the down-cell
@@ -82,23 +90,38 @@ if (typeof document !== "undefined") {
     }
     resetPressState();
   };
+  // True if this touch event carries the finger that started the current
+  // press (or if the press isn't touch-driven at all) — see activeTouchId.
+  const isOwnTouch = (e) => activeTouchId === null || [...e.changedTouches].some((t) => t.identifier === activeTouchId);
+
   document.addEventListener("mouseup", releasePress);
   // draggable="false" is set on every cell, so this should never fire in
   // practice; if it ever does, treat it as an aborted gesture, not a
   // completed tap.
   document.addEventListener("dragend", resetPressState);
-  document.addEventListener("touchend", releasePress);
+  document.addEventListener("touchend", (e) => { if (isOwnTouch(e)) releasePress(); });
   // System-aborted gesture (e.g. an incoming call) — never a completed tap.
-  document.addEventListener("touchcancel", resetPressState);
+  document.addEventListener("touchcancel", (e) => { if (isOwnTouch(e)) resetPressState(); });
+  // A press abandoned by leaving the window/tab entirely (alt-tab, the mouse
+  // moving off-screen, switching apps mid-touch) must be cancelled outright,
+  // not left armed to fire onCellHold later out of context, once focus
+  // returns, on whatever's still under the cursor — mirrors
+  // attachHoldToConfirm's mouseleave cancellation (src/util/dom.js) for the
+  // same reason. window "blur" fires for all of these; a plain document
+  // mouseleave would not (the pointer usually leaves via the OS chrome, not
+  // back into the document).
+  window.addEventListener("blur", resetPressState);
   document.addEventListener(
     "touchmove",
     (e) => {
       if (!dragActive || holdFired) return;
-      const touch = e.touches[0];
+      // Only the tracked touch's own movement can drive the drag — a
+      // different, unrelated finger moving elsewhere on the page must not.
+      const touch = activeTouchId === null ? e.changedTouches[0] : [...e.changedTouches].find((t) => t.identifier === activeTouchId);
       if (!touch) return;
+      e.preventDefault(); // a drag in progress must never also scroll the page, even briefly off-board
       const targetCell = document.elementFromPoint(touch.clientX, touch.clientY)?.closest(".board-cell");
       if (!targetCell) return;
-      e.preventDefault(); // dragging across the board must never also scroll the page
       const tRow = Number(targetCell.dataset.row);
       const tCol = Number(targetCell.dataset.col);
       if (lastTouchCell && lastTouchCell.row === tRow && lastTouchCell.col === tCol) return;
@@ -127,7 +150,7 @@ if (typeof document !== "undefined") {
 // and `onCellEnter` fires again for every new cell the pointer enters while
 // dragging (a drag is what a press becomes the moment it leaves the pressed
 // cell before the hold timer fires — see convertToDrag above).
-export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellTap, onCellHold, onCellEnter, decorateCell, showLabels = true } = {}) {
+export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellTap, onCellHold, onCellEnter, onPressStart, decorateCell, showLabels = true } = {}) {
   clear(container);
   container.classList.add("board-grid");
   container.setAttribute("role", "grid");
@@ -140,9 +163,18 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   // as active (editor boards: onCellClick alone handles everything, this is
   // a harmless no-op setup shared with the player-board path). Shared by
   // onmousedown and touchstart below to avoid duplicating the hold-timer
-  // logic per input type.
+  // logic per input type. Ignores a press while one is already active (e.g.
+  // a second finger touching the board) — only the first press drives the
+  // gesture; see activeTouchId for the touch-identity side of this.
   function startPress(r, c, node) {
+    if (dragActive) return;
     dragActive = true; dragDownCell = { row: r, col: c }; holdFired = false; dragConverted = false;
+    // Fires once, synchronously, right as the press begins — lets a caller
+    // (gameScreen.js) snapshot anything that could otherwise change out from
+    // under a pending hold before its timer fires (e.g. the selected tool,
+    // if something else reassigns it mid-hold via a second, unrelated
+    // touch — see handleCellHold's `tool` override in board.js).
+    if (onPressStart) onPressStart(r, c);
     if (onCellHold) {
       node.classList.add("holding");
       holdingCellNode = node;
@@ -273,7 +305,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           }
         },
         onMousedown: (e) => {
-          if (e.button !== 0) return;
+          if (e.button !== 0 || dragActive) return;
           e.preventDefault();
           startPress(r, c, cellNode);
         },
@@ -302,22 +334,32 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         },
       });
 
-      // Touch equivalent of onMousedown above. Attached directly (not
-      // through el()'s props, which always adds listeners as passive) so
-      // `{ passive: false }` can actually take effect — needed so
-      // preventDefault() here can stop the touch from also scrolling/
-      // selecting the page, matching attachHoldToConfirm's existing pattern
-      // (src/util/dom.js) for the same reason. touchmove itself is handled
-      // by the single document-level listener registered above, not here.
-      cellNode.addEventListener(
-        "touchstart",
-        (e) => {
-          e.preventDefault();
-          lastTouchCell = { row: r, col: c };
-          startPress(r, c, cellNode);
-        },
-        { passive: false }
-      );
+      // Touch equivalent of onMousedown above — only wired for boards that
+      // actually use the tap/hold/drag gesture model (onCellHold or
+      // onCellEnter present, i.e. the player board). Editor boards
+      // (onCellClick-only) must NOT get this: intercepting touchstart here
+      // would swallow the synthetic click a touch tap normally fires,
+      // silently breaking touch taps on the map/solution editors.
+      // Attached directly (not through el()'s props, which always adds
+      // listeners as passive) so `{ passive: false }` can actually take
+      // effect — needed so preventDefault() here can stop the touch from
+      // also scrolling/selecting the page, matching attachHoldToConfirm's
+      // existing pattern (src/util/dom.js) for the same reason. touchmove
+      // itself is handled by the single document-level listener registered
+      // above, not here.
+      if (onCellHold || onCellEnter) {
+        cellNode.addEventListener(
+          "touchstart",
+          (e) => {
+            if (dragActive) return; // a second, unrelated finger — ignore
+            e.preventDefault();
+            activeTouchId = e.changedTouches[0]?.identifier ?? null;
+            lastTouchCell = { row: r, col: c };
+            startPress(r, c, cellNode);
+          },
+          { passive: false }
+        );
+      }
 
       if (cellData.blocked) {
         container.appendChild(cellNode);

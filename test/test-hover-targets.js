@@ -239,4 +239,24 @@ export const tests = [
       assertEqual(cells[0].col, 2);
     },
   },
+  {
+    name: "resolveClueHoverCells: noOneWithProperty unisce la stanza (kind zone, non escluso dal walker generico) con il bersaglio della proprietà",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const zone = addZone(puzzle.grid, "Salotto", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      paintCellZone(puzzle.grid, 0, 1, zone.id);
+      placeObject(puzzle.grid, "window", 3, 3);
+      // Generico (characterId: null): zoneId (kind "zone", fuori dalla
+      // famiglia "proprietà", risolto dal cammino generico) + property
+      // "adjacentTo" (risolto da resolvePropertyTargets) nello stesso
+      // indizio — l'unico tipo che combina le due cose.
+      const clue = addClue(puzzle, null, "noOneWithProperty", { zoneId: zone.id, property: "adjacentTo", targetId: puzzle.grid.objects[0].id });
+      const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
+      const set = cellSet(cells);
+      assertEqual(set.size, 3, "le 2 celle della stanza più la cella della finestra");
+      assert(set.has("0,0") && set.has("0,1"), "le celle della stanza devono comparire");
+      assert(set.has("3,3"), "il bersaglio della proprietà 'adjacentTo' deve comparire insieme alla stanza");
+    },
+  },
 ];

@@ -199,11 +199,12 @@ addCaseBtn.addEventListener("click", async () => {
   if (!url) return;
   addCaseBtn.disabled = true;
   addCaseStatus.textContent = "Verifica del file…";
-  addCaseStatus.className = "muted";
+  addCaseStatus.className = "info-message";
   try {
     const puzzle = await importPuzzleFromUrl(url);
 
     addCaseStatus.textContent = "Controllo della soluzione…";
+    addCaseStatus.className = "info-message";
     let solutionStatus = "unique";
     if (!validateSolution(puzzle).valid) {
       solutionStatus = (await deriveSolutionAsync(puzzle)).status;
@@ -221,7 +222,7 @@ addCaseBtn.addEventListener("click", async () => {
     renderCaseList();
     addCaseUrlInput.value = "";
     addCaseStatus.textContent = "Caso aggiunto.";
-    addCaseStatus.className = "muted";
+    addCaseStatus.className = "ok-message";
   } catch (err) {
     addCaseStatus.textContent = "Errore: " + err.message;
     addCaseStatus.className = "violation";

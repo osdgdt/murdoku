@@ -1,4 +1,4 @@
-import { el, clear } from "../util/dom.js";
+import { el, clear, onActivateKey } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import { characterIcon } from "../model/icons.js";
 import { setSolutionPlacement, placementFor, characterColor } from "../model/puzzle.js";
@@ -18,11 +18,16 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
   const chips = el("div", { class: "player-toolbar" });
   for (const character of puzzle.characters) {
     const placed = !!placementFor(puzzle, character.id);
+    const selectThis = () => { selectedCharacterId = character.id; onChange(); };
     const chip = el(
       "div",
       {
         class: "char-chip" + (selectedCharacterId === character.id ? " selected" : "") + (placed ? " used" : ""),
-        onClick: () => { selectedCharacterId = character.id; onChange(); },
+        tabindex: "0",
+        role: "button",
+        "aria-label": character.name + (character.isVictim ? " (vittima)" : ""),
+        onClick: selectThis,
+        onKeydown: onActivateKey(selectThis),
       },
       character.name + (character.isVictim ? " (V)" : "")
     );

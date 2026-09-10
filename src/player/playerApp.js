@@ -42,8 +42,8 @@ let puzzle = puzzleId ? store.get(puzzleId) : null;
 let state = puzzle ? deserializeBoardState(store.getProgress(puzzle.id)) : createBoardState();
 
 // Saved on every board-state mutation (placement, X, candidate, undo,
-// pulisci tutto, toggling note mode) so leaving and reopening this puzzle —
-// even just reloading the page — restores exactly where you left off.
+// pulisci tutto) so leaving and reopening this puzzle — even just reloading
+// the page — restores exactly where you left off.
 function persistProgress() {
   store.saveProgress(puzzle.id, serializeBoardState(state));
 }

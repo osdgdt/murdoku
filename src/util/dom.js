@@ -2,10 +2,6 @@ export function qs(selector, root = document) {
   return root.querySelector(selector);
 }
 
-export function qsa(selector, root = document) {
-  return Array.from(root.querySelectorAll(selector));
-}
-
 export function el(tag, props = {}, children = []) {
   const node = document.createElement(tag);
   for (const [key, value] of Object.entries(props || {})) {
@@ -28,6 +24,18 @@ export function el(tag, props = {}, children = []) {
 
 export function clear(node) {
   while (node.firstChild) node.removeChild(node.firstChild);
+}
+
+// Enter/Space equivalent of a click, for custom (non-<button>) interactive
+// elements — e.g. a `<div role="button" tabindex="0">` chip/swatch. Wire as
+// `onKeydown: onActivateKey(fn)` alongside `onClick: fn`.
+export function onActivateKey(onActivate) {
+  return (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onActivate();
+    }
+  };
 }
 
 // Requires a press-and-hold (not a plain click) before firing `onConfirm` —

@@ -58,7 +58,3 @@ export function getProgress(id) {
 export function saveProgress(id, progress) {
   localStorage.setItem(progressKey(id), JSON.stringify(progress));
 }
-
-export function removeProgress(id) {
-  localStorage.removeItem(progressKey(id));
-}

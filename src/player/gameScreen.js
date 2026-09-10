@@ -64,6 +64,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   let timerInterval = null;
   let startedAt = null; // hoisted out of startTimer so onSubmit can also read it, for the elapsed time passed to onSolved
   let effectiveSolutionPromise = null; // memoized Promise (not the resolved value) — see getEffectiveSolution()
+  let solved = false; // true once onSubmit's win branch has fired — keeps "Verifica soluzione" disabled until a placement/note actually changes again
 
   // Budget for confirming an already clue-consistent declared solution is
   // also the UNIQUE one (see confirmDeclaredSolutionUnique below) — well
@@ -238,6 +239,19 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     clear(hintPanel);
   }
 
+  // Re-arms the submit button after a win — called from every handler that
+  // can mutate state.placements/xMarks/candidates (tap, hold, drag, undo,
+  // clear), since any of those can turn an already-solved board back into an
+  // incomplete/wrong one (most directly: "Pulisci tutto" after a solve,
+  // which this app explicitly still allows). Deliberately not called from
+  // renderBoardAndClues() itself, which selectTool()/showHintStep() also
+  // call without mutating anything — resetting there would re-arm the
+  // button just by clicking a different character chip.
+  function markUnsolved() {
+    solved = false;
+    submitBtn.disabled = false;
+  }
+
   function renderBoardAndClues() {
     // Snapshotted at the instant a press begins (onPressStart, below) and
     // read back — instead of the live state.selectedTool — when the hold
@@ -252,6 +266,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       (row, col) => { // onCellTap — segna/toglie una nota (o X/gomma, invariati)
         clearHint();
         handleCellTap(state, puzzle.grid, row, col);
+        markUnsolved();
         persistProgress();
         renderToolbar();
         renderBoardAndClues();
@@ -259,12 +274,14 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       (row, col) => { // onCellHold — conferma qui il personaggio selezionato all'inizio della pressione
         clearHint();
         handleCellHold(state, puzzle.grid, row, col, pressStartTool);
+        markUnsolved();
         persistProgress();
         renderToolbar();
         renderBoardAndClues();
       },
       (row, col) => { // onCellEnter — continuazione del trascinamento, note su più caselle
         handleCellDrag(state, puzzle.grid, row, col);
+        markUnsolved();
         persistProgress();
         renderBoardAndClues();
       },
@@ -463,6 +480,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       }
 
       if (correct === total && state.placements.size === total) {
+        solved = true;
         const elapsed = Math.floor((Date.now() - startedAt) / 1000);
         const previousBest = puzzle.bestTimeSeconds;
         stopTimer();
@@ -521,7 +539,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       clear(resultEl);
       resultEl.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a verificare la soluzione: ${err.message}. Riprova.`));
     } finally {
-      submitBtn.disabled = false;
+      submitBtn.disabled = solved;
     }
   }
 
@@ -538,6 +556,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     undoBtn.addEventListener("click", () => {
       clearHint();
       undo(state);
+      markUnsolved();
       persistProgress();
       renderToolbar();
       renderBoardAndClues();
@@ -545,6 +564,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     attachHoldToConfirm(clearBtn, 700, () => {
       clearHint();
       clearAll(state);
+      markUnsolved();
       persistProgress();
       renderToolbar();
       renderBoardAndClues();

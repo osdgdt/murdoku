@@ -1,5 +1,5 @@
 import { el, qs, clear } from "../util/dom.js";
-import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
+import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { validateSolution } from "../solver/validator.js";
@@ -67,20 +67,37 @@ function setStatus(text, kind = "muted") {
 
 function persist() {
   touch(puzzle);
-  store.save(puzzle);
-  history.replaceState(null, "", `editor.html?id=${puzzle.id}`);
-  setStatus("Salvato in locale.", "muted");
+  try {
+    store.save(puzzle);
+    history.replaceState(null, "", `editor.html?id=${puzzle.id}`);
+    setStatus("Salvato in locale.", "muted");
+  } catch (err) {
+    setStatus(err.message, "violation");
+  }
+}
+
+// Used by every field that bypasses undo tracking (free-text title/author/
+// difficulty/briefing/resolution inputs below, and character bio via the
+// callback passed as the onPersistOnly argument to renderCharacterEditor)
+// instead of calling persist() directly: the edit IS saved, but lastSnapshot
+// must also move forward, or the next handleChange() would push the
+// now-stale-again snapshot (predating this text edit) onto undoStack,
+// letting a later undo silently revert text the user already committed.
+function persistBypassingUndo() {
+  persist();
+  lastSnapshot = clonePuzzle(puzzle);
 }
 
 // Shared funnel for every structural change (map, characters, clues, solution).
 // Free-text fields (title/author/briefing/resolution/character bio) deliberately
-// bypass this and call persist() directly instead, so typing doesn't flood the
-// undo stack with one entry per keystroke.
+// bypass this and call persistBypassingUndo() instead, so typing doesn't flood
+// the undo stack with one entry per keystroke.
 function handleChange() {
   undoStack.push(lastSnapshot);
   if (undoStack.length > UNDO_LIMIT) undoStack.shift();
   redoStack = [];
   pruneDanglingClueReferences(puzzle);
+  pruneDanglingSolutionPlacements(puzzle);
   lastSnapshot = clonePuzzle(puzzle);
   persist();
   render();
@@ -128,15 +145,15 @@ function render() {
     renderSolutionEditor(leftPanel, boardEl, puzzle, handleChange);
   }
 
-  renderCharacterEditor(rightTop, puzzle, handleChange, persist);
+  renderCharacterEditor(rightTop, puzzle, handleChange, persistBypassingUndo);
   renderClueBuilder(rightBottom, puzzle, handleChange);
 }
 
-titleInput.addEventListener("input", () => { puzzle.title = titleInput.value; persist(); });
-authorInput.addEventListener("input", () => { puzzle.author = authorInput.value; persist(); });
-difficultyInput.addEventListener("change", () => { puzzle.difficulty = difficultyInput.value; persist(); });
-briefingInput.addEventListener("input", () => { puzzle.briefing = briefingInput.value; persist(); });
-resolutionInput.addEventListener("input", () => { puzzle.resolutionNote = resolutionInput.value; persist(); });
+titleInput.addEventListener("input", () => { puzzle.title = titleInput.value; persistBypassingUndo(); });
+authorInput.addEventListener("input", () => { puzzle.author = authorInput.value; persistBypassingUndo(); });
+difficultyInput.addEventListener("change", () => { puzzle.difficulty = difficultyInput.value; persistBypassingUndo(); });
+briefingInput.addEventListener("input", () => { puzzle.briefing = briefingInput.value; persistBypassingUndo(); });
+resolutionInput.addEventListener("input", () => { puzzle.resolutionNote = resolutionInput.value; persistBypassingUndo(); });
 
 tabMapBtn.addEventListener("click", () => { activeTab = "map"; render(); });
 tabSolutionBtn.addEventListener("click", () => { activeTab = "solution"; render(); });
@@ -151,8 +168,12 @@ importInput.addEventListener("change", async () => {
   try {
     const imported = await importPuzzleFromFile(file);
     puzzle = imported;
+    undoStack = [];
+    redoStack = [];
+    lastSnapshot = clonePuzzle(puzzle);
     persist();
     render();
+    updateUndoRedoButtons();
     setStatus("Puzzle importato.", "muted");
   } catch (err) {
     setStatus(err.message, "violation");

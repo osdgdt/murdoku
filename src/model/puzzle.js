@@ -272,3 +272,19 @@ export function pruneDanglingClueReferences(puzzle) {
   if (puzzle.clues.length !== before) touch(puzzle);
   return puzzle;
 }
+
+// Removes any solution placement whose row/col fell outside the grid after a
+// shrink (resizeGrid, src/model/grid.js — it has no puzzle reference, so it
+// can't clean this up itself). Left unpruned, solutionEditor.js's conflict
+// check treats the stale row/col as still occupied, silently blocking that
+// whole row/column with no on-board way to clear it (the cell doesn't exist
+// anymore to click).
+export function pruneDanglingSolutionPlacements(puzzle) {
+  const { rows, cols } = puzzle.grid.size;
+  const before = puzzle.solution.placements.length;
+  puzzle.solution.placements = puzzle.solution.placements.filter(
+    (p) => p.row >= 0 && p.row < rows && p.col >= 0 && p.col < cols
+  );
+  if (puzzle.solution.placements.length !== before) touch(puzzle);
+  return puzzle;
+}

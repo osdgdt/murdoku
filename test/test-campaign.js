@@ -101,4 +101,39 @@ export const tests = [
       assert(errors.some((e) => e.includes("duplicato")), "errore atteso sull'id duplicato");
     },
   },
+  {
+    name: "validateCampaignShape: rifiuta un valore che non è un oggetto",
+    fn: () => {
+      let result = validateCampaignShape(null);
+      assert(!result.valid);
+      assert(result.errors.some((e) => e.includes("oggetto valido")));
+      result = validateCampaignShape("non una campagna");
+      assert(!result.valid);
+    },
+  },
+  {
+    name: "validateCampaignShape: rifiuta una campagna il cui campo cases non è un array",
+    fn: () => {
+      const campaign = createCampaign("Test");
+      campaign.cases = "non un array";
+      const { valid, errors } = validateCampaignShape(campaign);
+      assert(!valid);
+      assert(errors.some((e) => e.includes("elenco dei casi")));
+    },
+  },
+  {
+    name: "addCase, removeCase e reorderCases aggiornano updatedAt tramite touch()",
+    fn: () => {
+      const campaign = buildCampaignWithCases(2);
+      campaign.updatedAt = 0;
+      addCase(campaign, { puzzleId: "p3", puzzleUrl: "c.murdoku.json", label: "Terzo" });
+      assert(campaign.updatedAt > 0);
+      campaign.updatedAt = 0;
+      removeCase(campaign, campaign.cases[0].id);
+      assert(campaign.updatedAt > 0);
+      campaign.updatedAt = 0;
+      reorderCases(campaign, 0, 1);
+      assert(campaign.updatedAt > 0);
+    },
+  },
 ];

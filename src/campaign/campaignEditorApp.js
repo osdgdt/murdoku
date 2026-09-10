@@ -121,8 +121,10 @@ async function persistCampaign(statusEl) {
   try {
     await campaignStore.saveCampaign(campaign);
     if (statusEl) { statusEl.textContent = "Salvato."; statusEl.className = "muted"; }
+    return true;
   } catch (err) {
     if (statusEl) { statusEl.textContent = "Errore nel salvataggio: " + err.message; statusEl.className = "violation"; }
+    return false;
   }
 }
 
@@ -218,11 +220,16 @@ addCaseBtn.addEventListener("click", async () => {
     }
 
     addCase(campaign, { puzzleId: puzzle.id, puzzleUrl: url, label: puzzle.title });
-    await persistCampaign(null);
+    const saved = await persistCampaign(null);
     renderCaseList();
-    addCaseUrlInput.value = "";
-    addCaseStatus.textContent = "Caso aggiunto.";
-    addCaseStatus.className = "ok-message";
+    if (saved) {
+      addCaseUrlInput.value = "";
+      addCaseStatus.textContent = "Caso aggiunto.";
+      addCaseStatus.className = "ok-message";
+    } else {
+      addCaseStatus.textContent = "Caso aggiunto localmente ma il salvataggio è fallito. Riprova.";
+      addCaseStatus.className = "violation";
+    }
   } catch (err) {
     addCaseStatus.textContent = "Errore: " + err.message;
     addCaseStatus.className = "violation";

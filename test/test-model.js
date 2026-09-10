@@ -1,4 +1,4 @@
-import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes } from "../src/model/puzzle.js";
+import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes } from "../src/model/puzzle.js";
 import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import * as store from "../src/storage/puzzleStore.js";
@@ -206,6 +206,21 @@ export const tests = [
       addClue(puzzle, anna.id, "adjacent", { targetId: objectTypeTargetId("door") });
       pruneDanglingClueReferences(puzzle);
       assertEqual(puzzle.clues.length, 1, "un riferimento generico non è mai 'pendente', anche a zero istanze");
+    },
+  },
+  {
+    name: "pruneDanglingSolutionPlacements rimuove un piazzamento finito fuori griglia dopo un restringimento",
+    fn: () => {
+      const puzzle = createPuzzle("Test");
+      puzzle.grid = resizeGrid(puzzle.grid, 4, 4);
+      const a = addCharacter(puzzle, "Anna", "person1", true);
+      const b = addCharacter(puzzle, "Bruno", "person2", false);
+      setSolutionPlacement(puzzle, a.id, 0, 0);
+      setSolutionPlacement(puzzle, b.id, 1, 3);
+      puzzle.grid = resizeGrid(puzzle.grid, 4, 3);
+      pruneDanglingSolutionPlacements(puzzle);
+      assertEqual(puzzle.solution.placements.length, 1, "il piazzamento di Bruno deve sparire");
+      assertEqual(puzzle.solution.placements[0].characterId, a.id);
     },
   },
   {

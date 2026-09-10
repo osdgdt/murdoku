@@ -3,44 +3,15 @@ import {
   doc,
   getDoc,
   setDoc,
+  runTransaction,
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { firebaseApp } from "../firebaseConfig.js";
+import { toFirestoreSafe, fromFirestoreSafe } from "./progressCodec.js";
 
 const db = getFirestore(firebaseApp);
 
 function progressRef(uid, campaignId) {
   return doc(db, "users", uid, "campaignProgress", campaignId);
-}
-
-// serializeBoardState() (board.js) produces arrays-of-pairs (Map.entries()
-// shape) for placements/candidates/autoXByCharacter — Firestore rejects
-// nested arrays outright. Converted to arrays-of-objects here, on the way
-// in/out, so board.js itself never needs to know Firestore exists.
-// NOTE: this is a strict field allowlist, not a shallow passthrough — a new
-// scalar field added to serializeBoardState()'s output (e.g. hintsUsed)
-// still has to be listed here explicitly in both directions, or it's
-// silently dropped before ever reaching Firestore.
-function toFirestoreSafe(serialized) {
-  return {
-    placements: serialized.placements.map(([charId, pos]) => ({ charId, row: pos.row, col: pos.col })),
-    xMarks: serialized.xMarks,
-    candidates: serialized.candidates.map(([key, ids]) => ({ key, ids })),
-    autoXByCharacter: serialized.autoXByCharacter.map(([charId, cells]) => ({ charId, cells })),
-    hintsUsed: serialized.hintsUsed,
-  };
-}
-
-// Inverse of toFirestoreSafe — output matches exactly what
-// deserializeBoardState() (board.js, unmodified) already expects.
-function fromFirestoreSafe(saved) {
-  if (!saved) return undefined;
-  return {
-    placements: (saved.placements || []).map((p) => [p.charId, { row: p.row, col: p.col }]),
-    xMarks: saved.xMarks || [],
-    candidates: (saved.candidates || []).map((c) => [c.key, c.ids]),
-    autoXByCharacter: (saved.autoXByCharacter || []).map((a) => [a.charId, a.cells]),
-    hintsUsed: typeof saved.hintsUsed === "number" ? saved.hintsUsed : 0,
-  };
 }
 
 // { unlockedCaseIndex, completedCaseIds: [...], cases: { [caseId]: { board, updatedAt } } }
@@ -83,17 +54,29 @@ export async function saveCaseBoardState(uid, campaignId, caseId, boardSnapshot)
 // `merge:true` recurses into nested map fields, so this write never touches
 // `cases.<caseId>.board`/`updatedAt` (already read once above, no extra
 // round trip) or any other case's entry.
+// A plain getDoc-then-setDoc here would race: setDoc({merge:true}) replaces
+// array fields wholesale rather than unioning them, so two concurrent calls
+// (two tabs/devices completing different cases near-simultaneously, or a
+// retry after a slow network) both reading the same stale doc can have one
+// write silently clobber the other's completedCaseIds/unlockedCaseIndex.
+// runTransaction makes the read+compute+write atomic instead.
 export async function markCaseCompleted(uid, campaignId, caseId, caseIndex, elapsedSeconds) {
-  const current = await getCampaignProgress(uid, campaignId);
-  const completedCaseIds = current.completedCaseIds.includes(caseId)
-    ? current.completedCaseIds
-    : [...current.completedCaseIds, caseId];
-  const unlockedCaseIndex = Math.max(current.unlockedCaseIndex, caseIndex + 1);
-  const update = { completedCaseIds, unlockedCaseIndex };
-  if (typeof elapsedSeconds === "number") {
-    const previousBest = current.cases[caseId]?.bestTimeSeconds;
-    const bestTimeSeconds = previousBest == null ? elapsedSeconds : Math.min(previousBest, elapsedSeconds);
-    update.cases = { [caseId]: { bestTimeSeconds } };
-  }
-  await setDoc(progressRef(uid, campaignId), update, { merge: true });
+  const ref = progressRef(uid, campaignId);
+  await runTransaction(db, async (transaction) => {
+    // Deliberately transaction.get(ref), not getCampaignProgress(uid,
+    // campaignId) — that issues its own untracked getDoc, which the
+    // transaction can't use for conflict detection, defeating this fix.
+    const snap = await transaction.get(ref);
+    const data = snap.exists() ? snap.data() : {};
+    const completedCaseIds = data.completedCaseIds || [];
+    const nextCompletedCaseIds = completedCaseIds.includes(caseId) ? completedCaseIds : [...completedCaseIds, caseId];
+    const unlockedCaseIndex = Math.max(data.unlockedCaseIndex || 0, caseIndex + 1);
+    const update = { completedCaseIds: nextCompletedCaseIds, unlockedCaseIndex };
+    if (typeof elapsedSeconds === "number") {
+      const previousBest = data.cases?.[caseId]?.bestTimeSeconds;
+      const bestTimeSeconds = previousBest == null ? elapsedSeconds : Math.min(previousBest, elapsedSeconds);
+      update.cases = { [caseId]: { bestTimeSeconds } };
+    }
+    transaction.set(ref, update, { merge: true });
+  });
 }

@@ -22,12 +22,15 @@ export function list() {
 }
 
 export function get(id) {
-  const raw = localStorage.getItem(puzzleKey(id));
-  return raw ? JSON.parse(raw) : null;
+  try {
+    const raw = localStorage.getItem(puzzleKey(id));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function save(puzzle) {
-  localStorage.setItem(puzzleKey(puzzle.id), JSON.stringify(puzzle));
   const index = readIndex().filter((entry) => entry.id !== puzzle.id);
   index.push({
     id: puzzle.id,
@@ -37,7 +40,12 @@ export function save(puzzle) {
     completed: !!puzzle.completed,
     bestTimeSeconds: typeof puzzle.bestTimeSeconds === "number" ? puzzle.bestTimeSeconds : null,
   });
-  writeIndex(index);
+  try {
+    localStorage.setItem(puzzleKey(puzzle.id), JSON.stringify(puzzle));
+    writeIndex(index);
+  } catch {
+    throw new Error("Spazio di archiviazione locale esaurito: impossibile salvare le modifiche.");
+  }
 }
 
 export function remove(id) {

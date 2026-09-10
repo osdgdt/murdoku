@@ -29,8 +29,9 @@
     import { tests as recentActivityTests } from "./test-recent-activity.js";
     import { tests as hoverTargetsTests } from "./test-hover-targets.js";
     import { tests as iconsTests } from "./test-icons.js";
+    import { tests as progressCodecTests } from "./test-progress-codec.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...iconsTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...iconsTests, ...progressCodecTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

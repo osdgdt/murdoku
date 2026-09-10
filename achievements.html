@@ -82,8 +82,10 @@
       }
       syncStatus.textContent = "Sincronizzazione in corso…";
       try {
-        await syncAchievements(user.uid);
-        syncStatus.textContent = "Sincronizzato con il tuo account Google.";
+        const newlyUnlocked = await syncAchievements(user.uid);
+        syncStatus.textContent = newlyUnlocked.length > 0
+          ? `Sincronizzato con il tuo account Google. ${newlyUnlocked.length === 1 ? "Nuovo traguardo trovato" : `${newlyUnlocked.length} nuovi traguardi trovati`} da un altro dispositivo: ${newlyUnlocked.map((a) => a.title).join(", ")}.`
+          : "Sincronizzato con il tuo account Google.";
         renderAchievementsPage(root);
       } catch (err) {
         syncStatus.textContent = `Impossibile sincronizzare: ${err.message} (i traguardi restano salvati su questo dispositivo).`;

@@ -1,5 +1,6 @@
 import { CLUE_TYPES } from "../model/clueTypes.js";
 import { isObjectTypeOccupiable } from "../model/icons.js";
+import { isUsable } from "../model/grid.js";
 import { resolveTargetPositions, victimId } from "./predicates.js";
 
 // Resolves the "proprietà" (property) family shared by several clue types
@@ -86,6 +87,23 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     if (vId) {
       const resolved = resolveTargetPositions(placementMap, puzzle, vId);
       if (resolved) cells.push(...resolved);
+    }
+  }
+
+  // noOneInRowOrCol: axis+index individuano geometricamente un'intera riga o
+  // colonna (index è 1-based, come le etichette R1/C1... — stessa convenzione
+  // -1 già usata dal predicato di inRowOrCol), ma nessun kind dichiarato
+  // corrisponde a un ramo del cammino generico sopra. Rispecchia l'esclusione
+  // delle sole celle bloccate già usata da positionsInZone (predicates.js) —
+  // non la più severa isOccupiable — per coerenza con l'evidenziazione di
+  // noOneInRoom basata su zona, il suo fratello strutturale.
+  if (clue.type === "noOneInRowOrCol" && clue.params?.axis && clue.params?.index != null) {
+    const idx = clue.params.index - 1;
+    const { rows, cols } = puzzle.grid.size;
+    if (clue.params.axis === "row") {
+      for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, idx, c)) cells.push({ row: idx, col: c });
+    } else {
+      for (let r = 0; r < rows; r++) if (isUsable(puzzle.grid, r, idx)) cells.push({ row: r, col: idx });
     }
   }
 

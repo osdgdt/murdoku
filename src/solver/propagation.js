@@ -35,6 +35,13 @@ export const PROPAGATION_MAX_SUBSET_OPS = 2000000;
 // only trades away some pruning depth at that one node, never correctness.
 export const FORWARD_CHECK_MAX_ROUNDS = 10;
 export const FORWARD_CHECK_MAX_EVALUATIONS = 20000;
+// Same ~10x tightening as FORWARD_CHECK_MAX_EVALUATIONS vs
+// PROPAGATION_MAX_EVALUATIONS, applied to the naked-subset scan's own
+// separate budget (see PROPAGATION_MAX_SUBSET_OPS above for why it needs
+// one) — without this, applyNakedSubsets would run at the full 2,000,000-op
+// default ceiling on EVERY forward-check call, i.e. at every search node
+// when forwardCheck:true, almost certainly the dominant cost of that option.
+export const FORWARD_CHECK_MAX_SUBSET_OPS = 200000;
 
 function key(characterId, row, col) {
   return `${characterId},${row},${col}`;

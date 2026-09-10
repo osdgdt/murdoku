@@ -3,6 +3,15 @@ import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds, describeClue } fr
 import { objectIcon, objectTypeTargetId } from "../model/icons.js";
 import { addClue, removeClue, updateClue, setClueNegate, cluesForCharacter, genericClues } from "../model/puzzle.js";
 
+// Object types actually present on the current puzzle's map — shared by the
+// "Qualsiasi X" characterOrObject options below AND by the objectTypeId enum
+// controls (onObjectType, and the property family's "sittingOn") so an
+// author can never pick a type that doesn't exist anywhere on the grid and
+// accidentally write an always-false clue.
+function objectTypesPresent(puzzle) {
+  return [...new Set(puzzle.grid.objects.map((o) => o.typeId))];
+}
+
 function targetOptions(puzzle, kind, excludeCharacterId) {
   const options = [];
   if (kind === "character" || kind === "characterOrObject") {
@@ -24,8 +33,7 @@ function targetOptions(puzzle, kind, excludeCharacterId) {
     }
     // "Any door", "any shelf", etc. — one option per object type actually
     // present on the map, so the clue doesn't have to commit to one instance.
-    const typesPresent = [...new Set(puzzle.grid.objects.map((o) => o.typeId))];
-    for (const typeId of typesPresent) {
+    for (const typeId of objectTypesPresent(puzzle)) {
       const def = objectIcon(typeId);
       if (!def) continue;
       options.push({ value: objectTypeTargetId(typeId), label: `Qualsiasi ${def.label.toLowerCase()}` });
@@ -38,10 +46,17 @@ function targetOptions(puzzle, kind, excludeCharacterId) {
 // control matches what's actually stored from the start — otherwise a clue
 // whose dropdown/number field is never touched would keep an undefined param
 // even though the control visually shows its first option/minimum value.
-function defaultParams(typeId) {
+function defaultParams(typeId, puzzle) {
   const params = {};
   for (const p of CLUE_TYPES[typeId]?.params || []) {
-    if (p.kind === "enum") params[p.name] = p.values[0];
+    if (p.kind === "enum") {
+      // objectTypeId is the one enum whose choices depend on the puzzle
+      // (real objects on the grid), not a fixed registry — default it to the
+      // first PRESENT type, falling back to the registry's first entry only
+      // if the map has no objects at all yet, matching renderParamControl's
+      // own fallback below so the shown default always matches what's stored.
+      params[p.name] = p.name === "objectTypeId" ? (objectTypesPresent(puzzle)[0] ?? p.values[0]) : p.values[0];
+    }
     if (p.kind === "number") params[p.name] = p.optional ? null : (p.min ?? 1);
     if (p.kind === "characterOrObjectMulti") params[p.name] = [];
   }
@@ -57,10 +72,18 @@ function defaultParams(typeId) {
 function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
   if (paramDef.kind === "enum") {
     const labels = paramDef.labels || {};
+    // objectTypeId enum controls reference real objects on the map, unlike
+    // every other enum (a closed, puzzle-independent set of choices) —
+    // restrict them to types actually present so an author can't silently
+    // write an always-false clue by picking a type that doesn't exist
+    // anywhere on the grid. Falls back to the full registry only if the map
+    // has no objects at all yet (an empty <select> would be worse).
+    const presentTypes = paramDef.name === "objectTypeId" ? objectTypesPresent(puzzle) : null;
+    const values = presentTypes && presentTypes.length > 0 ? presentTypes : paramDef.values;
     const select = el(
       "select",
       { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) },
-      paramDef.values.map((v) =>
+      values.map((v) =>
         el("option", { value: v, selected: currentParams[paramDef.name] === v || undefined }, labels[v] ?? v)
       )
     );
@@ -139,7 +162,7 @@ function renderNestedClue(spec, puzzle, ownerId, onSetSpec) {
   const typeSelect = el(
     "select",
     {
-      onChange: (e) => onSetSpec({ type: e.target.value, params: defaultParams(e.target.value) }),
+      onChange: (e) => onSetSpec({ type: e.target.value, params: defaultParams(e.target.value, puzzle) }),
     },
     [el("option", { value: "" }, "-- scegli indizio --"), ...subTypeIds.map((id) =>
       el("option", { value: id, selected: current.type === id || undefined }, CLUE_TYPES[id].label)
@@ -225,7 +248,7 @@ function renderGenericCluesSection(puzzle, onChange) {
   );
   const addClueBtn = el("button", {
     onClick: () => {
-      addClue(puzzle, null, typeSelect.value, defaultParams(typeSelect.value));
+      addClue(puzzle, null, typeSelect.value, defaultParams(typeSelect.value, puzzle));
       onChange();
     },
   }, "+ Indizio generale");
@@ -264,7 +287,7 @@ export function renderClueBuilder(container, puzzle, onChange) {
     );
     const addClueBtn = el("button", {
       onClick: () => {
-        addClue(puzzle, character.id, typeSelect.value, defaultParams(typeSelect.value));
+        addClue(puzzle, character.id, typeSelect.value, defaultParams(typeSelect.value, puzzle));
         onChange();
       },
     }, "+ Indizio");

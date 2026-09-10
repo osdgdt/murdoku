@@ -469,6 +469,25 @@ export const tests = [
     },
   },
   {
+    name: "predicate sameRoomAs: vero se stessa stanza, falso altrimenti (anche se nessuno dei due è in una stanza)",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const zone = addZone(puzzle.grid, "Salotto", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      paintCellZone(puzzle.grid, 0, 1, zone.id);
+      const clue = addClue(puzzle, a.id, "sameRoomAs", { targetId: b.id });
+      const predicate = buildPredicate(clue, puzzle);
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }], [b.id, { row: 0, col: 1 }]]), true), true, "stessa stanza");
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }], [b.id, { row: 2, col: 2 }]]), true), false, "stanze diverse");
+      // A differenza di notSameRoomAs (che qui sarebbe vero), sameRoomAs
+      // resta falso: "nessuna stanza" non conta mai come "la stessa stanza".
+      assertEqual(predicate(mapOf([[a.id, { row: 2, col: 0 }], [b.id, { row: 2, col: 1 }]]), true), false, "nessuno dei due è in una stanza");
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }]]), false), undefined, "B non ancora piazzato");
+    },
+  },
+  {
     name: "solvePuzzle: 'between' e 'rowOrColWith' su un oggetto producono una soluzione valida",
     fn: () => {
       const puzzle = basePuzzle(3, 4);
@@ -648,6 +667,24 @@ export const tests = [
       const emptyClue = addClue(puzzle, null, "noOneNear", { targetId: objectTypeTargetId("window") });
       const emptyPredicate = buildPredicate(emptyClue, puzzle);
       assertEqual(emptyPredicate(mapOf([[a.id, { row: 0, col: 1 }]]), false), true, "nessuna finestra sulla mappa: verità vacua immediata");
+    },
+  },
+  {
+    name: "predicate generico exactlyOneNear: falso appena sono in due vicino al bersaglio, vero solo con esattamente una persona a completamento",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const door = placeObject(puzzle.grid, "door", 1, 1);
+      const clue = addClue(puzzle, null, "exactlyOneNear", { targetId: door.id });
+      const predicate = buildPredicate(clue, puzzle);
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }], [b.id, { row: 1, col: 0 }]]), false), false, "entrambi vicino alla porta: già troppi");
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }]]), false), undefined, "solo uno per ora, B potrebbe ancora avvicinarsi o no");
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }], [b.id, { row: 2, col: 2 }]]), true), true, "esattamente una persona vicino alla porta");
+
+      const emptyClue = addClue(puzzle, null, "exactlyOneNear", { targetId: objectTypeTargetId("window") });
+      const emptyPredicate = buildPredicate(emptyClue, puzzle);
+      assertEqual(emptyPredicate(mapOf([[a.id, { row: 0, col: 1 }]]), true), false, "nessuna finestra sulla mappa: mai vero, non verità vacua come noOneNear");
     },
   },
   {

@@ -1,6 +1,6 @@
 import { buildPredicates } from "./predicates.js";
 import { isOccupiable } from "../model/grid.js";
-import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS } from "./propagation.js";
+import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FORWARD_CHECK_MAX_SUBSET_OPS } from "./propagation.js";
 
 // Backtracking search over row/column-distinct placements of every character
 // on the grid, pruned by clue predicates. Stops once `maxSolutions` solutions
@@ -74,6 +74,7 @@ export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, 
         predicates,
         maxRounds: FORWARD_CHECK_MAX_ROUNDS,
         maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
+        maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
       }).contradiction;
       if (stillPromising) backtrack(index + 1);
     }

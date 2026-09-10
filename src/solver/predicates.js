@@ -688,6 +688,20 @@ function buildPositivePredicate(clue, puzzle) {
         return isComplete ? true : undefined;
       };
 
+    case "exactlyOneNear":
+      return (pm, isComplete) => {
+        const targets = resolveTargetPositions(pm, puzzle, params.targetId);
+        if (targets === null) return undefined;
+        if (targets.length === 0) return false; // existential, not universal: "exactly one near nothing" can never hold
+        let count = 0;
+        for (const c of puzzle.characters) {
+          const pos = posOfCharacter(pm, c.id);
+          if (pos && targets.some((t) => isAdjacent(pos, t))) count++;
+        }
+        if (count > 1) return false;
+        return isComplete ? count === 1 : undefined;
+      };
+
     case "emptyRoomsCount":
       return (pm, isComplete) => {
         const totalZones = puzzle.grid.zones.length;

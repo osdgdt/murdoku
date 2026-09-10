@@ -14,12 +14,20 @@ import { OBJECT_TYPES, objectIcon, isObjectTypeTarget, parseObjectTypeTarget } f
 // Every clue — whatever its type — can also be flipped to its negation via
 // `clue.negate` (a checkbox in the builder UI, not a param), instead of
 // registering a mirror-image type for each one; see describeClue() below and
-// buildPredicate() in predicates.js. A few older types (`notAdjacent`,
-// `notInRoom`, `notSameRoomAs`, `direction`, `onlyPersonInRoom`,
-// `aloneWithVictim`) predate that and are kept working for puzzles that
-// already use them, but are marked `legacy: true` so new clues use the
-// unified form instead (e.g. `adjacent` + negate, or `directionDistance`
-// with an empty distance).
+// buildPredicate() in predicates.js. A few older types are marked
+// `legacy: true` (kept working for puzzles that already use them, but never
+// offered for NEW clues — see characterClueTypeIds/genericClueTypeIds below)
+// for one of two reasons:
+// - Predates the unified negate mechanism above: `notAdjacent`, `notInRoom`,
+//   `notSameRoomAs`, `direction`, `onlyPersonInRoom`, `aloneWithVictim` each
+//   used to be its own mirror-image type; new clues should use the unified
+//   form instead (e.g. `adjacent` + negate, or `directionDistance` with an
+//   empty distance).
+// - Superseded by a later, more general type that fully subsumes it:
+//   `eitherAdjacent` (adjacent to one of two fixed targets) by `orClue` (one
+//   of two whole sub-clues, of which `eitherAdjacent` is just one special
+//   case), and `emptyRoomsCount` (N rooms are empty) by `roomsWithStateCount`
+//   (N rooms are empty OR occupied — a strict superset).
 
 function targetLabel(puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
@@ -450,6 +458,12 @@ export const CLUE_TYPES = {
     describe: (params, puzzle) => `Nessuno è vicino a ${targetLabel(puzzle, params.targetId)}.`,
     negatedDescribe: (params, puzzle) => `Qualcuno è vicino a ${targetLabel(puzzle, params.targetId)}.`,
   },
+  exactlyOneNear: {
+    scope: "generic",
+    label: "Esattamente una persona è vicino a",
+    params: [{ name: "targetId", kind: "characterOrObject", label: "Bersaglio" }],
+    describe: (params, puzzle) => `Esattamente una persona è vicino a ${targetLabel(puzzle, params.targetId)}.`,
+  },
   sameRoomTogether: {
     scope: "generic",
     label: "Due bersagli si trovano nella stessa stanza",
@@ -480,7 +494,7 @@ export const CLUE_TYPES = {
     describe: (params) => {
       const plural = params.count !== 1;
       const noun = plural ? "stanze" : "stanza";
-      const verb = plural ? "erano" : "era";
+      const verb = plural ? "sono" : "è";
       const stateWord = params.state === "empty" ? "vuot" : "pien";
       return `Esattamente ${params.count} ${noun} ${verb} ${stateWord}${plural ? "e" : "a"}.`;
     },
@@ -492,8 +506,8 @@ export const CLUE_TYPES = {
     describe: (params) => {
       const plural = params.count !== 1;
       const noun = plural ? "stanze" : "stanza";
-      const verb = plural ? "erano" : "era";
-      const sizeClause = params.count > 1 ? ", e avevano tutte lo stesso numero di caselle" : "";
+      const verb = plural ? "sono" : "è";
+      const sizeClause = params.count > 1 ? ", e hanno tutte lo stesso numero di caselle" : "";
       return `Esattamente ${params.count} ${noun} ${verb} vuot${plural ? "e" : "a"}${sizeClause}.`;
     },
   },
@@ -505,9 +519,9 @@ export const CLUE_TYPES = {
       { name: "targetBId", kind: "character", label: "Personaggio B" },
     ],
     describe: (params, puzzle) =>
-      `Le stanze di ${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} avevano lo stesso numero di caselle.`,
+      `Le stanze di ${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} hanno lo stesso numero di caselle.`,
     negatedDescribe: (params, puzzle) =>
-      `Le stanze di ${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} non avevano lo stesso numero di caselle.`,
+      `Le stanze di ${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} non hanno lo stesso numero di caselle.`,
   },
   noOneWithProperty: {
     scope: "generic",
@@ -528,18 +542,18 @@ export const CLUE_TYPES = {
       const who = params.onlyGender === "male" ? "Nessun uomo" : params.onlyGender === "female" ? "Nessuna donna" : "Nessuno";
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);
-        if (nested) return `${who}${where} verificava: ${nested}.`;
+        if (nested) return `${who}${where} verifica: ${nested}.`;
       }
-      return `${who} che era ${describeProperty(params, puzzle)} si trovava${where}.`;
+      return `${who} che è ${describeProperty(params, puzzle)} si trova${where}.`;
     },
     negatedDescribe: (params, puzzle) => {
       const where = params.zoneId ? ` nella stanza ${targetLabel(puzzle, params.zoneId)}` : "";
       const who = params.onlyGender === "male" ? "Un uomo" : params.onlyGender === "female" ? "Una donna" : "Qualcuno";
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);
-        if (nested) return `${who}${where} verificava: ${nested}.`;
+        if (nested) return `${who}${where} verifica: ${nested}.`;
       }
-      return `${who} che era ${describeProperty(params, puzzle)} si trovava${where}.`;
+      return `${who} che è ${describeProperty(params, puzzle)} si trova${where}.`;
     },
   },
 };

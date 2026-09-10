@@ -6,7 +6,7 @@ import { describeClue } from "../model/clueTypes.js";
 import { handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
 import { validateSolution } from "../solver/validator.js";
-import { computeHintChainAsync, deriveSolutionAsync } from "../solver/solverClient.js";
+import { computeHintChainAsync, deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
 import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
@@ -65,24 +65,39 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   let startedAt = null; // hoisted out of startTimer so onSubmit can also read it, for the elapsed time passed to onSolved
   let effectiveSolutionPromise = null; // memoized Promise (not the resolved value) — see getEffectiveSolution()
 
+  // Budget for confirming an already clue-consistent declared solution is
+  // also the UNIQUE one (see confirmDeclaredSolutionUnique below) — well
+  // under deriveSolution.js's DERIVE_SOLUTION_MAX_NODES (10,000,000): with
+  // forwardCheck:true this is still ~5x deeper than the editor's own
+  // "Verifica unicità" click (UNIQUENESS_PREVIEW_MAX_NODES = 200,000,
+  // without forward-checking), while staying an order of magnitude cheaper
+  // than the full from-scratch derive it escalates to on the rare puzzle
+  // this can't settle.
+  const DECLARED_SOLUTION_CHECK_MAX_NODES = 1_000_000;
+
   // The answer key used for win-checking, the murderer reveal, and the
-  // hint system's last-resort fallback. A declared solution that already
-  // passes validateSolution() (row/col-distinct, satisfies every clue) is a
-  // genuine proof — trusting it costs nothing and changes nothing. Anything
-  // else (missing, incomplete, or actually wrong) falls back to deriving a
-  // solution straight from the clues (deriveSolutionAsync, off the main
-  // thread, never from puzzle.solution.placements) — so a bad declared
-  // solution is never silently trusted. Computed lazily (only when
-  // onSubmit/onHint first need it, not at start()) and memoized as an
-  // in-flight PROMISE, not just the resolved value: onSubmit and onHint's
-  // extendChainWithOracleStep can both need this close together, and
-  // memoizing the promise (rather than waiting for one to resolve before
-  // deciding whether to start a second) means they always share one
-  // deriveSolutionAsync call instead of racing into two redundant ones.
+  // hint system's last-resort fallback. A declared solution that passes
+  // validateSolution() (row/col-distinct, satisfies every clue) is only a
+  // CANDIDATE, not a proof — validateSolution never checks uniqueness. An
+  // author who never ran "Verifica unicità" in the editor could ship an
+  // ambiguous puzzle; blindly trusting puzzle.solution.placements would then
+  // mark a player's equally-valid alternative placement wrong and report an
+  // arbitrary murderer among several valid ones. So a clue-consistent
+  // declared solution is CONFIRMED, not trusted (confirmDeclaredSolutionUnique),
+  // before being used. Anything else (missing, incomplete, or actually
+  // wrong) falls back straight to deriving a solution from the clues
+  // (deriveSolutionAsync, off the main thread, never from
+  // puzzle.solution.placements). Computed lazily (only when onSubmit/onHint
+  // first need it, not at start()) and memoized as an in-flight PROMISE, not
+  // just the resolved value: onSubmit and onHint's extendChainWithOracleStep
+  // can both need this close together, and memoizing the promise (rather
+  // than waiting for one to resolve before deciding whether to start a
+  // second) means they always share one call instead of racing into two
+  // redundant ones.
   function getEffectiveSolution() {
     if (!effectiveSolutionPromise) {
       effectiveSolutionPromise = validateSolution(puzzle).valid
-        ? Promise.resolve({ status: "unique", placements: puzzle.solution.placements })
+        ? confirmDeclaredSolutionUnique()
         : deriveSolutionAsync(puzzle).catch((err) => {
             // Don't freeze a transient failure (e.g. a worker hiccup) into a
             // permanent one for the rest of this page's life — let the next
@@ -92,6 +107,28 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
           });
     }
     return effectiveSolutionPromise;
+  }
+
+  // checkUniqueness doesn't take the declared solution as a hint (no
+  // fixedPlacements support) — it re-searches the clues from scratch, same
+  // as deriveSolution would, just under a smaller node cap. solutionCount
+  // can never be 0 here: validateSolution() already proved
+  // puzzle.solution.placements itself is one valid solution.
+  function confirmDeclaredSolutionUnique() {
+    return checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, maxNodes: DECLARED_SOLUTION_CHECK_MAX_NODES })
+      .then((report) => {
+        if (report.solutionCount >= 2) return { status: "ambiguous", placements: null };
+        if (report.solutionCount === 1 && !report.truncated) {
+          return { status: "unique", placements: puzzle.solution.placements };
+        }
+        // Cheap tier couldn't prove uniqueness or ambiguity (node-capped
+        // before settling either way) — escalate instead of guessing.
+        return deriveSolutionAsync(puzzle);
+      })
+      .catch((err) => {
+        effectiveSolutionPromise = null;
+        throw err;
+      });
   }
 
   function startTimer() {

@@ -73,9 +73,12 @@ export const tests = [
       const { puzzle } = eliminatedCellPuzzle();
       // Nessuna nota candidato da nessuna parte: "B non può stare in (1,1)"
       // sarebbe vero, ma non è utile dirlo se il giocatore non ha mai
-      // sospettato B lì — non deve comparire come suggerimento.
+      // sospettato B lì — non deve comparire come suggerimento. Con
+      // l'esclusione filtrata via, la ricerca esaustiva ha comunque provato
+      // che restano più soluzioni valide, quindi il tipo corretto è
+      // "noFurtherDeduction", non il generico "noHint".
       const result = computeHint(puzzle, new Map(), new Map());
-      assertEqual(result.type, "noHint", "senza note candidato non deve suggerire esclusioni, sono rumore non azionabile");
+      assertEqual(result.type, "noFurtherDeduction", "senza note candidato non deve suggerire esclusioni, ma la ricerca esaustiva ha comunque qualcosa da dire");
     },
   },
   {
@@ -138,7 +141,7 @@ export const tests = [
     },
   },
   {
-    name: "computeHint: noHint/noDeduction quando non c'è ancora nulla di deducibile con certezza",
+    name: "computeHint: noFurtherDeduction quando la ricerca esaustiva prova che restano più soluzioni valide, senza nulla di forzato",
     fn: () => {
       const puzzle = basePuzzle(4, 4);
       const a = addCharacter(puzzle, "A", "person1");
@@ -146,10 +149,12 @@ export const tests = [
       addCharacter(puzzle, "C", "person1");
       // Nessun indizio, solo A piazzato: B e C restano liberi sulla sotto-griglia 3x3
       // rimanente (36 soluzioni: 9 celle per B x 4 celle compatibili per C, ben sotto
-      // il cap), quindi nessuna cella risulta forzata o esclusa per nessuno dei due.
+      // il cap), quindi nessuna cella risulta forzata o esclusa per nessuno dei due —
+      // ma la ricerca esaustiva QUI si è comunque completata (36 < HINT_MAX_SOLUTIONS,
+      // nessun nodeCap): ha dimostrato che esistono più soluzioni valide, non
+      // semplicemente rinunciato a cercare (vedi tooComplex per quel caso).
       const result = computeHint(puzzle, new Map([[a.id, { row: 0, col: 0 }]]));
-      assertEqual(result.type, "noHint");
-      assertEqual(result.reason, "noDeduction");
+      assertEqual(result.type, "noFurtherDeduction");
     },
   },
   {
@@ -235,12 +240,16 @@ export const tests = [
     },
   },
   {
-    name: "computeHintChain si ferma dove finisce la deduzione certa (non indovina i passi successivi)",
+    name: "computeHintChain si ferma dove finisce la deduzione certa, con un passo esplicito che lo conferma (non indovina i passi successivi)",
     fn: () => {
       const { puzzle } = forcedPlacementPuzzle();
       const chain = computeHintChain(puzzle, new Map());
-      assertEqual(chain.length, 1, "solo A è forzato: B resta su più celle possibili una volta fissato A");
+      // Solo A è forzato: B resta su più celle possibili una volta fissato A
+      // (4 soluzioni valide, nessuna forzata) — la seconda ondata lo dimostra
+      // esaustivamente e lo dice esplicitamente, invece di fermarsi in silenzio.
+      assertEqual(chain.length, 2);
       assertEqual(chain[0].type, "forcedPlacement");
+      assertEqual(chain[1].type, "noFurtherDeduction");
     },
   },
   {

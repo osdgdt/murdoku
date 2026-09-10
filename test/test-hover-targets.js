@@ -1,5 +1,5 @@
 import { createPuzzle, addCharacter, addClue, setVictim } from "../src/model/puzzle.js";
-import { addZone, paintCellZone, placeObject, resizeGrid } from "../src/model/grid.js";
+import { addZone, paintCellZone, placeObject, resizeGrid, setBlocked } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import { resolveClueHoverCells } from "../src/solver/hoverTargets.js";
 import { assert, assertEqual } from "./assert.js";
@@ -191,6 +191,27 @@ export const tests = [
     },
   },
   {
+    name: "resolveClueHoverCells: noOneInRowOrCol (riga) risolve a tutte le celle occupabili di quella riga (indice 1-based)",
+    fn: () => {
+      const puzzle = basePuzzle(); // 4x4
+      const clue = addClue(puzzle, null, "noOneInRowOrCol", { axis: "row", index: 2 }); // riga 2 -> indice 0-based 1
+      const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
+      assertEqual(cellSet(cells).size, 4);
+      for (let c = 0; c < 4; c++) assert(cellSet(cells).has(`1,${c}`), `manca la cella 1,${c}`);
+    },
+  },
+  {
+    name: "resolveClueHoverCells: noOneInRowOrCol (colonna) esclude le celle bloccate, come positionsInZone",
+    fn: () => {
+      const puzzle = basePuzzle(); // 4x4
+      setBlocked(puzzle.grid, 1, 2, true); // riga 1, colonna 2 (indice 0-based) bloccata
+      const clue = addClue(puzzle, null, "noOneInRowOrCol", { axis: "col", index: 3 }); // colonna 3 -> indice 0-based 2
+      const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
+      assertEqual(cellSet(cells).size, 3, "3 celle su 4: quella bloccata non deve comparire");
+      assert(!cellSet(cells).has("1,2"), "la cella bloccata non deve comparire");
+    },
+  },
+  {
     name: "resolveClueHoverCells: due parametri che risolvono alla stessa cella producono un solo risultato (dedup)",
     fn: () => {
       const puzzle = basePuzzle();
@@ -257,6 +278,18 @@ export const tests = [
       assertEqual(set.size, 3, "le 2 celle della stanza più la cella della finestra");
       assert(set.has("0,0") && set.has("0,1"), "le celle della stanza devono comparire");
       assert(set.has("3,3"), "il bersaglio della proprietà 'adjacentTo' deve comparire insieme alla stanza");
+    },
+  },
+  {
+    name: "resolveClueHoverCells: exactlyOneNear (generico) risolve al bersaglio come qualunque altro characterOrObject",
+    fn: () => {
+      const puzzle = basePuzzle();
+      placeObject(puzzle.grid, "door", 1, 2);
+      const clue = addClue(puzzle, null, "exactlyOneNear", { targetId: puzzle.grid.objects[0].id });
+      const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
+      assertEqual(cells.length, 1);
+      assertEqual(cells[0].row, 1);
+      assertEqual(cells[0].col, 2);
     },
   },
 ];

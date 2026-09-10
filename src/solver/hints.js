@@ -59,6 +59,8 @@ const MULTI_CULPRIT_MSG = "Uno dei piazzamenti attuali è in conflitto con gli i
 const TOO_COMPLEX_MSG = "Ci sono troppe possibilità da esaminare per dare un suggerimento sicuro: aggiungi qualche piazzamento o indizio in più.";
 const ALREADY_COMPLETE_MSG = "Hai già piazzato tutti i personaggi compatibili con gli indizi attuali.";
 const NO_DEDUCTION_MSG = "Con le informazioni attuali non c'è ancora nessuna deduzione certa: prova a piazzare qualcosa o rileggi gli indizi.";
+const NO_FURTHER_DEDUCTION_MSG =
+  "Ho verificato a fondo: da qui in poi esistono più soluzioni diverse, tutte valide secondo gli indizi attuali, quindi non c'è nient'altro da dedurre con certezza. Prova a piazzare qualcosa per ipotesi, o rileggi gli indizi.";
 
 function buildForcedMessage(puzzle, character, row, col) {
   const zoneId = zoneOfCell(puzzle.grid, row, col);
@@ -154,7 +156,8 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
   }
 
   const baselineStats = {};
-  const baseline = solvePuzzle(puzzle, { maxSolutions: 1, maxNodes: HINT_MAX_NODES, stats: baselineStats, forwardCheck: true });
+  const baselineMaxNodes = Math.max(0, Math.min(HINT_MAX_NODES, budget.waveNodesRemaining));
+  const baseline = solvePuzzle(puzzle, { maxSolutions: 1, maxNodes: baselineMaxNodes, stats: baselineStats, forwardCheck: true });
   budget.spendWaveNodes(baselineStats.nodesVisited);
   if (baseline.length === 0) {
     return baselineStats.nodeCapHit
@@ -164,10 +167,16 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
 
   const culprits = [];
   for (const characterId of currentPlacements.keys()) {
+    // Out of shared budget for this whole hint click — report whatever's
+    // been isolated so far instead of spending an unbounded amount more;
+    // MULTI_CULPRIT_MSG below is already the honest "can't isolate it"
+    // message for the case nothing was found yet.
+    if (budget.expired()) break;
     const reduced = new Map(currentPlacements);
     reduced.delete(characterId);
     const stats = {};
-    const withoutThis = solvePuzzle(puzzle, { maxSolutions: 1, fixedPlacements: reduced, maxNodes: CULPRIT_MAX_NODES, stats });
+    const maxNodes = Math.max(0, Math.min(CULPRIT_MAX_NODES, budget.waveNodesRemaining));
+    const withoutThis = solvePuzzle(puzzle, { maxSolutions: 1, fixedPlacements: reduced, maxNodes, stats });
     budget.spendWaveNodes(stats.nodesVisited);
     if (withoutThis.length >= 1) culprits.push(characterId);
   }
@@ -513,6 +522,16 @@ export function computeHintChain(puzzle, currentPlacements, candidates = new Map
     if (!madeProgress) {
       if (!wave.exhaustiveUsable) {
         steps.push({ type: "tooComplex", variant: "warning", reason: wave.tooComplexReason, message: TOO_COMPLEX_MSG });
+      } else if (wave.steps.length === 0) {
+        // The exhaustive search WAS usable this wave (proven, not capped)
+        // and still found nothing — unlike tooComplex above, this isn't
+        // "couldn't tell," it's proof that multiple distinct valid
+        // completions exist from here on (if exactly one remained, every
+        // still-unplaced character would have been forced, making
+        // wave.steps non-empty). Scoped to wave.steps.length === 0 on
+        // purpose: a wave that DID surface real eliminatedCell facts already
+        // has something to show, so no redundant message is needed there.
+        steps.push({ type: "noFurtherDeduction", variant: "warning", message: NO_FURTHER_DEDUCTION_MSG });
       }
       break;
     }

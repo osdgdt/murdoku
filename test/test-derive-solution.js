@@ -97,4 +97,52 @@ export const tests = [
       assertEqual(posA.col, 0);
     },
   },
+  {
+    name: "deriveSolution: \"unsatisfiable\" dimostrata dalla sola propagazione upfront, zero nodi di ricerca",
+    fn: () => {
+      // Stesso fixture del test "unsatisfiable" sopra: dimostrabile da
+      // propagate() da solo (nessun ragionamento incrociato tra personaggi
+      // necessario). maxNodes:0 vieta OGNI nodo di backtracking — se il
+      // risultato dipendesse dalla ricerca, tornerebbe "inconclusive"
+      // (nodeCapHit/truncated), non un verdetto definitivo.
+      const puzzle = basePuzzle(2, 2);
+      const a = addCharacter(puzzle, "A", "person1");
+      const zone = addZone(puzzle.grid, "Sala", "#eee");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      paintCellZone(puzzle.grid, 0, 1, zone.id);
+      paintCellZone(puzzle.grid, 1, 0, zone.id);
+      paintCellZone(puzzle.grid, 1, 1, zone.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zone.id });
+      const negated = addClue(puzzle, a.id, "inRoom", { zoneId: zone.id });
+      setClueNegate(puzzle, negated.id, true);
+      const result = deriveSolution(puzzle, { maxNodes: 0 });
+      assertEqual(result.status, "unsatisfiable", "la contraddizione deve emergere dalla sola propagazione upfront, senza alcuna ricerca");
+      assertEqual(result.placements, null);
+    },
+  },
+  {
+    name: "deriveSolution: \"unique\" determinata dalla sola propagazione upfront, ricerca residua nulla",
+    fn: () => {
+      // uniquelySolvablePuzzle: A e B sono entrambi fissati da propagate()
+      // stesso (zone a una sola cella), quindi finiscono entrambi in
+      // fixedPlacements — nessuna cella viene mai enumerata liberamente.
+      // Ogni personaggio "fixed" costa comunque esattamente 1 nodo (vedi
+      // solver.js: il ramo `fixed` incrementa nodesVisited prima di
+      // procedere) quindi characters.length+1 è il budget ESATTO minimo
+      // che lascia passare solo quei nodi "gratuiti" — un vero backtracking
+      // su un personaggio libero ne richiederebbe molti di più. Se il
+      // risultato dipendesse da una ricerca reale, un budget così risicato
+      // tornerebbe "inconclusive" (nodeCapHit/truncated), non un verdetto
+      // definitivo.
+      const { puzzle, a, b } = uniquelySolvablePuzzle();
+      const result = deriveSolution(puzzle, { maxNodes: puzzle.characters.length + 1 });
+      assertEqual(result.status, "unique");
+      const posA = result.placements.find((p) => p.characterId === a.id);
+      const posB = result.placements.find((p) => p.characterId === b.id);
+      assertEqual(posA.row, 0);
+      assertEqual(posA.col, 0);
+      assertEqual(posB.row, 1);
+      assertEqual(posB.col, 1);
+    },
+  },
 ];

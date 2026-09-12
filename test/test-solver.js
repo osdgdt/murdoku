@@ -5,6 +5,7 @@ import { characterClueTypeIds, genericClueTypeIds, describeClue } from "../src/m
 import { buildPredicate } from "../src/solver/predicates.js";
 import { solvePuzzle } from "../src/solver/solver.js";
 import { checkUniqueness, validateSolution } from "../src/solver/validator.js";
+import { propagate } from "../src/solver/propagation.js";
 import { assert, assertEqual } from "./assert.js";
 
 function basePuzzle(rows = 3, cols = 3) {
@@ -618,6 +619,116 @@ export const tests = [
       assertEqual(setWith.size, setWithout.size);
       for (const key of setWithout) assert(setWith.has(key), `soluzione mancante con forwardCheck:true: ${key}`);
       for (const key of setWith) assert(setWithout.has(key), `soluzione in più con forwardCheck:true: ${key}`);
+    },
+  },
+  {
+    name: "solvePuzzle con domains (seminato da propagate) visita meno nodi della piena enumerazione",
+    fn: () => {
+      const puzzle = basePuzzle(5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      addCharacter(puzzle, "C", "person1"); // libero, nessun indizio
+      const zoneA = addZone(puzzle.grid, "StanzaA", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zoneA.id); // A confinata a un'unica cella -> forzata da propagate
+      const zoneB = addZone(puzzle.grid, "StanzaB", "#eee");
+      // B confinata a 3 celle sulla riga 1 (non forzata a una sola: il
+      // dominio deve restare a dimensione 3, non collassare in fixedPlacements).
+      paintCellZone(puzzle.grid, 1, 1, zoneB.id);
+      paintCellZone(puzzle.grid, 1, 2, zoneB.id);
+      paintCellZone(puzzle.grid, 1, 3, zoneB.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id });
+      addClue(puzzle, b.id, "inRoom", { zoneId: zoneB.id });
+
+      const prop = propagate(puzzle, new Map());
+      assertEqual(prop.contradiction, null);
+      assert(!prop.domains.has(a.id), "A deve risultare forzata da propagate, non più nei domini");
+      assertEqual(prop.domains.get(b.id).length, 3, "il dominio di B deve restare alle sue 3 celle, senza forzarla");
+
+      const statsWithout = {};
+      const withoutDomains = solvePuzzle(puzzle, { maxSolutions: 100, stats: statsWithout });
+      const statsWith = {};
+      const withDomains = solvePuzzle(puzzle, {
+        maxSolutions: 100,
+        fixedPlacements: prop.confirmed,
+        domains: prop.domains,
+        stats: statsWith,
+      });
+      assert(withoutDomains.length > 0, "il puzzle deve avere soluzioni reali per essere un test significativo");
+      assert(
+        statsWith.nodesVisited < statsWithout.nodesVisited,
+        `domains doveva visitare meno nodi (${statsWith.nodesVisited} vs ${statsWithout.nodesVisited})`
+      );
+    },
+  },
+  {
+    name: "solvePuzzle con domains trova esattamente lo stesso insieme di soluzioni della piena enumerazione",
+    fn: () => {
+      const puzzle = basePuzzle(5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      addCharacter(puzzle, "C", "person1");
+      const zoneA = addZone(puzzle.grid, "StanzaA", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zoneA.id);
+      const zoneB = addZone(puzzle.grid, "StanzaB", "#eee");
+      paintCellZone(puzzle.grid, 1, 1, zoneB.id);
+      paintCellZone(puzzle.grid, 1, 2, zoneB.id);
+      paintCellZone(puzzle.grid, 1, 3, zoneB.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id });
+      addClue(puzzle, b.id, "inRoom", { zoneId: zoneB.id });
+
+      const prop = propagate(puzzle, new Map());
+      const solutionKey = (sol) =>
+        [...sol].sort((x, y) => x.characterId.localeCompare(y.characterId)).map((p) => `${p.characterId}:${p.row},${p.col}`).join("|");
+
+      const withoutDomains = solvePuzzle(puzzle, { maxSolutions: 500 });
+      const withDomains = solvePuzzle(puzzle, { maxSolutions: 500, fixedPlacements: prop.confirmed, domains: prop.domains });
+      assert(withoutDomains.length > 0, "il puzzle deve avere soluzioni reali per essere un test significativo");
+      const setWithout = new Set(withoutDomains.map(solutionKey));
+      const setWith = new Set(withDomains.map(solutionKey));
+      assertEqual(setWith.size, setWithout.size);
+      for (const key of setWithout) assert(setWith.has(key), `soluzione mancante con domains: ${key}`);
+      for (const key of setWith) assert(setWithout.has(key), `soluzione in più con domains: ${key}`);
+    },
+  },
+  {
+    name: "solvePuzzle con domains: un personaggio assente dalla mappa dei domini riceve comunque l'enumerazione completa",
+    fn: () => {
+      const puzzle = basePuzzle(2, 2);
+      const a = addCharacter(puzzle, "A", "person1");
+      addCharacter(puzzle, "B", "person2");
+      const domains = new Map([[a.id, [{ row: 0, col: 0 }]]]); // B non ha alcuna voce
+      const solutions = solvePuzzle(puzzle, { maxSolutions: 10, domains });
+      assertEqual(solutions.length, 1, "A è ristretta a un'unica cella: un'unica soluzione possibile");
+      const posA = solutions[0].find((p) => p.characterId === a.id);
+      const posB = solutions[0].find((p) => p.characterId !== a.id);
+      assertEqual(posA.row, 0);
+      assertEqual(posA.col, 0);
+      assertEqual(posB.row, 1, "B deve risultare piazzata tramite la scansione completa di ripiego, non omessa");
+      assertEqual(posB.col, 1);
+    },
+  },
+  {
+    name: "solvePuzzle con domains: l'ordinamento MRV non perde né duplica personaggi",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const w = addCharacter(puzzle, "W", "person1");
+      const x = addCharacter(puzzle, "X", "person2");
+      addCharacter(puzzle, "Y", "person1");
+      addCharacter(puzzle, "Z", "person2");
+      // Domini di dimensioni miste, e due personaggi (Y, Z) del tutto assenti
+      // dalla mappa — esercita sia l'ordinamento per dimensione crescente sia
+      // il ripiego alla scansione completa nella stessa ricerca.
+      const domains = new Map([
+        [w.id, [{ row: 0, col: 0 }, { row: 0, col: 1 }]],
+        [x.id, [{ row: 1, col: 1 }]],
+      ]);
+      const solutions = solvePuzzle(puzzle, { maxSolutions: 50, domains });
+      assert(solutions.length > 0, "il puzzle senza indizi deve avere soluzioni reali");
+      for (const sol of solutions) {
+        assertEqual(sol.length, 4, "ogni soluzione deve avere esattamente 4 piazzamenti");
+        const ids = new Set(sol.map((p) => p.characterId));
+        assertEqual(ids.size, 4, "nessun personaggio duplicato o mancante in una soluzione");
+      }
     },
   },
   {

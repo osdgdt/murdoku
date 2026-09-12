@@ -249,7 +249,7 @@ function computeWave(puzzle, confirmed, budget, candidates) {
 
   const stats = {};
   const solveNodes = Math.max(0, Math.min(HINT_MAX_NODES, budget.waveNodesRemaining));
-  const solutions = solvePuzzle(puzzle, { maxSolutions: HINT_MAX_SOLUTIONS, fixedPlacements: prop.confirmed, maxNodes: solveNodes, stats, forwardCheck: true });
+  const solutions = solvePuzzle(puzzle, { maxSolutions: HINT_MAX_SOLUTIONS, fixedPlacements: prop.confirmed, domains: prop.domains, maxNodes: solveNodes, stats, forwardCheck: true });
   budget.spendWaveNodes(stats.nodesVisited);
 
   // A capped search only explored an arbitrary, biased slice of the true

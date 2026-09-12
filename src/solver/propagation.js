@@ -210,6 +210,14 @@ function createOpsBudget(max) {
 //   confirmed: Map<characterId,{row,col}>,   // currentPlacements plus every propagation-forced placement
 //   forced: [{characterId,row,col,witnessClueIds}],
 //   eliminated: [{characterId,row,col,witnessClueIds}],
+//   domains: Map<characterId, Array<{row,col}>>, // last computed candidate
+//     list for every character STILL UNPLACED when propagate() stops (fixed
+//     point, proven contradiction, or budget cap) — never has an entry for
+//     a confirmed/forced character. Every absent cell was excluded by a
+//     predicate/subset proof against a COMPLETE round, never a capped one
+//     (see `if (capped) break;` below) — a cap can only mean "fewer rounds
+//     of narrowing happened," never "an excluded cell might actually be
+//     valid." Purely additive: every existing caller ignores this field.
 //   contradiction: {characterId} | null,      // set iff some unplaced character's domain went empty
 //   evaluationsUsed: number,
 // }
@@ -246,6 +254,7 @@ export function propagate(puzzle, currentPlacements, {
   // fact's own `witnessClueIds` instead (see the loop below).
   let lastWitnessOf = new Map();
   let lastUnplacedIds = new Set();
+  let lastDomains = new Map();
 
   for (let round = 0; round < maxRounds; round++) {
     const unplaced = puzzle.characters.filter((c) => !confirmed.has(c.id));
@@ -293,10 +302,11 @@ export function propagate(puzzle, currentPlacements, {
 
     lastWitnessOf = witnessOf;
     lastUnplacedIds = new Set(unplaced.map((c) => c.id));
+    lastDomains = domains;
 
     for (const character of unplaced) {
       if (domains.get(character.id).length === 0) {
-        return { confirmed, forced, eliminated: [], contradiction: { characterId: character.id }, evaluationsUsed: evaluations };
+        return { confirmed, forced, eliminated: [], domains: new Map(domains), contradiction: { characterId: character.id }, evaluationsUsed: evaluations };
       }
     }
 
@@ -309,7 +319,7 @@ export function propagate(puzzle, currentPlacements, {
     // `witnessOf` map, captured above).
     const subset = applyNakedSubsets(unplaced, domains, witnessOf, opsBudget);
     if (subset.contradiction) {
-      return { confirmed, forced, eliminated: [], contradiction: subset.contradiction, evaluationsUsed: evaluations };
+      return { confirmed, forced, eliminated: [], domains: new Map(domains), contradiction: subset.contradiction, evaluationsUsed: evaluations };
     }
     // subset.capped: no special handling needed — domains/witnessOf simply
     // reflect whatever partial progress the subset scan made before running
@@ -360,5 +370,10 @@ export function propagate(puzzle, currentPlacements, {
     eliminated.push(entry);
   }
 
-  return { confirmed, forced, eliminated, contradiction: null, evaluationsUsed: evaluations };
+  const domains = new Map();
+  for (const id of lastUnplacedIds) {
+    domains.set(id, lastDomains.get(id) || []);
+  }
+
+  return { confirmed, forced, eliminated, domains, contradiction: null, evaluationsUsed: evaluations };
 }

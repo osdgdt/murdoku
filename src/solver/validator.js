@@ -63,9 +63,13 @@ export function validateSolution(puzzle) {
 // and see byte-identical behavior; src/solver/deriveSolution.js is the first
 // caller to opt in, since forward-checking is exactly the "smart" pruning
 // that makes a one-time full-puzzle brute force fast.
-export function checkUniqueness(puzzle, { maxSolutions = 2, maxNodes = Infinity, forwardCheck = false } = {}) {
+// `fixedPlacements`/`domains` are further opt-in pass-throughs (both default
+// null, matching solvePuzzle's own defaults) added for deriveSolution.js's
+// upfront-propagate seeding — every other existing caller/test omits both
+// and sees byte-identical behavior.
+export function checkUniqueness(puzzle, { maxSolutions = 2, maxNodes = Infinity, forwardCheck = false, fixedPlacements = null, domains = null } = {}) {
   const stats = {};
-  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats, forwardCheck });
+  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats, forwardCheck, fixedPlacements, domains });
   return {
     solutionCount: solutions.length,
     unique: solutions.length === 1,

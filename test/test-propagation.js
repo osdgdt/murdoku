@@ -223,4 +223,65 @@ export const tests = [
       assertEqual(result.forced[0].col, 1, "la deduzione deve venire dagli indizi, non dalla soluzione salvata (sbagliata)");
     },
   },
+  {
+    name: "propagate: espone il dominio calcolato per ogni personaggio ancora non piazzato",
+    fn: () => {
+      const puzzle = basePuzzle();
+      addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const zone = addZone(puzzle.grid, "Studio", "#fff");
+      paintCellZone(puzzle.grid, 1, 1, zone.id);
+      addClue(puzzle, b.id, "notInRoom", { zoneId: zone.id });
+      const result = propagate(puzzle, new Map());
+      const [a] = puzzle.characters;
+      assertEqual(result.domains.get(a.id).length, 9, "A non ha alcun indizio: il dominio deve coprire l'intera griglia 3x3");
+      const bDomain = result.domains.get(b.id);
+      assertEqual(bDomain.length, 8, "B deve avere (1,1) esclusa dal proprio dominio");
+      assert(!bDomain.some((c) => c.row === 1 && c.col === 1), "(1,1) non deve comparire nel dominio di B");
+    },
+  },
+  {
+    name: "propagate: il dominio esposto riflette un cap genuino (round interrotto prima del punto fisso), non solo il caso completo",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person1");
+      const zoneA = addZone(puzzle.grid, "StanzaA", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zoneA.id);
+      const zoneC = addZone(puzzle.grid, "StanzaC", "#eee");
+      paintCellZone(puzzle.grid, 2, 2, zoneC.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id }); // A -> (0,0), round 0
+      addClue(puzzle, c.id, "inRoom", { zoneId: zoneC.id }); // C -> (2,2), round 0
+      addClue(puzzle, b.id, "inRowOrCol", { axis: "row", index: 2 }); // B forzata solo al round 1
+      const result = propagate(puzzle, new Map(), { maxRounds: 1 });
+      assertEqual(result.contradiction, null);
+      assert(!result.domains.has(a.id), "A è già forzata al round 0: nessuna voce di dominio per lei");
+      assert(!result.domains.has(c.id), "C è già forzata al round 0: nessuna voce di dominio per lei");
+      const bDomain = result.domains.get(b.id);
+      assertEqual(bDomain.length, 3, "il dominio di B esposto deve essere quello del round 0 (prima che il round 1, mai eseguito, la forzi)");
+      const cells = bDomain.map((cell) => `${cell.row},${cell.col}`).sort().join("|");
+      assertEqual(cells, "1,0|1,1|1,2");
+    },
+  },
+  {
+    name: "propagate: nessun dominio esposto quando ogni personaggio finisce forzato (punto fisso completo)",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person1");
+      const zoneA = addZone(puzzle.grid, "StanzaA", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zoneA.id);
+      const zoneC = addZone(puzzle.grid, "StanzaC", "#eee");
+      paintCellZone(puzzle.grid, 2, 2, zoneC.id);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id });
+      addClue(puzzle, c.id, "inRoom", { zoneId: zoneC.id });
+      addClue(puzzle, b.id, "inRowOrCol", { axis: "row", index: 2 });
+      const result = propagate(puzzle, new Map());
+      assertEqual(result.contradiction, null);
+      assertEqual(result.forced.length, 3, "tutti e tre devono risultare forzati (round 0 + round 1 per B)");
+      assertEqual(result.domains.size, 0, "nessun personaggio resta non piazzato: la mappa dei domini deve essere vuota");
+    },
+  },
 ];

@@ -30,15 +30,54 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // standard CSP "forward checking" technique — it can only ever prune
 // branches that were already dead, so it changes how FAST a search finds its
 // answer, never WHICH solutions it finds.
-export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, maxNodes = Infinity, stats = null, forwardCheck = false } = {}) {
+//
+// `domains` (opt-in, Map<characterId, Array<{row,col}>>, default null —
+// every existing caller/test is unaffected unless it explicitly passes
+// this) restricts a character's cell enumeration to a precomputed candidate
+// list instead of scanning the whole grid, and drives a static
+// most-constrained-variable ordering (see `order` below) — typically seeded
+// from propagate()'s own domain-narrowing fixed point (deriveSolution.js,
+// hints.js's computeWave). A character with no entry in `domains` still
+// gets the full scan (safe fallback). This can only prune cells already
+// proven impossible by the same predicate contract forwardCheck relies on
+// — same "changes speed, never the answer" guarantee.
+export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, maxNodes = Infinity, stats = null, forwardCheck = false, domains = null } = {}) {
   const characters = puzzle.characters;
   const { rows, cols } = puzzle.grid.size;
   const predicates = buildPredicates(puzzle);
   const solutions = [];
 
-  // Most-constrained-first isn't required at this scale, but placing the
-  // victim first tends to prune "aloneWithVictim"-style clues earlier.
-  const order = [...characters].sort((a, b) => (b.isVictim ? 1 : 0) - (a.isVictim ? 1 : 0));
+  // MRV (most-constrained-variable), static ordering, opt-in via `domains`
+  // (typically seeded from propagate()'s own fixed point — see
+  // deriveSolution.js/hints.js). A character absent from `domains` sorts
+  // LAST, tied with every other absent character — "unknown size" must
+  // never be treated as "small," or a possibly-huge search gets
+  // front-loaded. Ties (including the all-absent case, i.e. `domains`
+  // omitted) fall through to the ORIGINAL rule: placing the victim first
+  // tends to prune "aloneWithVictim"-style clues earlier.
+  //
+  // `sizeA - sizeB` is NOT used directly when both are Infinity (Infinity -
+  // Infinity === NaN, and a comparator that can return NaN has unreliable
+  // sort behavior) — the equality check below sidesteps that, and also
+  // means: when `domains` is omitted, every pair compares Infinity===Infinity,
+  // this branch is never taken, and `order` is byte-identical to before this
+  // option existed for every existing caller.
+  //
+  // Static only (computed once, not re-ranked at each recursion depth): a
+  // full dynamic MRV would need backtrack/tryPlace to re-rank the remaining
+  // characters after every placement, a materially bigger restructure. This
+  // static pass already captures most of the value here, since `domains` is
+  // normally seeded from propagate()'s own fixed point — all the free
+  // cross-character narrowing propagation could find is already baked into
+  // the sizes being sorted on; only search-time row/col consumption is left
+  // dynamic, and that's already handled per-node by forwardCheck.
+  const domainSize = (character) => domains?.get(character.id)?.length ?? Infinity;
+  const order = [...characters].sort((a, b) => {
+    const sizeA = domainSize(a);
+    const sizeB = domainSize(b);
+    if (sizeA !== sizeB) return sizeA - sizeB;
+    return (b.isVictim ? 1 : 0) - (a.isVictim ? 1 : 0);
+  });
 
   const usedRows = new Set();
   const usedCols = new Set();
@@ -104,6 +143,30 @@ export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, 
         return;
       }
       tryPlace(character, fixed.row, fixed.col, index);
+      return;
+    }
+
+    const characterDomain = domains && domains.get(character.id);
+    if (characterDomain) {
+      // Re-check usedRows/usedCols/isOccupiable live, exactly like the full
+      // scan below does — `characterDomain` may have been computed against a
+      // different confirmed-set snapshot than this search's current state,
+      // and a listed cell's row/col could have been consumed since (by
+      // another character placed earlier in `order` during this very
+      // search). An empty `characterDomain` (propagate() proved zero
+      // candidates) correctly falls straight through to `return` with
+      // nothing tried — a sound dead-end, not a bug.
+      for (const { row: r, col: c } of characterDomain) {
+        if (usedRows.has(r) || usedCols.has(c)) continue;
+        if (!isOccupiable(puzzle.grid, r, c)) continue;
+        nodesVisited++;
+        if (nodesVisited >= maxNodes) {
+          nodeCapHit = true;
+          return;
+        }
+        tryPlace(character, r, c, index);
+        if (solutions.length >= maxSolutions || nodeCapHit) return;
+      }
       return;
     }
 

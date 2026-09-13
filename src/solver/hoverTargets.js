@@ -1,7 +1,7 @@
 import { CLUE_TYPES } from "../model/clueTypes.js";
 import { isObjectTypeOccupiable } from "../model/icons.js";
-import { isUsable } from "../model/grid.js";
-import { resolveTargetPositions, victimId } from "./predicates.js";
+import { isUsable, isOccupiable } from "../model/grid.js";
+import { resolveTargetPositions, victimId, buildPredicates } from "./predicates.js";
 
 // Resolves the "proprietà" (property) family shared by several clue types
 // (someoneInRoomWithProperty, aloneWithPersonProperty, someoneAtDirectionDistance,
@@ -107,6 +107,44 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     }
   }
 
+  // inRowOrCol: stessa geometria di noOneInRowOrCol sopra (stessa forma di
+  // parametri/convenzione 1-based), solo posseduto da un personaggio invece
+  // che generico — il bersaglio dell'indizio È la riga/colonna stessa. Stesso
+  // gap di "nessun kind dichiarato corrisponde a un ramo del cammino
+  // generico" già visto per noOneInRowOrCol: senza questo blocco, hoverare
+  // questo indizio non evidenziava mai nulla.
+  if (clue.type === "inRowOrCol" && clue.params?.axis && clue.params?.index != null) {
+    const idx = clue.params.index - 1;
+    const { rows, cols } = puzzle.grid.size;
+    if (clue.params.axis === "row") {
+      for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, idx, c)) cells.push({ row: idx, col: c });
+    } else {
+      for (let r = 0; r < rows; r++) if (isUsable(puzzle.grid, r, idx)) cells.push({ row: r, col: idx });
+    }
+  }
+
+  // rowOrColParity: il bersaglio è OGNI riga/colonna della parità scelta, non
+  // solo una — rispecchia esattamente il predicato reale (predicates.js:
+  // value = indice 1-based, isOdd = value%2===1, soddisfatto quando
+  // isOdd===wantOdd) così l'evidenziazione mostra precisamente le
+  // righe/colonne che il predicato considera valide. Stesso gap di kind non
+  // risolvibile del blocco sopra.
+  if (clue.type === "rowOrColParity" && clue.params?.axis && clue.params?.parity) {
+    const { rows, cols } = puzzle.grid.size;
+    const wantOdd = clue.params.parity === "odd";
+    if (clue.params.axis === "row") {
+      for (let r = 0; r < rows; r++) {
+        if (((r + 1) % 2 === 1) !== wantOdd) continue;
+        for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
+      }
+    } else {
+      for (let c = 0; c < cols; c++) {
+        if (((c + 1) % 2 === 1) !== wantOdd) continue;
+        for (let r = 0; r < rows; r++) if (isUsable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
+      }
+    }
+  }
+
   // "seated" è anche un tipo di indizio a sé (params: [], vedi clueTypes.js),
   // distinto dal valore property "seated" già gestito sopra — stessa unione
   // di ogni oggetto occupabile sulla mappa.
@@ -129,4 +167,61 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     seen.add(k);
     return true;
   });
+}
+
+// Dominio di celle compatibili con TUTTI gli indizi PROPRI di characterId
+// contemporaneamente (src/player/gameScreen.js's showCharacterHover) —
+// deliberatamente NON un'unione dei "bersagli" di ciascun indizio
+// (resolveClueHoverCells resta quello, invariato, per l'hover-su-singolo-
+// indizio) e deliberatamente NON un round di propagate() (che valuta OGNI
+// indizio del puzzle, inclusi quelli generici e degli altri personaggi — una
+// domanda più stretta e diversa da "cosa permettono le sue SOLE
+// informazioni").
+//
+// Riusa lo stesso contratto sonoro su cui si basa già propagate(): per una
+// cella candidata, costruisce una mappa di piazzamento tentativa (ogni ALTRO
+// personaggio alla sua posizione ATTUALE sulla board + questo personaggio in
+// quella cella) e valuta un predicato con un `isComplete` onesto. Un
+// predicato restituisce `false` solo quando nessun completamento di
+// quell'assegnazione parziale può soddisfarlo — proprietà del predicato
+// stesso, indipendente da QUALI ALTRI predicati vengono valutati insieme.
+// Restringere il set valutato ai soli indizi propri del personaggio (le
+// coppie con clue.characterId === characterId — esclude per costruzione ogni
+// indizio generico e la regola-base sintetica della vittima, che ha sempre
+// characterId: null anche quando characterId QUI è proprio quello della
+// vittima) può solo rendere il risultato più permissivo, mai fabbricare un
+// falso "non compatibile": è esattamente la semantica voluta ("compatibile
+// con TUTTI i SUOI indizi", non con l'intero puzzle).
+//
+// A differenza di propagate(), characterId può essere già confermato sulla
+// board (il chip in toolbar resta hoverabile anche da piazzato) — `confirmed`
+// esclude sempre la posizione attuale di characterId, così non si autoesclude
+// mai dalla propria riga/colonna.
+export function resolveCharacterHoverDomain(puzzle, characterId, currentPlacements) {
+  const ownPredicates = buildPredicates(puzzle).filter(({ clue }) => clue.characterId === characterId);
+
+  const confirmed = new Map(currentPlacements);
+  confirmed.delete(characterId);
+
+  const usedRows = new Set([...confirmed.values()].map((p) => p.row));
+  const usedCols = new Set([...confirmed.values()].map((p) => p.col));
+  const isComplete = confirmed.size === puzzle.characters.length - 1;
+
+  const { rows, cols } = puzzle.grid.size;
+  const cells = [];
+  for (let r = 0; r < rows; r++) {
+    if (usedRows.has(r)) continue;
+    for (let c = 0; c < cols; c++) {
+      if (usedCols.has(c)) continue;
+      if (!isOccupiable(puzzle.grid, r, c)) continue;
+      const tentative = new Map(confirmed);
+      tentative.set(characterId, { row: r, col: c });
+      let excluded = false;
+      for (const { predicate } of ownPredicates) {
+        if (predicate(tentative, isComplete) === false) { excluded = true; break; }
+      }
+      if (!excluded) cells.push({ row: r, col: c });
+    }
+  }
+  return cells;
 }

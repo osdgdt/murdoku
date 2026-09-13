@@ -74,8 +74,8 @@ export function setBlocked(grid, row, col, blocked) {
   }
 }
 
-export function addZone(grid, name, color) {
-  const zone = { id: makeId("zone"), name, color };
+export function addZone(grid, name, color, textureId = "hatch") {
+  const zone = { id: makeId("zone"), name, color, textureId };
   grid.zones.push(zone);
   return zone;
 }

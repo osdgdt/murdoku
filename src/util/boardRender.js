@@ -1,5 +1,6 @@
 import { el, clear } from "./dom.js";
 import { objectIcon } from "../model/icons.js";
+import { zoneTextureCss } from "../model/textures.js";
 
 const CELL_SIZE = 56;
 const LABEL_SIZE = 24;
@@ -38,10 +39,10 @@ let currentOnCellTap = null;
 
 // Threshold for "hold" vs "tap": press-and-release before this elapses (and
 // without leaving the pressed cell) is a tap; staying down past it, still on
-// the same cell, is a hold. Kept in sync by hand with the `cell-hold-fill`
+// the same cell, is a hold. Kept in sync by hand with the `hold-wheel-fill`
 // CSS animation duration in styles/player.css (same manual-duplication
 // tradeoff attachHoldToConfirm/700ms already accepts, src/util/dom.js).
-const HOLD_THRESHOLD_MS = 400;
+const HOLD_THRESHOLD_MS = 900;
 // Timer counting down a hold-in-progress; null whenever no press is pending a
 // hold decision (nothing down, hold already fired, or already converted to a
 // drag).
@@ -58,12 +59,17 @@ let dragConverted = false;
 // The DOM node currently wearing the "holding" class, so it can be cleared
 // directly (no full re-render) when a hold is cancelled/converted/completed.
 let holdingCellNode = null;
+// The <div class="hold-wheel"> child currently appended to holdingCellNode,
+// if any — tracked explicitly (not re-found via querySelector) so it can be
+// removed on every exit path the exact same way holdingCellNode itself is.
+let holdWheelNode = null;
 
 function clearHoldTimer() {
   if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
 }
 function clearHoldingVisual() {
   if (holdingCellNode) { holdingCellNode.classList.remove("holding"); holdingCellNode = null; }
+  if (holdWheelNode) { holdWheelNode.remove(); holdWheelNode = null; }
 }
 // Reinterprets the current press as a drag: cancels the pending hold, and —
 // since the down-cell itself never got a tap or a hold — feeds it through
@@ -178,6 +184,10 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     if (onCellHold) {
       node.classList.add("holding");
       holdingCellNode = node;
+      holdWheelNode = el("div", { class: "hold-wheel", "aria-hidden": "true" });
+      holdWheelNode.innerHTML =
+        '<svg viewBox="0 0 40 40"><circle class="hold-wheel-track" cx="20" cy="20" r="16"/><circle class="hold-wheel-fill" cx="20" cy="20" r="16"/></svg>';
+      node.appendChild(holdWheelNode);
       holdTimer = setTimeout(() => {
         holdTimer = null; holdFired = true; clearHoldingVisual();
         onCellHold(r, c);
@@ -288,7 +298,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // the paint-by-dragging feature outside of synthetic/automated
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
-        style: zone ? `background-color:${zone.color}` : "",
+        style: zone ? `background-color:${zone.color};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers

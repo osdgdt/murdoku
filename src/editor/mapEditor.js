@@ -2,6 +2,7 @@ import { el, clear } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import { addZone, removeZone, paintCellZone, placeObject, removeObject, resizeGrid, setBlocked } from "../model/grid.js";
 import { OBJECT_TYPES } from "../model/icons.js";
+import { ZONE_TEXTURES } from "../model/textures.js";
 
 const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8"];
 
@@ -79,7 +80,18 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
         onChange();
       },
     });
-    zoneList.appendChild(swatch);
+    const textureSelect = el(
+      "select",
+      {
+        class: "zone-texture-select",
+        title: "Texture della stanza",
+        onChange: (e) => { zone.textureId = e.target.value; onChange(); },
+      },
+      Object.entries(ZONE_TEXTURES).map(([id, def]) =>
+        el("option", { value: id, selected: (zone.textureId || "hatch") === id || undefined }, def.label)
+      )
+    );
+    zoneList.appendChild(el("div", { class: "zone-swatch-item" }, [swatch, textureSelect]));
   }
   panelEl.appendChild(zoneList);
   panelEl.appendChild(el("p", { class: "muted" }, "Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza."));

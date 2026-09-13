@@ -181,13 +181,14 @@ export const tests = [
     },
   },
   {
-    name: "resolveClueHoverCells: un tipo puramente geometrico senza bersaglio esterno (inRowOrCol) risolve ad array vuoto",
+    name: "resolveClueHoverCells: inRowOrCol (personaggio) risolve a tutte le celle occupabili della riga/colonna indicata (indice 1-based) — FIX bug ex-array-vuoto",
     fn: () => {
-      const puzzle = basePuzzle();
+      const puzzle = basePuzzle(); // 4x4
       const a = addCharacter(puzzle, "A", "person1");
-      const clue = addClue(puzzle, a.id, "inRowOrCol", { axis: "row", index: 1 });
+      const clue = addClue(puzzle, a.id, "inRowOrCol", { axis: "row", index: 2 }); // riga 2 -> indice 0-based 1
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([[a.id, { row: 0, col: 0 }]]));
-      assertEqual(cells.length, 0, "non c'è nessun bersaglio esterno sulla mappa da evidenziare");
+      assertEqual(cellSet(cells).size, 4);
+      for (let c = 0; c < 4; c++) assert(cellSet(cells).has(`1,${c}`), `manca la cella 1,${c}`);
     },
   },
   {
@@ -209,6 +210,34 @@ export const tests = [
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
       assertEqual(cellSet(cells).size, 3, "3 celle su 4: quella bloccata non deve comparire");
       assert(!cellSet(cells).has("1,2"), "la cella bloccata non deve comparire");
+    },
+  },
+  {
+    name: "resolveClueHoverCells: rowOrColParity (dispari) risolve a tutte le celle di ogni riga con etichetta dispari — FIX bug ex-array-vuoto",
+    fn: () => {
+      const puzzle = basePuzzle(); // 4x4, righe 0-based 0..3 -> etichette R1..R4
+      const a = addCharacter(puzzle, "A", "person1");
+      const clue = addClue(puzzle, a.id, "rowOrColParity", { axis: "row", parity: "odd" }); // R1, R3 -> righe 0-based 0, 2
+      const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
+      assertEqual(cellSet(cells).size, 8, "2 righe x 4 colonne");
+      for (let c = 0; c < 4; c++) {
+        assert(cellSet(cells).has(`0,${c}`));
+        assert(cellSet(cells).has(`2,${c}`));
+      }
+      assert(!cellSet(cells).has("1,0"), "riga pari (R2) non deve comparire");
+    },
+  },
+  {
+    name: "resolveClueHoverCells: rowOrColParity (colonna pari) esclude le celle bloccate",
+    fn: () => {
+      const puzzle = basePuzzle(); // 4x4
+      setBlocked(puzzle.grid, 1, 1, true); // riga 1, colonna 1 (indice 0-based) bloccata -> C2, pari
+      const clue = addClue(puzzle, null, "rowOrColParity", { axis: "col", parity: "even" }); // C2, C4 -> colonne 0-based 1, 3
+      const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
+      assert(!cellSet(cells).has("1,1"), "la cella bloccata non deve comparire");
+      assert(cellSet(cells).has("0,1"), "il resto della colonna pari deve comparire");
+      assert(cellSet(cells).has("0,3"), "l'altra colonna pari deve comparire");
+      assert(!cellSet(cells).has("0,0"), "colonna dispari (C1) non deve comparire");
     },
   },
   {

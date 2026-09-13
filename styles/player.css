@@ -212,19 +212,37 @@
 }
 
 /* Pressione prolungata su una casella (per piazzare il personaggio
-   selezionato) — anello che si riempie verso l'interno mentre il timer di
-   HOLD_THRESHOLD_MS conta (src/util/boardRender.js). z-index:4, sopra gli
-   anelli hint/hover (3), così una casella tenuta premuta resta leggibile
-   anche mentre è evidenziata da un'altra ragione. Box-shadow, non un
-   pseudo-elemento: le celle usano già ::before/::after per .x-mark e per la
-   texture di .zoned, un terzo pseudo-elemento li romperebbe silenziosamente. */
-.board-cell.holding {
-  z-index: 4;
-  animation: cell-hold-fill 400ms linear forwards; /* 400ms = HOLD_THRESHOLD_MS in boardRender.js, sincronizzati a mano */
+   selezionato) — una rotella circolare reale che si riempie mentre il timer
+   di HOLD_THRESHOLD_MS conta (src/util/boardRender.js). z-index:4 sulla
+   cella stessa, sopra gli anelli hint/hover (3); la rotella (un vero nodo
+   DOM figlio, .hold-wheel, non uno pseudo-elemento: le celle usano già
+   ::before/::after per .x-mark e per la texture di .zoned, un terzo
+   pseudo-elemento li romperebbe silenziosamente) sta a z-index:5, sopra
+   anche il contenuto della cella (token/candidate-grid, tutti a z-index:2). */
+.board-cell.holding { z-index: 4; }
+.hold-wheel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* come .x-mark::before: mousedown/mouseenter/touchmove devono continuare a colpire .board-cell */
+  z-index: 5;
 }
-@keyframes cell-hold-fill {
-  from { box-shadow: inset 0 0 0 0 var(--accent), 0 0 0 0 var(--accent-soft); }
-  to   { box-shadow: inset 0 0 0 4px var(--accent), 0 0 14px 2px var(--accent-soft); }
+.hold-wheel svg { width: 70%; height: 70%; transform: rotate(-90deg); }
+.hold-wheel-track { fill: none; stroke: rgba(36, 26, 12, 0.18); stroke-width: 4; }
+:root[data-theme="dark"] .hold-wheel-track { stroke: rgba(0, 0, 0, 0.3); }
+.hold-wheel-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 100.5; /* ~2*pi*16, la circonferenza del cerchio r=16 */
+  stroke-dashoffset: 100.5;
+  animation: hold-wheel-fill 900ms linear forwards; /* 900ms = HOLD_THRESHOLD_MS in boardRender.js, sincronizzati a mano */
+}
+@keyframes hold-wheel-fill {
+  to { stroke-dashoffset: 0; }
 }
 
 .clue-card {

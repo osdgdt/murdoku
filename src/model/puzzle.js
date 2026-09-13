@@ -64,6 +64,7 @@ export function createPuzzle(title = "Nuovo caso") {
     characters: [],
     clues: [],
     solution: { placements: [] },
+    manualHints: [],
   };
 }
 
@@ -101,6 +102,16 @@ export function removeCharacter(puzzle, characterId) {
       cl.params?.targetBId !== characterId
   );
   puzzle.solution.placements = puzzle.solution.placements.filter((p) => p.characterId !== characterId);
+  // Un passo di suggerimento manuale che evidenziava questo personaggio perde
+  // solo l'evidenziazione (characterId/row/col), non l'intero passo: il testo
+  // scritto dall'autore resta prezioso anche orfano di bersaglio.
+  for (const step of puzzle.manualHints || []) {
+    if (step.characterId === characterId) {
+      step.characterId = null;
+      step.row = null;
+      step.col = null;
+    }
+  }
   touch(puzzle);
 }
 
@@ -287,4 +298,38 @@ export function pruneDanglingSolutionPlacements(puzzle) {
   );
   if (puzzle.solution.placements.length !== before) touch(puzzle);
   return puzzle;
+}
+
+// --- Suggerimenti scritti a mano -------------------------------------
+
+// Un passo = un messaggio dell'autore + un'evidenziazione opzionale
+// (characterId+row+col, sempre impostati insieme o tutti null: mai a metà).
+// Quando puzzle.manualHints ha almeno un passo, il gioco mostra SOLO questa
+// sequenza al posto del motore automatico (vedi gameScreen.js's onHint()).
+export function addManualHintStep(puzzle, message = "") {
+  const step = { id: makeId("hint"), message, characterId: null, row: null, col: null };
+  puzzle.manualHints = puzzle.manualHints || [];
+  puzzle.manualHints.push(step);
+  touch(puzzle);
+  return step;
+}
+
+export function updateManualHintStep(puzzle, stepId, patch) {
+  const step = (puzzle.manualHints || []).find((s) => s.id === stepId);
+  if (!step) return;
+  Object.assign(step, patch);
+  touch(puzzle);
+}
+
+export function removeManualHintStep(puzzle, stepId) {
+  puzzle.manualHints = (puzzle.manualHints || []).filter((s) => s.id !== stepId);
+  touch(puzzle);
+}
+
+export function reorderManualHintSteps(puzzle, fromIndex, toIndex) {
+  const steps = puzzle.manualHints || [];
+  if (fromIndex < 0 || fromIndex >= steps.length || toIndex < 0 || toIndex >= steps.length) return;
+  const [moved] = steps.splice(fromIndex, 1);
+  steps.splice(toIndex, 0, moved);
+  touch(puzzle);
 }

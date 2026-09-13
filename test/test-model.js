@@ -1,4 +1,4 @@
-import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes } from "../src/model/puzzle.js";
+import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes, addManualHintStep, updateManualHintStep, removeManualHintStep, reorderManualHintSteps } from "../src/model/puzzle.js";
 import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import * as store from "../src/storage/puzzleStore.js";
@@ -338,6 +338,44 @@ export const tests = [
       assert(!isOccupiable(puzzle.grid, 2, 0), "una porta non si può occupare");
       assert(!isOccupiable(puzzle.grid, 2, 1), "una finestra non si può occupare");
       assert(!isOccupiable(puzzle.grid, 2, 2), "una lampada non si può occupare");
+    },
+  },
+  {
+    name: "createPuzzle inizializza manualHints come array vuoto",
+    fn: () => {
+      const puzzle = createPuzzle("Test");
+      assertEqual(puzzle.manualHints.length, 0);
+    },
+  },
+  {
+    name: "addManualHintStep/updateManualHintStep/removeManualHintStep/reorderManualHintSteps gestiscono la lista dei passi",
+    fn: () => {
+      const puzzle = createPuzzle("Test");
+      const s1 = addManualHintStep(puzzle, "Primo passo");
+      const s2 = addManualHintStep(puzzle, "Secondo passo");
+      assertEqual(puzzle.manualHints.length, 2);
+      updateManualHintStep(puzzle, s1.id, { characterId: "char_x", row: 1, col: 2 });
+      assertEqual(puzzle.manualHints[0].row, 1);
+      reorderManualHintSteps(puzzle, 0, 1);
+      assertEqual(puzzle.manualHints[0].id, s2.id, "il riordino deve spostare il secondo passo per primo");
+      removeManualHintStep(puzzle, s1.id);
+      assertEqual(puzzle.manualHints.length, 1);
+      assertEqual(puzzle.manualHints[0].id, s2.id);
+    },
+  },
+  {
+    name: "removeCharacter azzera solo l'evidenziazione (characterId/row/col) di un passo manuale, mantenendo il testo",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const [anna, bruno] = puzzle.characters;
+      const step = addManualHintStep(puzzle, "Bruno è nella cucina.");
+      updateManualHintStep(puzzle, step.id, { characterId: bruno.id, row: 0, col: 0 });
+      removeCharacter(puzzle, bruno.id);
+      assertEqual(puzzle.manualHints.length, 1, "il passo non deve sparire");
+      assertEqual(puzzle.manualHints[0].message, "Bruno è nella cucina.", "il testo deve restare");
+      assertEqual(puzzle.manualHints[0].characterId, null);
+      assertEqual(puzzle.manualHints[0].row, null);
+      assertEqual(puzzle.manualHints[0].col, null);
     },
   },
 ];

@@ -8,6 +8,7 @@ import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
 import { renderSolutionEditor } from "./solutionEditor.js";
+import { renderHintsEditor } from "./hintsEditor.js";
 import { wireThemeToggle } from "../util/theme.js";
 
 wireThemeToggle();
@@ -18,7 +19,7 @@ const existingId = params.get("id");
 let puzzle = existingId ? store.get(existingId) : null;
 if (!puzzle) puzzle = createPuzzle();
 
-let activeTab = "map"; // "map" | "solution"
+let activeTab = "map"; // "map" | "solution" | "hints"
 
 const titleInput = qs("#puzzle-title");
 const authorInput = qs("#puzzle-author");
@@ -35,6 +36,7 @@ const rightBottom = qs("#right-panel-bottom");
 const validationPanel = qs("#validation-panel");
 const tabMapBtn = qs("#tab-map");
 const tabSolutionBtn = qs("#tab-solution");
+const tabHintsBtn = qs("#tab-hints");
 const saveBtn = qs("#save-btn");
 const exportBtn = qs("#export-btn");
 const importInput = qs("#import-input");
@@ -138,11 +140,14 @@ function render() {
 
   tabMapBtn.classList.toggle("primary", activeTab === "map");
   tabSolutionBtn.classList.toggle("primary", activeTab === "solution");
+  tabHintsBtn.classList.toggle("primary", activeTab === "hints");
 
   if (activeTab === "map") {
     renderMapEditor(leftPanel, boardEl, puzzle, handleChange);
-  } else {
+  } else if (activeTab === "solution") {
     renderSolutionEditor(leftPanel, boardEl, puzzle, handleChange);
+  } else {
+    renderHintsEditor(leftPanel, boardEl, puzzle, handleChange, persistBypassingUndo);
   }
 
   renderCharacterEditor(rightTop, puzzle, handleChange, persistBypassingUndo);
@@ -157,6 +162,7 @@ resolutionInput.addEventListener("input", () => { puzzle.resolutionNote = resolu
 
 tabMapBtn.addEventListener("click", () => { activeTab = "map"; render(); });
 tabSolutionBtn.addEventListener("click", () => { activeTab = "solution"; render(); });
+tabHintsBtn.addEventListener("click", () => { activeTab = "hints"; render(); });
 
 saveBtn.addEventListener("click", () => { persist(); });
 

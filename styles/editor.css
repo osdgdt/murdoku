@@ -74,16 +74,22 @@
 
 .editor-layout {
   display: grid;
-  grid-template-columns: 270px 1fr 380px;
+  /* The middle column holds #board (fixed cell size, already scrolls past
+     9x9 via #board's own overflow-x:auto) plus #validation-panel (free-flowing
+     text) — fit-content(640px) sizes it to the board's natural width (up to
+     8x8) without letting a long validation sentence stretch it further, and
+     gives whatever space that frees to the clue/character panel instead of
+     leaving it unused next to a fixed-size board. */
+  grid-template-columns: 270px fit-content(640px) minmax(420px, 1fr);
   gap: 1.25rem;
   padding: 1.25rem 1.5rem 2.5rem;
   align-items: start;
 }
 
-/* Stack into one column below the three fixed-ish tracks' natural minimum
-   (270+380px of side panels alone already exceeds a phone viewport) instead
-   of forcing the whole page to scroll horizontally. Tier-1 responsive fix
-   only — cell/touch-target sizing itself is unchanged, see README. */
+/* Stack into one column below the three tracks' natural minimum (270px +
+   the right panel's own 420px minimum alone already exceed a phone viewport)
+   instead of forcing the whole page to scroll horizontally. Tier-1 responsive
+   fix only — cell/touch-target sizing itself is unchanged, see README. */
 @media (max-width: 860px) {
   .editor-layout {
     grid-template-columns: 1fr;
@@ -160,7 +166,7 @@
      hijacked into a native image-drag or text selection. */
   user-select: none;
   -webkit-user-drag: none;
-  /* A ~400ms stationary hold is now a deliberate, common gesture (see
+  /* A ~900ms stationary hold is now a deliberate, common gesture (see
      boardRender.js's HOLD_THRESHOLD_MS) — prevents iOS's long-press callout
      from popping up over it. */
   -webkit-touch-callout: none;
@@ -188,13 +194,20 @@
   cursor: pointer;
 }
 
-/* Subtle terrain texture over any painted zone, so flat color fields read
-   more like a tiled floor and less like a flat UI block. */
+/* Terrain texture over any painted zone, so flat color fields read more like
+   a tiled floor and less like a flat UI block. The actual pattern comes from
+   the cell's own --zone-texture custom property (set per-cell in
+   boardRender.js from the zone's author-picked textureId, see
+   src/model/textures.js) — this varies which background-image is used
+   instead of adding a second pseudo-element: .board-cell already spends its
+   whole ::before/::after budget on this rule and .x-mark's, a third one
+   would silently break one of them. Falls back to the original diagonal
+   hatch for a zone with no textureId (zones saved before this feature). */
 .board-cell.zoned::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.055) 0 3px, transparent 3px 10px);
+  background-image: var(--zone-texture, repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.055) 0 3px, transparent 3px 10px));
   pointer-events: none;
 }
 
@@ -318,6 +331,11 @@
 .swatch.selected { box-shadow: 0 0 0 2.5px var(--accent); transform: scale(1.08); }
 .swatch:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+/* A zone's color swatch plus its texture picker, stacked as one unit inside
+   .zone-swatch-list. */
+.zone-swatch-item { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+.zone-texture-select { font-size: 0.65rem; padding: 0.15em 0.3em; width: 84px; }
+
 .palette-item {
   width: 42px; height: 42px;
   border-radius: var(--radius-sm);
@@ -432,8 +450,8 @@
    a run of bare dropdowns — each field shrinks (min-width:0) and wraps onto
    its own line rather than pushing the card wider than its container. */
 .clue-fields {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
@@ -441,7 +459,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  flex: 1 1 9em;
   min-width: 0;
   max-width: 100%;
 }
@@ -452,6 +469,18 @@
   color: var(--ink-faint);
   text-transform: uppercase;
 }
+
+/* The "+ Indizio"/"+ Indizio generale" add-row — styled as a clear call to
+   action (dashed accent border) instead of blending in with every other
+   plain .field-row on the page. Additive class, not an override of
+   .field-row itself (base.css), so no other .field-row usage is affected. */
+.clue-add-row {
+  background: var(--accent-soft);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.6rem;
+}
+.clue-add-row select { flex: 1 1 auto; min-width: 0; }
 
 /* The "orClue" combinator: two branches stacked full-width (not side by
    side) so each has room to lay out its own fields without competing for

@@ -252,7 +252,7 @@ function renderGenericCluesSection(puzzle, onChange) {
       onChange();
     },
   }, "+ Indizio generale");
-  wrap.appendChild(el("div", { class: "field-row" }, [typeSelect, addClueBtn]));
+  wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
 
   return wrap;
 }
@@ -291,7 +291,7 @@ export function renderClueBuilder(container, puzzle, onChange) {
         onChange();
       },
     }, "+ Indizio");
-    wrap.appendChild(el("div", { class: "field-row" }, [typeSelect, addClueBtn]));
+    wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
 
     container.appendChild(wrap);
   }

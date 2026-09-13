@@ -1,13 +1,13 @@
 import { el, clear, qs, attachHoldToConfirm, onActivateKey } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { zoneOfCell } from "../model/grid.js";
-import { characterColor, cluesForCharacter } from "../model/puzzle.js";
+import { characterColor } from "../model/puzzle.js";
 import { describeClue } from "../model/clueTypes.js";
 import { handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
 import { validateSolution } from "../solver/validator.js";
 import { computeHintChainAsync, deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
-import { resolveClueHoverCells } from "../solver/hoverTargets.js";
+import { resolveClueHoverCells, resolveCharacterHoverDomain } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 
@@ -213,7 +213,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   }
   function showCharacterHover(characterId) {
     clearHover();
-    applyHoverCells(cluesForCharacter(puzzle, characterId).flatMap((clue) => resolveClueHoverCells(clue, puzzle, state.placements)));
+    applyHoverCells(resolveCharacterHoverDomain(puzzle, characterId, state.placements));
   }
   function showClueHover(clue) {
     clearHover();
@@ -434,6 +434,36 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   async function onHint() {
     hintBtn.disabled = true;
     clear(hintPanel);
+
+    // Un caso con almeno un passo scritto a mano sostituisce interamente il
+    // motore automatico per quel caso — mai un fallback ibrido (deciso
+    // esplicitamente con l'utente). Nessun round-trip al Web Worker: il
+    // contenuto è già interamente noto in modo sincrono. Un passo evidenziato
+    // riusa il tipo LETTERALE "forcedPlacement" (non un tipo nuovo) così
+    // showHintStep()/renderHintExplanation() lo gestiscono senza alcuna
+    // modifica (anello dorato, riseleziona lo strumento giusto, nessun
+    // blocco "Perché" spurio dato che viaDerivedSolution/jointlyDetermined/
+    // involvedClues/involvedGroups sono tutti assenti) — e conta già verso
+    // hintsUsed tramite REAL_HINT_STEP_TYPES senza toccare quella costante.
+    // Un passo solo-testo usa "manualNote", fuori da REAL_HINT_STEP_TYPES:
+    // gratuito, come tooComplex/noHint oggi.
+    const manualSteps = puzzle.manualHints || [];
+    if (manualSteps.length > 0) {
+      hintChain = manualSteps.map((step) =>
+        step.characterId != null && step.row != null && step.col != null
+          ? { type: "forcedPlacement", variant: "success", characterId: step.characterId, row: step.row, col: step.col, message: step.message || "" }
+          : { type: "manualNote", variant: "info", message: step.message || "" }
+      );
+      if (hintChain.some((step) => REAL_HINT_STEP_TYPES.has(step.type))) {
+        state.hintsUsed++;
+        persistProgress();
+      }
+      hintChainIndex = 0;
+      showHintStep();
+      hintBtn.disabled = false;
+      return;
+    }
+
     hintPanel.appendChild(el("div", { class: "result-banner hint-info" }, "Sto calcolando un suggerimento…"));
     try {
       hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates);

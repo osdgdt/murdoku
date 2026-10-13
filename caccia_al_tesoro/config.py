@@ -1,20 +1,41 @@
 """Parametri personalizzabili del fascicolo.
 
 Cambia qui nomi, parole e titoli, poi rigenera con `python genera.py`.
+Le parole possono usare solo le 21 lettere dell'alfabeto italiano (niente J, K, W, X, Y).
 """
 
 # Seme fisso: stesso seme = stessi enigmi a ogni rigenerazione.
-# Cambialo (es. 7, 99, 2027) per ottenere un fascicolo completamente nuovo.
+# Cambialo (es. 7, 99, 2027) per ottenere un fascicolo con labirinto, mastermind, ecc. nuovi.
 SEED = 2026
 
 TITOLO = "CACCIA AL TESORO"
 SOTTOTITOLO = "Il fascicolo degli enigmi"
 
 # Nomi dei personaggi usati nei giochi di deduzione (5 nomi, iniziali tutte diverse).
+# I primi 4 sono i cugini dell'enigma 11; il ladro dell'enigma 10 è uno dei primi 4.
 NOMI = ["Anna", "Bruno", "Carla", "Dario", "Elisa"]
 
-# Parola nascosta nel labirinto (lettere lungo il percorso giusto): 3-8 lettere.
+# Parola nascosta nel labirinto (enigma 5): 3-8 lettere.
 PAROLA_LABIRINTO = "CHIAVE"
 
-# Cosa compare unendo i puntini (deve coincidere con la figura disegnata).
-FIGURA_PUNTINI = "CASA"
+# Le parole-soluzione degli enigmi nuovi. Regole:
+#   simboli, cesare, pigpen: qualsiasi parola; conviene 5-8 lettere
+#   mastermind:              4-6 lettere, tutte DIVERSE tra loro
+#   serie, ombre, forme:     esattamente 5 lettere
+#   pixel:                   4-6 lettere
+# Non cambiano: la scala di parole (enigma 2: MARE) e i nomi degli enigmi 10 e 11.
+SOLUZIONI = {
+    "simboli": "NUVOLA",     # enigma 1
+    "mastermind": "FIORE",   # enigma 3
+    "pigpen": "TESORO",      # enigma 4
+    "serie": "BARCA",        # enigma 6
+    "ombre": "ISOLA",        # enigma 7
+    "forme": "MAPPA",        # enigma 8 (con il metodo tabella_a1 viene sostituita da una parola compatibile)
+    "cesare": "ESTATE",      # enigma 9
+    "pixel": "STELLA",       # enigma 12
+}
+
+# Metodo di conversione numero -> parola dell'enigma 8 nel fascicolo.
+# Uno tra: "scelta_multipla", "mini_figure", "coordinate", "tabella_a1".
+# In varianti_enigma8.pdf trovi tutti e quattro per confrontarli.
+METODO_ENIGMA_8 = "scelta_multipla"

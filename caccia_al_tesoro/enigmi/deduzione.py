@@ -1,4 +1,4 @@
-"""Enigmi di osservazione e deduzione: indovinelli, chi ha rubato la torta, griglia logica, chi mente."""
+"""Enigmi di osservazione e deduzione: chi ha rubato la torta e la griglia logica dei cugini."""
 import itertools
 import random
 
@@ -9,63 +9,6 @@ from .base import Enigma, FACILE, MEDIO
 from .impagina import GRIGIO, GRIGIO_SCURO, FONT, FONT_B, FONT_I, W
 
 CATEGORIA = "Osservazione e deduzione"
-
-# --------------------------------------------------------------------------- indovinelli
-# (versi, risposta). Le iniziali delle cinque risposte formano la parola PORTA.
-INDOVINELLI = [
-    ("Ho tanti denti ma non mordo mai:\nse mi usi, i capelli a posto avrai.", "PETTINE"),
-    ("Ti seguo sempre, ma non ho piedi;\nse spegni la luce, più non mi vedi.", "OMBRA"),
-    ("Otto zampe ho per camminare,\ncon un filo la tela so fare.", "RAGNO"),
-    ("Quattro gambe ho e non cammino,\nci mangi sopra a pranzo e a cena, vicino.", "TAVOLO"),
-    ("Ho un occhio solo ma non ci vedo,\ncucio i vestiti e mai mi siedo.", "AGO"),
-]
-
-
-def disegna_indovinelli(c, box, soluzione):
-    x0, y0, w, h = box
-    passo = min(110, h / len(INDOVINELLI))
-    y = y0 + h - 6
-    for k, (versi, risp) in enumerate(INDOVINELLI):
-        c.setFillColor(black)
-        c.setFont(FONT_B, 16)
-        c.drawString(x0, y - 22, f"{k + 1}.")
-        c.setFont(FONT_I, 14)
-        yy = y - 22
-        for riga in versi.split("\n"):
-            c.drawString(x0 + 26, yy, riga)
-            yy -= 19
-        # caselle risposta (la prima è grigia)
-        lato = min(24, (w - 40) / 9)
-        xx = x0 + 26
-        for i in range(len(risp)):
-            c.setLineWidth(1.6)
-            c.setFillColor(GRIGIO if i == 0 else white)
-            c.rect(xx, yy - 28, lato, lato, stroke=1, fill=1)
-            if soluzione:
-                c.setFillColor(black)
-                c.setFont(FONT_B, 15)
-                c.drawCentredString(xx + lato / 2, yy - 28 + lato / 2 - 5, risp[i])
-            xx += lato + 3
-        y -= passo
-
-
-def indovinelli_facile():
-    iniziali = "".join(r[0] for _, r in INDOVINELLI)
-    return Enigma(
-        titolo="Indovinelli in rima",
-        categoria=CATEGORIA,
-        livello=FACILE,
-        consegna=(
-            "Leggi gli indovinelli e scrivi la risposta nelle caselline: c'è una casellina per ogni lettera. "
-            "Poi leggi in ordine, dall'alto in basso, le lettere nelle caselle GRIGIE (la prima di ogni parola): "
-            "formano una nuova parola!"
-        ),
-        prompt_risposta="Scrivi la parola formata dalle 5 lettere nelle caselle grigie:",
-        risposta=iniziali,
-        spiegazione="Risposte: " + ", ".join(r for _, r in INDOVINELLI) + f". Le iniziali formano {iniziali}.",
-        disegna=disegna_indovinelli,
-    )
-
 
 # --------------------------------------------------------------------------- chi ha rubato la torta
 CARATTERISTICHE = ["occhiali", "cappello", "baffi", "sciarpa"]
@@ -344,103 +287,9 @@ def logica_medio(rng, nomi):
     ), (ass, indizi)
 
 
-# --------------------------------------------------------------------------- chi mente
-# dichiarazione = (tipo, bersaglio): "io_no" (non sono stato io), "e" (è stato X), "non_e" (non è stato X)
-def _vera(dich, parlante, colpevole):
-    tipo, x = dich
-    if tipo == "io_no":
-        return colpevole != parlante
-    if tipo == "e":
-        return colpevole == x
-    return colpevole != x
-
-
-def colpevoli_possibili(dichiarazioni, n_veri=1):
-    return [
-        g for g in range(len(dichiarazioni))
-        if sum(_vera(d, p, g) for p, d in enumerate(dichiarazioni)) == n_veri
-    ]
-
-
-def genera_chi_mente(rng, n=5):
-    for _ in range(5000):
-        dich = []
-        for p in range(n):
-            tipo = rng.choice(["io_no", "e", "non_e"])
-            altri = [q for q in range(n) if q != p]
-            dich.append((tipo, rng.choice(altri) if tipo != "io_no" else None))
-        tipi = [t for t, _ in dich]
-        if len(set(tipi)) < 3 or len(set(dich)) < n:  # frasi tutte diverse e tre tipi
-            continue
-        # il colpevole dev'essere uno solo, e non quello che dice per primo la verità in modo ovvio
-        if len(colpevoli_possibili(dich)) == 1:
-            return dich
-    raise RuntimeError("impossibile generare chi mente")
-
-
-def _testo_dich(d, nomi):
-    tipo, x = d
-    return {"io_no": "Non sono stato io.", "e": f"È stato {nomi[x] if x is not None else ''}.",
-            "non_e": f"Non è stato {nomi[x] if x is not None else ''}."}[tipo]
-
-
-def disegna_chi_mente(c, box, nomi, dich, colpevole, soluzione):
-    x0, y0, w, h = box
-    y = y0 + h - 10
-    passo = 74
-    for p, d in enumerate(dich):
-        yy = y - p * passo
-        c.setFillColor(white)
-        c.setStrokeColor(black)
-        c.setLineWidth(1.8)
-        c.circle(x0 + 28, yy - 30, 22, stroke=1, fill=0)
-        c.setFillColor(black)
-        c.setFont(FONT_B, 19)
-        c.drawCentredString(x0 + 28, yy - 36, nomi[p][0])
-        c.setFont(FONT_B, 11)
-        c.drawCentredString(x0 + 28, yy - 66, nomi[p])
-        # fumetto
-        c.setFillColor(GRIGIO if (soluzione and p == colpevole) else white)
-        c.roundRect(x0 + 70, yy - 54, w - 80, 46, 12, stroke=1, fill=1)
-        c.setFillColor(black)
-        c.setFont(FONT_I, 16)
-        c.drawString(x0 + 88, yy - 36, f"\"{_testo_dich(d, nomi)}\"")
-        if soluzione:
-            veri = _vera(d, p, colpevole)
-            c.setFont(FONT_B, 11)
-            c.drawRightString(x0 + w - 18, yy - 45, "dice il vero" if veri else "mente")
-
-
-def chi_mente_medio(rng, nomi):
-    dich = genera_chi_mente(rng)
-    colp = colpevoli_possibili(dich)[0]
-    n = len(dich)
-    spieg = "Si prova ogni sospetto come colpevole e si contano le frasi vere: solo con "
-    spieg += f"{nomi[colp]} le frasi vere sono esattamente una.\n"
-    spieg += " ".join(
-        f"{nomi[p]}: \"{_testo_dich(d, nomi)}\" = {'vero' if _vera(d, p, colp) else 'falso'}."
-        for p, d in enumerate(dich)
-    )
-    return Enigma(
-        titolo="Chi dice la verità?",
-        categoria=CATEGORIA,
-        livello=MEDIO,
-        consegna=(
-            "Qualcuno ha rotto un vaso! I cinque ragazzi parlano, ma sappi che UNO SOLO di loro dice la "
-            "verità: tutti gli altri mentono. Ragiona: se il colpevole fosse ciascuno di loro, quante frasi "
-            "sarebbero vere? Scopri chi ha rotto il vaso."
-        ),
-        prompt_risposta="Scrivi il nome di chi ha rotto il vaso:",
-        risposta=nomi[colp].upper(),
-        spiegazione=spieg,
-        disegna=lambda c, box, sol: disegna_chi_mente(c, box, nomi, dich, colp, sol),
-    ), dich
-
-
 def crea(seed, nomi):
+    """Restituisce gli enigmi 10 (il ladro) e 11 (cugini e animali) e i dati grezzi per i test."""
     r = lambda k: random.Random(seed * 100 + k)
-    e9 = indovinelli_facile()
     e10, colp = ladro_facile(nomi)
     e11, dati11 = logica_medio(r(11), nomi)
-    e12, dati12 = chi_mente_medio(r(12), nomi)
-    return [e9, e10, e11, e12], {"ladro": colp, "logica": dati11, "chi_mente": dati12}
+    return [e10, e11], {"ladro": colp, "logica": dati11}

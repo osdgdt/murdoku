@@ -17,7 +17,7 @@ FONT_I = "Helvetica-Oblique"
 
 # Zona riservata al riquadro risposta in fondo alla pagina
 Y_RISPOSTA = 46
-H_RISPOSTA = 66
+H_RISPOSTA = 78
 
 
 def stella(c, cx, cy, r, pieno=False, spessore=1.2):
@@ -88,7 +88,22 @@ def _riquadro_risposta(c, enigma, soluzione):
     c.drawString(x + 12, y + h - 18, "RISPOSTA")
     c.setFont(FONT, 10.5)
     c.drawString(x + 12, y + h - 33, enigma.prompt_risposta)
-    if soluzione:
+    if enigma.livello == FACILE:
+        # una casellina per lettera (gli spazi separano le parole): fa capire quanto è lunga la parola
+        lettere = enigma.risposta
+        lato = min(26.0, (w - 24) / (len(lettere) * 1.12))
+        xx = x + 12
+        for ch in lettere:
+            if ch == " ":
+                xx += lato * 0.7
+                continue
+            c.setLineWidth(1.6)
+            c.rect(xx, y + 7, lato, lato, stroke=1, fill=0)
+            if soluzione:
+                c.setFont(FONT_B, lato * 0.7)
+                c.drawCentredString(xx + lato / 2, y + 7 + lato * 0.24, ch)
+            xx += lato * 1.12
+    elif soluzione:
         c.setFont(FONT_B, 20)
         c.drawString(x + 12, y + 9, enigma.risposta)
     else:
@@ -156,7 +171,7 @@ def copertina(c, titolo, sottotitolo, soluzioni=False):
         "Ogni pagina è un enigma da risolvere con la matita.",
         "Il bollino in alto a destra dice se l'enigma è facile (1 stella) o medio (2 stelle).",
         "Leggi bene la consegna: spiega cosa fare e cosa scrivere.",
-        "Scrivi la risposta nel riquadro in fondo alla pagina.",
+        "La risposta di ogni enigma è sempre una parola: scrivila nel riquadro in fondo alla pagina.",
         "Si può collaborare: grandi e piccoli, tutti insieme!",
         "Si può saltare un enigma e tornarci dopo.",
         "Niente telefonini né ricerche su internet.",

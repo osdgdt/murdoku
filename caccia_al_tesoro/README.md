@@ -182,6 +182,21 @@ sotto ogni fila, parola completa, e gli stessi due riquadri). Ogni griglia da ri
 O ha 3 caselle di partenza (puntino bianco), tutte le altre 0. Le celle sono piccole (circa 10 pt) perché 5 griglie
 devono stare in fila; per griglie più grandi si può dividere una serie su due file.
 
+## Labirinto con parola/frase e riquadro REPERTO (pagina singola)
+
+Versione facile del labirinto (12×12, una sola strada, lettere trappola nei vicoli ciechi) in un PDF a parte, senza numero
+d'enigma né difficoltà. La frase è **PARCO GALLO** (10 lettere sul percorso, gruppi di caselline 5+5) e sotto il labirinto
+c'è il riquadro «REPERTO · Il reperto è: POLIZIOTTO».
+
+```bash
+python genera_labirinto.py                       # PARCO GALLO / POLIZIOTTO da config.py
+python genera_labirinto.py "ARCHIVIO SOLE" PIPPO 7   # frase (3-14 lettere, spazi ammessi), reperto, seme
+```
+
+Scrive `labirinto.pdf` e `labirinto_soluzione.pdf` (percorso in grigio, lettere e frase scritte); il riquadro REPERTO
+c'è in entrambi. In `config.py`: `PAROLA_LABIRINTO_PAGINA` e `REPERTO` (`PAROLA_LABIRINTO` resta la parola del labirinto
+del fascicolo, che non cambia).
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

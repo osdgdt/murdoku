@@ -17,6 +17,9 @@ NOMI = ["Anna", "Bruno", "Carla", "Dario", "Elisa"]
 
 # Parola nascosta nel labirinto (enigma 5): 3-8 lettere.
 PAROLA_LABIRINTO = "CHIAVE"
+# Pagina singola del labirinto (genera_labirinto.py): parola o frase (spazi ammessi, 3-14 lettere) e testo del riquadro REPERTO.
+PAROLA_LABIRINTO_PAGINA = "PARCO GALLO"
+REPERTO = "POLIZIOTTO"
 
 # Le parole-soluzione degli enigmi nuovi. Regole:
 #   simboli, cesare, pigpen: qualsiasi parola; conviene 5-8 lettere

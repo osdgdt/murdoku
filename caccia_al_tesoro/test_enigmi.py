@@ -719,6 +719,64 @@ class TestParcheggio(unittest.TestCase):
             self.assertNotIn("INDIZIO", tg)
 
 
+class TestLabirintoPagina(unittest.TestCase):
+    """Pagina singola del labirinto con PARCO GALLO e il riquadro REPERTO."""
+
+    @classmethod
+    def setUpClass(cls):
+        from enigmi import pagina_labirinto
+        cls.mod = pagina_labirinto
+        cls.d = pagina_labirinto.crea_pagina_labirinto(config.PAROLA_LABIRINTO_PAGINA, config.SEED)
+
+    def test_parola_sul_percorso(self):
+        self.assertEqual(config.PAROLA_LABIRINTO_PAGINA, "PARCO GALLO")
+        self.assertEqual(self.d["parola"], "PARCOGALLO")
+        from enigmi.visivi import lettere_sul_percorso
+        self.assertEqual(lettere_sul_percorso(self.d), "PARCOGALLO")
+
+    def test_un_solo_percorso(self):
+        """Labirinto perfetto: connesso e con celle-1 passaggi, quindi una sola strada tra entrata e uscita."""
+        aperti = self.d["aperti"]
+        passaggi = sum(len(v) for v in aperti.values()) // 2
+        self.assertEqual(passaggi, len(aperti) - 1)
+        vistate, pila = {(0, 0)}, [(0, 0)]
+        while pila:
+            for n in aperti[pila.pop()]:
+                if n not in vistate:
+                    vistate.add(n)
+                    pila.append(n)
+        self.assertEqual(len(vistate), len(aperti))
+        self.assertEqual(self.d["percorso"][0], (0, 0))
+        self.assertEqual(self.d["percorso"][-1], (self.d["w"] - 1, self.d["h"] - 1))
+
+    def test_altre_parole_e_errori(self):
+        for parola in ("CHIAVE", "SOLE", "ARCHIVIO SOLE"):
+            d = self.mod.crea_pagina_labirinto(parola, 3)
+            self.assertEqual(d["parola"], parola.replace(" ", ""))
+        for parola in ("AB", "JOLLY", "A" * 15):
+            with self.assertRaises(ValueError):
+                self.mod.crea_pagina_labirinto(parola, 3)
+
+    def test_pdf(self):
+        import shutil
+        import subprocess
+        with tempfile.TemporaryDirectory() as t:
+            g, s = os.path.join(t, "g.pdf"), os.path.join(t, "s.pdf")
+            self.assertEqual(self.mod.scrivi_labirinto(self.d, config.REPERTO, g, False), 1)
+            self.assertEqual(self.mod.scrivi_labirinto(self.d, config.REPERTO, s, True), 1)
+            if shutil.which("pdftotext"):
+                tg = " ".join(subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper().split())
+                ts = " ".join(subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper().split())
+                for testo in (tg, ts):
+                    self.assertIn("REPERTO", testo)
+                    self.assertIn("IL REPERTO È:", testo)
+                    self.assertIn("POLIZIOTTO", testo)
+                self.assertNotIn("PARCOGALLO", tg)
+                self.assertNotIn("SOLUZIONE", tg)
+                self.assertIn("PARCOGALLO", ts)
+                self.assertNotIn("ENIGMA", tg)
+
+
 class TestPdf(unittest.TestCase):
     def test_genera_pdf(self):
         with tempfile.TemporaryDirectory() as t:

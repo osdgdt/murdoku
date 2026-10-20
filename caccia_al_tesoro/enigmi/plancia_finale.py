@@ -354,7 +354,7 @@ def pagina_mini10(c, d, soluzione=False):
     c.saveState()
     c.translate(0, DY)
     # altezze dall'alto: passo 1, passo 2, passo 3, parola (niente riquadro di spiegazione)
-    h1, h2, h3, hp, gap = 76, 212, 172, 68, 22
+    h1, h2, h3, hp, gap = 72, 206, 162, 66, 16
     y1 = 716 - h1
 
     # PASSO 1
@@ -438,6 +438,16 @@ def pagina_mini10(c, d, soluzione=False):
     x0 = W - 62 - n * (lat + gap_l) + gap_l
     for i in range(n):
         _casella(c, x0 + i * (lat + gap_l), yp + 14, lat, lat, parola[i] if soluzione else None, size=22, raggio=6, spessore=2.0)
+    # REPERTO N° x (se indicato): la parola trovata è il reperto da segnare sul passaporto
+    if d.get("numero_reperto"):
+        n_rep = d["numero_reperto"]
+        h_rep = 46
+        y_rep = yp - 12 - h_rep
+        G.cartiglio(c, 44, y_rep, W - 88, h_rep, f"REPERTO N° {n_rep}")
+        G.passaporto(c, 62, y_rep + 7, h_rep - 20)
+        c.setFillColor(black)
+        c.setFont(G.FONT_B, 12.5)
+        c.drawCentredString(W / 2 + 28, y_rep + 14, f"La parola che trovi è il reperto numero {n_rep}")
     c.restoreState()
     _biglietto(c, None if soluzione else d.get("aiuto"))
     c.showPage()

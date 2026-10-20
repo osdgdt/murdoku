@@ -20,6 +20,11 @@ PAROLA_LABIRINTO = "CHIAVE"
 # Pagina singola del labirinto (genera_labirinto.py): parola o frase (spazi ammessi, 3-14 lettere) e testo del riquadro REPERTO.
 PAROLA_LABIRINTO_PAGINA = "PARCO GALLO"
 REPERTO = "POLIZIOTTO"
+# Numeri dei reperti da segnare sul passaporto: labirinto (6), cifrario della plancia con la parola COLPEVOLE (9),
+# enigma PARCHEGGIO (11, in genera_parcheggio.py / enigmi/dossier_gruppi.py).
+NUMERO_REPERTO_LABIRINTO = 6
+NUMERO_REPERTO_PLANCIA = 9
+NUMERO_REPERTO_PARCHEGGIO = 11
 
 # Le parole-soluzione degli enigmi nuovi. Regole:
 #   simboli, cesare, pigpen: qualsiasi parola; conviene 5-8 lettere

@@ -1,7 +1,7 @@
 """Pagina singola del labirinto (versione facile) con la parola nascosta sul percorso e un riquadro «REPERTO» sotto.
 
 Senza numero d'enigma e senza difficoltà. Pagina dei giocatori e pagina con la soluzione (percorso in grigio, lettere e
-parola scritte); il riquadro del reperto c'è in entrambe.
+parola scritte); il riquadro del reperto (numero del reperto e «va scritto sul passaporto») c'è in entrambe.
 """
 import random
 
@@ -82,24 +82,26 @@ def _lente(c, cx, cy, r):
     c.arc(cx - r * 0.7, cy - r * 0.7, cx + r * 0.7, cy + r * 0.7, 100, 60)
 
 
-def _riquadro_reperto(c, y_alto, reperto):
-    h = 62
+def _riquadro_reperto(c, y_alto, reperto, numero):
+    h = 76
     y = y_alto - h
-    G.cartiglio(c, X, y, WB, h, "REPERTO")
-    _lente(c, X + 46, y + 25, 12)
+    G.cartiglio(c, X, y, WB, h, f"REPERTO N° {numero}")
+    _lente(c, X + 46, y + 38, 12)
     c.setFillColor(GR(0.25))
     c.setFont(G.FONT_I, 12)
-    c.drawString(X + 86, y + 22, "Il reperto è:")
+    c.drawString(X + 86, y + 40, "Il reperto è:")
     size = 28
     while c.stringWidth(reperto, G.TITOLO_FONT, size) > WB - 86 - 120 - 20 and size > 12:
         size -= 1
     c.setFillColor(black)
     c.setFont(G.TITOLO_FONT, size)
-    c.drawString(X + 86 + 92, y + 20, reperto.upper())
+    c.drawString(X + 86 + 92, y + 38, reperto.upper())
+    c.setFont(G.FONT_B, 10.5)
+    c.drawString(X + 86, y + 15, f"È il reperto numero {numero}: va scritto sul passaporto.")
     return h
 
 
-def pagina_labirinto(c, d, reperto, soluzione=False):
+def pagina_labirinto(c, d, reperto, soluzione=False, numero_reperto=6):
     G.cornice_pagina(c, W, H)
     G.striscione(c, W / 2, 780, 320, 44, "IL LABIRINTO", 26)
     parola = d["parola_con_spazi"]
@@ -114,21 +116,21 @@ def pagina_labirinto(c, d, reperto, soluzione=False):
     alto = 738
     usato = _paragrafo(c, testo, X + 6, alto, WB - 12)
     y = alto - usato - 8
-    h_par, h_rep, gap = 64, 62, 12
+    h_par, h_rep, gap = 64, 76, 12
     h_lab = y - 58 - h_par - h_rep - 2 * gap
     G.cartiglio(c, X, y - h_lab, WB, h_lab, fill=0.985)
     disegna_labirinto(c, (X + 6, y - h_lab, WB - 12, h_lab), d, soluzione)
     y -= h_lab + gap
     y -= _riquadro_parola(c, y, parola, soluzione) + gap
-    _riquadro_reperto(c, y, reperto)
+    _riquadro_reperto(c, y, reperto, numero_reperto)
     c.showPage()
 
 
-def scrivi_labirinto(d, reperto, percorso, soluzione):
+def scrivi_labirinto(d, reperto, percorso, soluzione, numero_reperto=6):
     from reportlab.pdfgen import canvas
     c = canvas.Canvas(percorso, pagesize=A4)
     c.setTitle("Il labirinto" + (" - Soluzione" if soluzione else ""))
     c.setAuthor("Caccia al tesoro")
-    pagina_labirinto(c, d, reperto, soluzione)
+    pagina_labirinto(c, d, reperto, soluzione, numero_reperto)
     c.save()
     return 1

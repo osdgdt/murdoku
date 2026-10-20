@@ -12,6 +12,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import config
 from enigmi.codici import CATALOGO, crea_gruppi, nome_voce
 from enigmi.dossier_gruppi import scrivi_gruppi
 
@@ -34,8 +35,8 @@ def main():
     blocchi = crea_gruppi(parola, gruppi)
     f = os.path.join(QUI, "codici_parcheggio.pdf")
     s = os.path.join(QUI, "codici_parcheggio_spiegatori.pdf")
-    scrivi_gruppi(blocchi, parola, f, False)
-    scrivi_gruppi(blocchi, parola, s, True)
+    scrivi_gruppi(blocchi, parola, f, False, numero_reperto=config.NUMERO_REPERTO_PARCHEGGIO)
+    scrivi_gruppi(blocchi, parola, s, True, numero_reperto=config.NUMERO_REPERTO_PARCHEGGIO)
     print(f"Enigma a gruppi: parola {parola}\n  {f}\n  {s}\n")
     for b in blocchi:
         print(f"  {nome_voce(b['voce'])}: esempio {b['esempio']['lettera']}; da risolvere "

@@ -34,6 +34,7 @@ def aiuto_da_config():
 def scrivi(d, percorso, soluzione, aiuto=None):
     """Due pagine; il biglietto con l'indirizzo c'è solo nelle pagine dei giocatori."""
     d = dict(d, aiuto=None if soluzione else aiuto)
+    d.setdefault("numero_reperto", getattr(config, "NUMERO_REPERTO_PLANCIA", None))
     c = canvas.Canvas(percorso, pagesize=A4)
     c.setTitle("Serata giochi da tavolo e codice del tesoro" + (" - Soluzioni" if soluzione else ""))
     c.setAuthor("Caccia al tesoro")

@@ -718,3 +718,20 @@ def biglietto_destinazione(c, x, y, w, h, intro, luogo, indirizzo):
     freccia_destra(c, xa, y + 14 + size * 0.3, 34)
     c.setFont(FONT_B, 14)
     c.drawString(xa + 34 + 12, y + 15, indirizzo)
+
+
+def passaporto(c, x, y, h):
+    """Piccolo passaporto disegnato (libretto scuro con emblema e righe), angolo in basso a sinistra in (x, y)."""
+    w = h * 0.72
+    c.setFillColor(gr(0.15))
+    c.setStrokeColor(black)
+    c.setLineWidth(1.2)
+    c.roundRect(x, y, w, h, 3, stroke=1, fill=1)
+    c.setStrokeColor(white)
+    c.setLineWidth(0.8)
+    c.circle(x + w / 2, y + h * 0.62, w * 0.24, stroke=1, fill=0)
+    c.line(x + w / 2, y + h * 0.62 - w * 0.24, x + w / 2, y + h * 0.62 + w * 0.24)
+    c.ellipse(x + w / 2 - w * 0.24, y + h * 0.62 - w * 0.09, x + w / 2 + w * 0.24, y + h * 0.62 + w * 0.09, stroke=1, fill=0)
+    c.setLineWidth(1.4)
+    c.line(x + w * 0.22, y + h * 0.22, x + w * 0.78, y + h * 0.22)
+    c.line(x + w * 0.32, y + h * 0.12, x + w * 0.68, y + h * 0.12)

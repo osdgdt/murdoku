@@ -452,6 +452,8 @@ class TestPlanciaFinale(unittest.TestCase):
                     self.assertNotIn(f, tx)
                 for titolo in ("SERATA GIOCHI DA TAVOLO", "PASSO 1", "PASSO 2", "PASSO 3", "PUNTEGGIO", "LA PAROLA"):
                     self.assertIn(titolo, tx)
+                self.assertIn("REPERTO N° 9", tx)
+                self.assertIn("LA PAROLA CHE TROVI È IL REPERTO NUMERO 9", tx)
 
     def test_pdf_solo_grigi(self):
         import shutil
@@ -718,7 +720,8 @@ class TestParcheggio(unittest.TestCase):
                 self.assertNotIn("ARCHGGIO", tg.replace("\n", ""))
                 for testo in (tg, ts):
                     t = " ".join(testo.split())
-                    self.assertIn("REFERTO", t)
+                    self.assertIn("REPERTO N° 11", t)
+                    self.assertIn("IL REPERTO NUMERO 11", t)
                     self.assertIn("PASSAPORTO", t)
                     self.assertIn("BIBLIOTECA DI SAN POLO", t)
                     self.assertIn("VIA TIZIANO 246, BRESCIA", t)
@@ -734,9 +737,9 @@ class TestParcheggio(unittest.TestCase):
             self.skipTest("pdftotext non disponibile")
         with tempfile.TemporaryDirectory() as t:
             g = os.path.join(t, "g.pdf")
-            dossier_gruppi.scrivi_gruppi(self.blocchi, "PARCHEGGIO", g, False, referto="", indizio=None)
+            dossier_gruppi.scrivi_gruppi(self.blocchi, "PARCHEGGIO", g, False, reperto="", indizio=None)
             tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
-            self.assertNotIn("REFERTO", tg)
+            self.assertNotIn("REPERTO", tg)
             self.assertNotIn("INDIZIO", tg)
 
 
@@ -789,9 +792,10 @@ class TestLabirintoPagina(unittest.TestCase):
                 tg = " ".join(subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper().split())
                 ts = " ".join(subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper().split())
                 for testo in (tg, ts):
-                    self.assertIn("REPERTO", testo)
+                    self.assertIn("REPERTO N° 6", testo)
                     self.assertIn("IL REPERTO È:", testo)
                     self.assertIn("POLIZIOTTO", testo)
+                    self.assertIn("È IL REPERTO NUMERO 6: VA SCRITTO SUL PASSAPORTO", testo)
                 self.assertNotIn("PARCOGALLO", tg)
                 self.assertNotIn("SOLUZIONE", tg)
                 self.assertIn("PARCOGALLO", ts)

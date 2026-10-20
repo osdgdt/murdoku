@@ -175,9 +175,9 @@ python genera_parcheggio.py PARCHEGGIO 3x5,4x5      # parola e gruppi "numero re
 ```
 
 Scrive `codici_parcheggio.pdf` (giocatori, una pagina: due file da 5 griglie, riquadro con le 10 caselline con P ed E
-precompilate, riquadro REFERTO «La parola che trovi è un referto: segnalo sul tuo passaporto» e biglietto con puntina da
+precompilate, riquadro REPERTO N° 11 «La parola che trovi è il reperto numero 11: segnalo sul tuo passaporto» e biglietto con puntina da
 mappa «Se ti serve un indizio, vai alla Biblioteca di San Polo → Via Tiziano 246, Brescia»; i testi sono in cima a
-`enigmi/dossier_gruppi.py`, `referto=""` o `indizio=None` li tolgono) e `codici_parcheggio_spiegatori.pdf` (griglie annerite con la lettera, regola spiegata
+`enigmi/dossier_gruppi.py`, `reperto=""` o `indizio=None` li tolgono) e `codici_parcheggio_spiegatori.pdf` (griglie annerite con la lettera, regola spiegata
 sotto ogni fila, parola completa, e gli stessi due riquadri). Ogni griglia da risolvere ha soluzione unica (verifica a forza bruta nei test): solo la
 O ha 3 caselle di partenza (puntino bianco), tutte le altre 0. Le celle sono piccole (circa 10 pt) perché 5 griglie
 devono stare in fila; per griglie più grandi si può dividere una serie su due file.
@@ -186,7 +186,7 @@ devono stare in fila; per griglie più grandi si può dividere una serie su due 
 
 Versione facile del labirinto (12×12, una sola strada, lettere trappola nei vicoli ciechi) in un PDF a parte, senza numero
 d'enigma né difficoltà. La frase è **PARCO GALLO** (10 lettere sul percorso, gruppi di caselline 5+5) e sotto il labirinto
-c'è il riquadro «REPERTO · Il reperto è: POLIZIOTTO».
+c'è il riquadro «REPERTO N° 6 · Il reperto è: POLIZIOTTO · È il reperto numero 6: va scritto sul passaporto».
 
 ```bash
 python genera_labirinto.py                       # PARCO GALLO / POLIZIOTTO da config.py
@@ -196,6 +196,11 @@ python genera_labirinto.py "ARCHIVIO SOLE" PIPPO 7   # frase (3-14 lettere, spaz
 Scrive `labirinto.pdf` e `labirinto_soluzione.pdf` (percorso in grigio, lettere e frase scritte); il riquadro REPERTO
 c'è in entrambi. In `config.py`: `PAROLA_LABIRINTO_PAGINA` e `REPERTO` (`PAROLA_LABIRINTO` resta la parola del labirinto
 del fascicolo, che non cambia).
+
+## Numeri dei reperti
+
+I reperti da segnare sul passaporto hanno un numero (in `config.py`): **6** il labirinto (PARCO GALLO / POLIZIOTTO),
+**9** il cifrario della plancia (COLPEVOLE: riquadro «REPERTO N° 9» sotto «LA PAROLA»), **11** l'enigma PARCHEGGIO.
 
 ## Come sono verificati
 

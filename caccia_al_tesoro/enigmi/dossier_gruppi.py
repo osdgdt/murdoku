@@ -20,10 +20,11 @@ SPAZIO = 8
 CELLA_MAX, CELLA_MIN = 15, 10
 BASSO = 60
 
-REFERTO = "La parola che trovi è un referto: segnalo sul tuo passaporto"
+NUMERO_REPERTO = 11
+REPERTO = "La parola che trovi è il reperto numero {n}: segnalo sul tuo passaporto"
 INDIZIO = {"intro": "Se ti serve un indizio, vai alla", "luogo": "Biblioteca di San Polo",
            "indirizzo": "Via Tiziano 246, Brescia"}
-H_REFERTO, H_BIGLIETTO = 52, 58
+H_REPERTO, H_BIGLIETTO = 52, 58
 
 
 def _testo_clue(clue):
@@ -91,38 +92,21 @@ def _disegna_fila(c, y_alto, titolo, griglie, primo_numero, soluzione, cella):
     return h
 
 
-def _passaporto(c, x, y, h):
-    """Piccolo passaporto disegnato (libretto scuro con emblema e righe), angolo in basso a sinistra in (x, y)."""
-    w = h * 0.72
-    c.setFillColor(GR(0.15))
-    c.setStrokeColor(black)
-    c.setLineWidth(1.2)
-    c.roundRect(x, y, w, h, 3, stroke=1, fill=1)
-    c.setStrokeColor(white)
-    c.setLineWidth(0.8)
-    c.circle(x + w / 2, y + h * 0.62, w * 0.24, stroke=1, fill=0)
-    c.line(x + w / 2, y + h * 0.62 - w * 0.24, x + w / 2, y + h * 0.62 + w * 0.24)
-    c.ellipse(x + w / 2 - w * 0.24, y + h * 0.62 - w * 0.09, x + w / 2 + w * 0.24, y + h * 0.62 + w * 0.09, stroke=1, fill=0)
-    c.setLineWidth(1.4)
-    c.line(x + w * 0.22, y + h * 0.22, x + w * 0.78, y + h * 0.22)
-    c.line(x + w * 0.32, y + h * 0.12, x + w * 0.68, y + h * 0.12)
-
-
-def _riquadro_referto(c, y_alto, testo):
-    """Riquadro REFERTO con passaporto e frase; restituisce l'altezza usata."""
-    y = y_alto - H_REFERTO
-    G.cartiglio(c, X, y, WB, H_REFERTO, "REFERTO")
-    _passaporto(c, X + 20, y + 8, H_REFERTO - 22)
+def _riquadro_reperto(c, y_alto, testo, numero):
+    """Riquadro REPERTO N° x con passaporto e frase; restituisce l'altezza usata."""
+    y = y_alto - H_REPERTO
+    G.cartiglio(c, X, y, WB, H_REPERTO, f"REPERTO N° {numero}")
+    G.passaporto(c, X + 20, y + 8, H_REPERTO - 22)
     size = 12.5
     while c.stringWidth(testo, G.FONT_B, size) > WB - 110 and size > 8:
         size -= 0.5
     c.setFillColor(GR(0.05))
     c.setFont(G.FONT_B, size)
     c.drawCentredString(X + 56 + (WB - 56) / 2, y + 17, testo)
-    return H_REFERTO
+    return H_REPERTO
 
 
-def scrivi_gruppi(blocchi, parola, percorso, soluzione, referto=REFERTO, indizio=INDIZIO):
+def scrivi_gruppi(blocchi, parola, percorso, soluzione, reperto=REPERTO, indizio=INDIZIO, numero_reperto=NUMERO_REPERTO):
     """Una pagina. `blocchi` = risultato di codici.crea_gruppi. Restituisce il numero di pagine (1)."""
     from reportlab.pdfgen import canvas
     c = canvas.Canvas(percorso, pagesize=A4)
@@ -137,7 +121,7 @@ def scrivi_gruppi(blocchi, parola, percorso, soluzione, referto=REFERTO, indizio
     if cella < CELLA_MIN:
         raise ValueError("Le griglie non entrano in una pagina: servono meno griglie per fila")
     # spazio tra i riquadri: si distribuisce il vuoto della pagina (tra 14 e 34 pt)
-    altezze = [_altezze_fila(g, cella, soluzione)[2] for g in file_] + [76] + ([H_REFERTO] if referto else []) \
+    altezze = [_altezze_fila(g, cella, soluzione)[2] for g in file_] + [76] + ([H_REPERTO] if reperto else []) \
         + ([H_BIGLIETTO] if indizio else [])
     libero = y - BASSO - sum(altezze)
     if libero < 14 * (len(altezze) - 1):
@@ -153,8 +137,8 @@ def scrivi_gruppi(blocchi, parola, percorso, soluzione, referto=REFERTO, indizio
         y -= h + gap
     _riquadro_risposta(c, parola, soluzione, y, precompilate=set(pre))
     y -= 76 + gap
-    if referto:
-        y -= _riquadro_referto(c, y, referto) + gap
+    if reperto:
+        y -= _riquadro_reperto(c, y, reperto.format(n=numero_reperto), numero_reperto) + gap
     if indizio:
         G.biglietto_destinazione(c, X, y - H_BIGLIETTO, WB, H_BIGLIETTO, indizio["intro"], indizio["luogo"], indizio["indirizzo"])
     c.setFillColor(GR(0.3))

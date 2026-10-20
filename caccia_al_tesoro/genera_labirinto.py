@@ -23,9 +23,9 @@ def main():
     d = crea_pagina_labirinto(parola, seme)
     f = os.path.join(QUI, "labirinto.pdf")
     s = os.path.join(QUI, "labirinto_soluzione.pdf")
-    scrivi_labirinto(d, reperto, f, False)
-    scrivi_labirinto(d, reperto, s, True)
-    print(f"Labirinto 12x12: parola {parola} (reperto: {reperto})\n  {f}\n  {s}")
+    scrivi_labirinto(d, reperto, f, False, config.NUMERO_REPERTO_LABIRINTO)
+    scrivi_labirinto(d, reperto, s, True, config.NUMERO_REPERTO_LABIRINTO)
+    print(f"Labirinto 12x12: parola {parola} (reperto n. {config.NUMERO_REPERTO_LABIRINTO}: {reperto})\n  {f}\n  {s}")
     print(f"  Percorso di {len(d['percorso'])} caselle, {len(d['lettere']) - len(d['parola'])} lettere trappola.")
 
 

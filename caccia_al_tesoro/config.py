@@ -21,7 +21,8 @@ PAROLA_LABIRINTO = "CHIAVE"
 # Le parole-soluzione degli enigmi nuovi. Regole:
 #   simboli, cesare, pigpen: qualsiasi parola; conviene 5-8 lettere
 #   mastermind:              4-6 lettere, tutte DIVERSE tra loro
-#   serie, ombre, forme:     esattamente 5 lettere
+#   serie, ombre:            esattamente 5 lettere
+#   forme (enigma 8):        3-6 lettere, senza spazi
 #   pixel:                   4-6 lettere
 # Non cambiano: la scala di parole (enigma 2: MARE) e i nomi degli enigmi 10 e 11.
 SOLUZIONI = {
@@ -30,12 +31,12 @@ SOLUZIONI = {
     "pigpen": "TESORO",      # enigma 4
     "serie": "BARCA",        # enigma 6
     "ombre": "ISOLA",        # enigma 7
-    "forme": "MAPPA",        # enigma 8 (con il metodo tabella_a1 viene sostituita da una parola compatibile)
+    "forme": "MEEPLE",       # enigma 8, serata giochi da tavolo (una domanda per lettera)
     "cesare": "ESTATE",      # enigma 9
     "pixel": "STELLA",       # enigma 12
 }
 
 # Metodo di conversione numero -> parola dell'enigma 8 nel fascicolo.
-# Uno tra: "scelta_multipla", "mini_figure", "coordinate", "tabella_a1".
-# In varianti_enigma8.pdf trovi tutti e quattro per confrontarli.
-METODO_ENIGMA_8 = "scelta_multipla"
+# Uno tra: "tabella_a1", "tracciato", "griglia_esagonale", "carte", "classifica", "personaggi".
+# In varianti_enigma8.pdf trovi tutti e sei per confrontarli.
+METODO_ENIGMA_8 = "tracciato"

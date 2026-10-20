@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genera il fascicolo degli enigmi, il PDF delle soluzioni e le varianti dell'enigma 8.
+"""Genera il fascicolo degli enigmi, il PDF delle soluzioni e le varianti dell'enigma 8 (giochi da tavolo).
 
 Uso:  python genera.py   (scrive fascicolo.pdf, soluzioni.pdf e varianti_enigma8.pdf in questa cartella)
 """
@@ -14,7 +14,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
 import config
-from enigmi import cifrari, deduzione, figure, forme, parole, visivi
+from enigmi import cifrari, deduzione, figure, giochi_tavolo, parole, visivi
 from enigmi.impagina import copertina, pagina_enigma
 
 QUI = os.path.dirname(os.path.abspath(__file__))
@@ -37,7 +37,7 @@ def crea_enigmi(metodo_forme=None, dati=None):
     e5, dati["labirinto"] = visivi.crea(config.SEED, config.PAROLA_LABIRINTO)
     e6, dati["serie"] = figure.serie_facile(s["serie"], _rng(6))
     e7, dati["ombre"] = figure.ombre_medio(s["ombre"], _rng(7))
-    e8, dati["forme"] = forme.forme_medio(metodo_forme, s["forme"], config.SEED)
+    e8, dati["forme"] = giochi_tavolo.enigma_plancia(metodo_forme, s["forme"], config.SEED)
     e9, dati["cesare"] = cifrari.cesare_facile(s["cesare"])
     (e10, e11), dd = deduzione.crea(config.SEED, config.NOMI)
     dati.update(dd)
@@ -60,9 +60,9 @@ def scrivi_varianti(percorso):
     c = canvas.Canvas(percorso, pagesize=A4)
     c.setTitle(config.TITOLO + " - Varianti enigma 8")
     elenco = []
-    for metodo in forme.METODI:
-        e, d = forme.forme_medio(metodo, config.SOLUZIONI["forme"], config.SEED)
-        e = dataclasses.replace(e, categoria=f"{e.categoria} - variante: {metodo.replace('_', ' ')}")
+    for metodo in giochi_tavolo.METODI:
+        e, d = giochi_tavolo.enigma_plancia(metodo, config.SOLUZIONI["forme"], config.SEED)
+        e = dataclasses.replace(e, categoria=f"{e.categoria} - variante: {giochi_tavolo.TITOLI_METODI[metodo]}")
         elenco.append((metodo, e))
         pagina_enigma(c, 8, TOTALE_ENIGMI, e, soluzione=False)
         pagina_enigma(c, 8, TOTALE_ENIGMI, e, soluzione=True)

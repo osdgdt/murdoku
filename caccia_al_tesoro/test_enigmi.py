@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import config
 import genera
-from enigmi import cifrari, deduzione, figure, forme, parole, visivi
+from enigmi import cifrari, deduzione, figure, giochi_tavolo, parole, visivi
 from enigmi.alfabeto import ALFABETO, sposta
 
 DATI = {}
@@ -137,51 +137,88 @@ class TestFigure(unittest.TestCase):
             self.assertNotIn(figure.specchia(f), figure.tutte_le_rotazioni(f))
 
 
-class TestForme(unittest.TestCase):
-    def test_conteggi_a_forza_bruta(self):
-        for fig in forme.CATALOGO + [("quadrati", n) for n in (1, 2, 3, 4)] + [("triangoli", n) for n in (1, 2, 3, 4)]:
-            with self.subTest(fig=fig):
-                self.assertEqual(forme.conta(fig), forme.conta_a_forza_bruta(fig))
+class TestGiochiTavolo(unittest.TestCase):
+    def test_conteggi_meeple(self):
+        d = DATI["forme"]
+        self.assertEqual(d["parola"], "MEEPLE")
+        self.assertEqual(d["conteggi"], [11, 5, 5, 14, 10, 5])  # le lettere di MEEPLE con A=1, B=2...
+        self.assertEqual(giochi_tavolo.verifica_scena(d["scena"]), d["conteggi"])
+        tipi = [q["tipo"] for q in d["scena"]["domande"]]
+        self.assertEqual(len(set(tipi)), 6, "un tipo di domanda diverso per ogni lettera")
 
-    def test_valori_noti(self):
-        self.assertEqual(forme.conta(("quadrati", 4)), 30)
-        self.assertEqual(forme.conta(("triangoli", 3)), 13)
-        self.assertEqual(forme.conta(("quadrati", 4)) + forme.conta(("triangoli", 3)), 43)
+    def test_triangoli_due_metodi(self):
+        """Il conteggio dei triangoli coincide con un secondo calcolo indipendente."""
+        rng = random.Random(7)
+        for _ in range(120):
+            a, b = rng.randrange(64), rng.randrange(64)
+            segs = giochi_tavolo.segmenti_rosone(a, b)
+            self.assertEqual(giochi_tavolo.conta_triangoli(segs), giochi_tavolo.conta_triangoli_per_rette(segs),
+                             (a, b))
 
-    def test_catalogo_conti(self):
-        for n, fig in forme.FIGURA_PER_CONTO.items():
-            self.assertEqual(forme.conta(fig), n)
+    def test_triangoli_valori_noti(self):
+        self.assertEqual(giochi_tavolo.conta_triangoli(giochi_tavolo.segmenti_rosone(0, 0)), 0)
+        self.assertEqual(giochi_tavolo.conta_triangoli(giochi_tavolo.segmenti_rosone(63, 0)), 6)    # 6 raggi
+        self.assertEqual(giochi_tavolo.conta_triangoli(giochi_tavolo.segmenti_rosone(0, 21)), 4)    # 3 diagonali corte
+        self.assertEqual(giochi_tavolo.conta_triangoli(giochi_tavolo.segmenti_rosone(0, 63)), 32)   # tutte le corte
+        for n in (5, 10, 11, 14, 4, 25):
+            ma, mb = giochi_tavolo.trova_rosone(n)
+            self.assertEqual(giochi_tavolo.conta_triangoli(giochi_tavolo.segmenti_rosone(ma, mb)), n)
 
-    def test_quattro_metodi_danno_una_parola(self):
-        for metodo in forme.METODI:
+    def test_altre_parole(self):
+        for parola in ("MAPPA", "DADO", "FATA", "TAVOLA", "CARTA"):
+            with self.subTest(parola=parola):
+                e, d = giochi_tavolo.enigma_plancia("tracciato", parola, config.SEED)
+                self.assertEqual(e.risposta, parola)
+                self.assertEqual(giochi_tavolo.verifica_scena(d["scena"]), d["conteggi"])
+
+    def test_parola_impossibile(self):
+        with self.assertRaises(ValueError):
+            giochi_tavolo.enigma_plancia("tracciato", "ZUZU", config.SEED)  # troppi conteggi altissimi
+        with self.assertRaises(ValueError):
+            giochi_tavolo.enigma_plancia("tracciato", "PAROLALUNGA", config.SEED)
+
+    def test_sei_metodi_stessa_plancia_stessa_parola(self):
+        plance = []
+        for metodo in giochi_tavolo.METODI:
             with self.subTest(metodo=metodo):
-                e, d = forme.forme_medio(metodo, config.SOLUZIONI["forme"], config.SEED)
-                self.assertTrue(e.risposta.isalpha())
-                if metodo == "scelta_multipla":
-                    totale = forme.conta(forme.FIG_A) + forme.conta(forme.FIG_B)
-                    self.assertIn((totale, e.risposta), d["righe"])
-                    self.assertEqual(len({t for t, _ in d["righe"]}), len(d["righe"]))
-                elif metodo == "mini_figure":
+                e, d = giochi_tavolo.enigma_plancia(metodo, "MEEPLE", config.SEED)
+                self.assertEqual(e.risposta, "MEEPLE")
+                plance.append((d["conteggi"], d["scena"]["mappa"], d["scena"]["dadi"]))
+                conteggi, parola = d["conteggi"], d["parola"]
+                if metodo == "tabella_a1":
+                    self.assertEqual("".join(ALFABETO[n - 1] for n in conteggi), parola)
+                elif metodo == "tracciato":
+                    self.assertEqual("".join(d["tracciato"][n] for n in conteggi), parola)
+                    self.assertEqual(sorted(d["tracciato"]), list(range(1, 22)))
+                elif metodo == "griglia_esagonale":
+                    self.assertEqual("".join(d["griglia"][i][n - 1] for i, n in enumerate(conteggi)), parola)
+                    self.assertTrue(all(len(r) == 21 for r in d["griglia"]))
+                elif metodo == "carte":
                     lettere = ""
-                    for pr in d["prove"]:
-                        self.assertEqual(forme.conta(pr["fig"]), pr["vero"])
-                        numeri = [n for n, _ in pr["opzioni"]]
-                        self.assertEqual(len(set(numeri)), 3)
-                        self.assertEqual(len({l for _, l in pr["opzioni"]}), 3)
-                        lettere += dict(pr["opzioni"])[pr["vero"]]
-                    self.assertEqual(lettere, e.risposta)
-                elif metodo == "coordinate":
-                    lettere = ""
-                    for (r, c), (vr, vc, fr, fc) in zip(d["scelte"], d["coppie"]):
-                        self.assertEqual(forme.conta(fr), vr)
-                        self.assertEqual(forme.conta(fc), vc)
-                        self.assertEqual(forme.VALORI_COORDINATE[r], vr)
-                        lettere += d["griglia"][r][c]
-                    self.assertEqual(lettere, e.risposta)
-                    self.assertEqual(len(set(d["scelte"])), 5)
-                else:
-                    lettere = "".join(ALFABETO[forme.conta(pr["fig"]) - 1] for pr in d["prove"])
-                    self.assertEqual(lettere, e.risposta)
+                    for n, opzioni in zip(conteggi, d["carte"]):
+                        self.assertEqual(len({x for x, _ in opzioni}), 3)
+                        self.assertEqual(len({l for _, l in opzioni}), 3)
+                        lettere += dict(opzioni)[n]
+                    self.assertEqual(lettere, parola)
+                elif metodo == "classifica":
+                    totali = [t for t, _ in d["classifica"]]
+                    self.assertEqual(len(set(totali)), len(totali))
+                    self.assertEqual(sum(conteggi), 50)
+                    self.assertIn((50, "MEEPLE"), d["classifica"])
+                elif metodo == "personaggi":
+                    self.assertEqual(sorted(d["personaggi"]), list(range(1, 22)))
+                    self.assertEqual(len(set(d["personaggi"].values())), 21)
+                    self.assertEqual("".join(d["personaggi"][n][0] for n in conteggi), parola)
+        self.assertTrue(all(p == plance[0] for p in plance), "la plancia è la stessa per tutti i metodi")
+
+    def test_terreni_e_meeple(self):
+        scena = DATI["forme"]["scena"]
+        self.assertEqual(len(scena["mappa"]), 19)
+        self.assertEqual(set(scena["mappa"].values()), set(giochi_tavolo.TERRENI))
+        stili = {m["stile"] for m in scena["meeple"]}
+        self.assertEqual(stili, set(giochi_tavolo.STILI_MEEPLE))
+        for cella in {m["cella"] for m in scena["meeple"]}:
+            self.assertLessEqual(sum(1 for m in scena["meeple"] if m["cella"] == cella), 2)
 
 
 class TestVisivi(unittest.TestCase):
@@ -221,11 +258,11 @@ class TestPdf(unittest.TestCase):
                 self.assertGreater(os.path.getsize(path), 5000)
             path = os.path.join(t, "varianti.pdf")
             elenco = genera.scrivi_varianti(path)
-            self.assertEqual([m for m, _ in elenco], forme.METODI)
+            self.assertEqual([m for m, _ in elenco], giochi_tavolo.METODI)
             self.assertGreater(os.path.getsize(path), 5000)
 
     def test_ogni_metodo_enigma_8_nel_fascicolo(self):
-        for metodo in forme.METODI:
+        for metodo in giochi_tavolo.METODI:
             enigmi = genera.crea_enigmi(metodo_forme=metodo)
             self.assertEqual(len(enigmi), 12)
             self.assertTrue(enigmi[7].risposta.isalpha())

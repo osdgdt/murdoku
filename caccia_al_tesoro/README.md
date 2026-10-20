@@ -174,9 +174,11 @@ python genera_parcheggio.py                         # PARCHEGGIO, regole 3 e 4 (
 python genera_parcheggio.py PARCHEGGIO 3x5,4x5      # parola e gruppi "numero regola x lettere" (numeri del catalogo di 22)
 ```
 
-Scrive `codici_parcheggio.pdf` (giocatori, una pagina: storia, frase d'aiuto, due file da 5 griglie, riquadro con le 10
-caselline, P ed E precompilate) e `codici_parcheggio_spiegatori.pdf` (griglie annerite con la lettera, regola spiegata
-sotto ogni fila, parola completa). Ogni griglia da risolvere ha soluzione unica (verifica a forza bruta nei test): solo la
+Scrive `codici_parcheggio.pdf` (giocatori, una pagina: due file da 5 griglie, riquadro con le 10 caselline con P ed E
+precompilate, riquadro REFERTO «La parola che trovi è un referto: segnalo sul tuo passaporto» e biglietto con puntina da
+mappa «Se ti serve un indizio, vai alla Biblioteca di San Polo → Via Tiziano 246, Brescia»; i testi sono in cima a
+`enigmi/dossier_gruppi.py`, `referto=""` o `indizio=None` li tolgono) e `codici_parcheggio_spiegatori.pdf` (griglie annerite con la lettera, regola spiegata
+sotto ogni fila, parola completa, e gli stessi due riquadri). Ogni griglia da risolvere ha soluzione unica (verifica a forza bruta nei test): solo la
 O ha 3 caselle di partenza (puntino bianco), tutte le altre 0. Le celle sono piccole (circa 10 pt) perché 5 griglie
 devono stare in fila; per griglie più grandi si può dividere una serie su due file.
 

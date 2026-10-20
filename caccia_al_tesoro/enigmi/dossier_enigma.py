@@ -92,7 +92,7 @@ def disegna_blocco(c, y_alto, n, blocco, soluzione, cella=CELLA):
     return h
 
 
-def _testata(c, soluzione, aiuto=AIUTO):
+def _testata(c, soluzione, aiuto=AIUTO, con_testo=True):
     """Striscione, timbro e storia; restituisce la y sotto cui comincia il primo blocco."""
     G.striscione(c, W / 2, 782, 420, 42, "I CODICI DELLA PROFESSORESSA", 24)
     c.setFillColor(GR(0.25))
@@ -100,7 +100,7 @@ def _testata(c, soluzione, aiuto=AIUTO):
     c.drawCentredString(W / 2, 752, "DOSSIER RISERVATO · CLASSIFICATO · NON LASCIARE INCUSTODITO"
                         + (" · COPIA DEGLI SPIEGATORI" if soluzione else ""))
     y = 736
-    if soluzione:
+    if soluzione or not con_testo:
         return y
     c.setFillColor(GR(0.08))
     c.setFont(G.FONT, 9.2)

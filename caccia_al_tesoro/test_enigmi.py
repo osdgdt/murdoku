@@ -680,6 +680,28 @@ class TestParcheggio(unittest.TestCase):
                     self.assertIn(nome, ts)
                 # nel PDF dei giocatori solo P ed E sono già scritte nella parola; nel PDF spiegatori c'è tutta la parola
                 self.assertNotIn("ARCHGGIO", tg.replace("\n", ""))
+                for testo in (tg, ts):
+                    t = " ".join(testo.split())
+                    self.assertIn("REFERTO", t)
+                    self.assertIn("PASSAPORTO", t)
+                    self.assertIn("BIBLIOTECA DI SAN POLO", t)
+                    self.assertIn("VIA TIZIANO 246, BRESCIA", t)
+                    self.assertIn("SE TI SERVE UN INDIZIO, VAI ALLA", t)
+                    self.assertNotIn("SCOMPARSA", t)
+                    self.assertNotIn("COME SI FA", t)
+
+    def test_riquadri_facoltativi(self):
+        import shutil
+        import subprocess
+        from enigmi import dossier_gruppi
+        if not shutil.which("pdftotext"):
+            self.skipTest("pdftotext non disponibile")
+        with tempfile.TemporaryDirectory() as t:
+            g = os.path.join(t, "g.pdf")
+            dossier_gruppi.scrivi_gruppi(self.blocchi, "PARCHEGGIO", g, False, referto="", indizio=None)
+            tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
+            self.assertNotIn("REFERTO", tg)
+            self.assertNotIn("INDIZIO", tg)
 
 
 class TestPdf(unittest.TestCase):

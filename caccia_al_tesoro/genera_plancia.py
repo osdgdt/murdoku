@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Genera la plancia "Serata giochi da tavolo" rifinita e il mini enigma 10 (numero -> parola).
 
-Uso:  python genera_plancia.py [punteggio] [parola] [seme]     (default: punteggio e parola da config.py)
+Uso:  python genera_plancia.py [punteggio] [parola] [seme]     (default: PUNTEGGIO_ENIGMA_8 e PAROLA_PLANCIA da config.py)
 Scrive plancia_e_mini10.pdf (2 pagine per i giocatori) e plancia_e_mini10_soluzioni.pdf (2 pagine).
-Il punteggio finale (somma delle sei risposte) va da 19 a 85; la parola ha 3-7 lettere.
+Il punteggio finale (somma delle sei risposte) va da 19 a 85; la parola ha 3-9 lettere.
 """
 import os
 import sys
@@ -44,7 +44,7 @@ def scrivi(d, percorso, soluzione, aiuto=None):
 
 def main():
     punteggio = int(sys.argv[1]) if len(sys.argv) > 1 else config.PUNTEGGIO_ENIGMA_8
-    parola = sys.argv[2].upper() if len(sys.argv) > 2 else config.SOLUZIONI["forme"]
+    parola = sys.argv[2].upper() if len(sys.argv) > 2 else config.PAROLA_PLANCIA
     seme = int(sys.argv[3]) if len(sys.argv) > 3 else config.SEED
     d = crea_plancia_finale(punteggio, parola, seme)
     f = os.path.join(QUI, "plancia_e_mini10.pdf")

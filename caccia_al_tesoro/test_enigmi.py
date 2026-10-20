@@ -379,9 +379,24 @@ class TestPlanciaFinale(unittest.TestCase):
         for punteggio in (5, 18, 86, 200):
             with self.assertRaises(ValueError):
                 pf.crea_plancia_finale(punteggio, "MEEPLE", 1)
-        for parola in ("JOLLY", "AB", "MEEPLE E"):
+        for parola in ("JOLLY", "AB", "MEEPLE E", "COLPEVOLEXX"):
             with self.assertRaises(ValueError):
                 pf.crea_plancia_finale(50, parola, 1)
+
+    def test_parola_colpevole_nove_lettere(self):
+        self.assertEqual(config.PAROLA_PLANCIA, "COLPEVOLE")
+        d = pf.crea_plancia_finale(config.PUNTEGGIO_ENIGMA_8, config.PAROLA_PLANCIA, config.SEED)
+        self.assertEqual(len(d["pigpen"]), 9)
+        self.assertEqual(sposta(d["pigpen"], -d["chiave"]), "COLPEVOLE")
+        for punteggio in (19, 50, 85):
+            d = pf.crea_plancia_finale(punteggio, "COLPEVOLE", 3)
+            self.assertEqual(sposta(d["pigpen"], -d["chiave"]), "COLPEVOLE")
+        with tempfile.TemporaryDirectory() as t:
+            for sol in (False, True):
+                path = os.path.join(t, f"x{int(sol)}.pdf")
+                from genera_plancia import scrivi
+                scrivi(d, path, sol, None)
+                self.assertGreater(os.path.getsize(path), 5000)
 
     def test_niente_numero_e_difficolta_e_biglietto(self):
         import shutil

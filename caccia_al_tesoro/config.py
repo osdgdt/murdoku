@@ -43,8 +43,11 @@ METODO_ENIGMA_8 = "tracciato"
 
 # Punteggio finale della plancia "Serata giochi da tavolo" (genera_plancia.py): è la somma delle sei risposte
 # (tessere, meeple, dadi, monete, carte, triangoli) e il numero che il mini enigma 10 trasforma nella parola
-# SOLUZIONI["forme"]. Tra 19 e 85.
+# PAROLA_PLANCIA. Tra 19 e 85.
 PUNTEGGIO_ENIGMA_8 = 50
+# Parola che il mini enigma 10 (Pigpen + Cesare) fa uscire dopo la plancia (genera_plancia.py): 3-9 lettere.
+# (SOLUZIONI["forme"] resta la parola dell'enigma 8 del fascicolo, che usa un altro metodo.)
+PAROLA_PLANCIA = "COLPEVOLE"
 
 # Biglietto "se non riesci a risolvere l'enigma" in fondo alle pagine di plancia_e_mini10.pdf
 # (non compare nelle soluzioni). Lascia AIUTO_LUOGO vuoto ("") per non disegnarlo.

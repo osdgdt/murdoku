@@ -79,8 +79,8 @@ Dopo ogni cambio lancia `python genera.py`: le soluzioni nei PDF si aggiornano d
 Versione molto più curata dell'enigma 8, in due pagine seguite dal mini enigma 10 che trasforma il numero in parola:
 
 ```bash
-python genera_plancia.py                  # punteggio e parola da config.py (50 -> MEEPLE)
-python genera_plancia.py 72 TESORO 7      # punteggio (19-85), parola (3-7 lettere), seme
+python genera_plancia.py                  # punteggio e parola da config.py (50 -> COLPEVOLE)
+python genera_plancia.py 72 TESORO 7      # punteggio (19-85), parola (3-9 lettere), seme
 ```
 
 Scrive `plancia_e_mini10.pdf` (2 pagine per i giocatori) e `plancia_e_mini10_soluzioni.pdf`.
@@ -91,7 +91,7 @@ Scrive `plancia_e_mini10.pdf` (2 pagine per i giocatori) e `plancia_e_mini10_sol
 - **Pagina 2, "Il codice del tesoro" (mini enigma 10):** il punteggio, le cifre sommate (chiave), i simboli Pigpen da
   tradurre e l'alfabeto per tornare indietro della chiave: esce la parola.
 - **Soluzioni:** gli elementi contati sono cerchiati e numerati; sotto dadi, monete e rosone c'è il conteggio.
-- Il punteggio (`PUNTEGGIO_ENIGMA_8`) e la parola (`SOLUZIONI["forme"]`) sono in `config.py`; i sei conteggi sono
+- Il punteggio (`PUNTEGGIO_ENIGMA_8`) e la parola (`PAROLA_PLANCIA`, ora **COLPEVOLE**, 9 lettere: la soluzione del mini enigma 10) sono in `config.py` (`SOLUZIONI["forme"]` resta la parola dell'enigma 8 del fascicolo); i sei conteggi sono
   scelti dal programma con somma esatta (un tipo di domanda ciascuno, ognuno nel suo intervallo).
 - Le pagine non riportano il numero dell'enigma né la difficoltà.
 - In fondo a entrambe le pagine dei giocatori c'è un biglietto con puntina da mappa: «Se non riesci a risolvere l'enigma, vai a

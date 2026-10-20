@@ -63,8 +63,8 @@ def scegli_conteggi(punteggio, rng):
 
 def crea_plancia_finale(punteggio, parola, seed):
     valida_parola(parola)
-    if not 3 <= len(parola) <= 7 or " " in parola:
-        raise ValueError("la parola deve avere 3-7 lettere, senza spazi")
+    if not 3 <= len(parola) <= 9 or " " in parola:
+        raise ValueError("la parola deve avere 3-9 lettere, senza spazi")
     rng = random.Random(seed * 100 + 8)
     conteggi = scegli_conteggi(punteggio, rng)
     scena = costruisci_scena([(t, conteggi[t]) for t in ORDINE], rng, AREA_MONETE)
@@ -424,14 +424,18 @@ def pagina_mini10(c, d, soluzione=False):
     for k, riga in enumerate(("Il simbolo di ogni lettera", "è formato dalle linee del", "suo 'recinto' nella chiave", "(e dal puntino, se c'è).")):
         c.drawString(gx + 3 * lato + 60, gy + lato - 14 - k * 12, riga)
     # gettoni con i simboli
-    passo = min(66, (W - 88 - 40) / n)
-    x_inizio = W / 2 - (n - 1) * passo / 2
+    x_min = 112  # a sinistra restano le etichette LETTERA PIGPEN / LETTERA VERA
+    passo = min(66, (W - 60 - x_min) / n)
+    r_get = min(23, passo * 0.45)  # gettoni più piccoli se le lettere sono tante (fino a 9)
+    lc2 = min(30, passo - 8)
+    lc3 = min(34, passo - 8)
+    x_inizio = max(W / 2 - (n - 1) * passo / 2, x_min + lc3 / 2)
     yt = y2 + 64
     for i, ch in enumerate(pig):
         xx = x_inizio + i * passo
-        G.gettone_esagonale(c, xx, yt, 23)
-        _simbolo_pigpen(c, spec[ch], xx, yt, 25)
-        _casella(c, xx - 15, y2 + 8, 30, 30, ch if soluzione else None, size=17, spessore=1.5)
+        G.gettone_esagonale(c, xx, yt, r_get)
+        _simbolo_pigpen(c, spec[ch], xx, yt, 25 * r_get / 23)
+        _casella(c, xx - lc2 / 2, y2 + 8, lc2, 30, ch if soluzione else None, size=17, spessore=1.5)
     c.setFillColor(black)
     c.setFont(G.FONT_B, 8)
     c.drawString(60, y2 + 18, "LETTERA")
@@ -457,7 +461,7 @@ def pagina_mini10(c, d, soluzione=False):
     c.drawString(60, y3 + 28, "VERA")
     for i in range(n):
         xx = x_inizio + i * passo
-        _casella(c, xx - 17, y3 + 16, 34, 38, parola[i] if soluzione else None, size=21, raggio=6, spessore=1.8, fill=0.85)
+        _casella(c, xx - lc3 / 2, y3 + 16, lc3, 38, parola[i] if soluzione else None, size=21, raggio=6, spessore=1.8, fill=0.85)
 
     # LA PAROLA
     yp = y3 - gap - hp
@@ -465,10 +469,9 @@ def pagina_mini10(c, d, soluzione=False):
     c.setFillColor(black)
     c.setFont(G.TITOLO_FONT, 19)
     c.drawString(62, yp + 26, "LA PAROLA")
-    lat = 36
-    gap_l = 7
+    gap_l = 6 if n <= 7 else 5
+    lat = min(36, (W - 62 - 190 - (n - 1) * gap_l) / n)  # dopo la scritta LA PAROLA, fino al margine destro
     x0 = W - 62 - n * (lat + gap_l) + gap_l
-    x0 = max(x0, 200)
     for i in range(n):
         _casella(c, x0 + i * (lat + gap_l), yp + 14, lat, lat, parola[i] if soluzione else None, size=22, raggio=6, spessore=2.0)
     c.restoreState()

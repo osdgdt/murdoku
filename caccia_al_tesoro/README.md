@@ -128,22 +128,32 @@ Scrive `mini_enigmi.pdf` (per i giocatori, 2 mini per pagina) e `mini_enigmi_sol
 La verifica (`python -m unittest test_enigmi`) decodifica ognuno dei 10 mini enigmi con le regole della consegna,
 per vari numeri e parole.
 
-## Catalogo delle regole per il nuovo enigma "codici" (dossier segreto)
+## Enigma "I codici della professoressa" (dossier segreto, una griglia 5×5 per lettera)
 
-Prima tappa di un enigma a mini griglie 5×5 (una per lettera della parola finale): i numeri attorno alla griglia
-NON sono quelli dei nonogrammi, seguono una regola da scoprire guardando 1-2 esempi già risolti. Il catalogo mostra
-12 regole candidate (medie e difficili, tutte valide per ognuna delle 21 lettere), ciascuna con esempi risolti e
-una griglia da risolvere.
+Una professoressa è stata rapita e ha lasciato i suoi codici per farsi trovare: una mini griglia 5×5 per ogni lettera
+della parola finale. I numeri attorno alla griglia NON sono quelli dei nonogrammi: seguono una regola da scoprire
+guardando 1-2 esempi già risolti. Ogni lettera ha una regola diversa; i blocchi vanno dal più facile al più difficile.
 
 ```bash
-python genera_codici.py              # bersagli dalla parola CASTELLO
-python genera_codici.py TESORO       # un'altra parola (fino a 8 lettere)
+python genera_codici.py              # parola NASCONDIGLIO (12 lettere = le 12 regole)
+python genera_codici.py SOLE         # da 1 a 12 lettere: usa regole distribuite dalla più facile alla più difficile
 ```
 
-Scrive `catalogo_regole.pdf` (4 pagine, 3 regole per pagina) e `catalogo_regole_soluzioni.pdf` (con nome della regola,
-spiegazione e lettera di ogni griglia). Gli esempi sono scelti dal programma con lettere diverse da quelle della parola;
-le regole difficili ne hanno 2 e/o un "trabocchetto" (specchio, capovolto, negativo). Codice in `enigmi/codici.py` e
-`enigmi/dossier_codici.py`.
+Scrive:
+
+- `codici_professoressa.pdf`: pagine dei giocatori (storia, frase d'aiuto generale, griglie, riquadro risposta con una casellina per lettera). Non dice quali regole ci sono.
+- `codici_professoressa_spiegatori.pdf`: gli stessi blocchi risolti, con sotto ognuno un riquadro che spiega la regola (e l'eventuale trabocchetto), e la parola nelle caselline.
+- `catalogo_regole.pdf` / `catalogo_regole_soluzioni.pdf`: anteprima di tutte le 12 regole con bersagli dalla parola CASTELLO.
+
+Le 12 regole (`CATALOGO` in `enigmi/codici.py`): Salti, Binario a due metà, Somme progressive, Somma delle posizioni,
+Quante nere e l'ultima, Binario intero, Potenze di 3, Estremi, Prodotti di numeri primi, e tre con trabocchetto
+(Binario a due metà + specchio, Somme progressive + capovolto, Somma delle posizioni + negativo).
+
+**Verifica:** per ognuna delle 12 regole e per tutte le 21 lettere la griglia da risolvere ha una sola soluzione, controllata
+con una forza bruta indipendente dal solver (righe candidate dalla funzione della regola, colonne ricalcolate a mano). Le
+regole "a incrocio" hanno al massimo 4 caselle di partenza (puntino bianco = già nera, crocetta = già vuota): 4 nella somma delle
+posizioni, 2 in "quante nere e l'ultima" e nel negativo. Gli esempi sono scelti dal programma con lettere fuori dalla parola e
+bastano a distinguere la regola dalle altre del catalogo. `crea_enigma` controlla l'unicità di ogni blocco prima di disegnarlo.
 
 ## Come sono verificati
 

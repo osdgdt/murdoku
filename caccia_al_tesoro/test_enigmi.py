@@ -524,6 +524,65 @@ class TestCodici(unittest.TestCase):
                     self.assertIn(nome, ts)
 
 
+class TestEnigmaCodici(unittest.TestCase):
+    @staticmethod
+    def conta_forza_bruta(voce, lettera):
+        """Conteggio indipendente dal solver: righe candidate dalla funzione della regola, colonne ricalcolate a mano."""
+        base = voce[0]
+        f = cod.REGOLE[base].funzione
+        p = cod.pattern_voce(lettera, voce)
+        righe = [f(r) for r in p]
+        colonne = [f(tuple(p[r][c] for r in range(5))) for c in range(5)]
+        hint = cod.crea_hint(p, base)
+        cand = [[l for l in cod.LINEE if f(l) == righe[r] and all(hint.get((r, c), l[c]) == l[c] for c in range(5))]
+                for r in range(5)]
+        return sum(1 for g in itertools.product(*cand)
+                   if all(f(tuple(g[r][c] for r in range(5))) == colonne[c] for c in range(5)))
+
+    def test_soluzione_unica_forza_bruta(self):
+        for voce in cod.CATALOGO:
+            for lettera in ALFABETO:
+                self.assertEqual(self.conta_forza_bruta(voce, lettera), 1, (voce, lettera))
+
+    def test_enigma_dodici_lettere(self):
+        blocchi = cod.crea_enigma("NASCONDIGLIO")
+        self.assertEqual(len(blocchi), 12)
+        self.assertEqual("".join(b["bersaglio"]["lettera"] for b in blocchi), "NASCONDIGLIO")
+        self.assertEqual(len({b["voce"] for b in blocchi}), 12)
+        livelli = [cod.livello_voce(b["voce"]) for b in blocchi]
+        self.assertEqual(livelli, sorted(livelli))
+        for b in blocchi:
+            self.assertTrue(cod.verifica_unica(b))
+            for e in b["esempi"]:
+                self.assertNotIn(e["lettera"], "NASCONDIGLIO")
+
+    def test_parole_piu_corte_usano_meno_regole(self):
+        for parola in ("SOLE", "CASTELLO", "A"):
+            blocchi = cod.crea_enigma(parola)
+            self.assertEqual(len(blocchi), len(parola))
+            self.assertEqual(len({b["voce"] for b in blocchi}), len(parola))
+        with self.assertRaises(ValueError):
+            cod.crea_enigma("NASCONDIGLIOOO")
+
+    def test_pdf_enigma(self):
+        import shutil
+        import subprocess
+        from enigmi import dossier_enigma
+        blocchi = cod.crea_enigma("NASCONDIGLIO")
+        with tempfile.TemporaryDirectory() as t:
+            g, s = os.path.join(t, "g.pdf"), os.path.join(t, "s.pdf")
+            dossier_enigma.scrivi_enigma(blocchi, "NASCONDIGLIO", g, False)
+            dossier_enigma.scrivi_enigma(blocchi, "NASCONDIGLIO", s, True)
+            if shutil.which("pdftotext"):
+                tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                self.assertIn("PROFESSORESSA", tg)
+                self.assertIn("CODICE 12", tg)
+                for nome in ("SALTI", "BINARIO", "SOMME PROGRESSIVE", "ESTREMI", "POTENZE DI 3", "PRODOTTI", "NEGATIVO"):
+                    self.assertNotIn(nome, tg, "il PDF dei giocatori non rivela le regole")
+                    self.assertIn(nome, ts, "la versione per gli spiegatori spiega ogni regola")
+
+
 class TestPdf(unittest.TestCase):
     def test_genera_pdf(self):
         with tempfile.TemporaryDirectory() as t:

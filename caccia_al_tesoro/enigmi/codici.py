@@ -311,3 +311,40 @@ def crea_catalogo(parola_demo="CASTELLO"):
     for i, voce in enumerate(voci):
         blocchi.append(crea_blocco(voce, parola_demo[i % len(parola_demo)], parola_demo, usate))
     return blocchi
+
+
+# --------------------------------------------------------------------------- enigma completo
+def verifica_unica(blocco):
+    """Controllo sul blocco: la griglia da risolvere (con le sue caselle di partenza) ha UNA sola soluzione, ed è la lettera."""
+    base = blocco["voce"][0]
+    b = blocco["bersaglio"]
+    sol = risolvi(b["righe"], b["colonne"], base, b["hint"], 2)
+    return len(sol) == 1 and sol[0] == b["pattern"]
+
+
+def scegli_voci(quante):
+    """Le voci del catalogo da usare per una parola di `quante` lettere: tutte se sono 12, altrimenti quelle
+    distribuite in modo regolare dal più facile al più difficile (la prima e l'ultima ci sono sempre)."""
+    voci = sorted(CATALOGO, key=lambda v: (livello_voce(v), CATALOGO.index(v)))
+    if not 1 <= quante <= len(voci):
+        raise ValueError(f"La parola deve avere da 1 a {len(voci)} lettere (una regola diversa per lettera)")
+    if quante == len(voci):
+        return voci
+    if quante == 1:
+        return voci[:1]
+    idx = [round(i * (len(voci) - 1) / (quante - 1)) for i in range(quante)]
+    return [voci[i] for i in idx]
+
+
+def crea_enigma(parola):
+    """Un blocco per lettera della parola, dalla regola più facile alla più difficile; esempi con lettere fuori dalla parola."""
+    lettere = [ch for ch in parola.upper() if ch != " "]
+    if any(ch not in ALFABETO for ch in lettere):
+        raise ValueError(f"Lettere non supportate in '{parola}'")
+    voci = scegli_voci(len(lettere))
+    usate, blocchi = {}, []
+    for voce, lettera in zip(voci, lettere):
+        b = crea_blocco(voce, lettera, lettere, usate)
+        assert verifica_unica(b), f"soluzione non unica per {voce} / {lettera}"
+        blocchi.append(b)
+    return blocchi

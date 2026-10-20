@@ -65,7 +65,7 @@ def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc,
         nums = colonne[cc]
         for k, v in enumerate(reversed(nums)):
             t = str(v)
-            size = 8.6 if len(t) <= 3 else 7.2
+            size = max(min(8.6, (cella - 2.5) / (0.556 * len(t))), 5.6)
             c.setFont(G.FONT_B, size)
             c.drawCentredString(gx + cc * cella + cella / 2, y + N * cella + 4 + k * 9.6, t)
 

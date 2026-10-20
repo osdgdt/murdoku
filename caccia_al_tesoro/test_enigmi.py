@@ -632,6 +632,56 @@ class TestPoolCodici(unittest.TestCase):
                 self.assertGreater(os.path.getsize(path), 5000)
 
 
+class TestParcheggio(unittest.TestCase):
+    """PARCHEGGIO: 5 lettere con la regola 3 (somme progressive), 5 con la regola 4 (somma delle posizioni)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.gruppi = [(cod.CATALOGO[2], 5), (cod.CATALOGO[3], 5)]
+        cls.blocchi = cod.crea_gruppi("PARCHEGGIO", cls.gruppi)
+
+    def test_regole_e_lettere(self):
+        self.assertEqual([cod.nome_voce(b["voce"]) for b in self.blocchi], ["Somme progressive", "Somma delle posizioni"])
+        self.assertEqual("".join([b["esempio"]["lettera"] + "".join(t["lettera"] for t in b["bersagli"]) for b in self.blocchi]),
+                         "PARCHEGGIO")
+        self.assertEqual([b["esempio"]["lettera"] for b in self.blocchi], ["P", "E"])
+
+    def test_soluzione_unica_e_caselle_di_partenza(self):
+        for b in self.blocchi:
+            for t in b["bersagli"]:
+                self.assertEqual(TestEnigmaCodici.conta_forza_bruta(b["voce"], t["lettera"]), 1, t["lettera"])
+                self.assertLessEqual(len(t["hint"]), 4)
+                self.assertTrue(cod.verifica_unica({"voce": b["voce"], "bersaglio": t}))
+
+    def test_un_esempio_basta(self):
+        for b in self.blocchi:
+            self.assertTrue(cod.esempi_validi(b["voce"], [b["esempio"]["lettera"]], cod.CATALOGO))
+
+    def test_errori(self):
+        with self.assertRaises(ValueError):
+            cod.crea_gruppi("PARCHEGGIO", [(cod.CATALOGO[2], 5), (cod.CATALOGO[3], 4)])
+        with self.assertRaises(ValueError):
+            cod.crea_gruppi("PARCHEGGIO", [(cod.CATALOGO[2], 9), (cod.CATALOGO[3], 1)])
+
+    def test_pdf_una_pagina(self):
+        import shutil
+        import subprocess
+        from enigmi import dossier_gruppi
+        with tempfile.TemporaryDirectory() as t:
+            g, s = os.path.join(t, "g.pdf"), os.path.join(t, "s.pdf")
+            self.assertEqual(dossier_gruppi.scrivi_gruppi(self.blocchi, "PARCHEGGIO", g, False), 1)
+            self.assertEqual(dossier_gruppi.scrivi_gruppi(self.blocchi, "PARCHEGGIO", s, True), 1)
+            if shutil.which("pdftotext") and shutil.which("pdfinfo"):
+                self.assertIn("Pages:           1", subprocess.run(["pdfinfo", g], capture_output=True, text=True).stdout)
+                tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                for nome in ("SOMME PROGRESSIVE", "SOMMA DELLE POSIZIONI"):
+                    self.assertNotIn(nome, tg)
+                    self.assertIn(nome, ts)
+                # nel PDF dei giocatori solo P ed E sono già scritte nella parola; nel PDF spiegatori c'è tutta la parola
+                self.assertNotIn("ARCHGGIO", tg.replace("\n", ""))
+
+
 class TestPdf(unittest.TestCase):
     def test_genera_pdf(self):
         with tempfile.TemporaryDirectory() as t:

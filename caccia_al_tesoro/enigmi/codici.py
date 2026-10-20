@@ -449,3 +449,37 @@ def crea_enigma(parola):
         assert verifica_unica(b), f"soluzione non unica per {voce} / {lettera}"
         blocchi.append(b)
     return blocchi
+
+
+def crea_gruppi(parola, gruppi):
+    """Parola divisa in gruppi di lettere consecutive, ognuno con la sua regola. `gruppi` = [(voce, quante_lettere), ...].
+    La prima lettera di ogni gruppo è l'esempio già risolto; le altre sono le griglie da risolvere (con le caselle di
+    partenza strettamente necessarie). Un solo esempio deve bastare a distinguere la regola da tutte quelle del pool."""
+    lettere = [ch for ch in parola.upper() if ch != " "]
+    if any(ch not in ALFABETO for ch in lettere):
+        raise ValueError(f"Lettere non supportate in '{parola}'")
+    if sum(n for _, n in gruppi) != len(lettere) or any(n < 2 for _, n in gruppi):
+        raise ValueError("I gruppi devono coprire tutte le lettere, con almeno 2 lettere ciascuno (esempio + griglia)")
+    blocchi, i = [], 0
+    for voce, n in gruppi:
+        base = voce[0]
+        gruppo = lettere[i:i + n]
+        i += n
+        if not esempi_validi(voce, [gruppo[0]], CATALOGO):
+            raise ValueError(f"La lettera {gruppo[0]} da sola non basta a far capire la regola {nome_voce(voce)}")
+
+        def dati(l):
+            p = pattern_voce(l, voce)
+            righe, colonne = clue_pattern(p, base)
+            return {"lettera": l, "pattern": p, "righe": righe, "colonne": colonne}
+
+        bersagli = []
+        for l in gruppo[1:]:
+            d = dati(l)
+            d["hint"] = crea_hint(d["pattern"], base)
+            bersagli.append(d)
+        blocco = {"voce": voce, "esempio": dati(gruppo[0]), "bersagli": bersagli}
+        for d in bersagli:
+            assert verifica_unica({"voce": voce, "bersaglio": d}), f"soluzione non unica per {voce} / {d['lettera']}"
+        blocchi.append(blocco)
+    return blocchi

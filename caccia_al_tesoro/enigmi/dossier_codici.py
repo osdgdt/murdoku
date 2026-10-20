@@ -22,7 +22,8 @@ def _testo_clue(clue):
     return " ".join(str(n) for n in clue)
 
 
-def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc, evidenzia=False, sfalsa=False):
+def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc, evidenzia=False, sfalsa=False,
+                  scala_testo=1.0):
     """Griglia 5x5 con i numeri a bordo. (x, y) = angolo in basso a sinistra dell'area (numeri di riga compresi)."""
     gx = x + wr
     if evidenzia:  # alone dietro la griglia da risolvere
@@ -57,7 +58,7 @@ def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc,
     c.setFillColor(black)
     for r in range(N):
         t = _testo_clue(righe[r])
-        size = 9 if c.stringWidth(t, G.FONT_B, 9) <= wr - 6 else 7.6
+        size = 9 * scala_testo if c.stringWidth(t, G.FONT_B, 9 * scala_testo) <= wr - 6 else 7.6 * scala_testo
         c.setFont(G.FONT_B, size)
         c.drawRightString(gx - 5, y + (N - 1 - r) * cella + cella / 2 - size * 0.33, t)
     # numeri di colonna (impilati dal basso verso l'alto sopra la griglia)
@@ -69,10 +70,10 @@ def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc,
                 size = min(8.2, (2 * cella - 3) / c.stringWidth(t, G.FONT_B, 1))
                 alza = (cc % 2) * 9
             else:
-                size = max(min(8.6, (cella - 2.5) / (0.556 * len(t))), 5.6)
+                size = max(min(8.6 * scala_testo, (cella - 2.5) / (0.556 * len(t))), 5.6)
                 alza = 0
             c.setFont(G.FONT_B, size)
-            c.drawCentredString(gx + cc * cella + cella / 2, y + N * cella + 4 + k * 9.6 + alza, t)
+            c.drawCentredString(gx + cc * cella + cella / 2, y + N * cella + 4 + k * 9.6 * scala_testo + alza, t)
 
 
 def _larghezza_riga(c, blocchi, size=9):

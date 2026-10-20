@@ -1,0 +1,117 @@
+"""Enigma dei codici a gruppi (per esempio PARCHEGGIO): una sola pagina, una fila di griglie per ogni regola.
+
+In ogni fila la prima griglia è già risolta (e la sua lettera è già scritta nella parola); le altre vanno risolte
+applicando la stessa regola. La versione per gli spiegatori mostra tutte le griglie annerite e, sotto ogni fila, una
+cornice che spiega la regola.
+"""
+from reportlab.lib.colors import black
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import simpleSplit
+
+from . import grafica_tavolo as G
+from .codici import N, REGOLE, livello_voce, nome_voce
+from .dossier_codici import SPIEGAZIONE_TRABOCCHETTO, disegna_unita
+from .dossier_enigma import NOMI_LIVELLO, X, WB, _riquadro_risposta, _testata
+
+W, H = A4
+GR = G.gr
+SCALA = 0.85  # carattere dei numeri attorno alle griglie
+SPAZIO = 8
+CELLA_MAX, CELLA_MIN = 15, 10
+BASSO = 60
+
+AIUTO = ("Come si fa: i numeri attorno alla griglia descrivono quali caselle sono nere, ma non come in un nonogramma. "
+         "In ogni serie la prima griglia è già risolta e la sua lettera è già nella parola: scopri la regola e applicala "
+         "alle altre. Poi leggi la lettera che compare e scrivila nella casella giusta.")
+
+
+def _testo_clue(clue):
+    return " ".join(str(n) for n in clue)
+
+
+def _larghezza_riga(c, b):
+    m = max(c.stringWidth(_testo_clue(cl), G.FONT_B, 9 * SCALA) for cl in b["righe"])
+    return min(max(m + 7, 20), 52)
+
+
+def _righe_spiegazione(voce):
+    base, trab = voce
+    t = REGOLE[base].breve + (" " + SPIEGAZIONE_TRABOCCHETTO[trab] if trab else "")
+    return simpleSplit(t, G.FONT_I, 8.6, WB - 40)
+
+
+def _cella_fila(c, griglie):
+    wr = [_larghezza_riga(c, g) for g in griglie]
+    return min(CELLA_MAX, (WB - 24 - sum(wr) - (len(griglie) - 1) * SPAZIO) / (N * len(griglie)))
+
+
+def _disegna_fila(c, y_alto, titolo, griglie, primo_numero, soluzione, cella):
+    """griglie = [dati dell'esempio, dati dei bersagli...]. Restituisce l'altezza usata."""
+    wr = [_larghezza_riga(c, g) for g in griglie]
+    hc = max(len(cl) for g in griglie for cl in g["colonne"]) * 9.6 * SCALA + 6
+    righe_sp = _righe_spiegazione(griglie[0]["voce"]) if soluzione else []
+    h_sp = (6 + 12 * len(righe_sp) + 4 + 8) if soluzione else 0
+    h = 16 + hc + N * cella + 22 + h_sp
+    y = y_alto - h
+    G.cartiglio(c, X, y, WB, h, titolo)
+    tot = sum(wr) + N * cella * len(griglie) + (len(griglie) - 1) * SPAZIO
+    xx = X + (WB - tot) / 2
+    y_base = y + 22 + h_sp
+    for i, g in enumerate(griglie):
+        esempio = i == 0
+        disegna_unita(c, xx, y_base, cella, g["righe"], g["colonne"], g["pattern"], {} if esempio else g["hint"],
+                      mostra=esempio or soluzione, wr=wr[i], hc=hc, evidenzia=False, scala_testo=SCALA)
+        c.setFillColor(black)
+        c.setFont(G.FONT_B, 8.2)
+        etichetta = f"{primo_numero + i} · ESEMPIO" if esempio else f"{primo_numero + i}"
+        if soluzione:
+            etichetta += f" = {g['lettera']}"
+        c.drawCentredString(xx + wr[i] + N * cella / 2, y_base - 12, etichetta)
+        xx += wr[i] + N * cella + SPAZIO
+    if soluzione:
+        yb = y + 12
+        hb = 6 + 12 * len(righe_sp) + 4
+        c.setFillColor(GR(0.9))
+        c.setStrokeColor(GR(0.45))
+        c.setLineWidth(0.7)
+        c.roundRect(X + 14, yb, WB - 28, hb, 4, stroke=1, fill=1)
+        c.setFillColor(GR(0.1))
+        c.setFont(G.FONT_I, 8.6)
+        yy = yb + hb - 12
+        for r in righe_sp:
+            c.drawString(X + 22, yy, r)
+            yy -= 12
+    return h
+
+
+def scrivi_gruppi(blocchi, parola, percorso, soluzione):
+    """Una pagina. `blocchi` = risultato di codici.crea_gruppi. Restituisce il numero di pagine (1)."""
+    from reportlab.pdfgen import canvas
+    c = canvas.Canvas(percorso, pagesize=A4)
+    c.setTitle("I codici della professoressa" + (" - Spiegazioni" if soluzione else ""))
+    c.setAuthor("Caccia al tesoro")
+    G.cornice_pagina(c, W, H)
+    y = _testata(c, soluzione, AIUTO) - 12
+    nomi = ["PRIMA", "SECONDA", "TERZA", "QUARTA", "QUINTA", "SESTA"]
+    numero, pre = 1, []
+    file_ = [[dict(b["esempio"], voce=b["voce"])] + [dict(t, voce=b["voce"]) for t in b["bersagli"]] for b in blocchi]
+    cella = min(_cella_fila(c, g) for g in file_)  # stessa grandezza in tutte le file
+    if cella < CELLA_MIN:
+        raise ValueError("Le griglie non entrano in una pagina: servono meno griglie per fila")
+    for k, (b, griglie) in enumerate(zip(blocchi, file_)):
+        titolo = f"{nomi[k] if k < len(nomi) else k + 1} SERIE · LETTERE {numero}-{numero + len(griglie) - 1}"
+        if soluzione:
+            titolo += f" · {nome_voce(b['voce']).upper()} · {NOMI_LIVELLO[livello_voce(b['voce'])]}"
+        h = _disegna_fila(c, y, titolo, griglie, numero, soluzione, cella)
+        pre.append(numero - 1)
+        numero += len(griglie)
+        y -= h + 18
+    if y - 70 < BASSO:
+        raise ValueError("La pagina è piena: troppe file")
+    _riquadro_risposta(c, parola, soluzione, y, precompilate=set(pre))
+    c.setFillColor(GR(0.3))
+    c.setFont(G.FONT, 7.8)
+    c.drawCentredString(W / 2, 36, "La griglia ESEMPIO è già risolta; le altre vanno risolte · casella con puntino bianco = già annerita (di partenza) · crocetta = già vuota")
+    c.showPage()
+    c.save()
+    return 1

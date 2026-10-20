@@ -92,7 +92,7 @@ def disegna_blocco(c, y_alto, n, blocco, soluzione, cella=CELLA):
     return h
 
 
-def _testata(c, soluzione):
+def _testata(c, soluzione, aiuto=AIUTO):
     """Striscione, timbro e storia; restituisce la y sotto cui comincia il primo blocco."""
     G.striscione(c, W / 2, 782, 420, 42, "I CODICI DELLA PROFESSORESSA", 24)
     c.setFillColor(GR(0.25))
@@ -104,15 +104,15 @@ def _testata(c, soluzione):
         return y
     c.setFillColor(GR(0.08))
     c.setFont(G.FONT, 9.2)
-    for t in (STORIA, AIUTO):
-        for riga in simpleSplit(t, G.FONT_I if t is AIUTO else G.FONT, 9.2, WB - 10):
+    for t, font in ((STORIA, G.FONT), (aiuto, G.FONT_I)):
+        for riga in simpleSplit(t, font, 9.2, WB - 10):
             c.drawString(X + 5, y, riga)
             y -= 11.6
         y -= 5
     return y - 2
 
 
-def _riquadro_risposta(c, parola, soluzione, y_alto):
+def _riquadro_risposta(c, parola, soluzione, y_alto, precompilate=()):
     n = len(parola)
     h = 66
     y = y_alto - h
@@ -129,7 +129,7 @@ def _riquadro_risposta(c, parola, soluzione, y_alto):
         c.setFillColor(GR(0.4))
         c.setFont(G.FONT, 6.5)
         c.drawString(xx + 2, y + 10 + lato * 1.15 - 7, str(i + 1))
-        if soluzione:
+        if soluzione or i in precompilate:
             c.setFillColor(black)
             c.setFont(G.FONT_B, lato * 0.6)
             c.drawCentredString(xx + lato / 2, y + 10 + lato * 0.37, ch)

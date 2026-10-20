@@ -163,6 +163,23 @@ somma delle posizioni, fino a 2 in "quante nere e l'ultima" e nel negativo, 1-2 
 dal programma e non valgono per nessuna delle altre 21 regole. `crea_enigma` controlla l'unicità di ogni blocco prima di
 disegnarlo.
 
+### Enigma a gruppi: PARCHEGGIO (regola 3 + regola 4, una pagina)
+
+Una parola divisa in serie, ognuna con la sua regola del pool: le prime 5 lettere (P A R C H) con la regola 3
+(Somme progressive), le ultime 5 (E G G I O) con la regola 4 (Somma delle posizioni). La prima griglia di ogni serie
+(P ed E) è già risolta e la sua lettera è già scritta nella parola; le altre 8 vanno risolte con la stessa regola.
+
+```bash
+python genera_parcheggio.py                         # PARCHEGGIO, regole 3 e 4 (5 lettere ciascuna)
+python genera_parcheggio.py PARCHEGGIO 3x5,4x5      # parola e gruppi "numero regola x lettere" (numeri del catalogo di 22)
+```
+
+Scrive `codici_parcheggio.pdf` (giocatori, una pagina: storia, frase d'aiuto, due file da 5 griglie, riquadro con le 10
+caselline, P ed E precompilate) e `codici_parcheggio_spiegatori.pdf` (griglie annerite con la lettera, regola spiegata
+sotto ogni fila, parola completa). Ogni griglia da risolvere ha soluzione unica (verifica a forza bruta nei test): solo la
+O ha 3 caselle di partenza (puntino bianco), tutte le altre 0. Le celle sono piccole (circa 10 pt) perché 5 griglie
+devono stare in fila; per griglie più grandi si può dividere una serie su due file.
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

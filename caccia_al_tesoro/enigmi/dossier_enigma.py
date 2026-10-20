@@ -10,7 +10,7 @@ from reportlab.lib.utils import simpleSplit
 
 from . import grafica_tavolo as G
 from .codici import N, REGOLE, livello_voce, nome_voce
-from .dossier_codici import SPIEGAZIONE_TRABOCCHETTO, _altezza_colonne, _larghezza_riga, disegna_unita
+from .dossier_codici import SPIEGAZIONE_TRABOCCHETTO, _altezza_colonne, _larghezza_riga, disegna_unita, serve_sfalsa
 
 W, H = A4
 GR = G.gr
@@ -31,7 +31,7 @@ NOMI_LIVELLO = {1: "MEDIO", 2: "DIFFICILE", 3: "DIFFICILE"}
 
 def _altezza_blocco(c, blocco, soluzione, cella=CELLA):
     tutti = blocco["esempi"] + [blocco["bersaglio"]]
-    h = 14 + _altezza_colonne(tutti) + N * cella + 22
+    h = 14 + _altezza_colonne(tutti, cella) + N * cella + 22
     if soluzione:
         h += 6 + 12 * len(_righe_spiegazione(blocco)) + 10
     return h
@@ -54,7 +54,8 @@ def disegna_blocco(c, y_alto, n, blocco, soluzione, cella=CELLA):
     G.cartiglio(c, X, y, WB, h, titolo)
     tutti = blocco["esempi"] + [blocco["bersaglio"]]
     wr = _larghezza_riga(c, tutti)
-    hc = _altezza_colonne(tutti)
+    hc = _altezza_colonne(tutti, cella)
+    sfalsa = serve_sfalsa(tutti, cella)
     unita_w = wr + N * cella
     k = len(tutti)
     spazio = min((WB - 36 - k * unita_w) / max(k - 1, 1), 54)
@@ -64,7 +65,7 @@ def disegna_blocco(c, y_alto, n, blocco, soluzione, cella=CELLA):
         ultimo = i == k - 1
         xx = x0 + i * (unita_w + spazio)
         disegna_unita(c, xx, y_base, cella, b["righe"], b["colonne"], b["pattern"], b["hint"] if ultimo else {},
-                      mostra=(not ultimo) or soluzione, wr=wr, hc=hc, evidenzia=ultimo)
+                      mostra=(not ultimo) or soluzione, wr=wr, hc=hc, evidenzia=ultimo, sfalsa=sfalsa)
         c.setFillColor(black)
         c.setFont(G.FONT_B, 8.6)
         if ultimo:

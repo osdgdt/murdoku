@@ -583,6 +583,62 @@ class TestEnigmaCodici(unittest.TestCase):
                     self.assertIn(nome, ts, "la versione per gli spiegatori spiega ogni regola")
 
 
+class TestCodici2(unittest.TestCase):
+    """Seconda serie: 10 regole difficili, senza trabocchetti, anche con cifre romane."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.blocchi = cod.crea_catalogo_2("PROFESSORE")
+
+    def test_dieci_regole_distinte_e_difficili(self):
+        self.assertEqual(len(cod.CATALOGO_2), 10)
+        self.assertEqual(len({v for v in cod.CATALOGO_2}), 10)
+        self.assertFalse({v for v in cod.CATALOGO_2} & {v for v in cod.CATALOGO})
+        for voce in cod.CATALOGO_2:
+            self.assertIsNone(voce[1])
+            self.assertEqual(cod.livello_voce(voce), 2)
+        self.assertEqual(len(self.blocchi), 10)
+
+    def test_romani(self):
+        for n, r in ((0, "0"), (4, "IV"), (9, "IX"), (19, "XIX"), (31, "XXXI"), (38, "XXXVIII"), (144, "CXLIV")):
+            self.assertEqual(cod._romano(n), r)
+
+    def test_soluzione_unica_forza_bruta(self):
+        for voce in cod.CATALOGO_2:
+            for lettera in ALFABETO:
+                self.assertEqual(TestEnigmaCodici.conta_forza_bruta(voce, lettera), 1, (voce, lettera))
+                self.assertLessEqual(len(cod.crea_hint(cod.pattern_voce(lettera, voce), voce[0])), 4, (voce, lettera))
+
+    def test_blocchi(self):
+        for b in self.blocchi:
+            self.assertTrue(cod.verifica_unica(b))
+            self.assertIn(len(b["esempi"]), (1, 2))
+            for e in b["esempi"]:
+                self.assertNotIn(e["lettera"], "PROFESSORE")
+                self.assertNotEqual(e["lettera"], b["bersaglio"]["lettera"])
+                self.assertTrue(cod.esempi_validi(b["voce"], [x["lettera"] for x in b["esempi"]], cod.TUTTE))
+
+    def test_vecchio_catalogo_invariato(self):
+        """Aggiungere la seconda serie non cambia gli esempi del primo catalogo."""
+        a = cod.crea_catalogo("CASTELLO")
+        self.assertEqual([[e["lettera"] for e in b["esempi"]] for b in a][:3], [["G"], ["R"], ["Q"]])
+
+    def test_pdf_seconda_serie(self):
+        import shutil
+        import subprocess
+        from enigmi import dossier_codici
+        with tempfile.TemporaryDirectory() as t:
+            g, s = os.path.join(t, "g.pdf"), os.path.join(t, "s.pdf")
+            dossier_codici.scrivi_catalogo(self.blocchi, g, False, "SECONDA SERIE DI REGOLE")
+            dossier_codici.scrivi_catalogo(self.blocchi, s, True, "SECONDA SERIE DI REGOLE")
+            if shutil.which("pdftotext"):
+                tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                for nome in ("FATTORIALI", "CODICE GRAY", "MONETE ROMANE", "BINARIO ROMANO", "TRE MISURE", "DISPARI E PARI"):
+                    self.assertNotIn(nome, tg)
+                    self.assertIn(nome, ts)
+
+
 class TestPdf(unittest.TestCase):
     def test_genera_pdf(self):
         with tempfile.TemporaryDirectory() as t:

@@ -22,7 +22,7 @@ def _testo_clue(clue):
     return " ".join(str(n) for n in clue)
 
 
-def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc, evidenzia=False):
+def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc, evidenzia=False, sfalsa=False):
     """Griglia 5x5 con i numeri a bordo. (x, y) = angolo in basso a sinistra dell'area (numeri di riga compresi)."""
     gx = x + wr
     if evidenzia:  # alone dietro la griglia da risolvere
@@ -65,9 +65,14 @@ def disegna_unita(c, x, y, cella, righe, colonne, pattern, hint, mostra, wr, hc,
         nums = colonne[cc]
         for k, v in enumerate(reversed(nums)):
             t = str(v)
-            size = max(min(8.6, (cella - 2.5) / (0.556 * len(t))), 5.6)
+            if sfalsa:  # numeri larghi (cifre romane): colonne alterne alzate di un livello, così hanno il doppio dello spazio
+                size = min(8.2, (2 * cella - 3) / c.stringWidth(t, G.FONT_B, 1))
+                alza = (cc % 2) * 9
+            else:
+                size = max(min(8.6, (cella - 2.5) / (0.556 * len(t))), 5.6)
+                alza = 0
             c.setFont(G.FONT_B, size)
-            c.drawCentredString(gx + cc * cella + cella / 2, y + N * cella + 4 + k * 9.6, t)
+            c.drawCentredString(gx + cc * cella + cella / 2, y + N * cella + 4 + k * 9.6 + alza, t)
 
 
 def _larghezza_riga(c, blocchi, size=9):
@@ -78,8 +83,13 @@ def _larghezza_riga(c, blocchi, size=9):
     return min(max(m + 10, 24), 54)
 
 
-def _altezza_colonne(blocchi):
-    return max(len(clue) for b in blocchi for clue in b["colonne"]) * 9.6 + 6
+def serve_sfalsa(blocchi, cella):
+    """Ci sono numeri di colonna troppo larghi per la casella (cifre romane lunghe)?"""
+    return any((cella - 2.5) / (0.556 * len(str(v))) < 6.4 for b in blocchi for clue in b["colonne"] for v in clue)
+
+
+def _altezza_colonne(blocchi, cella=19.5):
+    return max(len(clue) for b in blocchi for clue in b["colonne"]) * 9.6 + 6 + (9 if serve_sfalsa(blocchi, cella) else 0)
 
 
 def disegna_banda(c, y_alto, n, blocco, soluzione):
@@ -102,7 +112,8 @@ def disegna_banda(c, y_alto, n, blocco, soluzione):
     tutti = blocco["esempi"] + [blocco["bersaglio"]]
     cella = 19.5
     wr = _larghezza_riga(c, tutti)
-    hc = _altezza_colonne(tutti)
+    hc = _altezza_colonne(tutti, cella)
+    sfalsa = serve_sfalsa(tutti, cella)
     unita_w = wr + N * cella
     n_unita = len(tutti)
     spazio = (w - 28 - n_unita * unita_w) / max(n_unita - 1, 1)
@@ -115,7 +126,7 @@ def disegna_banda(c, y_alto, n, blocco, soluzione):
         ultimo = i == n_unita - 1
         hint = b["hint"] if ultimo else {}
         disegna_unita(c, xx, y_gr, cella, b["righe"], b["colonne"], b["pattern"], hint, mostra=(not ultimo) or soluzione,
-                      wr=wr, hc=hc, evidenzia=ultimo)
+                      wr=wr, hc=hc, evidenzia=ultimo, sfalsa=sfalsa)
         c.setFillColor(black)
         if ultimo:
             c.setFont(G.FONT_B, 9)
@@ -130,11 +141,11 @@ def disegna_banda(c, y_alto, n, blocco, soluzione):
                 G.freccia_destra(c, ax - 8, y_gr + N * cella / 2, 16, 2.2) if spazio >= 24 else None
 
 
-def pagina_catalogo(c, blocchi, indice, totale, soluzione, primo_numero):
+def pagina_catalogo(c, blocchi, indice, totale, soluzione, primo_numero, titolo="CATALOGO DELLE REGOLE"):
     G.cornice_pagina(c, W, H)
     c.saveState()
     c.translate(0, DY)
-    G.striscione(c, W / 2, 766, 420, 44, "CATALOGO DELLE REGOLE" + (" · SOLUZIONI" if soluzione else ""), 25)
+    G.striscione(c, W / 2, 766, 420, 44, titolo + (" · SOLUZIONI" if soluzione else ""), 25)
     c.restoreState()
     c.setFillColor(GR(0.25))
     c.setFont(G.FONT_I, 9)
@@ -152,12 +163,12 @@ def pagina_catalogo(c, blocchi, indice, totale, soluzione, primo_numero):
     c.showPage()
 
 
-def scrivi_catalogo(blocchi, percorso, soluzione):
+def scrivi_catalogo(blocchi, percorso, soluzione, titolo="CATALOGO DELLE REGOLE", primo=1):
     from reportlab.pdfgen import canvas
     c = canvas.Canvas(percorso, pagesize=A4)
-    c.setTitle("Catalogo delle regole" + (" - Soluzioni" if soluzione else ""))
+    c.setTitle(titolo.capitalize() + (" - Soluzioni" if soluzione else ""))
     per_pagina = 3
     totale = (len(blocchi) + per_pagina - 1) // per_pagina
     for p in range(totale):
-        pagina_catalogo(c, blocchi[p * per_pagina:(p + 1) * per_pagina], p + 1, totale, soluzione, p * per_pagina + 1)
+        pagina_catalogo(c, blocchi[p * per_pagina:(p + 1) * per_pagina], p + 1, totale, soluzione, primo + p * per_pagina, titolo)
     c.save()

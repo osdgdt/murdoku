@@ -155,6 +155,29 @@ regole "a incrocio" hanno al massimo 4 caselle di partenza (puntino bianco = gi�
 posizioni, 2 in "quante nere e l'ultima" e nel negativo. Gli esempi sono scelti dal programma con lettere fuori dalla parola e
 bastano a distinguere la regola dalle altre del catalogo. `crea_enigma` controlla l'unicità di ogni blocco prima di disegnarlo.
 
+### Seconda serie: 10 regole difficili in più
+
+`python genera_codici.py` scrive anche `catalogo_regole_2.pdf` (giocatori) e `catalogo_regole_2_soluzioni.pdf` (soluzioni e
+spiegazioni), con bersagli dalla parola PROFESSORE. Sono regole in più, **non** ancora usate nell'enigma dei codici
+(`CATALOGO_2` in `enigmi/codici.py`; `TUTTE` = le 22 regole). Nessuna ha trabocchetti. Dalla più facile alla più difficile da intuire:
+
+| Regola | Come si legge |
+|--------|---------------|
+| Dispari e pari | somma dei posti dispari neri e somma dei posti pari neri |
+| Quadrati e conteggio | somma dei quadrati dei posti neri e quante nere |
+| Inizio e lunghezza | per ogni gruppo di nere: posto di partenza e lunghezza |
+| Fattoriali | caselle da 1-2-6-24-120, si sommano le nere |
+| Monete romane | caselle da 1-2-5-10-20, totale in cifre romane |
+| Somma e prodotto | somma e prodotto dei posti neri |
+| Binario romano | 16-8-4-2-1, totale in cifre romane |
+| Codice Gray | il valore binario trasformato in codice Gray |
+| Prodotto dei posti | prodotto dei posti neri (a incrocio, con 0-4 caselle di partenza) |
+| Tre misure | quante nere, somma dei posti, somma dei quadrati dei posti |
+
+Per ognuna, e per tutte le 21 lettere, la griglia da risolvere ha soluzione unica (forza bruta indipendente nei test). Gli
+esempi (2 per regola) sono scelti in modo che non valgano per nessuna delle altre 21 regole. Se un numero di colonna in cifre
+romane è troppo largo (XXXVIII), le colonne vicine vengono alzate di un livello per lasciarlo leggibile.
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

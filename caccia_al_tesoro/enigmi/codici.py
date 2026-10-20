@@ -7,6 +7,7 @@ estremi) vanno incrociate tra righe e colonne e, per rendere la lettera univoca,
 di caselle di partenza (nere o bianche).
 """
 import itertools
+import math
 import random
 from dataclasses import dataclass
 from fractions import Fraction
@@ -102,6 +103,78 @@ def r_progressive(linea):
     return tuple(out) or (0,)
 
 
+# ---- seconda serie (tutte difficili, nessun trabocchetto)
+def _romano(n):
+    """Numero in cifre romane (0 resta 0)."""
+    if n == 0:
+        return "0"
+    out = ""
+    for v, r in ((100, "C"), (90, "XC"), (50, "L"), (40, "XL"), (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I")):
+        while n >= v:
+            out += r
+            n -= v
+    return out
+
+
+def _pesi(linea, pesi):
+    return sum(b * w for b, w in zip(linea, pesi))
+
+
+def r_fattoriali(linea):
+    return (_pesi(linea, (1, 2, 6, 24, 120)),)
+
+
+def r_gray(linea):
+    v = _pesi(linea, (16, 8, 4, 2, 1))
+    return (v ^ (v >> 1),)
+
+
+def r_dispari_pari(linea):
+    p = _pos(linea)
+    return (sum(x for x in p if x % 2), sum(x for x in p if x % 2 == 0))
+
+
+def r_inizio_lunghezza(linea):
+    out, i = [], 0
+    while i < N:
+        if linea[i]:
+            j = i
+            while j < N and linea[j]:
+                j += 1
+            out += [i + 1, j - i]
+            i = j
+        else:
+            i += 1
+    return tuple(out) or (0,)
+
+
+def r_somma_quadrati(linea):
+    p = _pos(linea)
+    return (sum(x * x for x in p), len(p))
+
+
+def r_somma_prodotto(linea):
+    p = _pos(linea)
+    return (sum(p), math.prod(p))
+
+
+def r_prodotto_posti(linea):
+    return (math.prod(_pos(linea)),)
+
+
+def r_tre_misure(linea):
+    p = _pos(linea)
+    return (len(p), sum(p), sum(x * x for x in p))
+
+
+def r_binario_romano(linea):
+    return (_romano(_pesi(linea, (16, 8, 4, 2, 1))),)
+
+
+def r_monete_romane(linea):
+    return (_romano(_pesi(linea, (1, 2, 5, 10, 20))),)
+
+
 @dataclass(frozen=True)
 class Regola:
     chiave: str
@@ -132,6 +205,26 @@ REGOLE = {r.chiave: r for r in [
            "Tre numeri: il posto della prima nera, della ultima e quante nere ci sono in tutto."),
     Regola("primi", "Prodotti di numeri primi", 2, False, r_primi,
            "Le caselle valgono 2-3-5-7-11: il numero è il prodotto di quelle annerite (nessuna nera = 1).", True),
+    Regola("fattoriali", "Fattoriali", 2, False, r_fattoriali,
+           "Un numero: le caselle valgono 1-2-6-24-120 (da sinistra a destra o dall'alto in basso) e si sommano le nere.", True),
+    Regola("gray", "Codice Gray", 2, False, r_gray,
+           "Un numero: il binario 16-8-4-2-1 trasformato in codice Gray (v XOR v/2). Due numeri vicini cambiano una sola casella."),
+    Regola("dispari_pari", "Dispari e pari", 2, False, r_dispari_pari,
+           "Due numeri: la somma dei posti DISPARI neri (1, 3, 5) e la somma dei posti PARI neri (2, 4)."),
+    Regola("inizio_lunghezza", "Inizio e lunghezza", 2, False, r_inizio_lunghezza,
+           "Per ogni gruppo di caselle nere vicine: il posto da cui parte e quante sono. Es.: 1 3 5 1 = tre nere dal posto 1 e una nera al posto 5."),
+    Regola("somma_quadrati", "Quadrati e conteggio", 2, False, r_somma_quadrati,
+           "Due numeri: la somma dei quadrati dei posti neri (1, 4, 9, 16, 25) e quante nere ci sono."),
+    Regola("somma_prodotto", "Somma e prodotto", 2, False, r_somma_prodotto,
+           "Due numeri: la somma dei posti neri e il loro prodotto (nessuna nera: 0 e 1)."),
+    Regola("prodotto_posti", "Prodotto dei posti", 2, True, r_prodotto_posti,
+           "Un numero: il prodotto dei posti (da 1 a 5) delle caselle nere della riga o della colonna (nessuna nera = 1)."),
+    Regola("tre_misure", "Tre misure", 2, False, r_tre_misure,
+           "Tre numeri: quante nere, la somma dei loro posti e la somma dei quadrati dei loro posti."),
+    Regola("binario_romano", "Binario romano", 2, False, r_binario_romano,
+           "Come il binario (16-8-4-2-1 da sinistra a destra o dall'alto in basso) ma il totale è scritto in cifre romane; 0 resta 0.", True),
+    Regola("monete_romane", "Monete romane", 2, False, r_monete_romane,
+           "Le caselle valgono 1-2-5-10-20 (I, II, V, X, XX) e si sommano le nere; il totale è scritto in cifre romane; 0 resta 0.", True),
 ]}
 
 # Catalogo: (chiave regola, trabocchetto, livello, nome). Ordinato dal più facile al più difficile.
@@ -140,6 +233,10 @@ CATALOGO = [
     ("binario", None), ("ternario", None), ("estremi", None), ("primi", None),
     ("binario2", "specchio"), ("progressive", "capovolto"), ("somma_pos", "negativo"),
 ]
+# Seconda serie: dieci regole difficili senza trabocchetto, dalla più facile alla più difficile da intuire.
+CATALOGO_2 = [(k, None) for k in ("dispari_pari", "somma_quadrati", "inizio_lunghezza", "fattoriali", "monete_romane",
+                                   "somma_prodotto", "binario_romano", "gray", "prodotto_posti", "tre_misure")]
+TUTTE = CATALOGO + CATALOGO_2
 NOMI_TRABOCCHETTO = {"specchio": "specchio", "capovolto": "capovolto", "negativo": "negativo"}
 
 
@@ -283,10 +380,10 @@ def scegli_esempi(voce, escluse, catalogo=CATALOGO, minimo=None, usate=None):
 
 
 # --------------------------------------------------------------------------- blocco completo
-def crea_blocco(voce, lettera_bersaglio, parola_esclusa, usate=None):
+def crea_blocco(voce, lettera_bersaglio, parola_esclusa, usate=None, catalogo=CATALOGO):
     """Esempi risolti + griglia da risolvere (con caselle di partenza se serve) per una voce del catalogo."""
     base, trab = voce
-    esempi = scegli_esempi(voce, set(parola_esclusa) | {lettera_bersaglio}, usate=usate)
+    esempi = scegli_esempi(voce, set(parola_esclusa) | {lettera_bersaglio}, catalogo=catalogo, usate=usate)
     if usate is not None:
         for l in esempi:
             usate[l] = usate.get(l, 0) + 1
@@ -304,13 +401,19 @@ def crea_blocco(voce, lettera_bersaglio, parola_esclusa, usate=None):
     }
 
 
-def crea_catalogo(parola_demo="CASTELLO"):
-    """Un blocco per ogni voce del catalogo, dal più facile al più difficile; i bersagli sono le lettere della parola."""
-    voci = sorted(CATALOGO, key=lambda v: (livello_voce(v), CATALOGO.index(v)))
+def crea_catalogo(parola_demo="CASTELLO", voci=None, catalogo=CATALOGO):
+    """Un blocco per ogni voce, dal più facile al più difficile; i bersagli sono le lettere della parola (a rotazione).
+    `catalogo` = le voci da cui gli esempi devono saper distinguere la regola."""
+    voci = sorted(voci or CATALOGO, key=lambda v: (livello_voce(v), (voci or CATALOGO).index(v)))
     blocchi, usate = [], {}
     for i, voce in enumerate(voci):
-        blocchi.append(crea_blocco(voce, parola_demo[i % len(parola_demo)], parola_demo, usate))
+        blocchi.append(crea_blocco(voce, parola_demo[i % len(parola_demo)], parola_demo, usate, catalogo))
     return blocchi
+
+
+def crea_catalogo_2(parola_demo="PROFESSORE"):
+    """Seconda serie di regole (10 voci); gli esempi non devono valere per nessuna delle 22 regole."""
+    return crea_catalogo(parola_demo, CATALOGO_2, TUTTE)
 
 
 # --------------------------------------------------------------------------- enigma completo

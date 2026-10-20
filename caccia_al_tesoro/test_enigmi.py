@@ -823,6 +823,32 @@ class TestSchemaParole(unittest.TestCase):
             self.assertGreater(os.path.getsize(path), 3000)
 
 
+class TestPdfUnico(unittest.TestCase):
+    def test_otto_pagine_con_segnalibri(self):
+        import genera_pdf_unico as gu
+        from pypdf import PdfReader
+        with tempfile.TemporaryDirectory() as t:
+            parti = gu.crea_parti(t)
+            self.assertEqual(len(parti), 3)
+            out = os.path.join(t, "u.pdf")
+            self.assertEqual(gu.unisci(parti, out), 8)
+            r = PdfReader(out)
+            self.assertEqual(len(r.pages), 8)
+            titoli = [o.title for o in r.outline if not isinstance(o, list)]
+            self.assertEqual(len(titoli), 3)
+            testi = [p.extract_text().upper() for p in r.pages]
+            self.assertNotIn("PARCOGALLO", " ".join(testi[0].split()))   # labirinto, giocatori
+            self.assertIn("PARCO GALLO", testi[1] + " ".join(testi[1].split()))  # labirinto, soluzione
+            for i in (0, 1):
+                self.assertIn("REPERTO N° 6", testi[i])
+            for i in (2, 3, 4, 5):
+                pass
+            self.assertIn("REPERTO N° 9", testi[3])
+            self.assertIn("REPERTO N° 9", testi[5])
+            self.assertIn("REPERTO N° 11", testi[6])
+            self.assertIn("REPERTO N° 11", testi[7])
+
+
 class TestPdf(unittest.TestCase):
     def test_genera_pdf(self):
         with tempfile.TemporaryDirectory() as t:

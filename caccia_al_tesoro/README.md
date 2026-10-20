@@ -209,6 +209,13 @@ poliziotto, ascensore, prestiti, colpevole, dell'oca, parcheggio, ricrescita dei
 giovinezza) mostra, parola per parola, quale lettera viene da quale frase e il posto che occupa. Default: RITROVAMENTO,
 RICOMPENSATO, RICOMPENSARE. Le frasi sono in cima allo script (`FRASI`).
 
+## PDF unico con tre enigmi (giocatori + soluzione)
+
+`python genera_pdf_unico.py` scrive `enigmi_unico.pdf` (8 pagine, con segnalibri; serve `pip install pypdf`): per ogni enigma
+prima le pagine dei giocatori, poi quelle con la soluzione. 1) Il labirinto (PARCO GALLO, reperto 6, 2 pagine);
+2) il conteggio delle forme con il cifrario numero → parola (COLPEVOLE, reperto 9, 4 pagine); 3) i finti nonogrammi con le
+lettere (PARCHEGGIO, reperto 11, 2 pagine). Usa gli stessi dati di `config.py` degli script dei singoli enigmi.
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

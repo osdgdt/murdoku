@@ -202,6 +202,13 @@ del fascicolo, che non cambia).
 I reperti da segnare sul passaporto hanno un numero (in `config.py`): **6** il labirinto (PARCO GALLO / POLIZIOTTO),
 **9** il cifrario della plancia (COLPEVOLE: riquadro «REPERTO N° 9» sotto «LA PAROLA»), **11** l'enigma PARCHEGGIO.
 
+## Schema delle parole da 12 lettere (una lettera per frase)
+
+`python genera_schema_parole.py [parola ...]` scrive `schema_parole_finali.pdf` (una pagina): per 12 frasi (presidente,
+poliziotto, ascensore, prestiti, colpevole, dell'oca, parcheggio, ricrescita dei capelli, metabolismo, altezza, vita, eterna
+giovinezza) mostra, parola per parola, quale lettera viene da quale frase e il posto che occupa. Default: RITROVAMENTO,
+RICOMPENSATO, RICOMPENSARE. Le frasi sono in cima allo script (`FRASI`).
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

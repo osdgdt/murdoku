@@ -802,6 +802,27 @@ class TestLabirintoPagina(unittest.TestCase):
                 self.assertNotIn("ENIGMA", tg)
 
 
+class TestSchemaParole(unittest.TestCase):
+    def test_assegnazione_valida(self):
+        import genera_schema_parole as sp
+        for parola in sp.PAROLE:
+            match = sp.assegna(parola)
+            self.assertEqual(sorted(match), list(range(12)), "ogni posto della parola è usato una volta")
+            for j, i in enumerate(match):
+                self.assertIn(parola[i], sp.FRASI[j], f"{parola}: la lettera {parola[i]} è nella frase {j + 1}")
+
+    def test_errori_e_pdf(self):
+        import genera_schema_parole as sp
+        with self.assertRaises(ValueError):
+            sp.assegna("zzzzzzzzzzzz")
+        with self.assertRaises(ValueError):
+            sp.assegna("corto")
+        with tempfile.TemporaryDirectory() as t:
+            path = os.path.join(t, "s.pdf")
+            self.assertEqual(sp.scrivi(sp.PAROLE, path), 1)
+            self.assertGreater(os.path.getsize(path), 3000)
+
+
 class TestPdf(unittest.TestCase):
     def test_genera_pdf(self):
         with tempfile.TemporaryDirectory() as t:

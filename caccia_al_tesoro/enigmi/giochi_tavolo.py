@@ -226,9 +226,17 @@ def _monete(n, larg, alt, raggio, rng):
 MONETE_AREA = (130, 70, 6.2)  # larghezza, altezza, raggio della moneta
 
 
-def crea_scena(conteggi, rng):
+def crea_scena(conteggi, rng, area_monete=MONETE_AREA):
+    """Scena per i conteggi dati (un tipo di domanda diverso per ciascuno, scelto in base al numero)."""
     tipi = assegna_tipi(conteggi, rng)
-    quesiti = dict(zip(tipi, conteggi))  # tipo -> numero atteso
+    return costruisci_scena(list(zip(tipi, conteggi)), rng, area_monete)
+
+
+def costruisci_scena(quesiti_ordinati, rng, area_monete=MONETE_AREA):
+    """Scena dato un elenco ordinato di (tipo di domanda, risposta attesa), un tipo per domanda."""
+    tipi = [t for t, _ in quesiti_ordinati]
+    conteggi = [n for _, n in quesiti_ordinati]
+    quesiti = dict(quesiti_ordinati)  # tipo -> numero atteso
     # terreni
     celle = celle_isola()
     terreno_chiesto = rng.choice(TERRENI) if "terreno" in quesiti else None
@@ -258,7 +266,7 @@ def crea_scena(conteggi, rng):
     somma = quesiti.get("dadi", rng.randint(6, 15))
     dadi = _dadi_con_somma(somma, rng)
     n_monete = quesiti.get("monete", rng.randint(8, 16))
-    monete = _monete(n_monete, MONETE_AREA[0], MONETE_AREA[1], MONETE_AREA[2], rng)
+    monete = _monete(n_monete, area_monete[0], area_monete[1], area_monete[2], rng)
     k = quesiti.get("carte", rng.randint(2, 6))
     n_carte = min(14, max(k + 3, 8))
     carte = ["stella"] * k + [rng.choice(SIMBOLI_CARTE[1:]) for _ in range(n_carte - k)]

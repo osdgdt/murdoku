@@ -74,6 +74,27 @@ La scala di parole (enigma 2, soluzione MARE) è scritta a mano in `enigmi/parol
 
 Dopo ogni cambio lancia `python genera.py`: le soluzioni nei PDF si aggiornano da sole.
 
+## Plancia rifinita + mini enigma 10 (versione "da scatola", per la stampa in bianco e nero)
+
+Versione molto più curata dell'enigma 8, in due pagine seguite dal mini enigma 10 che trasforma il numero in parola:
+
+```bash
+python genera_plancia.py                  # punteggio e parola da config.py (50 -> MEEPLE)
+python genera_plancia.py 72 TESORO 7      # punteggio (19-85), parola (3-7 lettere), seme
+```
+
+Scrive `plancia_e_mini10.pdf` (2 pagine per i giocatori) e `plancia_e_mini10_soluzioni.pdf`.
+
+- **Pagina 1, "Serata giochi da tavolo":** isola di 19 esagoni con terreni illustrati (foresta, campi, colline, mare,
+  montagna), meeple di 4 stili, dadi, monete, carte e un rosone di triangoli, con cornice, striscione e ombre. Sei
+  domande: la **somma delle risposte è il punteggio finale**.
+- **Pagina 2, "Il codice del tesoro" (mini enigma 10):** il punteggio, le cifre sommate (chiave), i simboli Pigpen da
+  tradurre e l'alfabeto per tornare indietro della chiave: esce la parola.
+- **Soluzioni:** gli elementi contati sono cerchiati e numerati; sotto dadi, monete e rosone c'è il conteggio.
+- Il punteggio (`PUNTEGGIO_ENIGMA_8`) e la parola (`SOLUZIONI["forme"]`) sono in `config.py`; i sei conteggi sono
+  scelti dal programma con somma esatta (un tipo di domanda ciascuno, ognuno nel suo intervallo).
+- Tutto è in scala di grigi (verificato dai test) e usa solo font standard dei PDF.
+
 ## Mini enigmi di conversione (numero → parola)
 
 Se la soluzione di un enigma è un numero (per esempio il 50 della plancia, o il 43 delle vecchie forme), questi

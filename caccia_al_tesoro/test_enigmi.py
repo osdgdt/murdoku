@@ -15,6 +15,7 @@ import config
 import genera
 from enigmi import cifrari, deduzione, figure, giochi_tavolo, parole, visivi
 from enigmi import mini_conversioni as mini
+from enigmi import plancia_finale as pf
 from enigmi.alfabeto import ALFABETO, sposta
 
 DATI = {}
@@ -347,6 +348,60 @@ class TestMiniConversioni(unittest.TestCase):
                 path = os.path.join(t, f"m{int(sol)}.pdf")
                 genera_mini.scrivi(mini.crea_mini(43, "MEEPLE"), path, 43, "MEEPLE", sol)
                 self.assertGreater(os.path.getsize(path), 5000)
+
+
+class TestPlanciaFinale(unittest.TestCase):
+    def test_conteggi_con_somma_esatta(self):
+        iv = pf._intervalli()
+        for punteggio in (19, 35, 50, 72, 85):
+            with self.subTest(punteggio=punteggio):
+                c1 = pf.scegli_conteggi(punteggio, random.Random(3))
+                self.assertEqual(sum(c1.values()), punteggio)
+                self.assertEqual(list(c1), pf.ORDINE)
+                for tipo, n in c1.items():
+                    self.assertIn(n, iv[tipo])
+                self.assertEqual(c1, pf.scegli_conteggi(punteggio, random.Random(3)), "riproducibile dal seme")
+
+    def test_scena_e_codice(self):
+        for punteggio, parola, seme in ((50, "MEEPLE", 2026), (23, "DADO", 1), (85, "TESORO", 5), (64, "ZUCCA", 9)):
+            with self.subTest(punteggio=punteggio):
+                d = pf.crea_plancia_finale(punteggio, parola, seme)
+                risposte = giochi_tavolo.verifica_scena(d["scena"])
+                self.assertEqual(risposte, [d["conteggi"][t] for t in pf.ORDINE])
+                self.assertEqual(sum(risposte), punteggio)
+                self.assertEqual(d["chiave"], mini.somma_cifre(punteggio))
+                self.assertEqual(sposta(d["pigpen"], -d["chiave"]), parola)
+                self.assertEqual(len(set(m["cella"] for m in d["scena"]["meeple"])) > 0, True)
+                self.assertEqual(len(d["scena"]["monete"]), d["conteggi"]["monete"])
+
+    def test_errori(self):
+        for punteggio in (5, 18, 86, 200):
+            with self.assertRaises(ValueError):
+                pf.crea_plancia_finale(punteggio, "MEEPLE", 1)
+        for parola in ("JOLLY", "AB", "MEEPLE E"):
+            with self.assertRaises(ValueError):
+                pf.crea_plancia_finale(50, parola, 1)
+
+    def test_pdf_solo_grigi(self):
+        import shutil
+        import subprocess
+        import genera_plancia
+        d = pf.crea_plancia_finale(50, "MEEPLE", 2026)
+        with tempfile.TemporaryDirectory() as t:
+            for sol in (False, True):
+                path = os.path.join(t, f"x{int(sol)}.pdf")
+                genera_plancia.scrivi(d, path, sol)
+                self.assertGreater(os.path.getsize(path), 8000)
+                if shutil.which("pdftoppm"):
+                    prefisso = os.path.join(t, f"img{int(sol)}")
+                    subprocess.run(["pdftoppm", "-r", "40", "-png", path, prefisso], check=True)
+                    from PIL import Image, ImageChops
+                    immagini = [f for f in os.listdir(t) if f.startswith(f"img{int(sol)}") and f.endswith(".png")]
+                    self.assertEqual(len(immagini), 2)
+                    for nome in immagini:
+                        r, g, b = Image.open(os.path.join(t, nome)).convert("RGB").split()
+                        self.assertIsNone(ImageChops.difference(r, g).getbbox(), f"{nome}: pixel non grigi")
+                        self.assertIsNone(ImageChops.difference(g, b).getbbox(), f"{nome}: pixel non grigi")
 
 
 class TestPdf(unittest.TestCase):

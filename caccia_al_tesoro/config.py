@@ -40,3 +40,8 @@ SOLUZIONI = {
 # Uno tra: "tabella_a1", "tracciato", "griglia_esagonale", "carte", "classifica", "personaggi".
 # In varianti_enigma8.pdf trovi tutti e sei per confrontarli.
 METODO_ENIGMA_8 = "tracciato"
+
+# Punteggio finale della plancia "Serata giochi da tavolo" (genera_plancia.py): è la somma delle sei risposte
+# (tessere, meeple, dadi, monete, carte, triangoli) e il numero che il mini enigma 10 trasforma nella parola
+# SOLUZIONI["forme"]. Tra 19 e 85.
+PUNTEGGIO_ENIGMA_8 = 50

@@ -592,3 +592,129 @@ def anello_numerato(c, cx, cy, r, numero):
     c.setFillColor(white)
     c.setFont(FONT_B, 8)
     c.drawCentredString(bx, by - 2.8, str(numero))
+
+
+# --------------------------------------------------------------------------- biglietto "vai a destinazione"
+def puntina_mappa(c, cx, cy, h):
+    """Puntina da mappa (goccia con occhiello) alta h, con ombra al suolo. (cx, cy) = punta in basso."""
+    k = h / 32.0
+    c.saveState()
+    c.setFillColor(black)
+    c.setFillAlpha(0.22)
+    c.ellipse(cx - 9 * k, cy - 2.5 * k, cx + 9 * k, cy + 2.5 * k, stroke=0, fill=1)  # ombra al suolo
+    c.restoreState()
+
+    def goccia(dx=0.0, dy=0.0):
+        p = c.beginPath()
+        t = (cx + dx, cy + 2 * k + dy)
+        p.moveTo(*t)
+        p.curveTo(cx - 3 * k + dx, cy + 10 * k + dy, cx - 10 * k + dx, cy + 15 * k + dy, cx - 10 * k + dx, cy + 22 * k + dy)
+        p.curveTo(cx - 10 * k + dx, cy + 27.5 * k + dy, cx - 5.5 * k + dx, cy + 32 * k + dy, cx + dx, cy + 32 * k + dy)
+        p.curveTo(cx + 5.5 * k + dx, cy + 32 * k + dy, cx + 10 * k + dx, cy + 27.5 * k + dy, cx + 10 * k + dx, cy + 22 * k + dy)
+        p.curveTo(cx + 10 * k + dx, cy + 15 * k + dy, cx + 3 * k + dx, cy + 10 * k + dy, cx + dx, cy + 2 * k + dy)
+        p.close()
+        return p
+
+    _ombra(c, lambda: c.drawPath(goccia(), stroke=0, fill=1), 1.6, -1.2, 0.3)
+    c.setLineJoin(1)
+    c.setFillColor(gr(0.08))
+    c.setStrokeColor(white)
+    c.setLineWidth(1.4)
+    c.drawPath(goccia(), stroke=1, fill=1)
+    c.setFillColor(white)
+    c.circle(cx, cy + 22 * k, 4.2 * k, stroke=0, fill=1)
+    c.setStrokeColor(white)
+    c.setStrokeAlpha(0.55)
+    c.setLineWidth(1.0)
+    c.arc(cx - 7 * k, cy + 15 * k, cx + 7 * k, cy + 29 * k, 110, 55)  # riflesso
+    c.setStrokeAlpha(1)
+
+
+def _sagoma_biglietto(c, x, y, w, h, xp, nr=7, rc=8):
+    """Sagoma di un biglietto con due mezzelune tagliate in alto e in basso, sulla linea di strappo x = xp."""
+    p = c.beginPath()
+    p.moveTo(x + rc, y)
+    p.lineTo(xp - nr, y)
+    p.arcTo(xp - nr, y - nr, xp + nr, y + nr, 180, -180)
+    p.lineTo(x + w - rc, y)
+    p.arcTo(x + w - 2 * rc, y, x + w, y + 2 * rc, 270, 90)
+    p.lineTo(x + w, y + h - rc)
+    p.arcTo(x + w - 2 * rc, y + h - 2 * rc, x + w, y + h, 0, 90)
+    p.lineTo(xp + nr, y + h)
+    p.arcTo(xp - nr, y + h - nr, xp + nr, y + h + nr, 0, -180)
+    p.lineTo(x + rc, y + h)
+    p.arcTo(x, y + h - 2 * rc, x + 2 * rc, y + h, 90, 90)
+    p.lineTo(x, y + rc)
+    p.arcTo(x, y, x + 2 * rc, y + 2 * rc, 180, 90)
+    p.close()
+    return p
+
+
+def freccia_destra(c, x, y, lung, spessore=3.2):
+    """Freccia piena orizzontale che parte da (x, y) e va verso destra."""
+    c.setStrokeColor(gr(0.05))
+    c.setFillColor(gr(0.05))
+    c.setLineWidth(spessore)
+    c.setLineCap(1)
+    c.line(x, y, x + lung - 9, y)
+    c.setLineCap(0)
+    q = c.beginPath()
+    q.moveTo(x + lung, y)
+    q.lineTo(x + lung - 12, y + 7)
+    q.lineTo(x + lung - 12, y - 7)
+    q.close()
+    c.drawPath(q, stroke=0, fill=1)
+
+
+def biglietto_destinazione(c, x, y, w, h, intro, luogo, indirizzo):
+    """Biglietto da strappare con tagliando a sinistra (puntina da mappa) e testo a destra."""
+    ws = 76
+    xp = x + ws
+    sag = _sagoma_biglietto(c, x, y, w, h, xp)
+    _ombra(c, lambda: c.drawPath(_sagoma_biglietto(c, x, y, w, h, xp), stroke=0, fill=1), 2.4, -2.8, 0.26)
+    c.setFillColor(gr(0.97))
+    c.setStrokeColor(gr(0.06))
+    c.setLineWidth(1.9)
+    c.setLineJoin(1)
+    c.drawPath(sag, stroke=1, fill=1)
+    # filetto interno (separato per tagliando e corpo)
+    c.setStrokeColor(gr(0.5))
+    c.setLineWidth(0.6)
+    c.roundRect(x + 4, y + 4, ws - 12, h - 8, 5, stroke=1, fill=0)
+    c.roundRect(xp + 8, y + 4, w - ws - 12, h - 8, 5, stroke=1, fill=0)
+    # linea di strappo
+    c.setStrokeColor(gr(0.3))
+    c.setLineWidth(1.2)
+    c.setDash(3, 3)
+    c.line(xp, y + 9, xp, y + h - 9)
+    c.setDash()
+    # tagliando: percorso tratteggiato dalla X alla puntina
+    cx = x + ws / 2 + 2
+    c.setStrokeColor(gr(0.35))
+    c.setLineWidth(1.1)
+    c.setDash(2.2, 2.6)
+    p = c.beginPath()
+    p.moveTo(x + 12, y + 11)
+    p.curveTo(x + 22, y + 21, cx - 14, y + 7, cx - 2, y + 11)
+    c.drawPath(p, stroke=1, fill=0)
+    c.setDash()
+    c.setStrokeColor(gr(0.05))
+    c.setLineWidth(1.8)
+    c.line(x + 9, y + 8, x + 15, y + 14)
+    c.line(x + 9, y + 14, x + 15, y + 8)
+    puntina_mappa(c, cx + 2, y + 10, h - 20)
+    # corpo
+    xt = xp + 22
+    c.setFillColor(gr(0.25))
+    c.setFont(FONT_I, 10)
+    c.drawString(xt, y + h - 20, intro)
+    c.setFillColor(gr(0.05))
+    size = 20
+    while c.stringWidth(luogo, TITOLO_FONT, size) > 150 and size > 12:
+        size -= 1
+    c.setFont(TITOLO_FONT, size)
+    c.drawString(xt, y + 14, luogo)
+    xa = xt + c.stringWidth(luogo, TITOLO_FONT, size) + 12
+    freccia_destra(c, xa, y + 14 + size * 0.3, 34)
+    c.setFont(FONT_B, 14)
+    c.drawString(xa + 34 + 12, y + 15, indirizzo)

@@ -45,3 +45,9 @@ METODO_ENIGMA_8 = "tracciato"
 # (tessere, meeple, dadi, monete, carte, triangoli) e il numero che il mini enigma 10 trasforma nella parola
 # SOLUZIONI["forme"]. Tra 19 e 85.
 PUNTEGGIO_ENIGMA_8 = 50
+
+# Biglietto "se non riesci a risolvere l'enigma" in fondo alle pagine di plancia_e_mini10.pdf
+# (non compare nelle soluzioni). Lascia AIUTO_LUOGO vuoto ("") per non disegnarlo.
+AIUTO_INTRO = "Se non riesci a risolvere l'enigma, vai a"
+AIUTO_LUOGO = "Desteenazione"
+AIUTO_INDIRIZZO = "Via Livorno 7, Brescia"

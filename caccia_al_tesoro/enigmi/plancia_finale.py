@@ -78,35 +78,23 @@ def crea_plancia_finale(punteggio, parola, seed):
 
 
 # --------------------------------------------------------------------------- pezzi di pagina
-def _testata(c, tag, livello, titolo):
-    """Cornice, etichetta, stelle di difficoltà e striscione con il titolo."""
+DY = 16  # senza etichetta e difficoltà in alto, tutto il contenuto sale di 16 pt
+H_BIGLIETTO = 58
+
+
+def _testata(c, titolo):
+    """Cornice e striscione con il titolo (nessuna etichetta del numero né difficoltà)."""
     G.cornice_pagina(c, W, H)
-    G.pillola(c, 44, 796, 128, 20, tag, 10)
-    c.setFillColor(black)
-    c.setFont(G.FONT_B, 10.5)
-    nome = {1: "FACILE", 2: "MEDIO", 3: "DIFFICILE"}[livello]
-    c.drawRightString(W - 44, 802, nome)
-    larg = c.stringWidth(nome, G.FONT_B, 10.5)
-    for k in range(livello):
-        _stella(c, W - 44 - larg - 14 - k * 17, 806, 7)
+    c.saveState()
+    c.translate(0, DY)
     G.striscione(c, W / 2, 766, 392, 46, titolo, 27)
+    c.restoreState()
 
 
-def _stella(c, cx, cy, r):
-    c.setFillColor(black)
-    c.setStrokeColor(black)
-    c.setLineWidth(0.6)
-    c.drawPath(_percorso_stella(c, cx, cy, r), stroke=1, fill=1)
-
-
-def _percorso_stella(c, cx, cy, r):
-    p = c.beginPath()
-    pts = G._stella_pts(cx, cy, r)
-    p.moveTo(*pts[0])
-    for q in pts[1:]:
-        p.lineTo(*q)
-    p.close()
-    return p
+def _biglietto(c, aiuto):
+    """Biglietto "vai a destinazione" in fondo alla pagina (solo per i giocatori)."""
+    if aiuto:
+        G.biglietto_destinazione(c, 44, 40, W - 88, H_BIGLIETTO, aiuto["intro"], aiuto["luogo"], aiuto["indirizzo"])
 
 
 def _paragrafo(c, testo, x, y_alto, larghezza, size=10.5, leading=13.6, font=G.FONT):
@@ -311,7 +299,9 @@ def _fascia_punteggio(c, d, x, y, w, h, soluzione):
 def pagina_plancia(c, d, soluzione=False):
     scena = d["scena"]
     c.setTitle("Serata giochi da tavolo")
-    _testata(c, "ENIGMA N° 8", 2, "SERATA GIOCHI DA TAVOLO")
+    _testata(c, "SERATA GIOCHI DA TAVOLO")
+    c.saveState()
+    c.translate(0, DY)
     # consegna
     G.cartiglio(c, 44, 662, W - 88, 66)
     _paragrafo(c, "La partita è rimasta a metà! Conta i pezzi sulla plancia e rispondi alle sei domande della scheda: "
@@ -334,9 +324,8 @@ def pagina_plancia(c, d, soluzione=False):
     if soluzione:
         _evidenzia(c, scena, isola, r, vass)
     _fascia_punteggio(c, d, 44, y_vass - 14 - 92, W - 88, 92, soluzione)
-    c.setFillColor(GR(0.35))
-    c.setFont(G.FONT_I, 8.5)
-    c.drawCentredString(W / 2, 40, "Segui la freccia: il punteggio finale ti aspetta nel mini enigma 10  >>")
+    c.restoreState()
+    _biglietto(c, None if soluzione else d.get("aiuto"))
     c.showPage()
 
 
@@ -382,44 +371,50 @@ def pagina_mini10(c, d, soluzione=False):
     n = len(parola)
     spec = _specifiche_pigpen()
     c.setTitle("Il codice del tesoro")
-    _testata(c, "MINI ENIGMA N° 10", 3, "IL CODICE DEL TESORO")
-    G.cartiglio(c, 44, 646, W - 88, 82)
+    _testata(c, "IL CODICE DEL TESORO")
+    c.saveState()
+    c.translate(0, DY)
+    # altezze dall'alto: consegna, passo 1, passo 2, passo 3, parola
+    h_c, h1, h2, h3, hp, gap = 66, 70, 200, 162, 64, 10
+    top = 728
+    yc = top - h_c
+    G.cartiglio(c, 44, yc, W - 88, h_c)
     _paragrafo(c, "Due cifrari in uno. PASSO 1: somma le cifre del tuo punteggio finale: è la CHIAVE. PASSO 2: traduci "
                   "ogni simbolo con la chiave Pigpen (attenzione ai puntini!). PASSO 3: le lettere che ottieni sono "
                   "state spostate AVANTI di CHIAVE posti nell'alfabeto: torna INDIETRO di tanti posti, lettera per "
                   "lettera, e leggi la parola." if not soluzione else
                f"SOLUZIONE (riservata all'organizzatore). Punteggio {d['punteggio']}: le cifre sommano {s}. I simboli dicono "
                f"{pig}; tornando indietro di {s} posti nell'alfabeto si legge {parola}.",
-               58, 724, W - 116, size=10.2, leading=13.4)
+               58, top - 4, W - 116, size=10.2, leading=13.4)
 
     # PASSO 1
-    y1 = 556
-    G.cartiglio(c, 44, y1, W - 88, 80, "PASSO 1 · LA CHIAVE")
+    y1 = yc - gap - h1
+    G.cartiglio(c, 44, y1, W - 88, h1, "PASSO 1 · LA CHIAVE")
     ds = [int(ch) for ch in str(d["punteggio"])]
     x = 64
     c.setFillColor(black)
     c.setFont(G.FONT_B, 10)
-    c.drawString(x, y1 + 30, "Il tuo punteggio finale")
-    _casella(c, x + 124, y1 + 18, 64, 38, d["punteggio"] if soluzione else None, size=22, raggio=7, spessore=2)
+    c.drawString(x, y1 + 24, "Il tuo punteggio finale")
+    _casella(c, x + 124, y1 + 10, 64, 38, d["punteggio"] if soluzione else None, size=22, raggio=7, spessore=2)
     c.setFont(G.FONT_B, 10)
-    c.drawString(x + 206, y1 + 30, "le sue cifre")
+    c.drawString(x + 206, y1 + 24, "le sue cifre")
     for k in range(2):
-        _casella(c, x + 276 + k * 50, y1 + 22, 34, 30, ds[k] if (soluzione and k < len(ds)) else None, size=17)
+        _casella(c, x + 276 + k * 50, y1 + 14, 34, 30, ds[k] if (soluzione and k < len(ds)) else None, size=17)
         if k == 0:
             c.setFont(G.FONT_B, 16)
-            c.drawCentredString(x + 276 + 42, y1 + 31, "+")
+            c.drawCentredString(x + 276 + 42, y1 + 23, "+")
     c.setFont(G.FONT_B, 16)
-    c.drawCentredString(x + 276 + 100 + 10, y1 + 31, "=")
+    c.drawCentredString(x + 276 + 100 + 10, y1 + 23, "=")
     c.setFont(G.FONT_B, 10)
-    c.drawString(x + 400, y1 + 40, "CHIAVE")
-    _casella(c, x + 400, y1 + 14, 54, 22, s if soluzione else None, size=16, raggio=7, spessore=2.2, fill=0.85)
+    c.drawString(x + 400, y1 + 36, "CHIAVE")
+    _casella(c, x + 400, y1 + 9, 54, 22, s if soluzione else None, size=16, raggio=7, spessore=2.2, fill=0.85)
 
     # PASSO 2
-    y2 = 332
-    G.cartiglio(c, 44, y2, W - 88, 214, "PASSO 2 · TRADUCI I SIMBOLI")
+    y2 = y1 - gap - h2
+    G.cartiglio(c, 44, y2, W - 88, h2, "PASSO 2 · TRADUCI I SIMBOLI")
     lato = 64
     gx = 64
-    gy = y2 + 214 - 36 - lato
+    gy = y2 + h2 - 34 - lato
     G.panno(c, gx - 10, gy - 10, 3 * lato + 2 * 20 + 20, lato + 20, raggio=8)
     _chiave_griglia(c, gx, gy, lato, False, ALFABETO[:9])
     _chiave_griglia(c, gx + lato + 20, gy, lato, True, ALFABETO[9:18])
@@ -431,23 +426,23 @@ def pagina_mini10(c, d, soluzione=False):
     # gettoni con i simboli
     passo = min(66, (W - 88 - 40) / n)
     x_inizio = W / 2 - (n - 1) * passo / 2
-    yt = y2 + 72
+    yt = y2 + 64
     for i, ch in enumerate(pig):
         xx = x_inizio + i * passo
-        G.gettone_esagonale(c, xx, yt, 25)
-        _simbolo_pigpen(c, spec[ch], xx, yt, 27)
-        _casella(c, xx - 15, y2 + 12, 30, 30, ch if soluzione else None, size=17, spessore=1.5)
+        G.gettone_esagonale(c, xx, yt, 23)
+        _simbolo_pigpen(c, spec[ch], xx, yt, 25)
+        _casella(c, xx - 15, y2 + 8, 30, 30, ch if soluzione else None, size=17, spessore=1.5)
     c.setFillColor(black)
     c.setFont(G.FONT_B, 8)
-    c.drawString(60, y2 + 20, "LETTERA")
-    c.drawString(60, y2 + 10, "PIGPEN")
+    c.drawString(60, y2 + 18, "LETTERA")
+    c.drawString(60, y2 + 8, "PIGPEN")
 
     # PASSO 3
-    y3 = 144
-    G.cartiglio(c, 44, y3, W - 88, 178, "PASSO 3 · TORNA INDIETRO")
+    y3 = y2 - gap - h3
+    G.cartiglio(c, 44, y3, W - 88, h3, "PASSO 3 · TORNA INDIETRO")
     sx = 59
     sw = W - 118
-    ys = y3 + 120
+    ys = y3 + h3 - 36 - 28
     cw = sw / N_LETTERE
     # esempio con chiave 3: F -> C
     _striscia_alfabeto(c, sx, ys, sw, evid=ALFABETO.index("F"), grigi=ALFABETO.index("C"))
@@ -463,16 +458,19 @@ def pagina_mini10(c, d, soluzione=False):
     for i in range(n):
         xx = x_inizio + i * passo
         _casella(c, xx - 17, y3 + 16, 34, 38, parola[i] if soluzione else None, size=21, raggio=6, spessore=1.8, fill=0.85)
+
     # LA PAROLA
-    yp = 62
-    G.cartiglio(c, 44, yp, W - 88, 70, fill=0.92)
+    yp = y3 - gap - hp
+    G.cartiglio(c, 44, yp, W - 88, hp, fill=0.92)
     c.setFillColor(black)
     c.setFont(G.TITOLO_FONT, 19)
-    c.drawString(62, yp + 28, "LA PAROLA")
+    c.drawString(62, yp + 26, "LA PAROLA")
     lat = 36
-    gap = 7
-    x0 = W - 62 - n * (lat + gap) + gap
+    gap_l = 7
+    x0 = W - 62 - n * (lat + gap_l) + gap_l
     x0 = max(x0, 200)
     for i in range(n):
-        _casella(c, x0 + i * (lat + gap), yp + 17, lat, lat, parola[i] if soluzione else None, size=22, raggio=6, spessore=2.0)
+        _casella(c, x0 + i * (lat + gap_l), yp + 14, lat, lat, parola[i] if soluzione else None, size=22, raggio=6, spessore=2.0)
+    c.restoreState()
+    _biglietto(c, None if soluzione else d.get("aiuto"))
     c.showPage()

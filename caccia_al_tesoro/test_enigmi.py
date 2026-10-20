@@ -382,6 +382,40 @@ class TestPlanciaFinale(unittest.TestCase):
             with self.assertRaises(ValueError):
                 pf.crea_plancia_finale(50, parola, 1)
 
+    def test_niente_numero_e_difficolta_e_biglietto(self):
+        import shutil
+        import subprocess
+        import genera_plancia
+        if not shutil.which("pdftotext"):
+            self.skipTest("pdftotext non disponibile")
+        d = pf.crea_plancia_finale(50, "MEEPLE", 2026)
+        aiuto = genera_plancia.aiuto_da_config()
+        self.assertEqual(aiuto["luogo"], "Desteenazione")
+        self.assertEqual(aiuto["indirizzo"], "Via Livorno 7, Brescia")
+
+        def testo(path, pagina):
+            return subprocess.run(["pdftotext", "-f", str(pagina), "-l", str(pagina), path, "-"],
+                                  capture_output=True, text=True, check=True).stdout
+
+        with tempfile.TemporaryDirectory() as t:
+            giocatori, soluzioni, senza = (os.path.join(t, n) for n in ("g.pdf", "s.pdf", "n.pdf"))
+            genera_plancia.scrivi(d, giocatori, False, aiuto)
+            genera_plancia.scrivi(d, soluzioni, True, aiuto)
+            genera_plancia.scrivi(d, senza, False, None)
+            vietate = ("ENIGMA N", "MINI ENIGMA", "MEDIO", "DIFFICILE", "FACILE")
+            for path in (giocatori, soluzioni, senza):
+                for pagina in (1, 2):
+                    tx = testo(path, pagina)
+                    for v in vietate:
+                        self.assertNotIn(v, tx, f"{os.path.basename(path)} pag. {pagina}: '{v}'")
+            for pagina in (1, 2):
+                tx = testo(giocatori, pagina)
+                self.assertIn("Desteenazione", tx)
+                self.assertIn("Via Livorno 7, Brescia", tx)
+                self.assertIn("Se non riesci a risolvere l'enigma, vai a", tx)
+                for path in (soluzioni, senza):
+                    self.assertNotIn("Via Livorno", testo(path, pagina), "il biglietto non va nelle soluzioni")
+
     def test_pdf_solo_grigi(self):
         import shutil
         import subprocess
@@ -390,7 +424,7 @@ class TestPlanciaFinale(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             for sol in (False, True):
                 path = os.path.join(t, f"x{int(sol)}.pdf")
-                genera_plancia.scrivi(d, path, sol)
+                genera_plancia.scrivi(d, path, sol, genera_plancia.aiuto_da_config())
                 self.assertGreater(os.path.getsize(path), 8000)
                 if shutil.which("pdftoppm"):
                     prefisso = os.path.join(t, f"img{int(sol)}")

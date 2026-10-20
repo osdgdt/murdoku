@@ -19,7 +19,21 @@ from enigmi.plancia_finale import crea_plancia_finale, pagina_mini10, pagina_pla
 QUI = os.path.dirname(os.path.abspath(__file__))
 
 
-def scrivi(d, percorso, soluzione):
+def aiuto_da_config():
+    """Testi del biglietto "vai a destinazione" (None se AIUTO_LUOGO è vuoto)."""
+    luogo = getattr(config, "AIUTO_LUOGO", "")
+    if not luogo:
+        return None
+    return {
+        "intro": getattr(config, "AIUTO_INTRO", ""),
+        "luogo": luogo,
+        "indirizzo": getattr(config, "AIUTO_INDIRIZZO", ""),
+    }
+
+
+def scrivi(d, percorso, soluzione, aiuto=None):
+    """Due pagine; il biglietto con l'indirizzo c'è solo nelle pagine dei giocatori."""
+    d = dict(d, aiuto=None if soluzione else aiuto)
     c = canvas.Canvas(percorso, pagesize=A4)
     c.setTitle("Serata giochi da tavolo e codice del tesoro" + (" - Soluzioni" if soluzione else ""))
     c.setAuthor("Caccia al tesoro")
@@ -35,7 +49,7 @@ def main():
     d = crea_plancia_finale(punteggio, parola, seme)
     f = os.path.join(QUI, "plancia_e_mini10.pdf")
     s = os.path.join(QUI, "plancia_e_mini10_soluzioni.pdf")
-    scrivi(d, f, False)
+    scrivi(d, f, False, aiuto_da_config())
     scrivi(d, s, True)
     print(f"Punteggio finale {punteggio} -> parola {parola}\n  {f}\n  {s}\n")
     print("  Risposte: " + ", ".join(f"{t} {n}" for t, n in d["conteggi"].items()) + f"  (somma {sum(d['conteggi'].values())})")

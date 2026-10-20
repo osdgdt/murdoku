@@ -227,16 +227,15 @@ REGOLE = {r.chiave: r for r in [
            "Le caselle valgono 1-2-5-10-20 (I, II, V, X, XX) e si sommano le nere; il totale è scritto in cifre romane; 0 resta 0.", True),
 ]}
 
-# Catalogo: (chiave regola, trabocchetto, livello, nome). Ordinato dal più facile al più difficile.
+# Pool delle 22 regole: (chiave regola, trabocchetto). Ordinato dalla più facile alla più difficile da intuire:
+# prima le 5 medie, poi le difficili (alcune con trabocchetto: specchio, capovolto, negativo).
 CATALOGO = [
     ("salti", None), ("binario2", None), ("progressive", None), ("somma_pos", None), ("conteggio", None),
-    ("binario", None), ("ternario", None), ("estremi", None), ("primi", None),
-    ("binario2", "specchio"), ("progressive", "capovolto"), ("somma_pos", "negativo"),
+    ("dispari_pari", None), ("somma_quadrati", None), ("binario", None), ("inizio_lunghezza", None),
+    ("ternario", None), ("fattoriali", None), ("estremi", None), ("monete_romane", None), ("somma_prodotto", None),
+    ("primi", None), ("binario2", "specchio"), ("binario_romano", None), ("progressive", "capovolto"),
+    ("gray", None), ("somma_pos", "negativo"), ("prodotto_posti", None), ("tre_misure", None),
 ]
-# Seconda serie: dieci regole difficili senza trabocchetto, dalla più facile alla più difficile da intuire.
-CATALOGO_2 = [(k, None) for k in ("dispari_pari", "somma_quadrati", "inizio_lunghezza", "fattoriali", "monete_romane",
-                                   "somma_prodotto", "binario_romano", "gray", "prodotto_posti", "tre_misure")]
-TUTTE = CATALOGO + CATALOGO_2
 NOMI_TRABOCCHETTO = {"specchio": "specchio", "capovolto": "capovolto", "negativo": "negativo"}
 
 
@@ -402,18 +401,13 @@ def crea_blocco(voce, lettera_bersaglio, parola_esclusa, usate=None, catalogo=CA
 
 
 def crea_catalogo(parola_demo="CASTELLO", voci=None, catalogo=CATALOGO):
-    """Un blocco per ogni voce, dal più facile al più difficile; i bersagli sono le lettere della parola (a rotazione).
-    `catalogo` = le voci da cui gli esempi devono saper distinguere la regola."""
-    voci = sorted(voci or CATALOGO, key=lambda v: (livello_voce(v), (voci or CATALOGO).index(v)))
+    """Un blocco per ogni voce (nell'ordine del pool: dal più facile al più difficile); i bersagli sono le lettere
+    della parola, a rotazione. `catalogo` = le voci da cui gli esempi devono saper distinguere la regola."""
+    voci = list(voci or CATALOGO)
     blocchi, usate = [], {}
     for i, voce in enumerate(voci):
         blocchi.append(crea_blocco(voce, parola_demo[i % len(parola_demo)], parola_demo, usate, catalogo))
     return blocchi
-
-
-def crea_catalogo_2(parola_demo="PROFESSORE"):
-    """Seconda serie di regole (10 voci); gli esempi non devono valere per nessuna delle 22 regole."""
-    return crea_catalogo(parola_demo, CATALOGO_2, TUTTE)
 
 
 # --------------------------------------------------------------------------- enigma completo
@@ -426,9 +420,9 @@ def verifica_unica(blocco):
 
 
 def scegli_voci(quante):
-    """Le voci del catalogo da usare per una parola di `quante` lettere: tutte se sono 12, altrimenti quelle
-    distribuite in modo regolare dal più facile al più difficile (la prima e l'ultima ci sono sempre)."""
-    voci = sorted(CATALOGO, key=lambda v: (livello_voce(v), CATALOGO.index(v)))
+    """Le voci del pool da usare per una parola di `quante` lettere: tutte se sono 22, altrimenti quelle distribuite
+    in modo regolare dalla più facile alla più difficile (la prima e l'ultima ci sono sempre)."""
+    voci = list(CATALOGO)
     if not 1 <= quante <= len(voci):
         raise ValueError(f"La parola deve avere da 1 a {len(voci)} lettere (una regola diversa per lettera)")
     if quante == len(voci):
@@ -447,7 +441,11 @@ def crea_enigma(parola):
     voci = scegli_voci(len(lettere))
     usate, blocchi = {}, []
     for voce, lettera in zip(voci, lettere):
-        b = crea_blocco(voce, lettera, lettere, usate)
+        try:
+            b = crea_blocco(voce, lettera, lettere, usate)
+        except RuntimeError:
+            raise ValueError(f"Con '{parola}' restano troppo poche lettere libere per gli esempi della regola "
+                             f"{nome_voce(voce)}: usa una parola con meno lettere diverse") from None
         assert verifica_unica(b), f"soluzione non unica per {voce} / {lettera}"
         blocchi.append(b)
     return blocchi

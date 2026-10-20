@@ -485,7 +485,7 @@ class TestCodici(unittest.TestCase):
         self.assertEqual((r[0], r[4]), ((2, 0), (3, 7)))
 
     def test_catalogo_blocchi(self):
-        self.assertEqual(len(self.blocchi), 12)
+        self.assertEqual(len(self.blocchi), 22)
         livelli = [cod.livello_voce(b["voce"]) for b in self.blocchi]
         self.assertEqual(livelli, sorted(livelli), "dal più facile al più difficile")
         usate = set()
@@ -519,7 +519,8 @@ class TestCodici(unittest.TestCase):
             if shutil.which("pdftotext"):
                 tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
                 ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
-                for nome in ("SALTI", "BINARIO", "SOMME PROGRESSIVE", "ESTREMI", "POTENZE DI 3", "PRODOTTI"):
+                for nome in ("SALTI", "BINARIO", "SOMME PROGRESSIVE", "ESTREMI", "POTENZE DI 3", "PRODOTTI", "FATTORIALI",
+                             "CODICE GRAY", "MONETE ROMANE", "TRE MISURE", "DISPARI E PARI"):
                     self.assertNotIn(nome, tg, "il PDF dei giocatori non rivela le regole")
                     self.assertIn(nome, ts)
 
@@ -562,7 +563,7 @@ class TestEnigmaCodici(unittest.TestCase):
             self.assertEqual(len(blocchi), len(parola))
             self.assertEqual(len({b["voce"] for b in blocchi}), len(parola))
         with self.assertRaises(ValueError):
-            cod.crea_enigma("NASCONDIGLIOOO")
+            cod.crea_enigma("A" * 23)
 
     def test_pdf_enigma(self):
         import shutil
@@ -578,65 +579,57 @@ class TestEnigmaCodici(unittest.TestCase):
                 ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
                 self.assertIn("PROFESSORESSA", tg)
                 self.assertIn("CODICE 12", tg)
-                for nome in ("SALTI", "BINARIO", "SOMME PROGRESSIVE", "ESTREMI", "POTENZE DI 3", "PRODOTTI", "NEGATIVO"):
+                for b in blocchi:
+                    nome = cod.nome_voce(b["voce"]).upper()
                     self.assertNotIn(nome, tg, "il PDF dei giocatori non rivela le regole")
                     self.assertIn(nome, ts, "la versione per gli spiegatori spiega ogni regola")
 
 
-class TestCodici2(unittest.TestCase):
-    """Seconda serie: 10 regole difficili, senza trabocchetti, anche con cifre romane."""
+class TestPoolCodici(unittest.TestCase):
+    """Pool unico di 22 regole (12 della prima serie + 10 difficili della seconda)."""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.blocchi = cod.crea_catalogo_2("PROFESSORE")
-
-    def test_dieci_regole_distinte_e_difficili(self):
-        self.assertEqual(len(cod.CATALOGO_2), 10)
-        self.assertEqual(len({v for v in cod.CATALOGO_2}), 10)
-        self.assertFalse({v for v in cod.CATALOGO_2} & {v for v in cod.CATALOGO})
-        for voce in cod.CATALOGO_2:
-            self.assertIsNone(voce[1])
-            self.assertEqual(cod.livello_voce(voce), 2)
-        self.assertEqual(len(self.blocchi), 10)
+    def test_pool(self):
+        self.assertEqual(len(cod.CATALOGO), 22)
+        self.assertEqual(len(set(cod.CATALOGO)), 22)
+        livelli = [cod.livello_voce(v) for v in cod.CATALOGO]
+        self.assertEqual(livelli, sorted(livelli), "ordinato dal più facile al più difficile")
+        self.assertEqual(livelli.count(1), 5)
+        self.assertEqual(len([v for v in cod.CATALOGO if v[1]]), 3)
 
     def test_romani(self):
         for n, r in ((0, "0"), (4, "IV"), (9, "IX"), (19, "XIX"), (31, "XXXI"), (38, "XXXVIII"), (144, "CXLIV")):
             self.assertEqual(cod._romano(n), r)
 
-    def test_soluzione_unica_forza_bruta(self):
-        for voce in cod.CATALOGO_2:
+    def test_caselle_di_partenza_al_massimo_quattro(self):
+        for voce in cod.CATALOGO:
             for lettera in ALFABETO:
-                self.assertEqual(TestEnigmaCodici.conta_forza_bruta(voce, lettera), 1, (voce, lettera))
                 self.assertLessEqual(len(cod.crea_hint(cod.pattern_voce(lettera, voce), voce[0])), 4, (voce, lettera))
 
-    def test_blocchi(self):
-        for b in self.blocchi:
+    def test_enigma_ventidue_lettere_usa_tutte_le_regole(self):
+        parola = "ABBABBABBABBABBABBABBA"
+        blocchi = cod.crea_enigma(parola)
+        self.assertEqual([b["voce"] for b in blocchi], cod.CATALOGO)
+        self.assertEqual("".join(b["bersaglio"]["lettera"] for b in blocchi), parola)
+        for b in blocchi:
             self.assertTrue(cod.verifica_unica(b))
-            self.assertIn(len(b["esempi"]), (1, 2))
             for e in b["esempi"]:
-                self.assertNotIn(e["lettera"], "PROFESSORE")
-                self.assertNotEqual(e["lettera"], b["bersaglio"]["lettera"])
-                self.assertTrue(cod.esempi_validi(b["voce"], [x["lettera"] for x in b["esempi"]], cod.TUTTE))
+                self.assertTrue(set(e["lettera"]).isdisjoint(set(parola)))
 
-    def test_vecchio_catalogo_invariato(self):
-        """Aggiungere la seconda serie non cambia gli esempi del primo catalogo."""
-        a = cod.crea_catalogo("CASTELLO")
-        self.assertEqual([[e["lettera"] for e in b["esempi"]] for b in a][:3], [["G"], ["R"], ["Q"]])
+    def test_troppe_lettere_diverse_dicono_errore(self):
+        with self.assertRaises(ValueError):
+            cod.crea_enigma(ALFABETO)  # 21 lettere diverse: nessuna lettera libera per gli esempi
+        with self.assertRaises(ValueError):
+            cod.crea_enigma(ALFABETO + "AAA")  # 24 lettere
 
-    def test_pdf_seconda_serie(self):
-        import shutil
-        import subprocess
-        from enigmi import dossier_codici
+    def test_pdf_enigma_ventidue(self):
+        from enigmi import dossier_enigma
+        parola = "ABBABBABBABBABBABBABBA"
+        blocchi = cod.crea_enigma(parola)
         with tempfile.TemporaryDirectory() as t:
-            g, s = os.path.join(t, "g.pdf"), os.path.join(t, "s.pdf")
-            dossier_codici.scrivi_catalogo(self.blocchi, g, False, "SECONDA SERIE DI REGOLE")
-            dossier_codici.scrivi_catalogo(self.blocchi, s, True, "SECONDA SERIE DI REGOLE")
-            if shutil.which("pdftotext"):
-                tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
-                ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
-                for nome in ("FATTORIALI", "CODICE GRAY", "MONETE ROMANE", "BINARIO ROMANO", "TRE MISURE", "DISPARI E PARI"):
-                    self.assertNotIn(nome, tg)
-                    self.assertIn(nome, ts)
+            for sol in (False, True):
+                path = os.path.join(t, f"x{int(sol)}.pdf")
+                dossier_enigma.scrivi_enigma(blocchi, parola, path, sol)
+                self.assertGreater(os.path.getsize(path), 5000)
 
 
 class TestPdf(unittest.TestCase):

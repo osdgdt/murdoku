@@ -132,51 +132,36 @@ per vari numeri e parole.
 
 Una professoressa è stata rapita e ha lasciato i suoi codici per farsi trovare: una mini griglia 5×5 per ogni lettera
 della parola finale. I numeri attorno alla griglia NON sono quelli dei nonogrammi: seguono una regola da scoprire
-guardando 1-2 esempi già risolti. Ogni lettera ha una regola diversa; i blocchi vanno dal più facile al più difficile.
+guardando 1-2 esempi già risolti. Ogni lettera ha una regola diversa, presa da un **pool unico di 22 regole**; i blocchi
+vanno dal più facile al più difficile.
 
 ```bash
-python genera_codici.py              # parola NASCONDIGLIO (12 lettere = le 12 regole)
-python genera_codici.py SOLE         # da 1 a 12 lettere: usa regole distribuite dalla più facile alla più difficile
+python genera_codici.py              # parola NASCONDIGLIO (12 lettere: 12 regole del pool, a distanza regolare)
+python genera_codici.py SOLE         # da 1 a 22 lettere; con 22 lettere si usano tutte le regole
 ```
 
 Scrive:
 
 - `codici_professoressa.pdf`: pagine dei giocatori (storia, frase d'aiuto generale, griglie, riquadro risposta con una casellina per lettera). Non dice quali regole ci sono.
 - `codici_professoressa_spiegatori.pdf`: gli stessi blocchi risolti, con sotto ognuno un riquadro che spiega la regola (e l'eventuale trabocchetto), e la parola nelle caselline.
-- `catalogo_regole.pdf` / `catalogo_regole_soluzioni.pdf`: anteprima di tutte le 12 regole con bersagli dalla parola CASTELLO.
+- `catalogo_regole.pdf` / `catalogo_regole_soluzioni.pdf`: anteprima di tutte le 22 regole (8 pagine) con bersagli dalla parola CASTELLO.
 
-Le 12 regole (`CATALOGO` in `enigmi/codici.py`): Salti, Binario a due metà, Somme progressive, Somma delle posizioni,
-Quante nere e l'ultima, Binario intero, Potenze di 3, Estremi, Prodotti di numeri primi, e tre con trabocchetto
-(Binario a due metà + specchio, Somme progressive + capovolto, Somma delle posizioni + negativo).
+Il pool (`CATALOGO` in `enigmi/codici.py`, nell'ordine di difficoltà): Salti, Binario a due metà, Somme progressive, Somma delle
+posizioni, Quante nere e l'ultima (medie); poi, difficili: Dispari e pari, Quadrati e conteggio, Binario intero, Inizio e
+lunghezza, Potenze di 3, Fattoriali, Estremi, Monete romane, Somma e prodotto, Prodotti di numeri primi, Binario a due metà +
+specchio, Binario romano, Somme progressive + capovolto, Codice Gray, Somma delle posizioni + negativo, Prodotto dei posti,
+Tre misure. Tre hanno un trabocchetto sulla lettera (specchio, capovolto, negativo); due scrivono i numeri in cifre romane
+(se un numero di colonna è troppo largo, le colonne vicine vengono alzate di un livello).
 
-**Verifica:** per ognuna delle 12 regole e per tutte le 21 lettere la griglia da risolvere ha una sola soluzione, controllata
+**Lunghezza della parola:** da 1 a 22 lettere dell'alfabeto italiano. Gli esempi usano lettere che NON sono nella parola,
+quindi servono lettere libere: con troppe lettere diverse nella parola il programma si ferma con un errore chiaro.
+
+**Verifica:** per ognuna delle 22 regole e per tutte le 21 lettere la griglia da risolvere ha una sola soluzione, controllata
 con una forza bruta indipendente dal solver (righe candidate dalla funzione della regola, colonne ricalcolate a mano). Le
-regole "a incrocio" hanno al massimo 4 caselle di partenza (puntino bianco = già nera, crocetta = già vuota): 4 nella somma delle
-posizioni, 2 in "quante nere e l'ultima" e nel negativo. Gli esempi sono scelti dal programma con lettere fuori dalla parola e
-bastano a distinguere la regola dalle altre del catalogo. `crea_enigma` controlla l'unicità di ogni blocco prima di disegnarlo.
-
-### Seconda serie: 10 regole difficili in più
-
-`python genera_codici.py` scrive anche `catalogo_regole_2.pdf` (giocatori) e `catalogo_regole_2_soluzioni.pdf` (soluzioni e
-spiegazioni), con bersagli dalla parola PROFESSORE. Sono regole in più, **non** ancora usate nell'enigma dei codici
-(`CATALOGO_2` in `enigmi/codici.py`; `TUTTE` = le 22 regole). Nessuna ha trabocchetti. Dalla più facile alla più difficile da intuire:
-
-| Regola | Come si legge |
-|--------|---------------|
-| Dispari e pari | somma dei posti dispari neri e somma dei posti pari neri |
-| Quadrati e conteggio | somma dei quadrati dei posti neri e quante nere |
-| Inizio e lunghezza | per ogni gruppo di nere: posto di partenza e lunghezza |
-| Fattoriali | caselle da 1-2-6-24-120, si sommano le nere |
-| Monete romane | caselle da 1-2-5-10-20, totale in cifre romane |
-| Somma e prodotto | somma e prodotto dei posti neri |
-| Binario romano | 16-8-4-2-1, totale in cifre romane |
-| Codice Gray | il valore binario trasformato in codice Gray |
-| Prodotto dei posti | prodotto dei posti neri (a incrocio, con 0-4 caselle di partenza) |
-| Tre misure | quante nere, somma dei posti, somma dei quadrati dei posti |
-
-Per ognuna, e per tutte le 21 lettere, la griglia da risolvere ha soluzione unica (forza bruta indipendente nei test). Gli
-esempi (2 per regola) sono scelti in modo che non valgano per nessuna delle altre 21 regole. Se un numero di colonna in cifre
-romane è troppo largo (XXXVIII), le colonne vicine vengono alzate di un livello per lasciarlo leggibile.
+regole "a incrocio" hanno al massimo 4 caselle di partenza (puntino bianco = già nera, crocetta = già vuota): fino a 4 nella
+somma delle posizioni, fino a 2 in "quante nere e l'ultima" e nel negativo, 1-2 nel prodotto dei posti. Gli esempi sono scelti
+dal programma e non valgono per nessuna delle altre 21 regole. `crea_enigma` controlla l'unicità di ogni blocco prima di
+disegnarlo.
 
 ## Come sono verificati
 

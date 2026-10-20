@@ -432,6 +432,27 @@ class TestPlanciaFinale(unittest.TestCase):
                 for path in (soluzioni, senza):
                     self.assertNotIn("Via Livorno", testo(path, pagina), "il biglietto non va nelle soluzioni")
 
+    def test_niente_paragrafi_di_spiegazione(self):
+        import shutil
+        import subprocess
+        import genera_plancia
+        if not shutil.which("pdftotext"):
+            self.skipTest("pdftotext non disponibile")
+        d = pf.crea_plancia_finale(config.PUNTEGGIO_ENIGMA_8, config.PAROLA_PLANCIA, config.SEED)
+        frasi = ("LA PARTITA È RIMASTA", "CONTA I PEZZI", "DUE CIFRARI IN UNO", "SOMMA LE CIFRE", "TRADUCI OGNI SIMBOLO",
+                 "TI SERVE PER IL MINI", "IL SIMBOLO DI OGNI LETTERA", "DOPO LA A SI RICOMINCIA", "SOMMA LE SEI RISPOSTE",
+                 "SOLUZIONE (RISERVATA", "RISERVATA ALL'ORGANIZZATORE")
+        with tempfile.TemporaryDirectory() as t:
+            for sol in (False, True):
+                path = os.path.join(t, f"x{int(sol)}.pdf")
+                genera_plancia.scrivi(d, path, sol, genera_plancia.aiuto_da_config())
+                tx = " ".join(subprocess.run(["pdftotext", path, "-"], capture_output=True, text=True,
+                                             check=True).stdout.upper().split())
+                for f in frasi:
+                    self.assertNotIn(f, tx)
+                for titolo in ("SERATA GIOCHI DA TAVOLO", "PASSO 1", "PASSO 2", "PASSO 3", "PUNTEGGIO", "LA PAROLA"):
+                    self.assertIn(titolo, tx)
+
     def test_pdf_solo_grigi(self):
         import shutil
         import subprocess

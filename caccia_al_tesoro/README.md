@@ -93,7 +93,7 @@ Scrive `plancia_e_mini10.pdf` (2 pagine per i giocatori) e `plancia_e_mini10_sol
 - **Soluzioni:** gli elementi contati sono cerchiati e numerati; sotto dadi, monete e rosone c'è il conteggio.
 - Il punteggio (`PUNTEGGIO_ENIGMA_8`) e la parola (`PAROLA_PLANCIA`, ora **COLPEVOLE**, 9 lettere: la soluzione del mini enigma 10) sono in `config.py` (`SOLUZIONI["forme"]` resta la parola dell'enigma 8 del fascicolo); i sei conteggi sono
   scelti dal programma con somma esatta (un tipo di domanda ciascuno, ognuno nel suo intervallo).
-- Le pagine non riportano il numero dell'enigma né la difficoltà.
+- Le pagine non riportano il numero dell'enigma né la difficoltà, e **non hanno paragrafi di spiegazione**: restano solo titoli, legenda, scheda, etichette dei passi e il biglietto (il giocatore capisce il meccanismo dalla grafica).
 - In fondo a entrambe le pagine dei giocatori c'è un biglietto con puntina da mappa: «Se non riesci a risolvere l'enigma, vai a
   Desteenazione → Via Livorno 7, Brescia». Testi in `config.py` (`AIUTO_INTRO`, `AIUTO_LUOGO`, `AIUTO_INDIRIZZO`; con
   `AIUTO_LUOGO = ""` il biglietto sparisce). Non compare nelle soluzioni.

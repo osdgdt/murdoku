@@ -97,17 +97,6 @@ def _biglietto(c, aiuto):
         G.biglietto_destinazione(c, 44, 40, W - 88, H_BIGLIETTO, aiuto["intro"], aiuto["luogo"], aiuto["indirizzo"])
 
 
-def _paragrafo(c, testo, x, y_alto, larghezza, size=10.5, leading=13.6, font=G.FONT):
-    c.setFillColor(black)
-    c.setFont(font, size)
-    y = y_alto
-    for riga in testo.split("\n"):
-        for parte in simpleSplit(riga, font, size, larghezza) or [""]:
-            y -= leading
-            c.drawString(x, y, parte)
-    return y
-
-
 def _casella(c, x, y, w, h, testo=None, size=14, fill=1.0, raggio=5, spessore=1.5, grassetto=True):
     c.setFillColor(GR(fill))
     c.setStrokeColor(GR(0.05))
@@ -281,10 +270,8 @@ def _fascia_punteggio(c, d, x, y, w, h, soluzione):
     c.setStrokeAlpha(1)
     c.setFillColor(white)
     c.setFont(G.TITOLO_FONT, 19)
-    c.drawString(x + 20, y + h - 30, "PUNTEGGIO FINALE")
-    c.setFont(G.FONT, 9)
-    for k, riga in enumerate(("Somma le sei risposte della scheda:", "il totale è il tuo punteggio.", "Ti serve per il mini enigma 10!")):
-        c.drawString(x + 20, y + h - 47 - k * 11.5, riga)
+    c.drawString(x + 20, y + h / 2 + 3, "PUNTEGGIO")
+    c.drawString(x + 20, y + h / 2 - 20, "FINALE")
     # sei caselle + '=' + grande
     bx = x + 196
     by = y + h / 2 - 12
@@ -302,28 +289,20 @@ def pagina_plancia(c, d, soluzione=False):
     _testata(c, "SERATA GIOCHI DA TAVOLO")
     c.saveState()
     c.translate(0, DY)
-    # consegna
-    G.cartiglio(c, 44, 662, W - 88, 66)
-    _paragrafo(c, "La partita è rimasta a metà! Conta i pezzi sulla plancia e rispondi alle sei domande della scheda: "
-                  "scrivi ogni risultato nella sua casella. Poi SOMMA le sei risposte: il totale è il tuo PUNTEGGIO FINALE, "
-                  "il numero da portare al mini enigma 10 per scoprire la parola segreta."
-               if not soluzione else
-               "SOLUZIONE (riservata all'organizzatore). Gli elementi contati sono cerchiati e numerati; sotto ai dadi, "
-               "alle monete e al rosone trovi il conteggio. La somma delle sei risposte è il punteggio finale.",
-               58, 726, W - 116, size=10.2, leading=13.4)
     r = 31.0
-    cx, cy = 44 + r * 4.33 + 17, 650 - (r * 4.33 + 15) - 2
+    top = 694  # senza il riquadro con la spiegazione, la plancia sale (le distanze tra i blocchi aumentano un po')
+    cx, cy = 44 + r * 4.33 + 17, top - (r * 4.33 + 15) - 2
     isola = _isola(c, scena, cx, cy, r, soluzione)
     xr = cx + r * 4.33 + 15 + 12
     wr = W - 44 - xr
     y_isola_alto = cy + r * 4.33 + 15
     _legenda(c, xr, y_isola_alto - 78, wr, 78)
     _scheda(c, scena, xr, cy - (r * 4.33 + 15), wr, (y_isola_alto - 78) - 10 - (cy - (r * 4.33 + 15)), soluzione)
-    y_vass = cy - (r * 4.33 + 15) - 14 - 138
+    y_vass = cy - (r * 4.33 + 15) - 24 - 138
     vass = _vassoio(c, scena, 44, y_vass, W - 88, 138, soluzione)
     if soluzione:
         _evidenzia(c, scena, isola, r, vass)
-    _fascia_punteggio(c, d, 44, y_vass - 14 - 92, W - 88, 92, soluzione)
+    _fascia_punteggio(c, d, 44, y_vass - 24 - 92, W - 88, 92, soluzione)
     c.restoreState()
     _biglietto(c, None if soluzione else d.get("aiuto"))
     c.showPage()
@@ -374,21 +353,11 @@ def pagina_mini10(c, d, soluzione=False):
     _testata(c, "IL CODICE DEL TESORO")
     c.saveState()
     c.translate(0, DY)
-    # altezze dall'alto: consegna, passo 1, passo 2, passo 3, parola
-    h_c, h1, h2, h3, hp, gap = 66, 70, 200, 162, 64, 10
-    top = 728
-    yc = top - h_c
-    G.cartiglio(c, 44, yc, W - 88, h_c)
-    _paragrafo(c, "Due cifrari in uno. PASSO 1: somma le cifre del tuo punteggio finale: è la CHIAVE. PASSO 2: traduci "
-                  "ogni simbolo con la chiave Pigpen (attenzione ai puntini!). PASSO 3: le lettere che ottieni sono "
-                  "state spostate AVANTI di CHIAVE posti nell'alfabeto: torna INDIETRO di tanti posti, lettera per "
-                  "lettera, e leggi la parola." if not soluzione else
-               f"SOLUZIONE (riservata all'organizzatore). Punteggio {d['punteggio']}: le cifre sommano {s}. I simboli dicono "
-               f"{pig}; tornando indietro di {s} posti nell'alfabeto si legge {parola}.",
-               58, top - 4, W - 116, size=10.2, leading=13.4)
+    # altezze dall'alto: passo 1, passo 2, passo 3, parola (niente riquadro di spiegazione)
+    h1, h2, h3, hp, gap = 76, 212, 172, 68, 22
+    y1 = 716 - h1
 
     # PASSO 1
-    y1 = yc - gap - h1
     G.cartiglio(c, 44, y1, W - 88, h1, "PASSO 1 · LA CHIAVE")
     ds = [int(ch) for ch in str(d["punteggio"])]
     x = 64
@@ -419,10 +388,6 @@ def pagina_mini10(c, d, soluzione=False):
     _chiave_griglia(c, gx, gy, lato, False, ALFABETO[:9])
     _chiave_griglia(c, gx + lato + 20, gy, lato, True, ALFABETO[9:18])
     _chiave_x(c, gx + 2 * (lato + 20), gy, lato, {"su": ALFABETO[18], "sinistra": ALFABETO[19], "destra": ALFABETO[20]})
-    c.setFillColor(black)
-    c.setFont(G.FONT_I, 9)
-    for k, riga in enumerate(("Il simbolo di ogni lettera", "è formato dalle linee del", "suo 'recinto' nella chiave", "(e dal puntino, se c'è).")):
-        c.drawString(gx + 3 * lato + 60, gy + lato - 14 - k * 12, riga)
     # gettoni con i simboli
     x_min = 112  # a sinistra restano le etichette LETTERA PIGPEN / LETTERA VERA
     passo = min(66, (W - 60 - x_min) / n)
@@ -452,9 +417,8 @@ def pagina_mini10(c, d, soluzione=False):
     _striscia_alfabeto(c, sx, ys, sw, evid=ALFABETO.index("F"), grigi=ALFABETO.index("C"))
     _freccia_arco(c, sx + (ALFABETO.index("F") + 0.5) * cw, sx + (ALFABETO.index("C") + 0.5) * cw, ys, 30, "- 3")
     c.setFillColor(black)
-    c.setFont(G.FONT_I, 9)
-    c.drawString(sx + 150, ys - 20, "Esempio con chiave 3: la F torna indietro di 3 posti e diventa C.")
-    c.drawString(sx + 150, ys - 31, "Dopo la A si ricomincia dalla Z.")
+    c.setFont(G.FONT_B, 9)
+    c.drawString(sx + 150, ys - 24, "ESEMPIO CON CHIAVE 3")
     # righe di lavoro
     c.setFont(G.FONT_B, 8)
     c.drawString(60, y3 + 38, "LETTERA")

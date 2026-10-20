@@ -128,6 +128,23 @@ Scrive `mini_enigmi.pdf` (per i giocatori, 2 mini per pagina) e `mini_enigmi_sol
 La verifica (`python -m unittest test_enigmi`) decodifica ognuno dei 10 mini enigmi con le regole della consegna,
 per vari numeri e parole.
 
+## Catalogo delle regole per il nuovo enigma "codici" (dossier segreto)
+
+Prima tappa di un enigma a mini griglie 5×5 (una per lettera della parola finale): i numeri attorno alla griglia
+NON sono quelli dei nonogrammi, seguono una regola da scoprire guardando 1-2 esempi già risolti. Il catalogo mostra
+12 regole candidate (medie e difficili, tutte valide per ognuna delle 21 lettere), ciascuna con esempi risolti e
+una griglia da risolvere.
+
+```bash
+python genera_codici.py              # bersagli dalla parola CASTELLO
+python genera_codici.py TESORO       # un'altra parola (fino a 8 lettere)
+```
+
+Scrive `catalogo_regole.pdf` (4 pagine, 3 regole per pagina) e `catalogo_regole_soluzioni.pdf` (con nome della regola,
+spiegazione e lettera di ogni griglia). Gli esempi sono scelti dal programma con lettere diverse da quelle della parola;
+le regole difficili ne hanno 2 e/o un "trabocchetto" (specchio, capovolto, negativo). Codice in `enigmi/codici.py` e
+`enigmi/dossier_codici.py`.
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

@@ -1,0 +1,313 @@
+"""Codici a griglia: ogni lettera è una griglia 5x5 con numeri a bordo riga e colonna, ma i numeri NON seguono la
+regola dei nonogrammi. Ogni blocco ha la sua regola (da scoprire dagli esempi già risolti).
+
+Una regola trasforma una linea di 5 caselle (riga da sinistra a destra, colonna dall'alto in basso) in una tupla
+di numeri. Alcune regole decodificano ogni linea da sola ("per riga"); altre (somma delle posizioni, quante nere,
+estremi) vanno incrociate tra righe e colonne e, per rendere la lettera univoca, il programma aggiunge il minimo
+di caselle di partenza (nere o bianche).
+"""
+import itertools
+import random
+from dataclasses import dataclass
+from fractions import Fraction
+from typing import Callable
+
+from .alfabeto import ALFABETO
+from .parole import GLIFI
+
+N = 5
+PRIMI = (2, 3, 5, 7, 11)
+
+
+# --------------------------------------------------------------------------- lettere e trabocchetti
+def griglia_glifo(lettera):
+    """La lettera come tupla di 5 righe da 5 valori (1 = nera)."""
+    return tuple(tuple(1 if ch == "#" else 0 for ch in riga) for riga in GLIFI[lettera])
+
+
+def applica_trabocchetto(pattern, trab):
+    """Disegno da annerire dato il disegno della lettera: specchio, capovolto, negativo (o niente)."""
+    if trab == "specchio":
+        return tuple(tuple(riga[N - 1 - c] for c in range(N)) for riga in pattern)
+    if trab == "capovolto":
+        return tuple(tuple(pattern[N - 1 - r][N - 1 - c] for c in range(N)) for r in range(N))
+    if trab == "negativo":
+        return tuple(tuple(1 - v for v in riga) for riga in pattern)
+    return pattern
+
+
+def togli_trabocchetto(pattern, trab):
+    """Dalla griglia annerita alla lettera (specchio, capovolto e negativo sono involuzioni)."""
+    return applica_trabocchetto(pattern, trab)
+
+
+def linee(pattern):
+    righe = [tuple(r) for r in pattern]
+    colonne = [tuple(pattern[r][c] for r in range(N)) for c in range(N)]
+    return righe, colonne
+
+
+# --------------------------------------------------------------------------- regole su una linea
+def _pos(linea):
+    return [i + 1 for i, b in enumerate(linea) if b]
+
+
+def r_salti(linea):
+    p = _pos(linea)
+    if not p:
+        return (0,)
+    return (p[0],) + tuple(b - a for a, b in zip(p, p[1:]))
+
+
+def r_binario2(linea):
+    return (linea[0] * 2 + linea[1], linea[2] * 4 + linea[3] * 2 + linea[4])
+
+
+def r_binario(linea):
+    return (sum(b << (N - 1 - i) for i, b in enumerate(linea)),)
+
+
+def r_somma_pos(linea):
+    return (sum(_pos(linea)),)
+
+
+def r_conteggio(linea):
+    """Quante nere e il posto dell'ultima (il solo conteggio lascerebbe troppe soluzioni possibili)."""
+    p = _pos(linea)
+    return (len(p), p[-1]) if p else (0, 0)
+
+
+def r_estremi(linea):
+    p = _pos(linea)
+    return (p[0], p[-1], len(p)) if p else (0, 0, 0)
+
+
+def r_primi(linea):
+    v = 1
+    for b, pr in zip(linea, PRIMI):
+        if b:
+            v *= pr
+    return (v,)
+
+
+def r_ternario(linea):
+    return (sum(b * 3 ** i for i, b in enumerate(linea)),)
+
+
+def r_progressive(linea):
+    out, tot = [], 0
+    for p in _pos(linea):
+        tot += p
+        out.append(tot)
+    return tuple(out) or (0,)
+
+
+@dataclass(frozen=True)
+class Regola:
+    chiave: str
+    nome: str
+    livello: int  # 1 = medio, 2 = difficile
+    deduzione: bool  # True: serve incrociare righe e colonne (e caselle di partenza)
+    funzione: Callable
+    breve: str  # come si legge, per la pagina delle soluzioni
+    a_pesi: bool = False  # i numeri sono combinazioni lineari dei bit (test del rango sugli esempi)
+
+
+REGOLE = {r.chiave: r for r in [
+    Regola("salti", "Salti", 1, False, r_salti,
+           "Il primo numero è il posto della prima casella nera; gli altri sono le distanze tra una nera e la successiva."),
+    Regola("binario2", "Binario a due metà", 1, False, r_binario2,
+           "Due numeri: le prime due caselle e le ultime tre lette come numeri in binario (nera = 1, bianca = 0).", True),
+    Regola("progressive", "Somme progressive", 1, False, r_progressive,
+           "I posti delle caselle nere, sommati uno dopo l'altro: ogni numero è la somma dei posti fino a quella casella."),
+    Regola("somma_pos", "Somma delle posizioni", 1, True, r_somma_pos,
+           "Somma dei posti (da 1 a 5) delle caselle nere della riga o della colonna."),
+    Regola("conteggio", "Quante nere e l'ultima", 1, True, r_conteggio,
+           "Due numeri: quante caselle nere ci sono nella riga o nella colonna e il posto (da 1 a 5) dell'ultima nera."),
+    Regola("binario", "Binario intero", 2, False, r_binario,
+           "Un numero da 0 a 31: le caselle valgono 16-8-4-2-1 (da sinistra a destra o dall'alto in basso) e si sommano le nere.", True),
+    Regola("ternario", "Potenze di 3", 2, False, r_ternario,
+           "Un numero da 0 a 121: le caselle valgono 1-3-9-27-81 (da sinistra a destra o dall'alto in basso) e si sommano le nere.", True),
+    Regola("estremi", "Estremi", 2, True, r_estremi,
+           "Tre numeri: il posto della prima nera, della ultima e quante nere ci sono in tutto."),
+    Regola("primi", "Prodotti di numeri primi", 2, False, r_primi,
+           "Le caselle valgono 2-3-5-7-11: il numero è il prodotto di quelle annerite (nessuna nera = 1).", True),
+]}
+
+# Catalogo: (chiave regola, trabocchetto, livello, nome). Ordinato dal più facile al più difficile.
+CATALOGO = [
+    ("salti", None), ("binario2", None), ("progressive", None), ("somma_pos", None), ("conteggio", None),
+    ("binario", None), ("ternario", None), ("estremi", None), ("primi", None),
+    ("binario2", "specchio"), ("progressive", "capovolto"), ("somma_pos", "negativo"),
+]
+NOMI_TRABOCCHETTO = {"specchio": "specchio", "capovolto": "capovolto", "negativo": "negativo"}
+
+
+def livello_voce(voce):
+    base, trab = voce
+    return REGOLE[base].livello + (1 if trab else 0)
+
+
+def nome_voce(voce):
+    base, trab = voce
+    return REGOLE[base].nome + (f" · {NOMI_TRABOCCHETTO[trab]}" if trab else "")
+
+
+# tutte le 32 linee possibili
+LINEE = list(itertools.product((0, 1), repeat=N))
+
+# per ogni regola: clue -> linee compatibili; e per ogni prefisso, i clue raggiungibili (per potare la ricerca)
+_PER_CLUE, _RAGGIUNGIBILI = {}, {}
+for _k, _r in REGOLE.items():
+    pc, ragg = {}, {}
+    for _l in LINEE:
+        _c = _r.funzione(_l)
+        pc.setdefault(_c, []).append(_l)
+        for _n in range(N + 1):
+            ragg.setdefault(_l[:_n], set()).add(_c)
+    _PER_CLUE[_k], _RAGGIUNGIBILI[_k] = pc, ragg
+    if not _r.deduzione:
+        assert all(len(v) == 1 for v in pc.values()), f"la regola {_k} non è iniettiva per riga"
+
+
+def clue_pattern(pattern, regola):
+    righe, colonne = linee(pattern)
+    f = REGOLE[regola].funzione
+    return tuple(f(r) for r in righe), tuple(f(c) for c in colonne)
+
+
+# --------------------------------------------------------------------------- solver
+def risolvi(righe, colonne, regola, noti=None, limite=2):
+    """Griglie (tuple di righe) compatibili con i numeri; noti = {(r, c): 0/1} caselle di partenza."""
+    noti = noti or {}
+    pc = _PER_CLUE[regola]
+    ragg = _RAGGIUNGIBILI[regola]
+    cand = []
+    for r in range(N):
+        ok = [l for l in pc.get(righe[r], []) if all(noti.get((r, c), l[c]) == l[c] for c in range(N))]
+        cand.append(ok)
+    sol = []
+
+    def rec(r, scelte):
+        if len(sol) >= limite:
+            return
+        if r == N:
+            sol.append(tuple(scelte))
+            return
+        for l in cand[r]:
+            nuovo = scelte + [l]
+            if all(colonne[c] in ragg.get(tuple(riga[c] for riga in nuovo), ()) for c in range(N)):
+                rec(r + 1, nuovo)
+
+    rec(0, [])
+    return sol
+
+
+def crea_hint(pattern, regola):
+    """Minimo di caselle di partenza (greedy) perché la griglia sia l'unica soluzione. {(r, c): valore}."""
+    righe, colonne = clue_pattern(pattern, regola)
+    noti = {}
+    while True:
+        sol = risolvi(righe, colonne, regola, noti, 2)
+        assert sol, "nessuna soluzione: errore di codifica"
+        if len(sol) == 1:
+            return noti
+        altra = next(s for s in sol if s != pattern)
+        diff = [(r, c) for r in range(N) for c in range(N) if pattern[r][c] != altra[r][c] and (r, c) not in noti]
+        # preferisce svelare caselle nere (più facili da vedere); in parità, la prima trovata
+        diff.sort(key=lambda rc: -pattern[rc[0]][rc[1]])
+        noti[diff[0]] = pattern[diff[0][0]][diff[0][1]]
+
+
+# --------------------------------------------------------------------------- scelta degli esempi
+def _rango(vettori):
+    """Rango (su razionali) di un insieme di vettori di bit."""
+    righe = [[Fraction(x) for x in v] for v in vettori]
+    rango = 0
+    for col in range(N):
+        piv = next((i for i in range(rango, len(righe)) if righe[i][col] != 0), None)
+        if piv is None:
+            continue
+        righe[rango], righe[piv] = righe[piv], righe[rango]
+        for i in range(len(righe)):
+            if i != rango and righe[i][col] != 0:
+                f = righe[i][col] / righe[rango][col]
+                righe[i] = [a - f * b for a, b in zip(righe[i], righe[rango])]
+        rango += 1
+    return rango
+
+
+def pattern_voce(lettera, voce):
+    return applica_trabocchetto(griglia_glifo(lettera), voce[1])
+
+
+def esempi_validi(voce, lettere, catalogo):
+    """Gli esempi bastano a capire la regola? (1) i pesi sono determinabili, (2) nessun'altra regola del catalogo
+    dà gli stessi numeri su tutti gli esempi, (3) il trabocchetto si vede (la lettera non è simmetrica)."""
+    base, trab = voce
+    patt = [pattern_voce(l, voce) for l in lettere]
+    if trab in ("specchio", "capovolto") and any(p == griglia_glifo(l) for p, l in zip(patt, lettere)):
+        return False
+    if REGOLE[base].a_pesi:
+        vettori = [v for p in patt for v in (*linee(p)[0], *linee(p)[1])]
+        if _rango(vettori) < N:
+            return False
+    mio = [clue_pattern(p, base) for p in patt]
+    for altra in catalogo:
+        if altra == voce:
+            continue
+        altri = [clue_pattern(pattern_voce(l, altra), altra[0]) for l in lettere]
+        if altri == mio:
+            return False
+    return True
+
+
+def _ricchezza(lettera):
+    g = griglia_glifo(lettera)
+    return len(set(g)) + len(set(linee(g)[1]))
+
+
+def scegli_esempi(voce, escluse, catalogo=CATALOGO, minimo=None, usate=None):
+    """1-2 lettere di esempio, non tra `escluse`, sufficienti a capire la regola. `usate` (lettera -> quante volte
+    è già stata usata come esempio) fa variare le lettere da una regola all'altra."""
+    usate = usate if usate is not None else {}
+    candidate = sorted((l for l in ALFABETO if l not in escluse), key=lambda l: (-_ricchezza(l), l))
+    minimo = minimo or (1 if livello_voce(voce) <= 1 else 2)
+    for k in range(minimo, 3):
+        combos = sorted(itertools.combinations(candidate, k),
+                        key=lambda cb: (sum(usate.get(l, 0) for l in cb) * 6 - sum(_ricchezza(l) for l in cb), cb))
+        for cb in combos:
+            if esempi_validi(voce, cb, catalogo):
+                return list(cb)
+    raise RuntimeError(f"nessun insieme di esempi valido per {voce}")
+
+
+# --------------------------------------------------------------------------- blocco completo
+def crea_blocco(voce, lettera_bersaglio, parola_esclusa, usate=None):
+    """Esempi risolti + griglia da risolvere (con caselle di partenza se serve) per una voce del catalogo."""
+    base, trab = voce
+    esempi = scegli_esempi(voce, set(parola_esclusa) | {lettera_bersaglio}, usate=usate)
+    if usate is not None:
+        for l in esempi:
+            usate[l] = usate.get(l, 0) + 1
+    blocchi_esempio = []
+    for l in esempi:
+        p = pattern_voce(l, voce)
+        righe, colonne = clue_pattern(p, base)
+        blocchi_esempio.append({"lettera": l, "pattern": p, "righe": righe, "colonne": colonne})
+    p = pattern_voce(lettera_bersaglio, voce)
+    righe, colonne = clue_pattern(p, base)
+    hint = crea_hint(p, base)
+    return {
+        "voce": voce, "esempi": blocchi_esempio,
+        "bersaglio": {"lettera": lettera_bersaglio, "pattern": p, "righe": righe, "colonne": colonne, "hint": hint},
+    }
+
+
+def crea_catalogo(parola_demo="CASTELLO"):
+    """Un blocco per ogni voce del catalogo, dal più facile al più difficile; i bersagli sono le lettere della parola."""
+    voci = sorted(CATALOGO, key=lambda v: (livello_voce(v), CATALOGO.index(v)))
+    blocchi, usate = [], {}
+    for i, voce in enumerate(voci):
+        blocchi.append(crea_blocco(voce, parola_demo[i % len(parola_demo)], parola_demo, usate))
+    return blocchi

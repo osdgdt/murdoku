@@ -16,6 +16,7 @@ import genera
 from enigmi import cifrari, deduzione, figure, giochi_tavolo, parole, visivi
 from enigmi import mini_conversioni as mini
 from enigmi import plancia_finale as pf
+from enigmi import codici as cod
 from enigmi.alfabeto import ALFABETO, sposta
 
 DATI = {}
@@ -436,6 +437,91 @@ class TestPlanciaFinale(unittest.TestCase):
                         r, g, b = Image.open(os.path.join(t, nome)).convert("RGB").split()
                         self.assertIsNone(ImageChops.difference(r, g).getbbox(), f"{nome}: pixel non grigi")
                         self.assertIsNone(ImageChops.difference(g, b).getbbox(), f"{nome}: pixel non grigi")
+
+
+class TestCodici(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.blocchi = cod.crea_catalogo("CASTELLO")
+
+    def test_regole_per_riga_iniettive(self):
+        for chiave, r in cod.REGOLE.items():
+            if not r.deduzione:
+                clue = [r.funzione(l) for l in cod.LINEE]
+                self.assertEqual(len(set(clue)), 32, chiave)
+
+    def test_ogni_regola_ogni_lettera_unica(self):
+        """Per qualunque lettera dell'alfabeto, ogni voce del catalogo ha una sola soluzione (con poche caselle di partenza)."""
+        for voce in cod.CATALOGO:
+            base, trab = voce
+            for lettera in ALFABETO:
+                with self.subTest(voce=voce, lettera=lettera):
+                    p = cod.pattern_voce(lettera, voce)
+                    righe, colonne = cod.clue_pattern(p, base)
+                    hint = cod.crea_hint(p, base)
+                    self.assertLessEqual(len(hint), 4)
+                    sol = cod.risolvi(righe, colonne, base, hint, 3)
+                    self.assertEqual(sol, [p])
+                    self.assertEqual(cod.togli_trabocchetto(sol[0], trab), cod.griglia_glifo(lettera))
+
+    def test_valori_noti_della_L(self):
+        L = cod.griglia_glifo("L")
+        r, c = cod.clue_pattern(L, "binario")
+        self.assertEqual(r, ((16,), (16,), (16,), (16,), (31,)))
+        self.assertEqual(c, ((31,), (1,), (1,), (1,), (1,)))
+        r, c = cod.clue_pattern(L, "somma_pos")
+        self.assertEqual((r, c), (((1,), (1,), (1,), (1,), (15,)), ((15,), (5,), (5,), (5,), (5,))))
+        r, c = cod.clue_pattern(L, "primi")
+        self.assertEqual(r[4], (2310,))
+        self.assertEqual(c[1], (11,))
+        r, c = cod.clue_pattern(L, "ternario")
+        self.assertEqual(r[0], (1,))
+        self.assertEqual(r[4], (121,))
+        r, c = cod.clue_pattern(L, "salti")
+        self.assertEqual(r[4], (1, 1, 1, 1, 1))
+        r, c = cod.clue_pattern(L, "progressive")
+        self.assertEqual(r[4], (1, 3, 6, 10, 15))
+        r, c = cod.clue_pattern(L, "binario2")
+        self.assertEqual((r[0], r[4]), ((2, 0), (3, 7)))
+
+    def test_catalogo_blocchi(self):
+        self.assertEqual(len(self.blocchi), 12)
+        livelli = [cod.livello_voce(b["voce"]) for b in self.blocchi]
+        self.assertEqual(livelli, sorted(livelli), "dal più facile al più difficile")
+        usate = set()
+        for b in self.blocchi:
+            self.assertIn(len(b["esempi"]), (1, 2))
+            lettere = [e["lettera"] for e in b["esempi"]]
+            self.assertTrue(set(lettere).isdisjoint(set("CASTELLO")), "gli esempi non sono lettere della parola")
+            self.assertNotIn(b["bersaglio"]["lettera"], lettere)
+            self.assertTrue(cod.esempi_validi(b["voce"], lettere, cod.CATALOGO))
+            for e in b["esempi"]:
+                self.assertEqual((e["righe"], e["colonne"]), cod.clue_pattern(e["pattern"], b["voce"][0]))
+            usate |= set(lettere)
+        self.assertGreater(len(usate), 8, "lettere di esempio varie")
+
+    def test_trabocchetti_visibili(self):
+        for b in self.blocchi:
+            trab = b["voce"][1]
+            if trab in ("specchio", "capovolto"):
+                for e in b["esempi"]:
+                    self.assertNotEqual(e["pattern"], cod.griglia_glifo(e["lettera"]))
+
+    def test_pdf_catalogo_senza_spoiler(self):
+        import shutil
+        import subprocess
+        from enigmi import dossier_codici
+        with tempfile.TemporaryDirectory() as t:
+            g, s = os.path.join(t, "g.pdf"), os.path.join(t, "s.pdf")
+            dossier_codici.scrivi_catalogo(self.blocchi, g, False)
+            dossier_codici.scrivi_catalogo(self.blocchi, s, True)
+            self.assertGreater(os.path.getsize(g), 5000)
+            if shutil.which("pdftotext"):
+                tg = subprocess.run(["pdftotext", g, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                ts = subprocess.run(["pdftotext", s, "-"], capture_output=True, text=True, check=True).stdout.upper()
+                for nome in ("SALTI", "BINARIO", "SOMME PROGRESSIVE", "ESTREMI", "POTENZE DI 3", "PRODOTTI"):
+                    self.assertNotIn(nome, tg, "il PDF dei giocatori non rivela le regole")
+                    self.assertIn(nome, ts)
 
 
 class TestPdf(unittest.TestCase):

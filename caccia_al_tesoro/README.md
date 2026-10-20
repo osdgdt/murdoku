@@ -74,6 +74,35 @@ La scala di parole (enigma 2, soluzione MARE) è scritta a mano in `enigmi/parol
 
 Dopo ogni cambio lancia `python genera.py`: le soluzioni nei PDF si aggiornano da sole.
 
+## Mini enigmi di conversione (numero → parola)
+
+Se la soluzione di un enigma è un numero (per esempio il 50 della plancia, o il 43 delle vecchie forme), questi
+10 mini enigmi lo trasformano in una parola. Sono costruiti dal programma per **qualsiasi numero da 1 a 99 e
+qualsiasi parola di 3-7 lettere**: il giocatore conosce solo il numero, la parola sta nel messaggio.
+
+```bash
+python genera_mini.py              # esempio: numero 43 -> MEEPLE
+python genera_mini.py 50 SOLE      # qualsiasi numero (1-99) e parola (3-7 lettere)
+```
+
+Scrive `mini_enigmi.pdf` (per i giocatori, 2 mini per pagina) e `mini_enigmi_soluzioni.pdf`.
+
+| # | Livello | Mini enigma | Come il numero diventa la chiave |
+|---|---------|-------------|----------------------------------|
+| 1 | Facile | Cesare con la somma delle cifre | chiave = somma delle cifre (43 → 7); si torna indietro di 7 posti |
+| 2 | Facile | La casella di partenza | decine = riga, unità = colonna di una griglia 10×10; si leggono le lettere verso destra |
+| 3 | Facile | Una lettera ogni K | K = somma cifre ridotta a una cifra (1 → 10); si tengono le lettere in posizione K, 2K, 3K... |
+| 4 | Medio | Cesare con le cifre, una alla volta | ogni lettera ha uno spostamento diverso: le cifre del numero, a rotazione |
+| 5 | Medio | La ruota dei salti | salto = K; dalla stella si salta di K lettere su una ruota di 23 |
+| 6 | Medio | Gruppi a misura di cifra | la fila di lettere si divide in gruppi lunghi come le cifre (0 = 10); vale la prima lettera di ogni gruppo |
+| 7 | Medio | Calcoli con il tuo numero | espressioni con N, S (somma cifre) e P (prodotto cifre) che danno 1-21, poi tabella A=1 |
+| 8 | Medio | L'alfabeto a rovescio | Z=1, V=2...; ogni numero è aumentato della somma delle cifre |
+| 9 | Difficile | Numeri romani | numero della lettera + somma delle cifre, scritto in numeri romani |
+| 10 | Difficile | Pigpen e Cesare insieme | prima si decifra il Pigpen, poi si torna indietro della somma delle cifre |
+
+La verifica (`python -m unittest test_enigmi`) decodifica ognuno dei 10 mini enigmi con le regole della consegna,
+per vari numeri e parole.
+
 ## Come sono verificati
 
 - Mastermind: la parola segreta è l'unica sequenza di lettere diverse compatibile con tutti i tentativi (controllo su tutte le combinazioni).

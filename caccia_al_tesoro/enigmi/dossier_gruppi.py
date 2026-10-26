@@ -141,9 +141,6 @@ def scrivi_gruppi(blocchi, parola, percorso, soluzione, reperto=REPERTO, indizio
         y -= _riquadro_reperto(c, y, reperto.format(n=numero_reperto), numero_reperto) + gap
     if indizio:
         G.biglietto_destinazione(c, X, y - H_BIGLIETTO, WB, H_BIGLIETTO, indizio["intro"], indizio["luogo"], indizio["indirizzo"])
-    c.setFillColor(GR(0.3))
-    c.setFont(G.FONT, 7.8)
-    c.drawCentredString(W / 2, 36, "La griglia ESEMPIO è già risolta; le altre vanno risolte · casella con puntino bianco = già annerita (di partenza) · crocetta = già vuota")
     c.showPage()
     c.save()
     return 1

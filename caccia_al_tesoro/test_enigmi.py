@@ -728,6 +728,8 @@ class TestParcheggio(unittest.TestCase):
                     self.assertIn("SE TI SERVE UN INDIZIO, VAI ALLA", t)
                     self.assertNotIn("SCOMPARSA", t)
                     self.assertNotIn("COME SI FA", t)
+                    self.assertNotIn("ESEMPIO È GIÀ RISOLTA", t)
+                    self.assertNotIn("PUNTINO BIANCO", t)
 
     def test_riquadri_facoltativi(self):
         import shutil

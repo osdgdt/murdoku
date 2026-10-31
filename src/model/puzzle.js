@@ -1,16 +1,20 @@
 import { makeId } from "../util/id.js";
 import { createGrid, isOccupiable } from "./grid.js";
 import { isObjectTypeTarget } from "./icons.js";
+import { isSafeId, isSafeColor } from "../util/safe.js";
 
-export const SCHEMA_VERSION = 1;
+import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
+import { t } from "../i18n/i18n.js";
+
+export const SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
 export const DIFFICULTY_LEVELS = [
-  { value: "", label: "Non specificata" },
-  { value: "very-easy", label: "Molto facile" },
-  { value: "easy", label: "Facile" },
-  { value: "medium", label: "Media" },
-  { value: "hard", label: "Difficile" },
-  { value: "expert", label: "Esperto" },
+  { value: "", label: t("Non specificata") },
+  { value: "very-easy", label: t("Molto facile") },
+  { value: "easy", label: t("Facile") },
+  { value: "medium", label: t("Media") },
+  { value: "hard", label: t("Difficile") },
+  { value: "expert", label: t("Esperto") },
 ];
 
 export function difficultyLabel(value) {
@@ -36,9 +40,19 @@ export function estimateDifficultyFromNodes(nodesVisited) {
 // Distinct, saturated per-character colors (token backgrounds, clue-card
 // accents) — kept separate from the pale ZONE_COLORS palette in mapEditor.js,
 // which needs to stay soft since it fills whole cell backgrounds.
+//
+// Chosen to stay tellable-apart under the common kinds of colour-blindness
+// (protanopia, deuteranopia, tritanopia): the palette was searched for the
+// largest minimum CIEDE2000 distance — also against the victim's danger red —
+// inside a luminance band that keeps >=3:1 contrast with white token text and
+// with both the light and dark cell backgrounds (tools/find-palette.mjs,
+// checked by test/test-palette.js). The order matters: any prefix of it is
+// also well separated, so small casts (the common case) get the most distinct
+// colours. Colour is never the ONLY cue anyway — tokens carry a distinct icon
+// and candidate marks carry the character's initial.
 export const CHARACTER_COLORS = [
-  "#8a1f2d", "#2b6b4a", "#1f4e79", "#b0813a", "#6b3f8a",
-  "#1f7a7a", "#b3541e", "#4a4a63", "#a8456b", "#5c6b1f",
+  "#608aea", "#ea558a", "#158060", "#9f5595", "#bf8020",
+  "#4a6aca", "#9f80b5", "#6a9560", "#2b9f95", "#9f6a0b",
 ];
 
 // Puzzles saved before this field existed lack `character.color` — fall back
@@ -47,7 +61,7 @@ export function characterColor(character) {
   return character.color || CHARACTER_COLORS[0];
 }
 
-export function createPuzzle(title = "Nuovo caso") {
+export function createPuzzle(title = t("Nuovo caso")) {
   return {
     schemaVersion: SCHEMA_VERSION,
     id: makeId("puzzle"),
@@ -178,31 +192,76 @@ export function placementFor(puzzle, characterId) {
 const MIN_GRID_SIZE = 3;
 const MAX_GRID_SIZE = 9;
 
+// Everything below is about *safety*, not game rules: ids and colors from an
+// imported puzzle flow into attributes, URLs and inline styles, so anything
+// that isn't a plain id / hex color is rejected here, once, instead of
+// trusting every render site to escape. Absent optional fields stay valid.
+function validateUntrustedStrings(puzzle, errors) {
+  const badId = (what, value) => {
+    if (value !== undefined && value !== null && !isSafeId(value)) errors.push(t("ID non valido ({what}).", { what }));
+  };
+  const badColor = (what, value) => {
+    if (value !== undefined && value !== null && !isSafeColor(value)) errors.push(t("Colore non valido ({what}).", { what }));
+  };
+  badId("puzzle", puzzle.id);
+  for (const field of ["title", "author", "briefing", "resolutionNote"]) {
+    if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(t("Il campo \"{field}\" deve essere testo.", { field }));
+  }
+  for (const c of Array.isArray(puzzle.characters) ? puzzle.characters : []) {
+    if (!c || typeof c !== "object") { errors.push(t("Personaggio non valido.")); continue; }
+    badId("personaggio", c.id);
+    badColor("personaggio", c.color);
+    if (typeof c.name !== "string") errors.push(t("Il nome di un personaggio deve essere testo."));
+  }
+  for (const z of Array.isArray(puzzle.grid?.zones) ? puzzle.grid.zones : []) {
+    if (!z || typeof z !== "object") { errors.push(t("Zona non valida.")); continue; }
+    badId("zona", z.id);
+    badColor("zona", z.color);
+  }
+  for (const o of Array.isArray(puzzle.grid?.objects) ? puzzle.grid.objects : []) {
+    if (!o || typeof o !== "object") { errors.push(t("Oggetto non valido.")); continue; }
+    badId("oggetto", o.id);
+  }
+  for (const cl of Array.isArray(puzzle.clues) ? puzzle.clues : []) {
+    if (!cl || typeof cl !== "object") { errors.push(t("Indizio non valido.")); continue; }
+    badId("indizio", cl.id);
+  }
+  const cells = puzzle.grid?.cells;
+  const size = puzzle.grid?.size;
+  if (size && (!Array.isArray(cells) || cells.length !== size.rows || cells.some((row) => !Array.isArray(row) || row.length !== size.cols || row.some((cell) => !cell || typeof cell !== "object")))) {
+    errors.push(t("Le celle della griglia non corrispondono alle sue dimensioni."));
+  }
+}
+
 export function validatePuzzleShape(puzzle) {
   const errors = [];
-  if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: ["Il puzzle non è un oggetto valido."] };
+  if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: [t("Il puzzle non è un oggetto valido.")] };
   if (!puzzle.grid || !puzzle.grid.size) {
-    errors.push("Manca la griglia.");
+    errors.push(t("Manca la griglia."));
   } else {
     const { rows, cols } = puzzle.grid.size;
     if (!(rows >= MIN_GRID_SIZE && rows <= MAX_GRID_SIZE) || !(cols >= MIN_GRID_SIZE && cols <= MAX_GRID_SIZE)) {
-      errors.push(`Le dimensioni della griglia devono essere comprese tra ${MIN_GRID_SIZE} e ${MAX_GRID_SIZE} (trovato ${rows}×${cols}).`);
+      errors.push(t("Le dimensioni della griglia devono essere comprese tra {MIN_GRID_SIZE} e {MAX_GRID_SIZE} (trovato {rows}×{cols}).", { MIN_GRID_SIZE, MAX_GRID_SIZE, rows, cols }));
     }
   }
-  if (!Array.isArray(puzzle.characters)) errors.push("Manca l'elenco personaggi.");
-  if (!Array.isArray(puzzle.clues)) errors.push("Manca l'elenco indizi.");
-  if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push("Manca la soluzione.");
+  if (schemaVersionOf(puzzle) > SCHEMA_VERSION) {
+    errors.push(t("Questo caso è stato creato con una versione più recente di Murdoku (formato {schemaVersion}): aggiorna la pagina e riprova.", { schemaVersion: puzzle.schemaVersion }));
+  }
+  validateUntrustedStrings(puzzle, errors);
+  if (!Array.isArray(puzzle.characters)) errors.push(t("Manca l'elenco personaggi."));
+  if (!Array.isArray(puzzle.clues)) errors.push(t("Manca l'elenco indizi."));
+  if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push(t("Manca la soluzione."));
 
   if (Array.isArray(puzzle.characters)) {
     const ids = new Set();
     let victims = 0;
     for (const c of puzzle.characters) {
-      if (ids.has(c.id)) errors.push(`ID personaggio duplicato: ${c.id}`);
+      if (ids.has(c.id)) errors.push(t("ID personaggio duplicato: {id}", { id: c.id }));
       ids.add(c.id);
       if (c.isVictim) victims++;
     }
     if (puzzle.characters.length > 0 && victims !== 1) {
-      errors.push(`Deve esserci esattamente una vittima (trovate: ${victims}).`);
+      errors.push(t("Deve esserci esattamente una vittima (trovate: {victims}).", { victims }));
     }
     // Mirrors solvePuzzle's own guard (src/solver/solver.js) — one character
     // per row AND per column means more characters than rows/cols can never
@@ -214,7 +273,7 @@ export function validatePuzzleShape(puzzle) {
     if (puzzle.grid?.size) {
       const { rows, cols } = puzzle.grid.size;
       if (puzzle.characters.length > rows || puzzle.characters.length > cols) {
-        errors.push(`Troppi personaggi (${puzzle.characters.length}) per una griglia ${rows}×${cols}: al massimo uno per riga e uno per colonna.`);
+        errors.push(t("Troppi personaggi ({length}) per una griglia {rows}×{cols}: al massimo uno per riga e uno per colonna.", { length: puzzle.characters.length, rows, cols }));
       }
     }
   }
@@ -224,11 +283,11 @@ export function validatePuzzleShape(puzzle) {
       const inBounds =
         p.row >= 0 && p.row < puzzle.grid.size.rows && p.col >= 0 && p.col < puzzle.grid.size.cols;
       if (!inBounds) {
-        errors.push(`Piazzamento fuori griglia per il personaggio ${p.characterId}.`);
+        errors.push(t("Piazzamento fuori griglia per il personaggio {characterId}.", { characterId: p.characterId }));
       } else if (puzzle.grid.cells[p.row][p.col]?.blocked) {
-        errors.push(`Piazzamento su una cella bloccata per il personaggio ${p.characterId}.`);
+        errors.push(t("Piazzamento su una cella bloccata per il personaggio {characterId}.", { characterId: p.characterId }));
       } else if (!isOccupiable(puzzle.grid, p.row, p.col)) {
-        errors.push(`Piazzamento su una cella con un oggetto non occupabile per il personaggio ${p.characterId}.`);
+        errors.push(t("Piazzamento su una cella con un oggetto non occupabile per il personaggio {characterId}.", { characterId: p.characterId }));
       }
     }
   }
@@ -245,7 +304,7 @@ export function clonePuzzle(puzzle) {
 export function duplicatePuzzle(puzzle) {
   const copy = clonePuzzle(puzzle);
   copy.id = makeId("puzzle");
-  copy.title = `${puzzle.title} (copia)`;
+  copy.title = t("{title} (copia)", { title: puzzle.title });
   copy.createdAt = Date.now();
   copy.updatedAt = Date.now();
   return copy;

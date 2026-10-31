@@ -68,7 +68,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--accent-dark);
 }
 .resume-text strong { font-family: var(--font-display); font-size: 1.05rem; color: var(--accent); }
 
@@ -111,7 +111,7 @@
   margin-bottom: 0.25rem;
 }
 
-.card-link h3 { color: var(--accent); margin-bottom: 0.15em; }
+.card-link h2, .card-link h3 { color: var(--accent); margin-bottom: 0.15em; }
 .card-link p { margin: 0; text-align: center; }
 
 .section-label {
@@ -144,9 +144,9 @@
   border: 1px solid var(--border);
 }
 .difficulty-very-easy { background: var(--success-soft); color: var(--success); border-color: transparent; }
-.difficulty-easy { background: #e4f0dc; color: #4a7a2e; border-color: transparent; }
+.difficulty-easy { background: #e4f0dc; color: #3a6322; border-color: transparent; }
 .difficulty-medium { background: #fbf0d6; color: #8a6100; border-color: transparent; }
-.difficulty-hard { background: #f6ddd0; color: #a5501f; border-color: transparent; }
+.difficulty-hard { background: #f6ddd0; color: #8a3f12; border-color: transparent; }
 .difficulty-expert { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
 
 .completed-badge {
@@ -229,3 +229,16 @@
   color: var(--ink-faint);
   font-size: 0.8rem;
 }
+
+/* Long-form text pages (privacy). */
+.prose { max-width: 680px; margin: 2rem auto 3rem; padding: 0 1.25rem; line-height: 1.65; }
+.prose h1 { margin-bottom: 0.5rem; }
+.prose h2 { margin-top: 1.8rem; font-size: 1.15rem; }
+.prose .field-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0.8rem 0; }
+
+/* Dark theme: --accent is a light salmon there, so light button text on it,
+   and the dim --accent-dark label colour on the dark panel, both fail WCAG AA. */
+:root[data-theme="dark"] .saved-row .actions a.play { background: #9a3f31; border-color: #9a3f31; }
+:root[data-theme="dark"] .saved-row .actions a.play:hover { background: #b85847; }
+:root[data-theme="dark"] .resume-label { color: var(--gold); }
+:root[data-theme="dark"] .difficulty-expert { color: #f0a094; }

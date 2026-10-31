@@ -3,55 +3,80 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Murdoku: puzzle di deduzione tra Sudoku e giallo investigativo — gioca nel browser, crea i tuoi casi e condividili. / Deduction puzzles mixing Sudoku and detective stories — play in the browser, create your own cases and share them." />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Murdoku — puzzle di deduzione / deduction puzzles" />
+  <meta property="og:description" content="Murdoku: puzzle di deduzione tra Sudoku e giallo investigativo — gioca nel browser, crea i tuoi casi e condividili. / Deduction puzzles mixing Sudoku and detective stories — play in the browser, create your own cases and share them." />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <title>Murdoku Editor</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/nunito-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="stylesheet" href="styles/skin-paper.css" />
   <script>
     try {
-      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+      var t = localStorage.getItem("murdoku:theme");
+      if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
     } catch (e) {}
   </script>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <span class="brand">🔎 Murdoku</span>
+    <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
     <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
-  </div>
+  </header>
+  <main>
 
   <div class="hero">
+    <div id="hero-art" class="hero-art-wrap"></div>
     <span class="eyebrow">Archivio dei casi</span>
     <h1>Crea e gioca i tuoi casi Murdoku</h1>
     <div class="hero-divider"></div>
     <p class="lede">Costruisci la mappa del caso, i personaggi, gli indizi — poi gioca, stampa o condividi il file del puzzle.</p>
     <a id="resume-banner" class="resume-banner hidden" href="#">
-      <span class="icon-badge">▶</span>
+      <span class="icon-badge" data-icon="resume">▶</span>
       <span class="resume-text">
         <span class="resume-label">Continua l'ultimo caso</span>
         <strong id="resume-title"></strong>
       </span>
     </a>
     <div class="card-links">
+      <a id="tutorial-link" class="card-link" href="player.html?import=examples%2Ftutorial.it.murdoku.json">
+        <span class="icon-badge" data-icon="tutorial">🎓</span>
+        <h2>Tutorial</h2>
+        <p class="muted">Impara le regole risolvendo un piccolo caso guidato.</p>
+      </a>
       <a class="card-link" href="editor.html">
-        <span class="icon-badge">✏️</span>
-        <h3>Nuovo puzzle</h3>
+        <span class="icon-badge" data-icon="editor">✏️</span>
+        <h2>Nuovo puzzle</h2>
         <p class="muted">Apri l'editor per creare un caso da zero.</p>
       </a>
       <a class="card-link" href="player.html">
-        <span class="icon-badge">🔍</span>
-        <h3>Gioca</h3>
+        <span class="icon-badge" data-icon="play">🔍</span>
+        <h2>Gioca</h2>
         <p class="muted">Scegli un caso salvato e risolvilo.</p>
       </a>
       <a class="card-link" href="campaign.html">
-        <span class="icon-badge">🕵️</span>
-        <h3>Modalità Campagna</h3>
+        <span class="icon-badge" data-icon="campaign">🕵️</span>
+        <h2>Modalità Campagna</h2>
         <p class="muted">Accedi per giocare le campagne a episodi.</p>
       </a>
       <a class="card-link" href="achievements.html">
-        <span class="icon-badge">🏆</span>
-        <h3>Traguardi</h3>
+        <span class="icon-badge" data-icon="achievements">🏆</span>
+        <h2>Traguardi</h2>
         <p class="muted">Rivedi i tuoi progressi e i traguardi sbloccati.</p>
       </a>
     </div>
@@ -60,7 +85,7 @@
   <div id="saved-list" class="hidden">
     <div class="saved-list-header">
       <h2>I tuoi puzzle</h2>
-      <select id="sort-select">
+      <select id="sort-select" aria-label="Ordina i casi">
         <option value="updated">Aggiornati di recente</option>
         <option value="title">Titolo</option>
         <option value="difficulty">Difficoltà</option>
@@ -70,12 +95,26 @@
   </div>
 
   <p class="footer-note">Murdoku Editor — creato, giocato e stampato interamente sul tuo computer.</p>
+  <p class="footer-note"><a href="privacy.html">Privacy e cancellazione dati</a></p>
 
+  
+  </main>
+
+  <script type="module" src="src/i18n/i18n.js"></script>
+  <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/skin/paper/chrome.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
   <script type="module">
+    import "./src/i18n/i18n.js";
     import * as store from "./src/storage/puzzleStore.js";
     import { duplicatePuzzle, difficultyLabel, DIFFICULTY_LEVELS } from "./src/model/puzzle.js";
     import { wireThemeToggle } from "./src/util/theme.js";
     import * as recentActivity from "./src/storage/recentActivityStore.js";
+    import { el, clear } from "./src/util/dom.js";
+    import { t, intlLocale } from "./src/i18n/i18n.js";
+    import { tutorialPlayerUrl } from "./src/util/examples.js";
+    document.getElementById("tutorial-link").href = tutorialPlayerUrl();
+    import { isSafeId } from "./src/util/safe.js";
     wireThemeToggle();
 
     const resumeBanner = document.getElementById("resume-banner");
@@ -93,6 +132,9 @@
       // index.html deliberately never loads — shown optimistically; a
       // since-deleted/locked case is handled by campaign.html's own
       // existing error panel instead.
+      // Only same-site relative player/campaign links are ever stored; refuse
+      // anything else (e.g. a tampered `javascript:` value) instead of linking it.
+      if (typeof recent.url !== "string" || !/^(player|campaign)\.html\?[\w=&%.-]*$/.test(recent.url)) { resumeBanner.classList.add("hidden"); return; }
       resumeTitle.textContent = recent.title;
       resumeBanner.href = recent.url;
       resumeBanner.classList.remove("hidden");
@@ -118,26 +160,31 @@
 
     function render() {
       const puzzles = sortPuzzles(store.list());
-      items.innerHTML = "";
+      clear(items);
       listPanel.classList.toggle("hidden", puzzles.length === 0);
       for (const p of puzzles) {
-        const row = document.createElement("div");
-        row.className = "saved-row";
-        const updated = new Date(p.updatedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
-        const badge = p.difficulty ? `<span class="difficulty-badge difficulty-${p.difficulty}">${difficultyLabel(p.difficulty)}</span>` : "";
-        const completedBadge = p.completed ? `<span class="completed-badge" title="Completato">✓</span>` : "";
-        row.innerHTML = `
-          <div>
-            <span class="title">${completedBadge}${p.title}</span>
-            ${badge}
-            <span class="meta">Aggiornato il ${updated}</span>
-          </div>
-          <div class="actions">
-            <a href="editor.html?id=${p.id}">Modifica</a>
-            <a class="play" href="player.html?id=${p.id}">Gioca</a>
-            <button class="duplicate" type="button" data-duplicate-id="${p.id}" title="Duplica">📋</button>
-            <button class="delete" type="button" data-delete-id="${p.id}" data-delete-title="${p.title.replace(/"/g, "&quot;")}" title="Elimina">🗑</button>
-          </div>`;
+        // Saved titles can originate from an imported file, so every dynamic
+        // value is attached as text / attribute through el() — never
+        // interpolated into markup.
+        if (!isSafeId(p.id)) continue;
+        const updated = new Date(p.updatedAt).toLocaleDateString(intlLocale(), { day: "numeric", month: "long", year: "numeric" });
+        const safeDifficulty = DIFFICULTY_LEVELS.some((d) => d.value === p.difficulty) ? p.difficulty : "";
+        const row = el("div", { class: "saved-row" }, [
+          el("div", {}, [
+            el("span", { class: "title" }, [
+              p.completed ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null,
+              String(p.title ?? ""),
+            ]),
+            safeDifficulty ? el("span", { class: `difficulty-badge difficulty-${safeDifficulty}` }, difficultyLabel(safeDifficulty)) : null,
+            el("span", { class: "meta" }, t("Aggiornato il {updated}", { updated })),
+          ]),
+          el("div", { class: "actions" }, [
+            el("a", { href: `editor.html?id=${encodeURIComponent(p.id)}` }, t("Modifica")),
+            el("a", { class: "play", href: `player.html?id=${encodeURIComponent(p.id)}` }, t("Gioca")),
+            el("button", { class: "duplicate", type: "button", dataset: { duplicateId: p.id }, title: t("Duplica") }, "📋"),
+            el("button", { class: "delete", type: "button", dataset: { deleteId: p.id, deleteTitle: String(p.title ?? "") }, title: t("Elimina") }, "🗑"),
+          ]),
+        ]);
         items.appendChild(row);
       }
     }
@@ -147,7 +194,7 @@
     items.addEventListener("click", (e) => {
       const deleteBtn = e.target.closest("[data-delete-id]");
       if (deleteBtn) {
-        const ok = confirm(`Eliminare definitivamente il caso "${deleteBtn.dataset.deleteTitle}"? L'azione non è reversibile.`);
+        const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: deleteBtn.dataset.deleteTitle }));
         if (!ok) return;
         store.remove(deleteBtn.dataset.deleteId);
         render();

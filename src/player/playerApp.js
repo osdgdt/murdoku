@@ -1,12 +1,16 @@
+import "../i18n/i18n.js";
 import { el, clear, qs } from "../util/dom.js";
 import * as store from "../storage/puzzleStore.js";
 import { createBoardState, serializeBoardState, deserializeBoardState } from "./board.js";
 import { duplicatePuzzle, difficultyLabel } from "../model/puzzle.js";
 import { importPuzzleFromUrl } from "../storage/importExport.js";
+import { decodePuzzleFromFragment } from "../storage/shareLink.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
+import { renderLibrarySection, isLibraryPuzzleId } from "./libraryPanel.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
+import { t, intlLocale } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -29,6 +33,23 @@ if (!puzzleId && importUrl) {
     if (!store.get(imported.id)) store.save(imported);
     puzzleId = imported.id;
     history.replaceState(null, "", `player.html?id=${puzzleId}`);
+  } catch (err) {
+    importError = err.message;
+  }
+}
+
+// Share-by-link, no hosting needed: `player.html#case=<payload>` carries the
+// whole (compressed) puzzle in the URL fragment — see storage/shareLink.js.
+// Same rule as ?import=: an already-saved case is never overwritten, so
+// reopening the link keeps the recipient's progress.
+if (!puzzleId && location.hash.startsWith("#case=")) {
+  try {
+    const shared = await decodePuzzleFromFragment(location.hash);
+    if (shared) {
+      if (!store.get(shared.id)) store.save(shared);
+      puzzleId = shared.id;
+      history.replaceState(null, "", `player.html?id=${encodeURIComponent(puzzleId)}`);
+    }
   } catch (err) {
     importError = err.message;
   }
@@ -64,16 +85,26 @@ function sortPuzzleEntries(puzzles) {
 }
 
 function showPicker() {
+  titleEl.textContent = t("Scegli un caso da giocare");
   pickerEl.classList.remove("hidden");
   gameEl.classList.add("hidden");
   clear(pickerEl);
   if (importError) {
-    pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a importare il caso dal link: ${importError}`));
+    pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a importare il caso dal link: {importError}", { importError })));
   }
-  const puzzles = sortPuzzleEntries(store.list());
+  // Library cases that were already opened are saved like any other puzzle,
+  // but are listed in the library section instead of being duplicated here.
+  const puzzles = sortPuzzleEntries(store.list().filter((p) => !isLibraryPuzzleId(p.id)));
+  renderLibrarySection(pickerEl).then(() => {
+    // The section is appended asynchronously (it fetches the index); keep it
+    // above the player's own cases.
+    const section = pickerEl.querySelector(".library-section");
+    if (section) pickerEl.insertBefore(section, pickerEl.firstChild);
+  });
+  if (puzzles.length === 0) return;
   pickerEl.appendChild(
     el("div", { class: "saved-list-header" }, [
-      el("h2", {}, "Scegli un caso da giocare"),
+      el("h2", {}, t("I tuoi casi")),
       puzzles.length > 0
         ? el(
             "select",
@@ -81,42 +112,34 @@ function showPicker() {
               onChange: (e) => { pickerSortMode = e.target.value; showPicker(); },
             },
             [
-              el("option", { value: "updated", selected: pickerSortMode === "updated" || undefined }, "Aggiornati di recente"),
-              el("option", { value: "title", selected: pickerSortMode === "title" || undefined }, "Titolo"),
-              el("option", { value: "difficulty", selected: pickerSortMode === "difficulty" || undefined }, "Difficoltà"),
+              el("option", { value: "updated", selected: pickerSortMode === "updated" || undefined }, t("Aggiornati di recente")),
+              el("option", { value: "title", selected: pickerSortMode === "title" || undefined }, t("Titolo")),
+              el("option", { value: "difficulty", selected: pickerSortMode === "difficulty" || undefined }, t("Difficoltà")),
             ]
           )
         : null,
     ])
   );
-  if (puzzles.length === 0) {
-    const panel = el("div", { class: "panel" }, [
-      el("p", { class: "muted" }, "Nessun puzzle salvato. Creane uno nell'Editor prima."),
-      el("a", { href: "editor.html" }, "Vai all'editor →"),
-    ]);
-    pickerEl.appendChild(panel);
-    return;
-  }
   const panel = el("div", { class: "panel" });
   for (const entry of puzzles) {
-    const updated = new Date(entry.updatedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+    const updated = new Date(entry.updatedAt).toLocaleDateString(intlLocale(), { day: "numeric", month: "long", year: "numeric" });
     panel.appendChild(
       el("div", { class: "saved-row" }, [
         el("div", {}, [
           el("span", { class: "title" }, [
-            entry.completed ? el("span", { class: "completed-badge", title: "Completato" }, "✓") : null,
+            entry.completed ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null,
             entry.title,
           ]),
           entry.difficulty ? el("span", { class: `difficulty-badge difficulty-${entry.difficulty}` }, difficultyLabel(entry.difficulty)) : null,
-          typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: "Miglior tempo" }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
-          el("span", { class: "meta" }, `Aggiornato il ${updated}`),
+          typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
+          el("span", { class: "meta" }, t("Aggiornato il {updated}", { updated })),
         ]),
         el("div", { class: "actions" }, [
-          el("a", { class: "play", href: `player.html?id=${entry.id}` }, "Gioca"),
+          el("a", { class: "play", href: `player.html?id=${entry.id}` }, t("Gioca")),
           el("button", {
             type: "button",
             class: "duplicate",
-            title: "Duplica",
+            title: t("Duplica"),
             onClick: () => {
               const original = store.get(entry.id);
               if (!original) return;
@@ -127,9 +150,9 @@ function showPicker() {
           el("button", {
             type: "button",
             class: "delete",
-            title: "Elimina",
+            title: t("Elimina"),
             onClick: () => {
-              const ok = confirm(`Eliminare definitivamente il caso "${entry.title}"? L'azione non è reversibile.`);
+              const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: entry.title }));
               if (!ok) return;
               store.remove(entry.id);
               showPicker();

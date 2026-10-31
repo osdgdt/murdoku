@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_hotel_it",
+  "title": "Hotel Belvedere",
+  "author": "Murdoku",
+  "difficulty": "expert",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "L'Hotel Belvedere è al completo quando la proprietaria viene trovata senza vita nella stanza «Sala da ballo». Sette persone, nove sale, due corridoi sbarrati. Una sola era con lei.",
+  "resolutionNote": "Rocco era l'unica persona con la signora Belvedere. Check-out immediato.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1767225600000,
+  "grid": {
+    "size": {
+      "rows": 7,
+      "cols": 7
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o3",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o13",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": "o15",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o11",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o17",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z8",
+          "objectId": "o14",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o16",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Reception",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Ristorante",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Bar",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Sala da ballo",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z5",
+        "name": "Spa",
+        "color": "#e0c2f4",
+        "textureId": "grass"
+      },
+      {
+        "id": "z6",
+        "name": "Biblioteca",
+        "color": "#f4d3c2",
+        "textureId": "marble"
+      },
+      {
+        "id": "z7",
+        "name": "Piscina",
+        "color": "#c2f4e8",
+        "textureId": "water"
+      },
+      {
+        "id": "z8",
+        "name": "Cucina",
+        "color": "#e8e8e8",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z9",
+        "name": "Giardino",
+        "color": "#d6e8a4",
+        "textureId": "wood"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "lamp",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "o2",
+        "typeId": "plant",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "o3",
+        "typeId": "window",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "o4",
+        "typeId": "table",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "o5",
+        "typeId": "tv",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "o6",
+        "typeId": "chair",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "o7",
+        "typeId": "stool",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "o8",
+        "typeId": "carpet",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "o9",
+        "typeId": "shelf",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "o10",
+        "typeId": "door",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "o11",
+        "typeId": "table",
+        "row": 5,
+        "col": 3
+      },
+      {
+        "id": "o12",
+        "typeId": "plant",
+        "row": 4,
+        "col": 5
+      },
+      {
+        "id": "o13",
+        "typeId": "window",
+        "row": 3,
+        "col": 6
+      },
+      {
+        "id": "o14",
+        "typeId": "shelf",
+        "row": 6,
+        "col": 0
+      },
+      {
+        "id": "o15",
+        "typeId": "stool",
+        "row": 5,
+        "col": 1
+      },
+      {
+        "id": "o16",
+        "typeId": "table",
+        "row": 6,
+        "col": 4
+      },
+      {
+        "id": "o17",
+        "typeId": "carpet",
+        "row": 5,
+        "col": 5
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Signora Belvedere",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "La proprietaria dell'hotel.",
+      "color": "#608aea",
+      "gender": "female"
+    },
+    {
+      "id": "c2",
+      "name": "Rocco",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "Il portiere di notte.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "c3",
+      "name": "Anita",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "La governante dei piani.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "c4",
+      "name": "Fabio",
+      "iconId": "professor",
+      "isVictim": false,
+      "bio": "Un ospite di lunga data.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Paola",
+      "iconId": "glasses",
+      "isVictim": false,
+      "bio": "La giornalista in incognito.",
+      "color": "#bf8020",
+      "gender": "female"
+    },
+    {
+      "id": "c6",
+      "name": "Nico",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "Il cuoco, appena licenziato.",
+      "color": "#4a6aca",
+      "gender": "male"
+    },
+    {
+      "id": "c7",
+      "name": "Chiara",
+      "iconId": "artist",
+      "isVictim": false,
+      "bio": "La musicista del bar.",
+      "color": "#9f80b5",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c2",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "o5",
+        "targetBId": "objtype:table"
+      },
+      "negate": true
+    },
+    {
+      "id": "k2",
+      "characterId": "c7",
+      "type": "facing",
+      "params": {
+        "targetId": "o17"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c3",
+      "type": "facing",
+      "params": {
+        "targetId": "o5"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "south",
+        "distance": 3,
+        "targetId": "objtype:window"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c2",
+      "type": "between",
+      "params": {
+        "targetAId": "objtype:chair",
+        "targetBId": "z5"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c4",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "o16",
+        "targetBId": "objtype:tv"
+      },
+      "negate": true
+    },
+    {
+      "id": "k7",
+      "characterId": "c5",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "o11",
+        "targetBId": "z1"
+      }
+    },
+    {
+      "id": "k8",
+      "characterId": "c6",
+      "type": "extremeInDirection",
+      "params": {
+        "direction": "east",
+        "scope": "room",
+        "property": "adjacentTo",
+        "targetId": "o17"
+      }
+    },
+    {
+      "id": "k9",
+      "characterId": null,
+      "type": "exactlyOneNear",
+      "params": {
+        "targetId": "objtype:plant"
+      },
+      "negate": true
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "characterId": "c2",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "characterId": "c3",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "characterId": "c6",
+        "row": 5,
+        "col": 6
+      },
+      {
+        "characterId": "c7",
+        "row": 6,
+        "col": 5
+      }
+    ]
+  },
+  "manualHints": []
+}

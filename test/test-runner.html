@@ -11,6 +11,7 @@
   </style>
 </head>
 <body>
+  <script>window.__MURDOKU_LANG__ = "it";</script>
   <h1>Murdoku — Test Suite</h1>
   <p id="summary"></p>
   <ul id="results"></ul>
@@ -31,8 +32,20 @@
     import { tests as hoverDomainTests } from "./test-hover-domain.js";
     import { tests as iconsTests } from "./test-icons.js";
     import { tests as progressCodecTests } from "./test-progress-codec.js";
+    import { tests as securityTests } from "./test-security.js";
+    import { tests as migrationTests } from "./test-migrations.js";
+    import { tests as i18nTests } from "./test-i18n.js";
+    import { tests as shareLinkTests } from "./test-share-link.js";
+    import { tests as redundancyTests } from "./test-redundancy.js";
+    import { tests as shareResultTests } from "./test-share-result.js";
+    import { tests as gameLogicTests } from "./test-game-logic.js";
+    import { tests as paletteTests } from "./test-palette.js";
+    import { tests as solveHistoryTests } from "./test-solve-history.js";
+    import { tests as errorReportTests } from "./test-error-report.js";
+    import { tests as libraryTests } from "./test-library.js";
+    import { tests as skinTests } from "./test-skin.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

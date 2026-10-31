@@ -1,5 +1,7 @@
 # Murdoku Editor
 
+🇬🇧 English version: [README.en.md](README.en.md) · L'app è disponibile in **italiano e inglese** (pulsante IT/EN in alto a destra; di default segue la lingua del browser).
+
 🌐 **Gioca online:** [osdgdt.github.io/murdoku](https://osdgdt.github.io/murdoku/) — nessuna installazione richiesta, funziona direttamente nel browser.
 
 Editor e player per puzzle **Murdoku**: un ibrido tra Sudoku e deduzione investigativa. Su una griglia si piazzano personaggi (uno per riga/colonna) rispettando indizi legati a una mappa con stanze, zone colorate e oggetti; una vittima va piazzata anch'essa, e a fine gioco si rivela l'assassino.
@@ -26,6 +28,22 @@ npx serve .
 
 Poi apri `http://localhost:8000` nel browser.
 
+## Novità principali
+
+- **Installabile e offline (PWA):** da telefono o desktop si può "Aggiungere alla schermata Home"; dopo la prima visita l'app funziona anche senza rete (campagne e login Google a parte).
+- **Condividi con un link:** in editor, **🔗 Condividi** copia un link `player.html#case=…` che contiene l'intero caso (compresso, nel frammento dell'URL: non passa da nessun server). Chi lo apre gioca subito, senza file da ospitare. Il vecchio `?import=<url>` continua a funzionare.
+- **Libreria di casi:** 8 casi inclusi (+ il tutorial), in italiano e inglese, di difficoltà crescente, con **📅 Caso del giorno**. Ogni caso ha soluzione unica verificata dal solver.
+- **Scorciatoie da tastiera** nel gioco: 1-9 scelgono un personaggio, X segna, E gomma, U annulla, H suggerimento.
+- **Privacy:** pagina dedicata (`privacy.html`) con i pulsanti per cancellare i dati locali e quelli nel cloud; font ospitati dal sito (nessuna richiesta a Google Fonts).
+- **Segnalazione errori:** se qualcosa si rompe compare un avviso con un link che apre una issue GitHub precompilata (nulla viene inviato in automatico).
+- **Tutorial incluso:** dalla home, **🎓 Tutorial** apre un piccolo caso guidato (`examples/`), con suggerimenti passo-passo scritti a mano.
+- **✂ Indizi superflui** (editor): trova gli indizi che si possono togliere senza perdere l'unicità della soluzione.
+- **📜 Storico** (pagina Traguardi): ogni risoluzione (data, tempo, suggerimenti), riepilogo per caso e tempo medio; resta solo sul dispositivo.
+- **Colori accessibili:** la palette dei personaggi è scelta per restare distinguibile con protanopia, deuteranopia e tritanopia (e token/note hanno comunque icona e iniziale); i casi esistenti vengono ricolorati da una migrazione.
+- **📤 Condividi risultato** a fine caso: un testo senza spoiler (titolo, tempo, suggerimenti).
+- **Mobile:** su schermi stretti la griglia si rimpicciolisce per entrare nel viewport e i nomi delle stanze passano in una legenda sotto la mappa.
+- **Sicurezza dell'import:** ogni file/link importato è validato (id e colori solo in forma sicura, dimensione massima 1 MB, versione dello schema) prima di toccare la pagina.
+
 ## Struttura
 
 - `index.html` — pagina iniziale (nuovo puzzle / gioca / puzzle salvati)
@@ -38,7 +56,10 @@ Poi apri `http://localhost:8000` nel browser.
 - `src/player/` — UI di gioco
 - `src/storage/` — salvataggio su localStorage, export/import JSON
 - `src/print/` — rendering della vista stampabile
-- `test/` — test senza framework: apri `test/test-runner.html` nel browser
+- `src/i18n/` — traduzioni: `t("testo italiano")` + dizionario inglese in `src/i18n/en/`
+- `examples/` — casi inclusi: il tutorial (`tools/make-tutorial.mjs`) e la libreria (`tools/make-library.mjs`, specifiche in `tools/cases/library.mjs`); ogni caso è verificato dal solver
+- `sw.js`, `manifest.webmanifest`, `icons/` — PWA (la lista dei file in cache di `sw.js` si rigenera con `npm run build:sw`)
+- `test/` — test senza framework: apri `test/test-runner.html` nel browser, oppure `npm test` da terminale
 
 ## Uso
 
@@ -74,6 +95,10 @@ Dalla home, **🕵️ Modalità Campagna** porta a una sequenza di casi giocati 
 
 Le campagne si creano solo dall'apposito **editor campagne** (`campaign-editor.html`), riservato al proprietario del sito: vi si crea una campagna (titolo, descrizione) e vi si aggiungono i casi incollando l'URL di un `.murdoku.json` già pubblicato (lo stesso meccanismo usato per condividere un caso singolo via link — vedi sopra), riordinandoli con ↑/↓.
 
+#### Chi può gestire le campagne
+
+L'UID storico del proprietario resta scritto in `firestore.rules` (così un errore di configurazione non può mai chiuderti fuori). Per dare lo stesso permesso a un'altra persona basta, nella console Firebase → Firestore, creare un documento **`admins/<uid>`** (l'UID è quello dell'account Google in Authentication → Utenti; il contenuto del documento è indifferente). I client non possono scrivere in `admins`. Dopo aver modificato `firestore.rules`, pubblicale con *Firestore → Regole → Pubblica* (o `firebase deploy --only firestore:rules`).
+
 ### Tema scuro
 L'icona 🌙/☀️ in alto a destra (home, editor, gioca) passa dal tema chiaro a quello scuro; la scelta viene ricordata per le visite successive. La vista di stampa resta sempre chiara, per corrispondere a ciò che esce dalla stampante.
 
@@ -88,6 +113,22 @@ I progressi in modalità Gioca (piazzamenti confermati, segni X, candidati, e se
 
 Un puzzle esportato è un JSON con `grid` (dimensioni, celle, zone, oggetti), `characters`, `clues` (tipizzati) e `solution.placements`. Vedi `src/model/puzzle.js` per la forma esatta.
 
-## Test
+## Sviluppo e test
 
-Apri `test/test-runner.html` nel browser (servito dal server statico locale) per eseguire i test su modello dati e solver.
+Il sito **non ha build**: `package.json` serve solo agli strumenti di sviluppo.
+
+```bash
+npm install
+npm test          # ~320 test sotto Node + controllo che sw.js sia aggiornato
+npm run lint      # ESLint
+npm run i18n      # elenca le stringhe senza traduzione inglese (--strict per far fallire)
+npm run e2e:all   # test nel browser (Playwright): gioca il tutorial in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor
+npm run make:library  # rigenera examples/library/ (casi proposti dallo strumento in tools/, tutti verificati dal solver)
+npm run build:sw  # rigenera la lista di file in cache del service worker
+```
+
+I test girano anche nel browser: apri `test/test-runner.html` dal server statico locale. La CI (GitHub Actions) esegue lint, test ed e2e a ogni push.
+
+**Aggiungere o cambiare testi:** scrivi il testo in italiano dentro `t("…")` (con segnaposto `{nome}`), poi aggiungi la voce inglese in `src/i18n/en/`. L'HTML statico si traduce da solo: basta aggiungere la voce al dizionario.
+
+**Cambiare il formato dei casi:** aggiungi una funzione in `src/model/migrations.js`; i casi salvati o importati con una versione precedente vengono aggiornati al volo, quelli di una versione futura vengono rifiutati con un messaggio chiaro.

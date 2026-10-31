@@ -3,13 +3,14 @@ import { renderBoard } from "../util/boardRender.js";
 import { characterIcon } from "../model/icons.js";
 import { setSolutionPlacement, placementFor, characterColor } from "../model/puzzle.js";
 import { isOccupiable } from "../model/grid.js";
+import { t } from "../i18n/i18n.js";
 
 let selectedCharacterId = null;
 
 export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
   clear(panelEl);
-  panelEl.appendChild(el("h3", {}, "Soluzione dell'autore"));
-  panelEl.appendChild(el("p", { class: "muted" }, "Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato."));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Soluzione dell'autore")));
+  panelEl.appendChild(el("p", { class: "muted" }, t("Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato.")));
 
   if (selectedCharacterId && !puzzle.characters.find((c) => c.id === selectedCharacterId)) {
     selectedCharacterId = null;
@@ -25,7 +26,7 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
         class: "char-chip" + (selectedCharacterId === character.id ? " selected" : "") + (placed ? " used" : ""),
         tabindex: "0",
         role: "button",
-        "aria-label": character.name + (character.isVictim ? " (vittima)" : ""),
+        "aria-label": character.name + (character.isVictim ? t(" (vittima)") : ""),
         onClick: selectThis,
         onKeydown: onActivateKey(selectThis),
       },
@@ -43,7 +44,7 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
         if (character) {
           const token = el("div", {
             class: "char-token",
-            style: `background:${character.isVictim ? "var(--danger)" : characterColor(character)}`,
+            style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}`,
             title: character.name,
           });
           token.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;

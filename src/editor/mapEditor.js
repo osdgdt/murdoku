@@ -1,8 +1,10 @@
+import { roomColor } from "../skin/paper/rooms.js";
 import { el, clear } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import { addZone, removeZone, paintCellZone, placeObject, removeObject, resizeGrid, setBlocked } from "../model/grid.js";
 import { OBJECT_TYPES } from "../model/icons.js";
 import { ZONE_TEXTURES } from "../model/textures.js";
+import { t } from "../i18n/i18n.js";
 
 const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8"];
 
@@ -23,11 +25,11 @@ function onActivateKey(onActivate) {
 export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   clear(panelEl);
 
-  panelEl.appendChild(el("h3", {}, "Mappa"));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Mappa")));
 
   // Grid size controls
-  const rowsInput = el("input", { type: "number", min: "3", max: "9", value: String(puzzle.grid.size.rows), style: "width:4em" });
-  const colsInput = el("input", { type: "number", min: "3", max: "9", value: String(puzzle.grid.size.cols), style: "width:4em" });
+  const rowsInput = el("input", { type: "number", "aria-label": t("Righe"), min: "3", max: "9", value: String(puzzle.grid.size.rows), style: "width:4em" });
+  const colsInput = el("input", { type: "number", "aria-label": t("Colonne"), min: "3", max: "9", value: String(puzzle.grid.size.cols), style: "width:4em" });
   const applySize = el("button", {
     onClick: () => {
       const rows = Math.max(3, Math.min(9, parseInt(rowsInput.value, 10) || 6));
@@ -35,28 +37,28 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
       onChange();
     },
-  }, "Applica");
+  }, t("Applica"));
   panelEl.appendChild(
     el("div", { class: "field-row" }, [
-      el("label", {}, "Righe"), rowsInput,
-      el("label", {}, "Colonne"), colsInput,
+      el("label", {}, t("Righe")), rowsInput,
+      el("label", {}, t("Colonne")), colsInput,
       applySize,
     ])
   );
 
   // Zones
-  panelEl.appendChild(el("h3", {}, "Stanze / Zone"));
-  const zoneNameInput = el("input", { type: "text", placeholder: "Nome stanza" });
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Stanze / Zone")));
+  const zoneNameInput = el("input", { type: "text", placeholder: t("Nome stanza") });
   const addZoneBtn = el("button", {
     onClick: () => {
-      const name = zoneNameInput.value.trim() || `Stanza ${puzzle.grid.zones.length + 1}`;
+      const name = zoneNameInput.value.trim() || t("Stanza {v}", { v: puzzle.grid.zones.length + 1 });
       const color = ZONE_COLORS[puzzle.grid.zones.length % ZONE_COLORS.length];
       const zone = addZone(puzzle.grid, name, color);
       tool = { kind: "zone", zoneId: zone.id };
       zoneNameInput.value = "";
       onChange();
     },
-  }, "+ Aggiungi stanza");
+  }, t("+ Aggiungi stanza"));
   panelEl.appendChild(el("div", { class: "field-row" }, [zoneNameInput, addZoneBtn]));
 
   const zoneList = el("div", { class: "zone-swatch-list" });
@@ -67,11 +69,11 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     };
     const swatch = el("div", {
       class: "swatch" + (tool?.kind === "zone" && tool.zoneId === zone.id ? " selected" : ""),
-      style: `background:${zone.color}`,
-      title: zone.name + " (click per dipingere, doppio click per rimuovere)",
+      style: `background:${roomColor(zone.color)}`,
+      title: zone.name + t(" (click per dipingere, doppio click per rimuovere)"),
       tabindex: "0",
       role: "button",
-      "aria-label": `Stanza ${zone.name}: seleziona per dipingere`,
+      "aria-label": t("Stanza {name}: seleziona per dipingere", { name: zone.name }),
       onClick: selectZone,
       onKeydown: onActivateKey(selectZone),
       onDblclick: () => {
@@ -84,7 +86,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       "select",
       {
         class: "zone-texture-select",
-        title: "Texture della stanza",
+        title: t("Texture della stanza"),
         onChange: (e) => { zone.textureId = e.target.value; onChange(); },
       },
       Object.entries(ZONE_TEXTURES).map(([id, def]) =>
@@ -94,10 +96,10 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     zoneList.appendChild(el("div", { class: "zone-swatch-item" }, [swatch, textureSelect]));
   }
   panelEl.appendChild(zoneList);
-  panelEl.appendChild(el("p", { class: "muted" }, "Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza."));
+  panelEl.appendChild(el("p", { class: "muted" }, t("Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza.")));
 
   // Objects
-  panelEl.appendChild(el("h3", {}, "Oggetti / Mobili"));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Oggetti / Mobili")));
   const objectPalette = el("div", { class: "object-palette" });
   for (const [typeId, def] of Object.entries(OBJECT_TYPES)) {
     const selectObject = () => {
@@ -109,7 +111,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       title: def.label,
       tabindex: "0",
       role: "button",
-      "aria-label": `Oggetto: ${def.label}`,
+      "aria-label": t("Oggetto: {label}", { label: def.label }),
       onClick: selectObject,
       onKeydown: onActivateKey(selectObject),
     });
@@ -119,16 +121,16 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(objectPalette);
 
   // Shape tool
-  panelEl.appendChild(el("h3", {}, "Forma della mappa"));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Forma della mappa")));
   const blockBtn = el("button", {
     onClick: () => { tool = { kind: "block" }; onChange(); },
-  }, tool?.kind === "block" ? "🚫 Blocca/sblocca cella (attivo)" : "🚫 Blocca/sblocca cella");
+  }, tool?.kind === "block" ? t("🚫 Blocca/sblocca cella (attivo)") : t("🚫 Blocca/sblocca cella"));
   panelEl.appendChild(el("div", { class: "field-row" }, [blockBtn]));
-  panelEl.appendChild(el("p", { class: "muted" }, "Clicca sulle celle per escluderle dalla mappa (es. per creare forme a L o irregolari). Clicca di nuovo per riattivarle."));
+  panelEl.appendChild(el("p", { class: "muted" }, t("Clicca sulle celle per escluderle dalla mappa (es. per creare forme a L o irregolari). Clicca di nuovo per riattivarle.")));
 
   const eraseBtn = el("button", {
     onClick: () => { tool = { kind: "erase" }; onChange(); },
-  }, tool?.kind === "erase" ? "Gomma (attiva)" : "Gomma");
+  }, tool?.kind === "erase" ? t("Gomma (attiva)") : t("Gomma"));
   panelEl.appendChild(el("div", { class: "field-row" }, [eraseBtn]));
 
   renderBoard(boardEl, puzzle.grid, {

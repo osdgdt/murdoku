@@ -151,10 +151,34 @@
 
 .board-label-row { position: relative; }
 
+.room-legend { display: none; }
+
+/* Phones: no room for the left-hanging room names, and cells shrink so the
+   whole board fits the viewport instead of scrolling the page sideways. */
+@media (max-width: 860px) {
+  .board-grid {
+    margin-left: 0;
+    --cell-size: clamp(34px, calc((100vw - 96px - 3px * var(--cols, 6)) / var(--cols, 6)), 56px);
+  }
+  .room-label-stack { display: none; }
+  .room-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    grid-column: 1 / -1;
+    padding: 0.35rem 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: var(--panel-alt);
+    border-radius: 3px;
+  }
+  .room-legend-item { display: inline-flex; align-items: center; gap: 0.3rem; }
+}
+
 .board-cell {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: var(--cell-size, 56px);
+  height: var(--cell-size, 56px);
   background: var(--cell-bg);
   display: flex;
   align-items: center;
@@ -466,7 +490,7 @@
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: var(--ink-faint);
+  color: var(--ink-soft);
   text-transform: uppercase;
 }
 

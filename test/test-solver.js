@@ -2,7 +2,7 @@ import { createPuzzle, addCharacter, addClue, setSolutionPlacement } from "../sr
 import { addZone, paintCellZone, placeObject, resizeGrid, setBlocked } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import { characterClueTypeIds, genericClueTypeIds, describeClue } from "../src/model/clueTypes.js";
-import { buildPredicate } from "../src/solver/predicates.js";
+import { buildPredicate } from "../src/solver/predicates/index.js";
 import { solvePuzzle } from "../src/solver/solver.js";
 import { checkUniqueness, validateSolution } from "../src/solver/validator.js";
 import { propagate } from "../src/solver/propagation.js";
@@ -238,9 +238,9 @@ export const tests = [
       const puzzle = basePuzzle(3, 3);
       // Block the top-right corner to form an L-shaped map.
       setBlocked(puzzle.grid, 0, 2, true);
-      const a = addCharacter(puzzle, "A", "person1");
-      const b = addCharacter(puzzle, "B", "person2");
-      const c = addCharacter(puzzle, "C", "person1", true);
+      addCharacter(puzzle, "A", "person1");
+      addCharacter(puzzle, "B", "person2");
+      addCharacter(puzzle, "C", "person1", true);
       // A 2-cell room on different rows/cols so two distinct characters can
       // occupy it at once (a same-row/same-col room could never hold more
       // than one person) — needed so at least one placement satisfies the
@@ -647,7 +647,7 @@ export const tests = [
       const statsWithout = {};
       const withoutDomains = solvePuzzle(puzzle, { maxSolutions: 100, stats: statsWithout });
       const statsWith = {};
-      const withDomains = solvePuzzle(puzzle, {
+      solvePuzzle(puzzle, {
         maxSolutions: 100,
         fixedPlacements: prop.confirmed,
         domains: prop.domains,

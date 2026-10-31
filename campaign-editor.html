@@ -3,27 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="robots" content="noindex" />
   <title>Editor campagne — Murdoku</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/nunito-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/landing.css" />
   <link rel="stylesheet" href="styles/editor.css" />
+  <link rel="stylesheet" href="styles/skin-paper.css" />
   <script>
     try {
-      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+      var t = localStorage.getItem("murdoku:theme");
+      if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
     } catch (e) {}
   </script>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <a class="brand" href="index.html">🔎 Murdoku</a>
     <h2 style="margin:0">Editor campagne</h2>
     <div class="topbar-right" id="auth-bar" style="display:flex;align-items:center;gap:0.6rem">
+      <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
       <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
     </div>
-  </div>
+  </header>
+  <main>
 
   <div id="gate" class="hero"></div>
 
@@ -55,7 +64,7 @@
         <div id="case-list"></div>
         <div class="field-row" style="margin-top:0.8rem">
           <label for="add-case-url">Nuovo caso</label>
-          <input id="add-case-url" type="text" placeholder="URL del file .murdoku.json (es. regalo_leo.murdoku.json)" style="flex:1" />
+          <input id="add-case-url" type="text" placeholder="URL del file .murdoku.json (es. examples/tutorial.it.murdoku.json)" style="flex:1" />
           <button id="add-case-btn">Aggiungi</button>
         </div>
         <p id="add-case-status" class="muted"></p>
@@ -63,6 +72,13 @@
     </div>
   </div>
 
+  
+  </main>
+
+  <script type="module" src="src/i18n/i18n.js"></script>
+  <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/skin/paper/chrome.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
   <script type="module" src="src/campaign/campaignEditorApp.js"></script>
 </body>
 </html>

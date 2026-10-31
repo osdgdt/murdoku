@@ -1,3 +1,4 @@
+import { t } from "../i18n/i18n.js";
 export function manhattan(a, b) {
   return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
 }
@@ -45,8 +46,8 @@ export function isDirectionDistance(direction, distance, pos, target) {
 
 export const DIRECTIONS = ["north", "south", "east", "west"];
 export const DIRECTION_LABELS = {
-  north: "a nord di",
-  south: "a sud di",
-  east: "a est di",
-  west: "a ovest di",
+  north: t("a nord di"),
+  south: t("a sud di"),
+  east: t("a est di"),
+  west: t("a ovest di"),
 };

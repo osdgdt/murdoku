@@ -2,6 +2,7 @@ import { el, clear } from "../util/dom.js";
 import { objectIcon, characterIcon } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
 import { cluesForCharacter, genericClues, difficultyLabel } from "../model/puzzle.js";
+import { t } from "../i18n/i18n.js";
 
 function addPrintLabels(board, grid) {
   board.appendChild(el("div", { class: "print-label print-label-corner" }));
@@ -53,7 +54,7 @@ function renderClueCards(puzzle) {
   if (generic.length > 0) {
     wrap.appendChild(
       el("div", { class: "print-card generic" }, [
-        el("h3", {}, "🔎 Indizi generali del caso"),
+        el("h3", {}, t("🔎 Indizi generali del caso")),
         el("ul", {}, generic.map((clue) => el("li", {}, describeClue(clue, puzzle)))),
       ])
     );
@@ -63,12 +64,12 @@ function renderClueCards(puzzle) {
     const iconWrap = el("span", { style: "display:inline-flex;width:18px;height:18px;vertical-align:middle;margin-right:4px" });
     iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
     const card = el("div", { class: "print-card" }, [
-      el("h3", {}, [iconWrap, character.name + (character.isVictim ? " (Vittima)" : "")]),
+      el("h3", {}, [iconWrap, character.name + (character.isVictim ? t(" (Vittima)") : "")]),
       character.bio ? el("p", { class: "print-bio" }, character.bio) : null,
       el(
         "ul",
         {},
-        clues.length ? clues.map((clue) => el("li", {}, describeClue(clue, puzzle))) : [el("li", {}, "Nessun indizio.")]
+        clues.length ? clues.map((clue) => el("li", {}, describeClue(clue, puzzle))) : [el("li", {}, t("Nessun indizio."))]
       ),
     ]);
     wrap.appendChild(card);
@@ -95,17 +96,17 @@ function renderBlankGrid(puzzle) {
 export function renderPrintView(container, puzzle) {
   clear(container);
   const subtitleParts = [];
-  if (puzzle.author) subtitleParts.push(`di ${puzzle.author}`);
-  if (puzzle.difficulty) subtitleParts.push(`Difficoltà: ${difficultyLabel(puzzle.difficulty)}`);
+  if (puzzle.author) subtitleParts.push(t("di {author}", { author: puzzle.author }));
+  if (puzzle.difficulty) subtitleParts.push(t("Difficoltà: {v}", { v: difficultyLabel(puzzle.difficulty) }));
   const page = el("div", { class: "print-page" }, [
     el("h1", { class: "print-title" }, puzzle.title),
     el("p", { class: "print-subtitle" }, subtitleParts.join(" · ")),
     puzzle.briefing ? el("p", { class: "print-briefing" }, puzzle.briefing) : null,
-    el("h2", { class: "print-blank-heading" }, "Mappa del caso"),
+    el("h2", { class: "print-blank-heading" }, t("Mappa del caso")),
     renderMapGrid(puzzle),
-    el("h2", { class: "print-blank-heading" }, "Personaggi e indizi"),
+    el("h2", { class: "print-blank-heading" }, t("Personaggi e indizi")),
     renderClueCards(puzzle),
-    el("h2", { class: "print-blank-heading" }, "Griglia per risolvere"),
+    el("h2", { class: "print-blank-heading" }, t("Griglia per risolvere")),
     renderBlankGrid(puzzle),
   ]);
   container.appendChild(page);

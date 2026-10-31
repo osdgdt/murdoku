@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /campaign-editor.html
+Disallow: /print.html
+
+Sitemap: https://osdgdt.github.io/murdoku/sitemap.xml

@@ -1,7 +1,7 @@
 import { createPuzzle, addCharacter, addClue, setClueNegate, setSolutionPlacement } from "../src/model/puzzle.js";
 import { addZone, paintCellZone, resizeGrid } from "../src/model/grid.js";
 import { deriveSolution } from "../src/solver/deriveSolution.js";
-import { assert, assertEqual } from "./assert.js";
+import { assertEqual } from "./assert.js";
 
 function basePuzzle(rows, cols) {
   const puzzle = createPuzzle("Test deriveSolution");

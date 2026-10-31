@@ -2,6 +2,7 @@ import { el, clear } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
 import { cluesForCharacter, genericClues, characterColor } from "../model/puzzle.js";
+import { t } from "../i18n/i18n.js";
 
 // `state`, when passed, dims a character's card once the player has confirmed
 // them on the board — a quick visual "handled" cue, like a suspect crossed
@@ -10,7 +11,7 @@ import { cluesForCharacter, genericClues, characterColor } from "../model/puzzle
 // (see gameScreen.js's showClueHover/clearHover).
 export function renderClueCards(container, puzzle, state, onClueHover, onClueHoverEnd) {
   clear(container);
-  container.appendChild(el("h3", {}, "Personaggi e indizi"));
+  container.appendChild(el("h3", { "aria-level": "2" }, t("Personaggi e indizi")));
 
   function clueLi(clue) {
     return el("li", { onMouseenter: onClueHover ? () => onClueHover(clue) : undefined, onMouseleave: onClueHoverEnd }, describeClue(clue, puzzle));
@@ -20,7 +21,7 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
   if (generic.length > 0) {
     container.appendChild(
       el("div", { class: "clue-card generic" }, [
-        el("div", { class: "row" }, [el("strong", {}, "🔎 Indizi generali del caso")]),
+        el("div", { class: "row" }, [el("strong", {}, t("🔎 Indizi generali del caso"))]),
         el("ul", {}, generic.map(clueLi)),
       ])
     );
@@ -34,7 +35,7 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
     const list = el(
       "ul",
       {},
-      clues.length ? clues.map(clueLi) : [el("li", { class: "muted" }, "Nessun indizio.")]
+      clues.length ? clues.map(clueLi) : [el("li", { class: "muted" }, t("Nessun indizio."))]
     );
 
     const placed = state?.placements.has(character.id);
@@ -43,7 +44,7 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
       class: "clue-card" + (character.isVictim ? " victim" : "") + (placed ? " placed" : "") + (active ? " active" : ""),
       style: character.isVictim ? "" : `--clue-accent: ${characterColor(character)}`,
     }, [
-      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name + (character.isVictim ? " (Vittima)" : ""))]),
+      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name + (character.isVictim ? t(" (Vittima)") : ""))]),
       character.bio ? el("p", { class: "bio-text" }, character.bio) : null,
       list,
     ]);

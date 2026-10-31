@@ -3,6 +3,7 @@ import { renderBoard } from "../util/boardRender.js";
 import { characterIcon } from "../model/icons.js";
 import { characterColor, addManualHintStep, updateManualHintStep, removeManualHintStep, reorderManualHintSteps } from "../model/puzzle.js";
 import { isOccupiable, zoneOfCell } from "../model/grid.js";
+import { t } from "../i18n/i18n.js";
 
 // UI-only: which step (if any) is currently choosing its board highlight via
 // the "🎯 Imposta su mappa" button below, and which character is currently
@@ -23,12 +24,12 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
   const rerenderSelf = () => renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistOnly);
 
   clear(panelEl);
-  panelEl.appendChild(el("h3", {}, "Suggerimenti passo-passo"));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Suggerimenti passo-passo")));
   panelEl.appendChild(
     el(
       "p",
       { class: "muted" },
-      'Se questo caso ha almeno un passo qui sotto, il pulsante "Suggerimento" nel gioco mostrerà SOLO questa sequenza scritta da te, nell\'ordine, al posto del motore di suggerimenti automatico. Lascia questa lista vuota per continuare a usare i suggerimenti automatici (comportamento invariato).'
+      t("Se questo caso ha almeno un passo qui sotto, il pulsante \"Suggerimento\" nel gioco mostrerà SOLO questa sequenza scritta da te, nell'ordine, al posto del motore di suggerimenti automatico. Lascia questa lista vuota per continuare a usare i suggerimenti automatici (comportamento invariato).")
     )
   );
 
@@ -43,7 +44,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
       {
         class: "bio-input",
         rows: "2",
-        placeholder: "Testo del passo (spiegazione dell'autore)",
+        placeholder: t("Testo del passo (spiegazione dell'autore)"),
         onInput: (e) => { updateManualHintStep(puzzle, step.id, { message: e.target.value }); onPersistOnly(); },
       },
       step.message || ""
@@ -53,8 +54,8 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
       "span",
       { class: "muted" },
       character && step.row != null
-        ? `Evidenzia: ${character.name} in R${step.row + 1}/C${step.col + 1}${zone ? ` (${zone.name})` : ""}`
-        : "Nessuna evidenziazione (solo testo)"
+        ? t("Evidenzia: {name} in R{row}/C{col}{zone}", { name: character.name, row: step.row + 1, col: step.col + 1, zone: zone ? ` (${zone.name})` : "" })
+        : t("Nessuna evidenziazione (solo testo)")
     );
 
     const pickBtn = el(
@@ -70,14 +71,14 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
           rerenderSelf();
         },
       },
-      pickingStepId === step.id ? "✓ Scegli sulla mappa a destra…" : "🎯 Imposta su mappa"
+      pickingStepId === step.id ? t("✓ Scegli sulla mappa a destra…") : t("🎯 Imposta su mappa")
     );
     const clearHighlightBtn =
       character || step.row != null
         ? el(
             "button",
             { onClick: () => { updateManualHintStep(puzzle, step.id, { characterId: null, row: null, col: null }); onChange(); } },
-            "✕ Rimuovi evidenziazione"
+            t("✕ Rimuovi evidenziazione")
           )
         : null;
     const upBtn = el(
@@ -94,20 +95,20 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
       "button",
       {
         class: "clue-remove",
-        title: "Rimuovi passo",
+        title: t("Rimuovi passo"),
         onClick: () => {
           if (pickingStepId === step.id) pickingStepId = null;
           removeManualHintStep(puzzle, step.id);
           onChange();
         },
       },
-      "×"
+      t("×")
     );
 
     list.appendChild(
       el("div", { class: "clue-card" }, [
         el("div", { class: "clue-card-header" }, [
-          el("span", { class: "clue-text" }, `Passo ${i + 1}`),
+          el("span", { class: "clue-text" }, t("Passo {v}", { v: i + 1 })),
           el("div", { class: "clue-card-actions" }, [upBtn, downBtn, removeBtn]),
         ]),
         textarea,
@@ -117,7 +118,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
   });
   panelEl.appendChild(list);
 
-  panelEl.appendChild(el("button", { onClick: () => { addManualHintStep(puzzle, ""); onChange(); } }, "+ Aggiungi passo"));
+  panelEl.appendChild(el("button", { onClick: () => { addManualHintStep(puzzle, ""); onChange(); } }, t("+ Aggiungi passo")));
 
   // Board condivisa: anteprima di sola lettura (mostra i token già assegnati
   // ad ogni passo) quando nessun passo è in fase di scelta, oppure la
@@ -131,7 +132,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
         if (character) {
           const token = el("div", {
             class: "char-token",
-            style: `background:${character.isVictim ? "var(--danger)" : characterColor(character)}`,
+            style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}`,
             title: character.name,
           });
           token.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
@@ -160,7 +161,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
       )
     );
   }
-  panelEl.insertBefore(el("p", { class: "muted" }, "Seleziona un personaggio, poi clicca la cella da evidenziare per questo passo."), list);
+  panelEl.insertBefore(el("p", { class: "muted" }, t("Seleziona un personaggio, poi clicca la cella da evidenziare per questo passo.")), list);
   panelEl.insertBefore(chips, list);
 
   renderBoard(boardEl, puzzle.grid, {

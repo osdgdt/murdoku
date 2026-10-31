@@ -3,30 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Scegli un caso e risolvilo ragionando sugli indizi. / Pick a case and solve it by reasoning from the clues." />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/player.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Gioca a Murdoku / Play Murdoku" />
+  <meta property="og:description" content="Scegli un caso e risolvilo ragionando sugli indizi. / Pick a case and solve it by reasoning from the clues." />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/player.html" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <title>Gioca a Murdoku</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/nunito-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/landing.css" />
   <link rel="stylesheet" href="styles/editor.css" />
   <link rel="stylesheet" href="styles/player.css" />
+  <link rel="stylesheet" href="styles/skin-paper.css" />
   <script>
     try {
-      if (localStorage.getItem("murdoku:theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+      var t = localStorage.getItem("murdoku:theme");
+      if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
     } catch (e) {}
   </script>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <a class="brand" href="index.html">🔎 Murdoku</a>
-    <h2 id="player-title" class="player-title"></h2>
+    <h1 id="player-title" class="player-title"></h1>
     <div class="topbar-right">
       <span id="timer" class="timer">⏱ 0:00</span>
+      <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
       <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
       <nav><a href="index.html">Cambia caso</a></nav>
     </div>
-  </div>
+  </header>
+  <main>
 
   <div id="puzzle-picker" class="picker-wrap"></div>
 
@@ -39,6 +58,7 @@
         <button id="hint-btn">💡 Suggerimento</button>
         <button id="submit-btn" class="primary">✓ Verifica soluzione</button>
       </div>
+      <p id="shortcuts-hint" class="muted">Scorciatoie: 1-9 scelgono un personaggio · X segna · E gomma · U annulla · H suggerimento.</p>
       <p id="notes-hint" class="muted">Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo su una casella per piazzarci il personaggio selezionato: le sue note esistenti verranno cancellate.</p>
       <div id="hint-panel"></div>
       <div id="result-panel"></div>
@@ -52,6 +72,13 @@
     </div>
   </div>
 
+  
+  </main>
+
+  <script type="module" src="src/i18n/i18n.js"></script>
+  <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/skin/paper/chrome.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
   <script type="module" src="src/player/playerApp.js"></script>
 </body>
 </html>

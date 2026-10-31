@@ -1,3 +1,4 @@
+import "../i18n/i18n.js";
 import { el, qs, clear } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
@@ -6,6 +7,7 @@ import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync } from "../solver/solverClient.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
 import * as campaignStore from "./campaignStore.js";
+import { t } from "../i18n/i18n.js";
 
 // Shown when a linked case's declared solution isn't already valid and a
 // deeper search (deriveSolutionAsync) couldn't confirm a usable one either —
@@ -14,18 +16,18 @@ import * as campaignStore from "./campaignStore.js";
 // who reaches it and every case after it, so this is worth flagging before
 // it goes live rather than discovering it only when a real player hits it.
 const SOLUTION_STATUS_WARNINGS = {
-  unsatisfiable: "Questo caso non ha alcuna soluzione compatibile con i suoi indizi: i giocatori non potranno mai completarlo.",
-  ambiguous: "Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta.",
-  inconclusive: "Non riesco a stabilire con certezza se questo caso ha una soluzione univoca (troppo complesso da analizzare).",
+  unsatisfiable: t("Questo caso non ha alcuna soluzione compatibile con i suoi indizi: i giocatori non potranno mai completarlo."),
+  ambiguous: t("Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta."),
+  inconclusive: t("Non riesco a stabilire con certezza se questo caso ha una soluzione univoca (troppo complesso da analizzare)."),
 };
 
 wireThemeToggle();
 
-// Matches the owner's Firebase Auth uid baked into firestore.rules — a
-// non-owner signed in here sees "Accesso negato" and every write attempt is
-// rejected server-side regardless, so this check is UX only, not the real
-// security boundary.
-const OWNER_UID = "say3jOf6WkaXDmjyn3kmAKNYbCh1";
+// Whether the signed-in user may manage campaigns (see
+// campaignStore.isCampaignAdmin): null while still being looked up. A
+// non-admin sees "Accesso negato" and every write attempt is rejected
+// server-side regardless, so this is UX only, not the real security boundary.
+let isAdmin = null;
 
 const params = new URLSearchParams(location.search);
 const campaignId = params.get("id");
@@ -54,25 +56,26 @@ function renderAuthBar() {
   authBar.appendChild(themeBtn);
   if (currentUserState) {
     authBar.appendChild(el("span", { class: "muted" }, currentUserState.email));
-    authBar.appendChild(el("button", { onClick: () => signOutUser() }, "Esci"));
+    authBar.appendChild(el("button", { onClick: () => signOutUser() }, t("Esci")));
   }
 }
 
 function renderGate() {
   clear(gateEl);
   if (!currentUserState) {
-    gateEl.appendChild(el("h1", {}, "Editor campagne"));
-    gateEl.appendChild(el("p", { class: "lede" }, "Riservato al proprietario del sito: accedi con Google per continuare."));
+    gateEl.appendChild(el("h1", {}, t("Editor campagne")));
+    gateEl.appendChild(el("p", { class: "lede" }, t("Riservato al proprietario del sito: accedi con Google per continuare.")));
     gateEl.appendChild(
-      el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, "Accedi con Google")
+      el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, t("Accedi con Google"))
     );
     gateEl.classList.remove("hidden");
     appEl.classList.add("hidden");
     return;
   }
-  if (currentUserState.uid !== OWNER_UID) {
-    gateEl.appendChild(el("h1", {}, "Accesso negato"));
-    gateEl.appendChild(el("p", { class: "lede" }, "Questo account non è autorizzato a gestire le campagne."));
+  if (isAdmin === null) return; // still checking
+  if (!isAdmin) {
+    gateEl.appendChild(el("h1", {}, t("Accesso negato")));
+    gateEl.appendChild(el("p", { class: "lede" }, t("Questo account non è autorizzato a gestire le campagne.")));
     gateEl.classList.remove("hidden");
     appEl.classList.add("hidden");
     return;
@@ -89,18 +92,18 @@ async function loadListView() {
   listViewEl.classList.remove("hidden");
   detailViewEl.classList.add("hidden");
   clear(campaignListEl);
-  campaignListEl.appendChild(el("p", { class: "muted" }, "Caricamento…"));
+  campaignListEl.appendChild(el("p", { class: "muted" }, t("Caricamento…")));
   let campaigns;
   try {
     campaigns = await campaignStore.listCampaigns();
   } catch (err) {
     clear(campaignListEl);
-    campaignListEl.appendChild(el("p", { class: "violation" }, "Impossibile caricare le campagne: " + err.message));
+    campaignListEl.appendChild(el("p", { class: "violation" }, t("Impossibile caricare le campagne: ") + err.message));
     return;
   }
   clear(campaignListEl);
   if (campaigns.length === 0) {
-    campaignListEl.appendChild(el("p", { class: "muted" }, "Nessuna campagna ancora. Creane una."));
+    campaignListEl.appendChild(el("p", { class: "muted" }, t("Nessuna campagna ancora. Creane una.")));
     return;
   }
   for (const c of campaigns.sort((a, b) => b.updatedAt - a.updatedAt)) {
@@ -108,9 +111,9 @@ async function loadListView() {
       el("div", { class: "saved-row" }, [
         el("div", {}, [
           el("span", { class: "title" }, c.title),
-          el("span", { class: "meta" }, `${c.cases.length} ${c.cases.length === 1 ? "caso" : "casi"}`),
+          el("span", { class: "meta" }, c.cases.length === 1 ? t("1 caso") : t("{count} casi", { count: c.cases.length })),
         ]),
-        el("div", { class: "actions" }, [el("a", { href: `campaign-editor.html?id=${c.id}` }, "Modifica")]),
+        el("div", { class: "actions" }, [el("a", { href: `campaign-editor.html?id=${c.id}` }, t("Modifica"))]),
       ])
     );
   }
@@ -120,10 +123,10 @@ async function persistCampaign(statusEl) {
   touchCampaign(campaign);
   try {
     await campaignStore.saveCampaign(campaign);
-    if (statusEl) { statusEl.textContent = "Salvato."; statusEl.className = "muted"; }
+    if (statusEl) { statusEl.textContent = t("Salvato."); statusEl.className = "muted"; }
     return true;
   } catch (err) {
-    if (statusEl) { statusEl.textContent = "Errore nel salvataggio: " + err.message; statusEl.className = "violation"; }
+    if (statusEl) { statusEl.textContent = t("Errore nel salvataggio: ") + err.message; statusEl.className = "violation"; }
     return false;
   }
 }
@@ -131,7 +134,7 @@ async function persistCampaign(statusEl) {
 function renderCaseList() {
   clear(caseListEl);
   if (campaign.cases.length === 0) {
-    caseListEl.appendChild(el("p", { class: "muted" }, "Nessun caso ancora."));
+    caseListEl.appendChild(el("p", { class: "muted" }, t("Nessun caso ancora.")));
     return;
   }
   campaign.cases.forEach((c, i) => {
@@ -154,17 +157,17 @@ function renderCaseList() {
 async function loadDetailView(id) {
   listViewEl.classList.add("hidden");
   detailViewEl.classList.remove("hidden");
-  detailStatus.textContent = "Caricamento…";
+  detailStatus.textContent = t("Caricamento…");
   detailStatus.className = "muted";
   try {
     campaign = await campaignStore.getCampaign(id);
   } catch (err) {
-    detailStatus.textContent = "Impossibile caricare la campagna: " + err.message;
+    detailStatus.textContent = t("Impossibile caricare la campagna: ") + err.message;
     detailStatus.className = "violation";
     return;
   }
   if (!campaign) {
-    detailStatus.textContent = "Campagna non trovata.";
+    detailStatus.textContent = t("Campagna non trovata.");
     detailStatus.className = "violation";
     return;
   }
@@ -181,7 +184,7 @@ newCampaignBtn.addEventListener("click", async () => {
     await campaignStore.saveCampaign(created);
     location.href = `campaign-editor.html?id=${created.id}`;
   } catch (err) {
-    alert("Impossibile creare la campagna: " + err.message);
+    alert(t("Impossibile creare la campagna: ") + err.message);
   } finally {
     newCampaignBtn.disabled = false;
   }
@@ -200,19 +203,19 @@ addCaseBtn.addEventListener("click", async () => {
   const url = addCaseUrlInput.value.trim();
   if (!url) return;
   addCaseBtn.disabled = true;
-  addCaseStatus.textContent = "Verifica del file…";
+  addCaseStatus.textContent = t("Verifica del file…");
   addCaseStatus.className = "info-message";
   try {
     const puzzle = await importPuzzleFromUrl(url);
 
-    addCaseStatus.textContent = "Controllo della soluzione…";
+    addCaseStatus.textContent = t("Controllo della soluzione…");
     addCaseStatus.className = "info-message";
     let solutionStatus = "unique";
     if (!validateSolution(puzzle).valid) {
       solutionStatus = (await deriveSolutionAsync(puzzle)).status;
     }
     if (solutionStatus !== "unique") {
-      const ok = confirm(`${SOLUTION_STATUS_WARNINGS[solutionStatus]} Aggiungerlo comunque alla campagna?`);
+      const ok = confirm(t("{v} Aggiungerlo comunque alla campagna?", { v: SOLUTION_STATUS_WARNINGS[solutionStatus] }));
       if (!ok) {
         addCaseStatus.textContent = "";
         return;
@@ -224,25 +227,31 @@ addCaseBtn.addEventListener("click", async () => {
     renderCaseList();
     if (saved) {
       addCaseUrlInput.value = "";
-      addCaseStatus.textContent = "Caso aggiunto.";
+      addCaseStatus.textContent = t("Caso aggiunto.");
       addCaseStatus.className = "ok-message";
     } else {
-      addCaseStatus.textContent = "Caso aggiunto localmente ma il salvataggio è fallito. Riprova.";
+      addCaseStatus.textContent = t("Caso aggiunto localmente ma il salvataggio è fallito. Riprova.");
       addCaseStatus.className = "violation";
     }
   } catch (err) {
-    addCaseStatus.textContent = "Errore: " + err.message;
+    addCaseStatus.textContent = t("Errore: ") + err.message;
     addCaseStatus.className = "violation";
   } finally {
     addCaseBtn.disabled = false;
   }
 });
 
-onAuthChange((user) => {
+onAuthChange(async (user) => {
   currentUserState = user;
+  isAdmin = user ? null : false;
   renderAuthBar();
   renderGate();
-  if (user && user.uid === OWNER_UID) {
+  if (!user) return;
+  const admin = await campaignStore.isCampaignAdmin(user.uid);
+  if (currentUserState?.uid !== user.uid) return; // signed out / switched meanwhile
+  isAdmin = admin;
+  renderGate();
+  if (admin) {
     if (campaignId) loadDetailView(campaignId);
     else loadListView();
   }

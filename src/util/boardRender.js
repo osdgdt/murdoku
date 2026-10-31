@@ -1,6 +1,8 @@
 import { el, clear } from "./dom.js";
 import { objectIcon } from "../model/icons.js";
 import { zoneTextureCss } from "../model/textures.js";
+import { roomColor } from "../skin/paper/rooms.js";
+import { t } from "../i18n/i18n.js";
 
 const CELL_SIZE = 56;
 const LABEL_SIZE = 24;
@@ -221,8 +223,12 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   }
 
   const gutter = showLabels ? `${LABEL_SIZE}px ` : "";
-  container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, ${CELL_SIZE}px)`;
-  container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, ${CELL_SIZE}px)`;
+  // Cell size lives in a CSS variable (default CELL_SIZE) so the stylesheet can
+  // shrink the whole board to fit a phone viewport (see `.board-grid` in editor.css).
+  container.style.setProperty("--cols", String(grid.size.cols));
+  container.style.setProperty("--rows", String(grid.size.rows));
+  container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, var(--cell-size, ${CELL_SIZE}px))`;
+  container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, var(--cell-size, ${CELL_SIZE}px))`;
 
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
 
@@ -253,18 +259,27 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     }
   }
 
+  // role="grid" requires row -> cell ownership. The rows are `display: contents`
+  // wrappers, so they exist only for assistive technology: the visual CSS
+  // grid layout still sees the cells as direct grid items.
+  const makeRow = () => el("div", { role: "row", style: "display:contents" });
+
   if (showLabels) {
-    container.appendChild(el("div", { class: "board-label board-label-corner" }));
+    const headerRow = makeRow();
+    headerRow.appendChild(el("div", { class: "board-label board-label-corner", "aria-hidden": "true" }));
     for (let c = 0; c < grid.size.cols; c++) {
-      container.appendChild(el("div", { class: "board-label board-label-col" }, `C${c + 1}`));
+      headerRow.appendChild(el("div", { class: "board-label board-label-col", role: "columnheader" }, `C${c + 1}`));
     }
+    container.appendChild(headerRow);
   }
 
   for (let r = 0; r < grid.size.rows; r++) {
+    const rowNode = makeRow();
+    container.appendChild(rowNode);
     let rowLabelNode = null;
     if (showLabels) {
-      rowLabelNode = el("div", { class: "board-label board-label-row" }, `R${r + 1}`);
-      container.appendChild(rowLabelNode);
+      rowLabelNode = el("div", { class: "board-label board-label-row", role: "rowheader" }, `R${r + 1}`);
+      rowNode.appendChild(rowLabelNode);
     }
     for (let c = 0; c < grid.size.cols; c++) {
       const cellData = grid.cells[r][c];
@@ -284,9 +299,9 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
       // the caller alone holds, added later via `decorateCell`) — a richer,
       // per-caller description is a natural follow-up, not required for
       // this first accessibility pass to be useful.
-      let cellLabel = `Riga ${r + 1}, colonna ${c + 1}`;
-      if (cellData.blocked) cellLabel += ", bloccata";
-      else if (zone) cellLabel += `, stanza ${zone.name}`;
+      let cellLabel = t("Riga {v}, colonna {v2}", { v: r + 1, v2: c + 1 });
+      if (cellData.blocked) cellLabel += t(", bloccata");
+      else if (zone) cellLabel += t(", stanza {name}", { name: zone.name });
 
       const cellNode = el("div", {
         class: classes,
@@ -298,7 +313,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // the paint-by-dragging feature outside of synthetic/automated
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
-        style: zone ? `background-color:${zone.color};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
+        style: zone ? `--room:${roomColor(zone.color)};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers
@@ -394,7 +409,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         }
         stack.appendChild(
           el("span", { class: "room-label" }, [
-            el("span", { class: "room-label-swatch", style: `background:${zone.color}` }),
+            el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),
             el("span", { class: "room-label-text" }, zone.name),
           ])
         );
@@ -412,7 +427,26 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
 
       if (decorateCell) decorateCell(cellNode, r, c);
 
-      container.appendChild(cellNode);
+      rowNode.appendChild(cellNode);
     }
+  }
+
+  // On narrow screens the room names that hang off the left of the board no
+  // longer fit, so the same information is repeated as a compact legend
+  // under the board (hidden on wide screens by CSS; purely visual — each
+  // cell's aria-label already names its room).
+  const usedZoneIds = new Set(grid.cells.flat().map((cell) => cell.zoneId).filter(Boolean));
+  const legendZones = grid.zones.filter((z) => usedZoneIds.has(z.id));
+  if (showLabels && legendZones.length > 0) {
+    container.appendChild(
+      el("div", { class: "room-legend", "aria-hidden": "true" },
+        legendZones.map((zone) =>
+          el("span", { class: "room-legend-item" }, [
+            el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),
+            el("span", {}, zone.name),
+          ])
+        )
+      )
+    );
   }
 }

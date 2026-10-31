@@ -1,6 +1,7 @@
 import { el, clear } from "../util/dom.js";
 import { addCharacter, removeCharacter, setVictim, characterColor, CHARACTER_COLORS } from "../model/puzzle.js";
 import { CHARACTER_ICONS, characterIcon, SELECTABLE_CHARACTER_ICON_IDS } from "../model/icons.js";
+import { t } from "../i18n/i18n.js";
 
 // Enter/Space equivalent of a click, for the custom (non-<button>) color
 // swatches below — plain <div>s, so tabindex/role need wiring alongside this.
@@ -15,16 +16,16 @@ function onActivateKey(onActivate) {
 
 export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly) {
   clear(container);
-  container.appendChild(el("h3", {}, "Personaggi"));
+  container.appendChild(el("h3", { "aria-level": "2" }, t("Personaggi")));
 
-  const nameInput = el("input", { type: "text", placeholder: "Nome personaggio" });
+  const nameInput = el("input", { type: "text", placeholder: t("Nome personaggio") });
   // Auto-assigned round-robin, mirroring CHARACTER_COLORS's own rotation in
   // addCharacter() — the select simply defaults to whichever icon is next in
   // rotation; picking a different one from the menu still fully overrides it.
   const nextIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
   const iconSelect = el(
     "select",
-    {},
+    { "aria-label": t("Icona del personaggio") },
     SELECTABLE_CHARACTER_ICON_IDS.map((id) =>
       el("option", { value: id, selected: id === nextIconId || undefined }, CHARACTER_ICONS[id].label)
     )
@@ -37,7 +38,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
       nameInput.value = "";
       onChange();
     },
-  }, "+ Aggiungi");
+  }, t("+ Aggiungi"));
   container.appendChild(el("div", { class: "field-row" }, [nameInput, iconSelect, addBtn]));
 
   const list = el("div", { class: "character-list" });
@@ -55,10 +56,10 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
         colorList.appendChild(el("div", {
           class: "swatch" + (characterColor(character) === color ? " selected" : ""),
           style: `background:${color}`,
-          title: "Colore del personaggio",
+          title: t("Colore del personaggio"),
           tabindex: "0",
           role: "button",
-          "aria-label": `Colore ${color} per ${character.name}`,
+          "aria-label": t("Colore {color} per {name}", { color, name: character.name }),
           onClick: selectColor,
           onKeydown: onActivateKey(selectColor),
         }));
@@ -74,7 +75,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
           onChange();
         },
       }),
-      " vittima",
+      t(" vittima"),
     ]);
 
     // Only used by clues that ask about a person's gender ("qualcun altro
@@ -83,12 +84,13 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     const genderSelect = el(
       "select",
       {
+        "aria-label": t("Genere"),
         onChange: (e) => { character.gender = e.target.value || null; onChange(); },
       },
       [
-        el("option", { value: "", selected: !character.gender || undefined }, "Genere non specificato"),
-        el("option", { value: "male", selected: character.gender === "male" || undefined }, "Uomo"),
-        el("option", { value: "female", selected: character.gender === "female" || undefined }, "Donna"),
+        el("option", { value: "", selected: !character.gender || undefined }, t("Genere non specificato")),
+        el("option", { value: "male", selected: character.gender === "male" || undefined }, t("Uomo")),
+        el("option", { value: "female", selected: character.gender === "female" || undefined }, t("Donna")),
       ]
     );
 
@@ -97,12 +99,12 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
         removeCharacter(puzzle, character.id);
         onChange();
       },
-    }, "Rimuovi");
+    }, t("Rimuovi"));
 
     const bioInput = el("textarea", {
       class: "bio-input",
       rows: "2",
-      placeholder: "Bio / nota narrativa (facoltativa)",
+      placeholder: t("Bio / nota narrativa (facoltativa)"),
       onInput: (e) => { character.bio = e.target.value; onPersistOnly(); },
     }, character.bio || "");
 

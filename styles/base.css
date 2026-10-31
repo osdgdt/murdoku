@@ -24,8 +24,8 @@
   --shadow-sm: 0 1px 2px rgba(36, 26, 12, 0.08), 0 1px 1px rgba(36, 26, 12, 0.06);
   --shadow-md: 0 6px 16px -4px rgba(36, 26, 12, 0.18), 0 2px 6px rgba(36, 26, 12, 0.08);
   --shadow-lg: 0 20px 45px -12px rgba(36, 26, 12, 0.32);
-  --font-display: "Playfair Display", "Iowan Old Style", "Georgia", serif;
-  --font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Nunito", system-ui, "Segoe UI", sans-serif;
+  --font-ui: "Nunito", system-ui, "Segoe UI", sans-serif;
   --bg-dot: rgba(36, 26, 12, 0.06);
 }
 
@@ -239,3 +239,38 @@ input::placeholder { color: var(--ink-faint); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* Content for assistive technology only (e.g. a page's <h1> when the visible
+   title is an input or a brand link). */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Shown by util/errorReport.js when an uncaught error happens. */
+.error-banner {
+  position: fixed; left: 0.75rem; right: 0.75rem; bottom: 0.75rem; z-index: 1000;
+  display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+  padding: 0.7rem 0.9rem;
+  background: var(--danger-soft); color: var(--ink);
+  border: 1px solid var(--danger); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md); font-size: 0.9rem;
+}
+.error-banner a { font-weight: 700; color: var(--danger); }
+.error-banner button { margin-left: auto; }
+
+/* Respect the "reduce motion" OS setting. The hold-to-place progress ring is
+   exempt: it is functional feedback (how long to keep pressing), not decoration. */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.hold-wheel-fill), *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

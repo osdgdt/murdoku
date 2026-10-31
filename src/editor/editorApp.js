@@ -1,15 +1,21 @@
+import "../i18n/i18n.js";
 import { el, qs, clear } from "../util/dom.js";
-import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
+import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement, removeClue } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
+import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
+import { findRedundantClues } from "../solver/redundancy.js";
+import { describeClue } from "../model/clueTypes.js";
+import { roomColor } from "../skin/paper/rooms.js";
 import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
 import { renderSolutionEditor } from "./solutionEditor.js";
 import { renderHintsEditor } from "./hintsEditor.js";
 import { wireThemeToggle } from "../util/theme.js";
+import { t } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -39,6 +45,7 @@ const tabSolutionBtn = qs("#tab-solution");
 const tabHintsBtn = qs("#tab-hints");
 const saveBtn = qs("#save-btn");
 const exportBtn = qs("#export-btn");
+const shareBtn = qs("#share-btn");
 const importInput = qs("#import-input");
 const playBtn = qs("#play-btn");
 const printBtn = qs("#print-btn");
@@ -49,6 +56,7 @@ const redoBtn = qs("#editor-redo-btn");
 const validateBtn = qs("#validate-btn");
 const uniqueBtn = qs("#unique-btn");
 const estimateBtn = qs("#estimate-btn");
+const redundantBtn = qs("#redundant-btn");
 const calcSolutionBtn = qs("#calc-solution-btn");
 const statusEl = qs("#status");
 
@@ -72,7 +80,7 @@ function persist() {
   try {
     store.save(puzzle);
     history.replaceState(null, "", `editor.html?id=${puzzle.id}`);
-    setStatus("Salvato in locale.", "muted");
+    setStatus(t("Salvato in locale."), "muted");
   } catch (err) {
     setStatus(err.message, "violation");
   }
@@ -166,7 +174,44 @@ tabHintsBtn.addEventListener("click", () => { activeTab = "hints"; render(); });
 
 saveBtn.addEventListener("click", () => { persist(); });
 
-exportBtn.addEventListener("click", () => { exportPuzzle(puzzle); });
+// Before a case leaves the editor (file or link), make sure players won't get a
+// broken one: a case with no solution, several solutions, or one we couldn't
+// verify is flagged, and the author can still choose to go ahead.
+async function confirmPublishable() {
+  setStatus(t("Controllo che il caso abbia una soluzione unica…"));
+  let problem = null;
+  try {
+    const report = await checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES });
+    if (report.solutionCount === 0) problem = t("Il caso non ha nessuna soluzione: nessuno potrà risolverlo.");
+    else if (report.solutionCount > 1) problem = t("Il caso ha più di una soluzione: i giocatori potrebbero non capire quale sia quella giusta.");
+    else if (report.truncated) problem = t("Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.");
+  } catch (err) {
+    problem = t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message });
+  }
+  setStatus("");
+  if (!problem) return true;
+  return confirm(`${problem}\n\n${t("Vuoi procedere comunque?")}`);
+}
+
+exportBtn.addEventListener("click", async () => {
+  if (await confirmPublishable()) exportPuzzle(puzzle);
+});
+
+shareBtn.addEventListener("click", async () => {
+  if (!isShareLinkSupported()) {
+    setStatus(t("Il tuo browser non supporta i link di condivisione: usa Esporta."), "violation");
+    return;
+  }
+  if (!(await confirmPublishable())) return;
+  try {
+    const url = new URL("player.html", location.href);
+    url.hash = await encodePuzzleToFragment(puzzle);
+    await navigator.clipboard.writeText(url.href);
+    setStatus(t("Link copiato: chi lo apre può giocare il caso subito."));
+  } catch {
+    setStatus(t("Impossibile copiare il link negli appunti."), "violation");
+  }
+});
 
 importInput.addEventListener("change", async () => {
   const file = importInput.files[0];
@@ -180,7 +225,7 @@ importInput.addEventListener("change", async () => {
     persist();
     render();
     updateUndoRedoButtons();
-    setStatus("Puzzle importato.", "muted");
+    setStatus(t("Puzzle importato."), "muted");
   } catch (err) {
     setStatus(err.message, "violation");
   }
@@ -198,7 +243,7 @@ printBtn.addEventListener("click", () => {
 });
 
 deleteBtn.addEventListener("click", () => {
-  const ok = confirm(`Eliminare definitivamente il caso "${puzzle.title}"? L'azione non è reversibile.`);
+  const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: puzzle.title }));
   if (!ok) return;
   store.remove(puzzle.id);
   location.href = "index.html";
@@ -220,7 +265,7 @@ validateBtn.addEventListener("click", () => {
   clear(validationPanel);
   const allErrors = [...shape.errors, ...result.violations.map((v) => v.message)];
   if (allErrors.length === 0) {
-    validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ La soluzione dichiarata soddisfa tutte le regole e gli indizi."));
+    validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ La soluzione dichiarata soddisfa tutte le regole e gli indizi.")));
   } else {
     for (const message of allErrors) {
       validationPanel.appendChild(el("p", { class: "violation" }, message));
@@ -254,7 +299,7 @@ function renderSolutionPreview(puzzle, placements, index) {
       const zone = !cellData.blocked && cellData.zoneId ? puzzle.grid.zones.find((z) => z.id === cellData.zoneId) : null;
       const cellNode = el("div", {
         class: "solution-preview-cell" + (cellData.blocked ? " blocked" : ""),
-        style: zone ? `background:${zone.color}` : "",
+        style: zone ? `background:${roomColor(zone.color)}` : "",
       });
       const placement = byCell.get(`${r},${c}`);
       const character = placement && puzzle.characters.find((ch) => ch.id === placement.characterId);
@@ -276,7 +321,7 @@ function renderSolutionPreview(puzzle, placements, index) {
   }
 
   return el("div", { class: "solution-preview-item" }, [
-    el("span", { class: "solution-preview-label" }, `Soluzione ${index + 1}`),
+    el("span", { class: "solution-preview-label" }, t("Soluzione {v}", { v: index + 1 })),
     grid,
   ]);
 }
@@ -292,7 +337,7 @@ function renderSolutionPreviews(puzzle, solutions) {
 uniqueBtn.addEventListener("click", async () => {
   uniqueBtn.disabled = true;
   clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, "Verifica unicità in corso…"));
+  validationPanel.appendChild(el("p", { class: "info-message" }, t("Verifica unicità in corso…")));
   try {
     const report = await checkUniquenessAsync(puzzle, {
       maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS,
@@ -300,31 +345,76 @@ uniqueBtn.addEventListener("click", async () => {
     });
     clear(validationPanel);
     if (report.solutionCount === 0) {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi.")));
     } else if (report.solutionCount === 1) {
-      validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione unica."));
+      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Soluzione unica.")));
     } else {
       // "Almeno N" instead of a bare count when the cap (not exhaustion) is
       // what ended the search — never claim the preview list below is complete
       // when it might not be.
-      const countLabel = report.truncated ? `almeno ${report.solutionCount}` : `${report.solutionCount}`;
+      const countLabel = report.truncated ? t("almeno {count}", { count: report.solutionCount }) : `${report.solutionCount}`;
       validationPanel.appendChild(
-        el("p", { class: "violation" }, `Il puzzle è ambiguo: esistono ${countLabel} soluzioni possibili. Aggiungi altri indizi.`)
+        el("p", { class: "violation" }, t("Il puzzle è ambiguo: esistono {countLabel} soluzioni possibili. Aggiungi altri indizi.", { countLabel }))
       );
       validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
     }
   } catch (err) {
     clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a verificare l'unicità: ${err.message}. Riprova.`));
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message })));
   } finally {
     uniqueBtn.disabled = false;
+  }
+});
+
+redundantBtn.addEventListener("click", async () => {
+  redundantBtn.disabled = true;
+  clear(validationPanel);
+  const progress = el("p", { class: "info-message" }, t("Analisi degli indizi in corso…"));
+  validationPanel.appendChild(progress);
+  try {
+    const result = await findRedundantClues(puzzle, (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES }), {
+      onProgress: (done, total) => { progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total }); },
+    });
+    clear(validationPanel);
+    if (!result.ok) {
+      validationPanel.appendChild(
+        el("p", { class: "violation" }, result.reason === "unsolvable"
+          ? t("Il caso non ha soluzione: non posso dire quali indizi siano superflui.")
+          : t("Il caso non ha una soluzione unica: aggiungi indizi finché è univoco, poi cerca quelli superflui."))
+      );
+    } else if (result.redundant.length === 0) {
+      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Nessun indizio superfluo: ognuno è necessario all'unicità.")));
+    } else {
+      validationPanel.appendChild(
+        el("p", { class: "info-message" }, t("{count} indizi si possono togliere senza perdere l'unicità. Toglierne uno alla volta: dopo ogni rimozione conviene rifare l'analisi, perché alcuni sono superflui solo in coppia.", { count: result.redundant.length }))
+      );
+      const list = el("ul", { class: "redundant-list" });
+      for (const clueId of result.redundant) {
+        const clue = puzzle.clues.find((c) => c.id === clueId);
+        if (!clue) continue;
+        const owner = puzzle.characters.find((c) => c.id === clue.characterId);
+        list.appendChild(
+          el("li", {}, [
+            el("span", {}, `${owner ? owner.name + ": " : ""}${describeClue(clue, puzzle)}`),
+            " ",
+            el("button", { type: "button", onClick: () => { removeClue(puzzle, clueId); handleChange(); clear(validationPanel); setStatus(t("Indizio rimosso. Rifai l'analisi per controllare gli altri.")); } }, t("Rimuovi")),
+          ])
+        );
+      }
+      validationPanel.appendChild(list);
+    }
+  } catch (err) {
+    clear(validationPanel);
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Analisi non riuscita: {message}. Riprova.", { message: err.message })));
+  } finally {
+    redundantBtn.disabled = false;
   }
 });
 
 estimateBtn.addEventListener("click", async () => {
   estimateBtn.disabled = true;
   clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, "Stima in corso…"));
+  validationPanel.appendChild(el("p", { class: "info-message" }, t("Stima in corso…")));
   try {
     const report = await checkUniquenessAsync(puzzle, {
       maxSolutions: 2,
@@ -336,7 +426,7 @@ estimateBtn.addEventListener("click", async () => {
       // — with zero or several, "how hard was it to find" isn't a meaningful
       // question yet (fix that first, via Verifica unicità, before estimating).
       validationPanel.appendChild(
-        el("p", { class: "violation" }, "La stima richiede una soluzione unica: usa prima \"Verifica unicità\".")
+        el("p", { class: "violation" }, t("La stima richiede una soluzione unica: usa prima \"Verifica unicità\"."))
       );
       return;
     }
@@ -345,12 +435,12 @@ estimateBtn.addEventListener("click", async () => {
       el(
         "p",
         { class: "ok-message" },
-        `Stima difficoltà: ${difficultyLabel(estimate)} (nodi esplorati dal solver: ${report.nodesVisited}). È solo un'indicazione — il campo "Difficoltà" in alto resta una scelta manuale dell'autore.`
+        t("Stima difficoltà: {v} (nodi esplorati dal solver: {nodesVisited}). È solo un'indicazione — il campo \"Difficoltà\" in alto resta una scelta manuale dell'autore.", { v: difficultyLabel(estimate), nodesVisited: report.nodesVisited })
       )
     );
   } catch (err) {
     clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a calcolare la stima: ${err.message}. Riprova.`));
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a calcolare la stima: {message}. Riprova.", { message: err.message })));
   } finally {
     estimateBtn.disabled = false;
   }
@@ -364,7 +454,7 @@ calcSolutionBtn.addEventListener("click", async () => {
   // puzzle is genuinely unique (deriveSolution reproduces the same values)
   // or it isn't (in which case nothing gets overwritten below anyway).
   if (hasExistingSolution && !validateSolution(puzzle).valid) {
-    const ok = confirm('Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?');
+    const ok = confirm(t("Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?"));
     if (!ok) return;
   }
 
@@ -380,12 +470,12 @@ calcSolutionBtn.addEventListener("click", async () => {
   const startedAtPuzzle = puzzle;
   calcSolutionBtn.disabled = true;
   clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, "Calcolo della soluzione in corso…"));
+  validationPanel.appendChild(el("p", { class: "info-message" }, t("Calcolo della soluzione in corso…")));
   try {
     const result = await deriveSolutionAsync(puzzle);
     clear(validationPanel);
     if (puzzle !== startedAtPuzzle || puzzle.updatedAt !== startedAtVersion) {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è stato modificato nel frattempo: riprova."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è stato modificato nel frattempo: riprova.")));
       return;
     }
 
@@ -395,17 +485,17 @@ calcSolutionBtn.addEventListener("click", async () => {
         setSolutionPlacement(puzzle, character.id, p ? p.row : null, p ? p.col : null);
       }
       handleChange(); // one combined undo step for the whole auto-fill
-      validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi."));
+      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi.")));
     } else if (result.status === "unsatisfiable") {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata.")));
     } else if (result.status === "ambiguous") {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata.")));
     } else {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata.")));
     }
   } catch (err) {
     clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a calcolare la soluzione: ${err.message}. Riprova.`));
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a calcolare la soluzione: {message}. Riprova.", { message: err.message })));
   } finally {
     calcSolutionBtn.disabled = false;
   }

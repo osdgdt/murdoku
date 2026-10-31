@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 2,
+  "id": "tutorial_en",
+  "title": "Tutorial: your first case",
+  "author": "Murdoku",
+  "difficulty": "very-easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Alice has been found dead. On the grid every person takes one cell: never two in the same row or column. The victim is always in a room with exactly one other person — and that person is the murderer. Read the clues, tap a cell to jot a note, and press and hold to place the character.",
+  "resolutionNote": "Ben was the only one in the Kitchen with Alice: he is the murderer. Well done, detective!",
+  "createdAt": 1767225600000,
+  "updatedAt": 1793457906965,
+  "grid": {
+    "size": {
+      "rows": 4,
+      "cols": 4
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhes3tl4a8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mvwij5lhbt5hn6c1",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mvwij5lhes3tl4a8",
+        "name": "Kitchen",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "zone_mvwij5lhbt5hn6c1",
+        "name": "Hall",
+        "color": "#c2e0f4",
+        "textureId": "hatch"
+      }
+    ],
+    "objects": []
+  },
+  "characters": [
+    {
+      "id": "char_mvwij5lhexaq1ogp",
+      "name": "Alice",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "",
+      "color": "#608aea",
+      "gender": null
+    },
+    {
+      "id": "char_mvwij5lhx9gt4yxe",
+      "name": "Ben",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "",
+      "color": "#ea558a",
+      "gender": null
+    },
+    {
+      "id": "char_mvwij5lhu2v0wxro",
+      "name": "Clara",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "",
+      "color": "#158060",
+      "gender": null
+    }
+  ],
+  "clues": [
+    {
+      "id": "clue_mvwij5lhloy92e0r",
+      "characterId": "char_mvwij5lhexaq1ogp",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 1
+      }
+    },
+    {
+      "id": "clue_mvwij5lhxfhwignh",
+      "characterId": "char_mvwij5lhexaq1ogp",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 1
+      }
+    },
+    {
+      "id": "clue_mvwij5lhqdbn7nte",
+      "characterId": "char_mvwij5lhx9gt4yxe",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mvwij5lhes3tl4a8"
+      }
+    },
+    {
+      "id": "clue_mvwij5lh5mvp1yv0",
+      "characterId": "char_mvwij5lhx9gt4yxe",
+      "type": "diagonal",
+      "params": {
+        "targetId": "char_mvwij5lhexaq1ogp"
+      }
+    },
+    {
+      "id": "clue_mvwij5lh4g91cpiv",
+      "characterId": "char_mvwij5lhu2v0wxro",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mvwij5lhbt5hn6c1"
+      }
+    },
+    {
+      "id": "clue_mvwij5lhqgzsxey3",
+      "characterId": "char_mvwij5lhu2v0wxro",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 4
+      }
+    },
+    {
+      "id": "clue_mvwij5lhfwvpk6rv",
+      "characterId": "char_mvwij5lhu2v0wxro",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 3
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mvwij5lhexaq1ogp",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "char_mvwij5lhx9gt4yxe",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "characterId": "char_mvwij5lhu2v0wxro",
+        "row": 2,
+        "col": 3
+      }
+    ]
+  },
+  "manualHints": [
+    {
+      "id": "hint_mvwij5lht5v20kqa",
+      "message": "Start with Alice: she is in row 1 and in column 1. Only one cell satisfies both clues.",
+      "characterId": "char_mvwij5lhexaq1ogp",
+      "row": 0,
+      "col": 0
+    },
+    {
+      "id": "hint_mvwij5lhqnyz7y4n",
+      "message": "Ben is in the Kitchen and diagonal to Alice. The diagonal of (R1, C1) inside the Kitchen is a single cell.",
+      "characterId": "char_mvwij5lhx9gt4yxe",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "hint_mvwij5lhzoqzo0j1",
+      "message": "Clara is in the Hall, in column 4 and in row 3: it is the last cell left. Check your solution!",
+      "characterId": "char_mvwij5lhu2v0wxro",
+      "row": 2,
+      "col": 3
+    }
+  ]
+}

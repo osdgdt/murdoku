@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Cosa salva Murdoku, dove, e come cancellarlo. / What Murdoku stores, where, and how to delete it." />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/privacy.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Privacy — Murdoku" />
+  <meta property="og:description" content="Cosa salva Murdoku, dove, e come cancellarlo. / What Murdoku stores, where, and how to delete it." />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/privacy.html" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>Privacy — Murdoku</title>
+  <link rel="preload" href="fonts/nunito-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="stylesheet" href="styles/skin-paper.css" />
+  <script>
+    try {
+      var t = localStorage.getItem("murdoku:theme");
+      if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔎 Murdoku</a>
+    <nav class="topbar-nav">
+      <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
+      <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+      <a href="index.html">← Torna alla home</a>
+    </nav>
+  </header>
+  <main class="prose">
+    <h1>Privacy</h1>
+    <p class="muted">Murdoku non ha pubblicità, statistiche di visita né cookie di tracciamento. Ecco, per intero, cosa viene salvato e dove.</p>
+
+    <h2>Sul tuo dispositivo</h2>
+    <p>Casi, progressi di gioco, note, traguardi, storico delle risoluzioni, tema e lingua vengono salvati nella memoria locale del browser (localStorage). Restano sul tuo dispositivo e non vengono inviati a nessun server.</p>
+
+    <h2>Se accedi con Google</h2>
+    <p>L'accesso serve solo per le campagne e per sincronizzare i traguardi tra dispositivi. Usa Firebase (Google): vengono trattati l'identificativo e l'indirizzo email dell'account Google e, nel database Firestore, i tuoi progressi nelle campagne e i tuoi traguardi. Solo tu puoi leggere e modificare questi dati. Senza accesso, nulla di tutto questo esiste.</p>
+
+    <h2>Servizi di terze parti</h2>
+    <p>I caratteri tipografici sono ospitati dal sito stesso: nessuna richiesta a Google Fonts. Il sito è ospitato su GitHub Pages, che può registrare gli indirizzi IP dei visitatori nei propri log. L'accesso con Google e Firebase si caricano dai server di Google solo nelle pagine che li usano.</p>
+
+    <h2>Link di condivisione</h2>
+    <p>Un link con un caso dentro contiene il caso nella parte dopo il simbolo #, che il browser non invia a nessun server. Chi riceve il link, però, vede il caso completo (soluzione compresa): condividilo solo con chi vuoi.</p>
+
+    <h2>Cancella i tuoi dati</h2>
+    <p>Puoi cancellare in qualsiasi momento tutto ciò che il sito conserva su di te.</p>
+    <div class="field-row">
+      <button type="button" id="clear-local-btn" class="danger">🗑 Cancella i dati di questo dispositivo</button>
+      <button type="button" id="clear-cloud-btn" class="danger">☁ Cancella i miei dati nel cloud</button>
+    </div>
+    <div id="privacy-status" role="status"></div>
+
+    <h2>Contatti</h2>
+    <p>Per domande o richieste sui dati apri una segnalazione sul repository del progetto, su GitHub.</p>
+    <p><a href="https://github.com/osdgdt/murdoku/issues" rel="noopener" data-no-i18n>github.com/osdgdt/murdoku/issues</a></p>
+  </main>
+
+  <script type="module" src="src/i18n/i18n.js"></script>
+  <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/skin/paper/chrome.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
+  <script type="module" src="src/privacy/privacyPage.js"></script>
+</body>
+</html>

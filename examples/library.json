@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "tutorial",
+      "order": 0,
+      "difficulty": "very-easy",
+      "size": [
+        4,
+        4
+      ],
+      "characters": 3,
+      "clues": 7,
+      "title": {
+        "it": "Tutorial: il primo caso",
+        "en": "Tutorial: your first case"
+      },
+      "files": {
+        "it": "examples/tutorial.it.murdoku.json",
+        "en": "examples/tutorial.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "tutorial_it",
+        "en": "tutorial_en"
+      }
+    },
+    {
+      "id": "library",
+      "order": 1,
+      "difficulty": "very-easy",
+      "size": [
+        5,
+        5
+      ],
+      "characters": 4,
+      "clues": 6,
+      "title": {
+        "it": "Delitto nello studio",
+        "en": "Murder in the Study"
+      },
+      "files": {
+        "it": "examples/library/library.it.murdoku.json",
+        "en": "examples/library/library.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_library_it",
+        "en": "lib_library_en"
+      }
+    },
+    {
+      "id": "dinner",
+      "order": 2,
+      "difficulty": "easy",
+      "size": [
+        5,
+        5
+      ],
+      "characters": 5,
+      "clues": 6,
+      "title": {
+        "it": "Cena con delitto",
+        "en": "Dinner Party Murder"
+      },
+      "files": {
+        "it": "examples/library/dinner.it.murdoku.json",
+        "en": "examples/library/dinner.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_dinner_it",
+        "en": "lib_dinner_en"
+      }
+    },
+    {
+      "id": "train",
+      "order": 3,
+      "difficulty": "easy",
+      "size": [
+        6,
+        6
+      ],
+      "characters": 5,
+      "clues": 7,
+      "title": {
+        "it": "Il treno della notte",
+        "en": "The Night Train"
+      },
+      "files": {
+        "it": "examples/library/train.it.murdoku.json",
+        "en": "examples/library/train.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_train_it",
+        "en": "lib_train_en"
+      }
+    },
+    {
+      "id": "restaurant",
+      "order": 4,
+      "difficulty": "medium",
+      "size": [
+        6,
+        6
+      ],
+      "characters": 6,
+      "clues": 6,
+      "title": {
+        "it": "Veleno al ristorante",
+        "en": "Poison at the Restaurant"
+      },
+      "files": {
+        "it": "examples/library/restaurant.it.murdoku.json",
+        "en": "examples/library/restaurant.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_restaurant_it",
+        "en": "lib_restaurant_en"
+      }
+    },
+    {
+      "id": "museum",
+      "order": 5,
+      "difficulty": "medium",
+      "size": [
+        6,
+        6
+      ],
+      "characters": 6,
+      "clues": 5,
+      "title": {
+        "it": "Mistero al museo",
+        "en": "Museum Mystery"
+      },
+      "files": {
+        "it": "examples/library/museum.it.murdoku.json",
+        "en": "examples/library/museum.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_museum_it",
+        "en": "lib_museum_en"
+      }
+    },
+    {
+      "id": "opera",
+      "order": 6,
+      "difficulty": "hard",
+      "size": [
+        7,
+        7
+      ],
+      "characters": 6,
+      "clues": 8,
+      "title": {
+        "it": "Il teatro dell'opera",
+        "en": "The Opera House"
+      },
+      "files": {
+        "it": "examples/library/opera.it.murdoku.json",
+        "en": "examples/library/opera.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_opera_it",
+        "en": "lib_opera_en"
+      }
+    },
+    {
+      "id": "cruise",
+      "order": 7,
+      "difficulty": "hard",
+      "size": [
+        7,
+        7
+      ],
+      "characters": 7,
+      "clues": 9,
+      "title": {
+        "it": "La nave da crociera",
+        "en": "The Cruise Ship"
+      },
+      "files": {
+        "it": "examples/library/cruise.it.murdoku.json",
+        "en": "examples/library/cruise.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_cruise_it",
+        "en": "lib_cruise_en"
+      }
+    },
+    {
+      "id": "hotel",
+      "order": 8,
+      "difficulty": "expert",
+      "size": [
+        7,
+        7
+      ],
+      "characters": 7,
+      "clues": 9,
+      "title": {
+        "it": "Hotel Belvedere",
+        "en": "Hotel Belvedere"
+      },
+      "files": {
+        "it": "examples/library/hotel.it.murdoku.json",
+        "en": "examples/library/hotel.en.murdoku.json"
+      },
+      "puzzleId": {
+        "it": "lib_hotel_it",
+        "en": "lib_hotel_en"
+      }
+    }
+  ]
+}

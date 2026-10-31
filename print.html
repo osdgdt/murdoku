@@ -3,10 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="robots" content="noindex" />
   <title>Stampa Murdoku</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/nunito-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/print.css" />
 </head>
@@ -17,7 +22,9 @@
   </div>
   <div id="print-root"></div>
 
+  <script type="module" src="src/i18n/i18n.js"></script>
   <script type="module">
+    import { t } from "./src/i18n/i18n.js";
     import * as store from "./src/storage/puzzleStore.js";
     import { renderPrintView } from "./src/print/printView.js";
 
@@ -26,7 +33,10 @@
     const puzzle = id ? store.get(id) : null;
     const root = document.getElementById("print-root");
     if (!puzzle) {
-      root.innerHTML = '<p style="padding:1rem">Puzzle non trovato.</p>';
+      const p = document.createElement("p");
+      p.style.padding = "1rem";
+      p.textContent = t("Puzzle non trovato.");
+      root.appendChild(p);
     } else {
       renderPrintView(root, puzzle);
     }

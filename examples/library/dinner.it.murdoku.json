@@ -1,0 +1,361 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_dinner_it",
+  "title": "Cena con delitto",
+  "author": "Murdoku",
+  "difficulty": "easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "La Contessa Vera non arriverà al dolce: la trovano nella stanza «Sala da pranzo». Cinque ospiti, una sola persona nella stanza con lei. Chi?",
+  "resolutionNote": "Edoardo era l'unico ospite con la contessa: il dolce può aspettare.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1767225600000,
+  "grid": {
+    "size": {
+      "rows": 5,
+      "cols": 5
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o3",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z5",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Atrio",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Sala da pranzo",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Salotto",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Cucina",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z5",
+        "name": "Dispensa",
+        "color": "#e0c2f4",
+        "textureId": "grass"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "table",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "o2",
+        "typeId": "carpet",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "o3",
+        "typeId": "stool",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "id": "o4",
+        "typeId": "lamp",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "o5",
+        "typeId": "shelf",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "id": "o6",
+        "typeId": "plant",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "o7",
+        "typeId": "door",
+        "row": 2,
+        "col": 2
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Contessa Vera",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "L'ospite d'onore della serata.",
+      "color": "#608aea",
+      "gender": "female"
+    },
+    {
+      "id": "c2",
+      "name": "Edoardo",
+      "iconId": "professor",
+      "isVictim": false,
+      "bio": "Il professore, ospite d'onore mancato.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "c3",
+      "name": "Livia",
+      "iconId": "artist",
+      "isVictim": false,
+      "bio": "L'artista, sempre in ritardo.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "c4",
+      "name": "Marco",
+      "iconId": "driver",
+      "isVictim": false,
+      "bio": "L'autista, in attesa fuori dalla porta.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Nora",
+      "iconId": "glasses",
+      "isVictim": false,
+      "bio": "La cugina della contessa, appassionata di veleni.",
+      "color": "#bf8020",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c5",
+      "type": "aloneInRoom",
+      "params": {
+        "zoneId": "z5"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c4",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 3
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c4",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 4
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c3",
+      "type": "adjacent",
+      "params": {
+        "targetId": "o2"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c2",
+      "type": "facing",
+      "params": {
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c2",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:stool"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "characterId": "c2",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "characterId": "c3",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 1
+      }
+    ]
+  },
+  "manualHints": []
+}

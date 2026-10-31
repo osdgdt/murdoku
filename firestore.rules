@@ -2,7 +2,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isSignedIn() { return request.auth != null; }
-    function isOwner() { return isSignedIn() && request.auth.uid == "say3jOf6WkaXDmjyn3kmAKNYbCh1"; }
+
+    // Campaign admins. The original owner's uid stays hard-coded on purpose:
+    // a typo in the `admins` collection can then never lock the owner out.
+    // Anyone else is an admin if a document `admins/{their uid}` exists
+    // (create it by hand in the Firebase console; clients cannot write it).
+    function isOwner() {
+      return isSignedIn() && (
+        request.auth.uid == "say3jOf6WkaXDmjyn3kmAKNYbCh1" ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    match /admins/{uid} {
+      // Each user may only check their own entry (used to show/hide the editor).
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
 
     match /campaigns/{campaignId} {
       allow read: if isSignedIn();

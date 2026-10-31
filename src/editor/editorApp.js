@@ -1,11 +1,13 @@
 import "../i18n/i18n.js";
 import { el, qs, clear } from "../util/dom.js";
-import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
+import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement, removeClue } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
+import { findRedundantClues } from "../solver/redundancy.js";
+import { describeClue } from "../model/clueTypes.js";
 import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
@@ -53,6 +55,7 @@ const redoBtn = qs("#editor-redo-btn");
 const validateBtn = qs("#validate-btn");
 const uniqueBtn = qs("#unique-btn");
 const estimateBtn = qs("#estimate-btn");
+const redundantBtn = qs("#redundant-btn");
 const calcSolutionBtn = qs("#calc-solution-btn");
 const statusEl = qs("#status");
 
@@ -337,6 +340,51 @@ uniqueBtn.addEventListener("click", async () => {
     validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message })));
   } finally {
     uniqueBtn.disabled = false;
+  }
+});
+
+redundantBtn.addEventListener("click", async () => {
+  redundantBtn.disabled = true;
+  clear(validationPanel);
+  const progress = el("p", { class: "info-message" }, t("Analisi degli indizi in corso…"));
+  validationPanel.appendChild(progress);
+  try {
+    const result = await findRedundantClues(puzzle, (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES }), {
+      onProgress: (done, total) => { progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total }); },
+    });
+    clear(validationPanel);
+    if (!result.ok) {
+      validationPanel.appendChild(
+        el("p", { class: "violation" }, result.reason === "unsolvable"
+          ? t("Il caso non ha soluzione: non posso dire quali indizi siano superflui.")
+          : t("Il caso non ha una soluzione unica: aggiungi indizi finché è univoco, poi cerca quelli superflui."))
+      );
+    } else if (result.redundant.length === 0) {
+      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Nessun indizio superfluo: ognuno è necessario all'unicità.")));
+    } else {
+      validationPanel.appendChild(
+        el("p", { class: "info-message" }, t("{count} indizi si possono togliere senza perdere l'unicità. Toglierne uno alla volta: dopo ogni rimozione conviene rifare l'analisi, perché alcuni sono superflui solo in coppia.", { count: result.redundant.length }))
+      );
+      const list = el("ul", { class: "redundant-list" });
+      for (const clueId of result.redundant) {
+        const clue = puzzle.clues.find((c) => c.id === clueId);
+        if (!clue) continue;
+        const owner = puzzle.characters.find((c) => c.id === clue.characterId);
+        list.appendChild(
+          el("li", {}, [
+            el("span", {}, `${owner ? owner.name + ": " : ""}${describeClue(clue, puzzle)}`),
+            " ",
+            el("button", { type: "button", onClick: () => { removeClue(puzzle, clueId); handleChange(); clear(validationPanel); setStatus(t("Indizio rimosso. Rifai l'analisi per controllare gli altri.")); } }, t("Rimuovi")),
+          ])
+        );
+      }
+      validationPanel.appendChild(list);
+    }
+  } catch (err) {
+    clear(validationPanel);
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Analisi non riuscita: {message}. Riprova.", { message: err.message })));
+  } finally {
+    redundantBtn.disabled = false;
   }
 });
 

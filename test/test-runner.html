@@ -36,8 +36,9 @@
     import { tests as migrationTests } from "./test-migrations.js";
     import { tests as i18nTests } from "./test-i18n.js";
     import { tests as shareLinkTests } from "./test-share-link.js";
+    import { tests as redundancyTests } from "./test-redundancy.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

@@ -40,9 +40,19 @@ export function estimateDifficultyFromNodes(nodesVisited) {
 // Distinct, saturated per-character colors (token backgrounds, clue-card
 // accents) — kept separate from the pale ZONE_COLORS palette in mapEditor.js,
 // which needs to stay soft since it fills whole cell backgrounds.
+//
+// Chosen to stay tellable-apart under the common kinds of colour-blindness
+// (protanopia, deuteranopia, tritanopia): the palette was searched for the
+// largest minimum CIEDE2000 distance — also against the victim's danger red —
+// inside a luminance band that keeps >=3:1 contrast with white token text and
+// with both the light and dark cell backgrounds (tools/find-palette.mjs,
+// checked by test/test-palette.js). The order matters: any prefix of it is
+// also well separated, so small casts (the common case) get the most distinct
+// colours. Colour is never the ONLY cue anyway — tokens carry a distinct icon
+// and candidate marks carry the character's initial.
 export const CHARACTER_COLORS = [
-  "#8a1f2d", "#2b6b4a", "#1f4e79", "#b0813a", "#6b3f8a",
-  "#1f7a7a", "#b3541e", "#4a4a63", "#a8456b", "#5c6b1f",
+  "#608aea", "#ea558a", "#158060", "#9f5595", "#bf8020",
+  "#4a6aca", "#9f80b5", "#6a9560", "#2b9f95", "#9f6a0b",
 ];
 
 // Puzzles saved before this field existed lack `character.color` — fall back

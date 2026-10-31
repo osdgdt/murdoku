@@ -39,8 +39,9 @@
     import { tests as redundancyTests } from "./test-redundancy.js";
     import { tests as shareResultTests } from "./test-share-result.js";
     import { tests as gameLogicTests } from "./test-game-logic.js";
+    import { tests as paletteTests } from "./test-palette.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

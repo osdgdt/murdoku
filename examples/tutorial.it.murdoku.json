@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "tutorial_it",
   "title": "Tutorial: il primo caso",
   "author": "Murdoku",
@@ -9,7 +9,7 @@
   "briefing": "Anna è stata trovata senza vita. Su una griglia ogni persona occupa una casella: mai due nella stessa riga o colonna. La vittima si trova sempre in una stanza con esattamente un'altra persona — ed è l'assassino. Leggi gli indizi, tocca una casella per segnare una nota e tieni premuto per piazzare il personaggio.",
   "resolutionNote": "Bruno era l'unico nella Cucina insieme ad Anna: è lui l'assassino. Ottimo lavoro, detective!",
   "createdAt": 1767225600000,
-  "updatedAt": 1793457234645,
+  "updatedAt": 1793457906962,
   "grid": {
     "size": {
       "rows": 4,
@@ -18,88 +18,88 @@
     "cells": [
       [
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvnyw7ej1a",
+          "zoneId": "zone_mvwij5ldzvf62cfg",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mvwi4qtvgcc05dwy",
+          "zoneId": "zone_mvwij5ldh8c2cgdx",
           "objectId": null,
           "blocked": false
         }
@@ -107,13 +107,13 @@
     ],
     "zones": [
       {
-        "id": "zone_mvwi4qtvnyw7ej1a",
+        "id": "zone_mvwij5ldzvf62cfg",
         "name": "Cucina",
         "color": "#f4c2c2",
         "textureId": "hatch"
       },
       {
-        "id": "zone_mvwi4qtvgcc05dwy",
+        "id": "zone_mvwij5ldh8c2cgdx",
         "name": "Salone",
         "color": "#c2e0f4",
         "textureId": "hatch"
@@ -123,37 +123,37 @@
   },
   "characters": [
     {
-      "id": "char_mvwi4qtvgp5u9n91",
+      "id": "char_mvwij5ldnblbvqbn",
       "name": "Anna",
       "iconId": "person1",
       "isVictim": true,
       "bio": "",
-      "color": "#8a1f2d",
+      "color": "#608aea",
       "gender": null
     },
     {
-      "id": "char_mvwi4qtv24awqtgn",
+      "id": "char_mvwij5lddnbyxynw",
       "name": "Bruno",
       "iconId": "butler",
       "isVictim": false,
       "bio": "",
-      "color": "#2b6b4a",
+      "color": "#ea558a",
       "gender": null
     },
     {
-      "id": "char_mvwi4qtvuwvb8ng1",
+      "id": "char_mvwij5ld3z5omkse",
       "name": "Carla",
       "iconId": "maid",
       "isVictim": false,
       "bio": "",
-      "color": "#1f4e79",
+      "color": "#158060",
       "gender": null
     }
   ],
   "clues": [
     {
-      "id": "clue_mvwi4qtv0pjhaqbl",
-      "characterId": "char_mvwi4qtvgp5u9n91",
+      "id": "clue_mvwij5ldek2ph5mp",
+      "characterId": "char_mvwij5ldnblbvqbn",
       "type": "inRowOrCol",
       "params": {
         "axis": "row",
@@ -161,8 +161,8 @@
       }
     },
     {
-      "id": "clue_mvwi4qtvl25yagh4",
-      "characterId": "char_mvwi4qtvgp5u9n91",
+      "id": "clue_mvwij5ldq4vhgdbo",
+      "characterId": "char_mvwij5ldnblbvqbn",
       "type": "inRowOrCol",
       "params": {
         "axis": "col",
@@ -170,32 +170,32 @@
       }
     },
     {
-      "id": "clue_mvwi4qtv79kn9z3f",
-      "characterId": "char_mvwi4qtv24awqtgn",
+      "id": "clue_mvwij5ldiki38mla",
+      "characterId": "char_mvwij5lddnbyxynw",
       "type": "inRoom",
       "params": {
-        "zoneId": "zone_mvwi4qtvnyw7ej1a"
+        "zoneId": "zone_mvwij5ldzvf62cfg"
       }
     },
     {
-      "id": "clue_mvwi4qtvsd0nqlh5",
-      "characterId": "char_mvwi4qtv24awqtgn",
+      "id": "clue_mvwij5ld5xxjq8g3",
+      "characterId": "char_mvwij5lddnbyxynw",
       "type": "diagonal",
       "params": {
-        "targetId": "char_mvwi4qtvgp5u9n91"
+        "targetId": "char_mvwij5ldnblbvqbn"
       }
     },
     {
-      "id": "clue_mvwi4qtvm5mslqqk",
-      "characterId": "char_mvwi4qtvuwvb8ng1",
+      "id": "clue_mvwij5ld7e15l5hd",
+      "characterId": "char_mvwij5ld3z5omkse",
       "type": "inRoom",
       "params": {
-        "zoneId": "zone_mvwi4qtvgcc05dwy"
+        "zoneId": "zone_mvwij5ldh8c2cgdx"
       }
     },
     {
-      "id": "clue_mvwi4qtvpvie77u4",
-      "characterId": "char_mvwi4qtvuwvb8ng1",
+      "id": "clue_mvwij5lee3l41rv9",
+      "characterId": "char_mvwij5ld3z5omkse",
       "type": "inRowOrCol",
       "params": {
         "axis": "col",
@@ -203,8 +203,8 @@
       }
     },
     {
-      "id": "clue_mvwi4qtv0drmjz2j",
-      "characterId": "char_mvwi4qtvuwvb8ng1",
+      "id": "clue_mvwij5le0hgzsz2q",
+      "characterId": "char_mvwij5ld3z5omkse",
       "type": "inRowOrCol",
       "params": {
         "axis": "row",
@@ -215,17 +215,17 @@
   "solution": {
     "placements": [
       {
-        "characterId": "char_mvwi4qtvgp5u9n91",
+        "characterId": "char_mvwij5ldnblbvqbn",
         "row": 0,
         "col": 0
       },
       {
-        "characterId": "char_mvwi4qtv24awqtgn",
+        "characterId": "char_mvwij5lddnbyxynw",
         "row": 1,
         "col": 1
       },
       {
-        "characterId": "char_mvwi4qtvuwvb8ng1",
+        "characterId": "char_mvwij5ld3z5omkse",
         "row": 2,
         "col": 3
       }
@@ -233,23 +233,23 @@
   },
   "manualHints": [
     {
-      "id": "hint_mvwi4qtwmur9gss6",
+      "id": "hint_mvwij5leg9gmlomw",
       "message": "Parti da Anna: è nella riga 1 e nella colonna 1. Una sola casella soddisfa entrambi gli indizi.",
-      "characterId": "char_mvwi4qtvgp5u9n91",
+      "characterId": "char_mvwij5ldnblbvqbn",
       "row": 0,
       "col": 0
     },
     {
-      "id": "hint_mvwi4qtxvzkcj0gv",
+      "id": "hint_mvwij5le0v47rzw9",
       "message": "Bruno è in Cucina ed è in diagonale rispetto ad Anna. La diagonale di (R1, C1) dentro la Cucina è una sola casella.",
-      "characterId": "char_mvwi4qtv24awqtgn",
+      "characterId": "char_mvwij5lddnbyxynw",
       "row": 1,
       "col": 1
     },
     {
-      "id": "hint_mvwi4qtxqqsw5lum",
+      "id": "hint_mvwij5lea5ngxjyl",
       "message": "Carla è nel Salone, nella colonna 4 e nella riga 3: ormai è l'ultima casella rimasta. Verifica la soluzione!",
-      "characterId": "char_mvwi4qtvuwvb8ng1",
+      "characterId": "char_mvwij5ld3z5omkse",
       "row": 2,
       "col": 3
     }

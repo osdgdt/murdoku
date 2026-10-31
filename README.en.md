@@ -20,6 +20,8 @@ The app is available in **Italian and English** (IT/EN button, top right; it fol
 - **Share:** **🔗 Share** copies a link containing the whole case (compressed, in the URL fragment — it never reaches a server). Or **⬇ Export** a `.murdoku.json` file, or **🖨 Print** it.
 - **Campaigns** (sign in with Google): ordered sequences of cases with progress synced across devices. Only the site owner can create them.
 
+Campaign admins: the original owner's uid stays hard-coded in `firestore.rules` (so a misconfiguration can never lock the owner out); to add another admin, create a document `admins/<uid>` by hand in the Firebase console (clients cannot write it), then publish `firestore.rules`.
+
 Everything except campaigns works without an account, and your cases/progress live in your browser's local storage.
 
 ## Development

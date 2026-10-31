@@ -23,11 +23,11 @@ const SOLUTION_STATUS_WARNINGS = {
 
 wireThemeToggle();
 
-// Matches the owner's Firebase Auth uid baked into firestore.rules — a
-// non-owner signed in here sees "Accesso negato" and every write attempt is
-// rejected server-side regardless, so this check is UX only, not the real
-// security boundary.
-const OWNER_UID = "say3jOf6WkaXDmjyn3kmAKNYbCh1";
+// Whether the signed-in user may manage campaigns (see
+// campaignStore.isCampaignAdmin): null while still being looked up. A
+// non-admin sees "Accesso negato" and every write attempt is rejected
+// server-side regardless, so this is UX only, not the real security boundary.
+let isAdmin = null;
 
 const params = new URLSearchParams(location.search);
 const campaignId = params.get("id");
@@ -72,7 +72,8 @@ function renderGate() {
     appEl.classList.add("hidden");
     return;
   }
-  if (currentUserState.uid !== OWNER_UID) {
+  if (isAdmin === null) return; // still checking
+  if (!isAdmin) {
     gateEl.appendChild(el("h1", {}, t("Accesso negato")));
     gateEl.appendChild(el("p", { class: "lede" }, t("Questo account non è autorizzato a gestire le campagne.")));
     gateEl.classList.remove("hidden");
@@ -240,11 +241,17 @@ addCaseBtn.addEventListener("click", async () => {
   }
 });
 
-onAuthChange((user) => {
+onAuthChange(async (user) => {
   currentUserState = user;
+  isAdmin = user ? null : false;
   renderAuthBar();
   renderGate();
-  if (user && user.uid === OWNER_UID) {
+  if (!user) return;
+  const admin = await campaignStore.isCampaignAdmin(user.uid);
+  if (currentUserState?.uid !== user.uid) return; // signed out / switched meanwhile
+  isAdmin = admin;
+  renderGate();
+  if (admin) {
     if (campaignId) loadDetailView(campaignId);
     else loadListView();
   }

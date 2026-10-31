@@ -89,6 +89,10 @@ Dalla home, **🕵️ Modalità Campagna** porta a una sequenza di casi giocati 
 
 Le campagne si creano solo dall'apposito **editor campagne** (`campaign-editor.html`), riservato al proprietario del sito: vi si crea una campagna (titolo, descrizione) e vi si aggiungono i casi incollando l'URL di un `.murdoku.json` già pubblicato (lo stesso meccanismo usato per condividere un caso singolo via link — vedi sopra), riordinandoli con ↑/↓.
 
+#### Chi può gestire le campagne
+
+L'UID storico del proprietario resta scritto in `firestore.rules` (così un errore di configurazione non può mai chiuderti fuori). Per dare lo stesso permesso a un'altra persona basta, nella console Firebase → Firestore, creare un documento **`admins/<uid>`** (l'UID è quello dell'account Google in Authentication → Utenti; il contenuto del documento è indifferente). I client non possono scrivere in `admins`. Dopo aver modificato `firestore.rules`, pubblicale con *Firestore → Regole → Pubblica* (o `firebase deploy --only firestore:rules`).
+
 ### Tema scuro
 L'icona 🌙/☀️ in alto a destra (home, editor, gioca) passa dal tema chiaro a quello scuro; la scelta viene ricordata per le visite successive. La vista di stampa resta sempre chiara, per corrispondere a ciò che esce dalla stampante.
 

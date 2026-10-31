@@ -19,6 +19,24 @@ export async function listCampaigns() {
   return snap.docs.map((d) => d.data());
 }
 
+// The site's original owner. firestore.rules keeps this uid as a permanent
+// bootstrap admin so a misconfigured `admins` collection can never lock the
+// owner out; everyone else is an admin only if an `admins/{uid}` document
+// exists (created by hand in the Firebase console — rules forbid client writes).
+export const BOOTSTRAP_OWNER_UID = "say3jOf6WkaXDmjyn3kmAKNYbCh1";
+
+// UX gate for the campaign editor only — the real boundary is firestore.rules,
+// which re-checks the same condition on every write.
+export async function isCampaignAdmin(uid) {
+  if (!uid) return false;
+  if (uid === BOOTSTRAP_OWNER_UID) return true;
+  try {
+    return (await getDoc(doc(db, "admins", uid))).exists();
+  } catch {
+    return false;
+  }
+}
+
 export async function getCampaign(id) {
   const snap = await getDoc(doc(db, "campaigns", id));
   return snap.exists() ? snap.data() : null;

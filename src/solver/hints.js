@@ -1,6 +1,6 @@
 import { solvePuzzle } from "./solver.js";
 import { isOccupiable, zoneOfCell } from "../model/grid.js";
-import { buildPredicates } from "./predicates.js";
+import { buildPredicates } from "./predicates/index.js";
 import { describeClue } from "../model/clueTypes.js";
 import { propagate } from "./propagation.js";
 

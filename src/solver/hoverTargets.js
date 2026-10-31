@@ -1,7 +1,7 @@
 import { CLUE_TYPES } from "../model/clueTypes.js";
 import { isObjectTypeOccupiable } from "../model/icons.js";
 import { isUsable, isOccupiable } from "../model/grid.js";
-import { resolveTargetPositions, victimId, buildPredicates } from "./predicates.js";
+import { resolveTargetPositions, victimId, buildPredicates } from "./predicates/index.js";
 
 // Resolves the "proprietà" (property) family shared by several clue types
 // (someoneInRoomWithProperty, aloneWithPersonProperty, someoneAtDirectionDistance,

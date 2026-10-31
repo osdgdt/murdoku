@@ -1,4 +1,4 @@
-import { buildPredicates } from "./predicates.js";
+import { buildPredicates } from "./predicates/index.js";
 import { isOccupiable } from "../model/grid.js";
 import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FORWARD_CHECK_MAX_SUBSET_OPS } from "./propagation.js";
 

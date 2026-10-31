@@ -1,4 +1,4 @@
-import { buildPredicates } from "./predicates.js";
+import { buildPredicates } from "./predicates/index.js";
 import { describeClue } from "../model/clueTypes.js";
 import { solvePuzzle } from "./solver.js";
 

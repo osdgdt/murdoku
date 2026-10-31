@@ -2,7 +2,7 @@ import { createPuzzle, addCharacter, addClue, setSolutionPlacement } from "../sr
 import { addZone, paintCellZone, placeObject, resizeGrid, setBlocked } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import { characterClueTypeIds, genericClueTypeIds, describeClue } from "../src/model/clueTypes.js";
-import { buildPredicate } from "../src/solver/predicates.js";
+import { buildPredicate } from "../src/solver/predicates/index.js";
 import { solvePuzzle } from "../src/solver/solver.js";
 import { checkUniqueness, validateSolution } from "../src/solver/validator.js";
 import { propagate } from "../src/solver/propagation.js";

@@ -257,18 +257,27 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     }
   }
 
+  // role="grid" requires row -> cell ownership. The rows are `display: contents`
+  // wrappers, so they exist only for assistive technology: the visual CSS
+  // grid layout still sees the cells as direct grid items.
+  const makeRow = () => el("div", { role: "row", style: "display:contents" });
+
   if (showLabels) {
-    container.appendChild(el("div", { class: "board-label board-label-corner" }));
+    const headerRow = makeRow();
+    headerRow.appendChild(el("div", { class: "board-label board-label-corner", "aria-hidden": "true" }));
     for (let c = 0; c < grid.size.cols; c++) {
-      container.appendChild(el("div", { class: "board-label board-label-col" }, `C${c + 1}`));
+      headerRow.appendChild(el("div", { class: "board-label board-label-col", role: "columnheader" }, `C${c + 1}`));
     }
+    container.appendChild(headerRow);
   }
 
   for (let r = 0; r < grid.size.rows; r++) {
+    const rowNode = makeRow();
+    container.appendChild(rowNode);
     let rowLabelNode = null;
     if (showLabels) {
-      rowLabelNode = el("div", { class: "board-label board-label-row" }, `R${r + 1}`);
-      container.appendChild(rowLabelNode);
+      rowLabelNode = el("div", { class: "board-label board-label-row", role: "rowheader" }, `R${r + 1}`);
+      rowNode.appendChild(rowLabelNode);
     }
     for (let c = 0; c < grid.size.cols; c++) {
       const cellData = grid.cells[r][c];
@@ -416,7 +425,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
 
       if (decorateCell) decorateCell(cellNode, r, c);
 
-      container.appendChild(cellNode);
+      rowNode.appendChild(cellNode);
     }
   }
 

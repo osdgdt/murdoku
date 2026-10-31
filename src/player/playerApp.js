@@ -8,7 +8,7 @@ import { decodePuzzleFromFragment } from "../storage/shareLink.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
-import { tutorialPlayerUrl } from "../util/examples.js";
+import { renderLibrarySection, isLibraryPuzzleId } from "./libraryPanel.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
 import { t, intlLocale } from "../i18n/i18n.js";
 
@@ -85,16 +85,26 @@ function sortPuzzleEntries(puzzles) {
 }
 
 function showPicker() {
+  titleEl.textContent = t("Scegli un caso da giocare");
   pickerEl.classList.remove("hidden");
   gameEl.classList.add("hidden");
   clear(pickerEl);
   if (importError) {
     pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a importare il caso dal link: {importError}", { importError })));
   }
-  const puzzles = sortPuzzleEntries(store.list());
+  // Library cases that were already opened are saved like any other puzzle,
+  // but are listed in the library section instead of being duplicated here.
+  const puzzles = sortPuzzleEntries(store.list().filter((p) => !isLibraryPuzzleId(p.id)));
+  renderLibrarySection(pickerEl).then(() => {
+    // The section is appended asynchronously (it fetches the index); keep it
+    // above the player's own cases.
+    const section = pickerEl.querySelector(".library-section");
+    if (section) pickerEl.insertBefore(section, pickerEl.firstChild);
+  });
+  if (puzzles.length === 0) return;
   pickerEl.appendChild(
     el("div", { class: "saved-list-header" }, [
-      el("h2", {}, t("Scegli un caso da giocare")),
+      el("h2", {}, t("I tuoi casi")),
       puzzles.length > 0
         ? el(
             "select",
@@ -110,16 +120,6 @@ function showPicker() {
         : null,
     ])
   );
-  if (puzzles.length === 0) {
-    const panel = el("div", { class: "panel" }, [
-      el("p", { class: "muted" }, t("Nessun puzzle salvato. Creane uno nell'Editor prima.")),
-      el("a", { class: "play", href: tutorialPlayerUrl() }, t("🎓 Prova il caso tutorial")),
-      " ",
-      el("a", { href: "editor.html" }, t("Vai all'editor →")),
-    ]);
-    pickerEl.appendChild(panel);
-    return;
-  }
   const panel = el("div", { class: "panel" });
   for (const entry of puzzles) {
     const updated = new Date(entry.updatedAt).toLocaleDateString(intlLocale(), { day: "numeric", month: "long", year: "numeric" });

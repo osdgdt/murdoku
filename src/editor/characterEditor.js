@@ -16,7 +16,7 @@ function onActivateKey(onActivate) {
 
 export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly) {
   clear(container);
-  container.appendChild(el("h3", {}, t("Personaggi")));
+  container.appendChild(el("h3", { "aria-level": "2" }, t("Personaggi")));
 
   const nameInput = el("input", { type: "text", placeholder: t("Nome personaggio") });
   // Auto-assigned round-robin, mirroring CHARACTER_COLORS's own rotation in
@@ -25,7 +25,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
   const nextIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
   const iconSelect = el(
     "select",
-    {},
+    { "aria-label": t("Icona del personaggio") },
     SELECTABLE_CHARACTER_ICON_IDS.map((id) =>
       el("option", { value: id, selected: id === nextIconId || undefined }, CHARACTER_ICONS[id].label)
     )
@@ -84,6 +84,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     const genderSelect = el(
       "select",
       {
+        "aria-label": t("Genere"),
         onChange: (e) => { character.gender = e.target.value || null; onChange(); },
       },
       [

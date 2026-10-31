@@ -1,0 +1,10 @@
+{
+  "library": 1,
+  "train": 1,
+  "restaurant": 11,
+  "museum": 21,
+  "opera": 84,
+  "cruise": 81,
+  "dinner": 43,
+  "hotel": 111
+}

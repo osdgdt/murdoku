@@ -1,0 +1,458 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_train_en",
+  "title": "The Night Train",
+  "author": "Murdoku",
+  "difficulty": "easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "The train rushes through the night when Madame Orlova is found dead in the room \"Sleeper car\". Nobody got off at the previous station. Who was with her?",
+  "resolutionNote": "Count Petrov was the only passenger in the same car as Madame Orlova. The journey ends here.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1793459308589,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 6
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o3",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o7",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o9",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Sleeper car",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Dining car",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Lounge",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Bar",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z5",
+        "name": "Baggage car",
+        "color": "#e0c2f4",
+        "textureId": "grass"
+      },
+      {
+        "id": "z6",
+        "name": "Freight car",
+        "color": "#f4d3c2",
+        "textureId": "marble"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "window",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "o2",
+        "typeId": "table",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "o3",
+        "typeId": "chair",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "o4",
+        "typeId": "tv",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "id": "o5",
+        "typeId": "lamp",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "o6",
+        "typeId": "stool",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "id": "o7",
+        "typeId": "shelf",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "o8",
+        "typeId": "carpet",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "id": "o9",
+        "typeId": "plant",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "o10",
+        "typeId": "door",
+        "row": 4,
+        "col": 1
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Madame Orlova",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "A celebrated opera singer.",
+      "color": "#608aea",
+      "gender": "female"
+    },
+    {
+      "id": "c2",
+      "name": "Count Petrov",
+      "iconId": "detective",
+      "isVictim": false,
+      "bio": "Claims to be travelling incognito.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "c3",
+      "name": "Irina",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "Madame Orlova's housekeeper.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "c4",
+      "name": "Sergei",
+      "iconId": "driver",
+      "isVictim": false,
+      "bio": "The conductor, with keys to every car.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Katya",
+      "iconId": "artist",
+      "isVictim": false,
+      "bio": "A painter on her way to the seaside.",
+      "color": "#bf8020",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c3",
+      "type": "between",
+      "params": {
+        "targetAId": "o7",
+        "targetBId": "objtype:tv"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 5,
+        "targetId": "z5"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c5",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 1,
+        "targetId": "objtype:carpet"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "south",
+        "distance": 3,
+        "targetId": "objtype:window"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c5",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 1,
+        "targetId": "c3"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c2",
+      "type": "adjacent",
+      "params": {
+        "targetId": "z4"
+      }
+    },
+    {
+      "id": "k7",
+      "characterId": "c1",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "z4",
+        "targetBId": "objtype:carpet"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "characterId": "c2",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "characterId": "c3",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "characterId": "c4",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 3
+      }
+    ]
+  },
+  "manualHints": []
+}

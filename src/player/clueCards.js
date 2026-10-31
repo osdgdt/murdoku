@@ -11,7 +11,7 @@ import { t } from "../i18n/i18n.js";
 // (see gameScreen.js's showClueHover/clearHover).
 export function renderClueCards(container, puzzle, state, onClueHover, onClueHoverEnd) {
   clear(container);
-  container.appendChild(el("h3", {}, t("Personaggi e indizi")));
+  container.appendChild(el("h3", { "aria-level": "2" }, t("Personaggi e indizi")));
 
   function clueLi(clue) {
     return el("li", { onMouseenter: onClueHover ? () => onClueHover(clue) : undefined, onMouseleave: onClueHoverEnd }, describeClue(clue, puzzle));

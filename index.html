@@ -6,10 +6,20 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#8a1f2d" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Murdoku: puzzle di deduzione tra Sudoku e giallo investigativo — gioca nel browser, crea i tuoi casi e condividili. / Deduction puzzles mixing Sudoku and detective stories — play in the browser, create your own cases and share them." />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Murdoku — puzzle di deduzione / deduction puzzles" />
+  <meta property="og:description" content="Murdoku: puzzle di deduzione tra Sudoku e giallo investigativo — gioca nel browser, crea i tuoi casi e condividili. / Deduction puzzles mixing Sudoku and detective stories — play in the browser, create your own cases and share them." />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <title>Murdoku Editor</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/landing.css" />
   <script>
@@ -19,11 +29,12 @@
   </script>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <span class="brand">🔎 Murdoku</span>
     <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
     <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
-  </div>
+  </header>
+  <main>
 
   <div class="hero">
     <span class="eyebrow">Archivio dei casi</span>
@@ -40,27 +51,27 @@
     <div class="card-links">
       <a id="tutorial-link" class="card-link" href="player.html?import=examples%2Ftutorial.it.murdoku.json">
         <span class="icon-badge">🎓</span>
-        <h3>Tutorial</h3>
+        <h2>Tutorial</h2>
         <p class="muted">Impara le regole risolvendo un piccolo caso guidato.</p>
       </a>
       <a class="card-link" href="editor.html">
         <span class="icon-badge">✏️</span>
-        <h3>Nuovo puzzle</h3>
+        <h2>Nuovo puzzle</h2>
         <p class="muted">Apri l'editor per creare un caso da zero.</p>
       </a>
       <a class="card-link" href="player.html">
         <span class="icon-badge">🔍</span>
-        <h3>Gioca</h3>
+        <h2>Gioca</h2>
         <p class="muted">Scegli un caso salvato e risolvilo.</p>
       </a>
       <a class="card-link" href="campaign.html">
         <span class="icon-badge">🕵️</span>
-        <h3>Modalità Campagna</h3>
+        <h2>Modalità Campagna</h2>
         <p class="muted">Accedi per giocare le campagne a episodi.</p>
       </a>
       <a class="card-link" href="achievements.html">
         <span class="icon-badge">🏆</span>
-        <h3>Traguardi</h3>
+        <h2>Traguardi</h2>
         <p class="muted">Rivedi i tuoi progressi e i traguardi sbloccati.</p>
       </a>
     </div>
@@ -69,7 +80,7 @@
   <div id="saved-list" class="hidden">
     <div class="saved-list-header">
       <h2>I tuoi puzzle</h2>
-      <select id="sort-select">
+      <select id="sort-select" aria-label="Ordina i casi">
         <option value="updated">Aggiornati di recente</option>
         <option value="title">Titolo</option>
         <option value="difficulty">Difficoltà</option>
@@ -79,9 +90,14 @@
   </div>
 
   <p class="footer-note">Murdoku Editor — creato, giocato e stampato interamente sul tuo computer.</p>
+  <p class="footer-note"><a href="privacy.html">Privacy e cancellazione dati</a></p>
+
+  
+  </main>
 
   <script type="module" src="src/i18n/i18n.js"></script>
   <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
   <script type="module">
     import "./src/i18n/i18n.js";
     import * as store from "./src/storage/puzzleStore.js";

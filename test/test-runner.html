@@ -41,8 +41,10 @@
     import { tests as gameLogicTests } from "./test-game-logic.js";
     import { tests as paletteTests } from "./test-palette.js";
     import { tests as solveHistoryTests } from "./test-solve-history.js";
+    import { tests as errorReportTests } from "./test-error-report.js";
+    import { tests as libraryTests } from "./test-library.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

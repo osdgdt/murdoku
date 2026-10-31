@@ -1,0 +1,622 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_cruise_en",
+  "title": "The Cruise Ship",
+  "author": "Murdoku",
+  "difficulty": "hard",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "In the middle of the ocean, Commodore Hale stops answering the helm: he is found dead in the room \"Bridge\". Nobody can get off, and seven people know more than they say.",
+  "resolutionNote": "Sylvia was the only person with the commodore. The ship returns to port with one guest fewer.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1793459312295,
+  "grid": {
+    "size": {
+      "rows": 7,
+      "cols": 7
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o3",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o4",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z4",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o11",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": "o13",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o15",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o14",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Bridge",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Dining room",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Spa",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Cabins",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z5",
+        "name": "Promenade deck",
+        "color": "#e0c2f4",
+        "textureId": "grass"
+      },
+      {
+        "id": "z6",
+        "name": "Engine room",
+        "color": "#f4d3c2",
+        "textureId": "marble"
+      },
+      {
+        "id": "z7",
+        "name": "Casino",
+        "color": "#c2f4e8",
+        "textureId": "water"
+      },
+      {
+        "id": "z8",
+        "name": "Library",
+        "color": "#e8e8e8",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z9",
+        "name": "Cargo hold",
+        "color": "#f4c2c2",
+        "textureId": "wood"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "window",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "o2",
+        "typeId": "lamp",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "id": "o3",
+        "typeId": "table",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "o4",
+        "typeId": "plant",
+        "row": 1,
+        "col": 6
+      },
+      {
+        "id": "o5",
+        "typeId": "chair",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "o6",
+        "typeId": "carpet",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "id": "o7",
+        "typeId": "stool",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "id": "o8",
+        "typeId": "tv",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "o9",
+        "typeId": "shelf",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "o10",
+        "typeId": "door",
+        "row": 5,
+        "col": 1
+      },
+      {
+        "id": "o11",
+        "typeId": "table",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "id": "o12",
+        "typeId": "carpet",
+        "row": 5,
+        "col": 4
+      },
+      {
+        "id": "o13",
+        "typeId": "window",
+        "row": 5,
+        "col": 6
+      },
+      {
+        "id": "o14",
+        "typeId": "shelf",
+        "row": 6,
+        "col": 6
+      },
+      {
+        "id": "o15",
+        "typeId": "stool",
+        "row": 6,
+        "col": 3
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Commodore Hale",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "The ship's captain.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "c2",
+      "name": "Sylvia",
+      "iconId": "detective",
+      "isVictim": false,
+      "bio": "The first officer.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "c3",
+      "name": "Theo",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "The head steward.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "c4",
+      "name": "Ines",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "The ship's chef.",
+      "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "c5",
+      "name": "Gabriel",
+      "iconId": "glasses",
+      "isVictim": false,
+      "bio": "A mysterious passenger.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Mara",
+      "iconId": "artist",
+      "isVictim": false,
+      "bio": "The lounge pianist.",
+      "color": "#4a6aca",
+      "gender": "female"
+    },
+    {
+      "id": "c7",
+      "name": "Horace",
+      "iconId": "driver",
+      "isVictim": false,
+      "bio": "The engineer, always covered in grease.",
+      "color": "#9f80b5",
+      "gender": "male"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c5",
+      "type": "between",
+      "params": {
+        "targetAId": "objtype:shelf",
+        "targetBId": "z5"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c1",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 4,
+        "targetId": "o9"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c4",
+      "type": "between",
+      "params": {
+        "targetAId": "z9",
+        "targetBId": "objtype:table"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c6",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "o11",
+        "targetBId": "o1"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c3",
+      "type": "between",
+      "params": {
+        "targetAId": "z9",
+        "targetBId": "objtype:lamp"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c5",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 2,
+        "targetId": "objtype:stool"
+      }
+    },
+    {
+      "id": "k7",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 4,
+        "targetId": "o12"
+      }
+    },
+    {
+      "id": "k8",
+      "characterId": null,
+      "type": "sameRoomTogether",
+      "params": {
+        "targetAId": "c4",
+        "targetBId": "c5"
+      },
+      "negate": true
+    },
+    {
+      "id": "k9",
+      "characterId": "c7",
+      "type": "extremeInDirection",
+      "params": {
+        "direction": "west",
+        "scope": "room",
+        "property": "adjacentTo",
+        "targetId": "o12"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "characterId": "c2",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "characterId": "c3",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "characterId": "c4",
+        "row": 3,
+        "col": 5
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 6
+      },
+      {
+        "characterId": "c6",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "characterId": "c7",
+        "row": 6,
+        "col": 4
+      }
+    ]
+  },
+  "manualHints": []
+}

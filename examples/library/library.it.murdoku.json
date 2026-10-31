@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_library_it",
+  "title": "Delitto nello studio",
+  "author": "Murdoku",
+  "difficulty": "very-easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Durante la riunione di famiglia, Lord Ashford viene trovato senza vita nella stanza «Studio». La casa è piena di gente, ma solo una persona era con lui. Ricostruisci chi si trovava dove.",
+  "resolutionNote": "Ada era l'unica persona con Lord Ashford al momento del delitto: il caso è chiuso.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1793459308019,
+  "grid": {
+    "size": {
+      "rows": 5,
+      "cols": 5
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o3",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Studio",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Biblioteca",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Salotto",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Cucina",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "table",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "o2",
+        "typeId": "chair",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "o3",
+        "typeId": "plant",
+        "row": 4,
+        "col": 4
+      },
+      {
+        "id": "o4",
+        "typeId": "door",
+        "row": 2,
+        "col": 2
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Lord Ashford",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "Il padrone di casa.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "c2",
+      "name": "Ada",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "La cameriera: sa sempre tutto di tutti.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "c3",
+      "name": "Bruno",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "Il maggiordomo, impeccabile e silenzioso.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "c4",
+      "name": "Clara",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "La cuoca, odiava le critiche di Lord Ashford.",
+      "color": "#9f5595",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c2",
+      "type": "diagonal",
+      "params": {
+        "targetId": "o2"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c2",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 3
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c1",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:chair"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c4",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "row",
+        "targetId": "objtype:plant"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c4",
+      "type": "facing",
+      "params": {
+        "targetId": "z1"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c3",
+      "type": "diagonal",
+      "params": {
+        "targetId": "objtype:table"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c2",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "characterId": "c3",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "characterId": "c4",
+        "row": 4,
+        "col": 1
+      }
+    ]
+  },
+  "manualHints": []
+}

@@ -173,13 +173,35 @@ tabHintsBtn.addEventListener("click", () => { activeTab = "hints"; render(); });
 
 saveBtn.addEventListener("click", () => { persist(); });
 
-exportBtn.addEventListener("click", () => { exportPuzzle(puzzle); });
+// Before a case leaves the editor (file or link), make sure players won't get a
+// broken one: a case with no solution, several solutions, or one we couldn't
+// verify is flagged, and the author can still choose to go ahead.
+async function confirmPublishable() {
+  setStatus(t("Controllo che il caso abbia una soluzione unica…"));
+  let problem = null;
+  try {
+    const report = await checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES });
+    if (report.solutionCount === 0) problem = t("Il caso non ha nessuna soluzione: nessuno potrà risolverlo.");
+    else if (report.solutionCount > 1) problem = t("Il caso ha più di una soluzione: i giocatori potrebbero non capire quale sia quella giusta.");
+    else if (report.truncated) problem = t("Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.");
+  } catch (err) {
+    problem = t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message });
+  }
+  setStatus("");
+  if (!problem) return true;
+  return confirm(`${problem}\n\n${t("Vuoi procedere comunque?")}`);
+}
+
+exportBtn.addEventListener("click", async () => {
+  if (await confirmPublishable()) exportPuzzle(puzzle);
+});
 
 shareBtn.addEventListener("click", async () => {
   if (!isShareLinkSupported()) {
     setStatus(t("Il tuo browser non supporta i link di condivisione: usa Esporta."), "violation");
     return;
   }
+  if (!(await confirmPublishable())) return;
   try {
     const url = new URL("player.html", location.href);
     url.hash = await encodePuzzleToFragment(puzzle);

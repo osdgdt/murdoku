@@ -131,6 +131,9 @@ function wireLanguageToggle() {
   for (const btn of document.querySelectorAll("[data-lang-toggle]")) {
     btn.textContent = lang === "it" ? "EN" : "IT";
     btn.title = lang === "it" ? "Switch to English" : "Passa all'italiano";
+    // WCAG 2.5.3: the accessible name must contain the visible text ("EN").
+    btn.setAttribute("aria-label", `${btn.textContent} — ${btn.title}`);
+    btn.setAttribute("lang", lang === "it" ? "en" : "it");
     btn.addEventListener("click", () => {
       setLanguage(lang === "it" ? "en" : "it");
       location.reload();

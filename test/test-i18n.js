@@ -3,7 +3,7 @@ import en from "../src/i18n/en.js";
 import { CLUE_TYPES, describeClue } from "../src/model/clueTypes.js";
 import { createPuzzle, addCharacter } from "../src/model/puzzle.js";
 import { addZone, resizeGrid, placeObject } from "../src/model/grid.js";
-import { assert, assertEqual } from "./assert.js";
+import { assertEqual } from "./assert.js";
 
 const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",");
 

@@ -1,0 +1,479 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_restaurant_it",
+  "title": "Veleno al ristorante",
+  "author": "Murdoku",
+  "difficulty": "medium",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "La serata del tutto esaurito finisce male: lo chef Moreau viene trovato senza vita nella stanza «Sala». Sei persone in locale e un solo testimone silenzioso: la mappa dei posti.",
+  "resolutionNote": "Giulia era l'unico nella stessa stanza dello chef Moreau. Il conto, stavolta, è salatissimo.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1793459308992,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 6
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o6",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o7",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o3",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o10",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": "o11",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Cucina",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Dispensa",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Terrazza",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Guardaroba",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z5",
+        "name": "Sala",
+        "color": "#e0c2f4",
+        "textureId": "grass"
+      },
+      {
+        "id": "z6",
+        "name": "Bar",
+        "color": "#f4d3c2",
+        "textureId": "marble"
+      },
+      {
+        "id": "z7",
+        "name": "Cantina",
+        "color": "#c2f4e8",
+        "textureId": "water"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "table",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "id": "o2",
+        "typeId": "table",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "o3",
+        "typeId": "table",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "o4",
+        "typeId": "lamp",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "o5",
+        "typeId": "shelf",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "o6",
+        "typeId": "plant",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "o7",
+        "typeId": "chair",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "o8",
+        "typeId": "door",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "o9",
+        "typeId": "stool",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "o10",
+        "typeId": "tv",
+        "row": 3,
+        "col": 5
+      },
+      {
+        "id": "o11",
+        "typeId": "window",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "o12",
+        "typeId": "carpet",
+        "row": 4,
+        "col": 3
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Chef Moreau",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "Lo chef stellato, tiranno dei fornelli.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "c2",
+      "name": "Giulia",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "La sous-chef, stufa di prendere ordini.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "c3",
+      "name": "Pietro",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "Il maître di sala.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "c4",
+      "name": "Sofia",
+      "iconId": "glasses",
+      "isVictim": false,
+      "bio": "La critica gastronomica, con il taccuino sempre in mano.",
+      "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "c5",
+      "name": "Dario",
+      "iconId": "gardener",
+      "isVictim": false,
+      "bio": "Il fornitore di erbe aromatiche.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Elena",
+      "iconId": "hat",
+      "isVictim": false,
+      "bio": "La sommelier, custode della cantina.",
+      "color": "#4a6aca",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c5",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 1,
+        "targetId": "objtype:stool"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c2",
+      "type": "between",
+      "params": {
+        "targetAId": "objtype:door",
+        "targetBId": "z5"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c4",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "z3",
+        "targetBId": "z2"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c4",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "z3",
+        "targetBId": "objtype:chair"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c3",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "z2",
+        "targetBId": "o11"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c6",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "col",
+        "targetId": "z2"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "characterId": "c2",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "characterId": "c3",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "characterId": "c6",
+        "row": 5,
+        "col": 4
+      }
+    ]
+  },
+  "manualHints": []
+}

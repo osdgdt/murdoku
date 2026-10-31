@@ -367,7 +367,7 @@ export const tests = [
     name: "removeCharacter azzera solo l'evidenziazione (characterId/row/col) di un passo manuale, mantenendo il testo",
     fn: () => {
       const puzzle = buildValidPuzzle();
-      const [anna, bruno] = puzzle.characters;
+      const [, bruno] = puzzle.characters;
       const step = addManualHintStep(puzzle, "Bruno è nella cucina.");
       updateManualHintStep(puzzle, step.id, { characterId: bruno.id, row: 0, col: 0 });
       removeCharacter(puzzle, bruno.id);

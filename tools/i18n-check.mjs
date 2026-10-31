@@ -5,7 +5,7 @@ import path from "node:path";
 import en from "../src/i18n/en.js";
 
 const root = path.resolve(import.meta.dirname, "..");
-const IGNORED = new Set(["EN", "IT", "🔎 Murdoku"]);
+const IGNORED = new Set(["EN", "IT", "🔎 Murdoku", "github.com/osdgdt/murdoku/issues"]);
 const missing = new Map();
 
 function walk(dir, out = []) {

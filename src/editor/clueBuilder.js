@@ -98,8 +98,9 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
     // doesn't lose focus mid-typing from the full re-render onChange triggers.
     const input = el("input", {
       type: "number",
+      "aria-label": paramDef.label,
       min: String(min),
-      placeholder: paramDef.optional ? "qualsiasi" : undefined,
+      placeholder: paramDef.optional ? t("qualsiasi") : undefined,
       value: isUnset ? (paramDef.optional ? "" : String(min)) : String(current),
       onChange: (e) => {
         const raw = e.target.value.trim();
@@ -163,6 +164,7 @@ function renderNestedClue(spec, puzzle, ownerId, onSetSpec) {
   const typeSelect = el(
     "select",
     {
+      "aria-label": t("Tipo di indizio"),
       onChange: (e) => onSetSpec({ type: e.target.value, params: defaultParams(e.target.value, puzzle) }),
     },
     [el("option", { value: "" }, t("-- scegli indizio --")), ...subTypeIds.map((id) =>
@@ -244,7 +246,7 @@ function renderGenericCluesSection(puzzle, onChange) {
 
   const typeSelect = el(
     "select",
-    {},
+    { "aria-label": t("Tipo di indizio") },
     genericTypeIds.map((id) => el("option", { value: id }, CLUE_TYPES[id].label))
   );
   const addClueBtn = el("button", {
@@ -260,7 +262,7 @@ function renderGenericCluesSection(puzzle, onChange) {
 
 export function renderClueBuilder(container, puzzle, onChange) {
   clear(container);
-  container.appendChild(el("h3", {}, t("Indizi")));
+  container.appendChild(el("h3", { "aria-level": "2" }, t("Indizi")));
 
   container.appendChild(renderGenericCluesSection(puzzle, onChange));
 
@@ -283,7 +285,7 @@ export function renderClueBuilder(container, puzzle, onChange) {
 
     const typeSelect = el(
       "select",
-      {},
+      { "aria-label": t("Tipo di indizio") },
       characterTypeIds.map((id) => el("option", { value: id }, CLUE_TYPES[id].label))
     );
     const addClueBtn = el("button", {

@@ -6,10 +6,20 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#8a1f2d" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Crea il tuo caso Murdoku: mappa, personaggi, indizi, verifica dell&#x27;unicità. / Build your own Murdoku case: map, characters, clues, uniqueness check." />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/editor.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Murdoku Editor" />
+  <meta property="og:description" content="Crea il tuo caso Murdoku: mappa, personaggi, indizi, verifica dell&#x27;unicità. / Build your own Murdoku case: map, characters, clues, uniqueness check." />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/editor.html" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <title>Murdoku Editor</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/editor.css" />
   <script>
@@ -19,12 +29,13 @@
   </script>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <a class="brand" href="index.html">🔎 Murdoku</a>
+    <h1 class="visually-hidden">Murdoku Editor</h1>
     <div class="title-fields">
-      <input id="puzzle-title" class="title-input" type="text" placeholder="Titolo del caso" />
-      <input id="puzzle-author" class="author-input" type="text" placeholder="Autore" />
-      <select id="puzzle-difficulty" class="difficulty-input" title="Difficoltà"></select>
+      <input id="puzzle-title" class="title-input" type="text" placeholder="Titolo del caso" aria-label="Titolo del caso" />
+      <input id="puzzle-author" class="author-input" type="text" placeholder="Autore" aria-label="Autore" />
+      <select id="puzzle-difficulty" class="difficulty-input" title="Difficoltà" aria-label="Difficoltà"></select>
     </div>
     <nav class="topbar-actions">
       <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
@@ -39,7 +50,8 @@
       <button id="play-btn" class="primary">▶ Gioca</button>
       <button id="delete-btn" class="danger" title="Elimina questo caso">🗑 Elimina</button>
     </nav>
-  </div>
+  </header>
+  <main>
 
   <div class="editor-toolstrip">
     <div class="tab-group">
@@ -83,8 +95,12 @@
     </div>
   </div>
 
+  
+  </main>
+
   <script type="module" src="src/i18n/i18n.js"></script>
   <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
   <script type="module" src="src/editor/editorApp.js"></script>
 </body>
 </html>

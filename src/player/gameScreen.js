@@ -287,7 +287,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     clear(briefingEl);
     briefingEl.classList.toggle("hidden", !puzzle.briefing);
     if (puzzle.briefing) {
-      briefingEl.appendChild(el("h3", {}, t("Il caso")));
+      briefingEl.appendChild(el("h3", { "aria-level": "2" }, t("Il caso")));
       briefingEl.appendChild(el("p", {}, puzzle.briefing));
     }
   }
@@ -300,6 +300,26 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     });
     hintBtn.addEventListener("click", onHint);
     submitBtn.addEventListener("click", onSubmit);
+    document.addEventListener("keydown", onShortcut);
+  }
+
+  // Keyboard shortcuts: 1-9 pick a character, X = cross, E = eraser,
+  // U (or Ctrl/Cmd+Z) = undo, H = hint. Ignored while typing in a form
+  // control or with a modifier held (so browser shortcuts keep working).
+  function onShortcut(e) {
+    const target = e.target;
+    if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    if (e.altKey) return;
+    const key = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && key === "z") { e.preventDefault(); undoBtn.click(); return; }
+    if (e.ctrlKey || e.metaKey) return;
+    if (/^[1-9]$/.test(key)) {
+      const character = puzzle.characters[Number(key) - 1];
+      if (character) { e.preventDefault(); selectTool({ kind: "character", id: character.id }); }
+    } else if (key === "x") { selectTool({ kind: "x" }); }
+    else if (key === "e") { selectTool({ kind: "erase" }); }
+    else if (key === "u") { undoBtn.click(); }
+    else if (key === "h" && !hintBtn.disabled) { hintBtn.click(); }
   }
 
   // Full initial setup — render, briefing, timer, and every control's event

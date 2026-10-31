@@ -9,7 +9,7 @@ let selectedCharacterId = null;
 
 export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
   clear(panelEl);
-  panelEl.appendChild(el("h3", {}, t("Soluzione dell'autore")));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Soluzione dell'autore")));
   panelEl.appendChild(el("p", { class: "muted" }, t("Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato.")));
 
   if (selectedCharacterId && !puzzle.characters.find((c) => c.id === selectedCharacterId)) {

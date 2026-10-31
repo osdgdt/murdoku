@@ -1,0 +1,464 @@
+{
+  "schemaVersion": 2,
+  "id": "lib_museum_en",
+  "title": "Museum Mystery",
+  "author": "Murdoku",
+  "difficulty": "medium",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "After closing time, Director Valli is found dead in the room \"Egyptian hall\". The alarm never went off and the halls were empty... almost.",
+  "resolutionNote": "Agatha was the only person with the director. The alarm, ironically, was useless.",
+  "createdAt": 1767225600000,
+  "updatedAt": 1793459309456,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 6
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o1",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o3",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": "o2",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o5",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z5",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o12",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o11",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Egyptian hall",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "z2",
+        "name": "Picture gallery",
+        "color": "#c2e0f4",
+        "textureId": "wood"
+      },
+      {
+        "id": "z3",
+        "name": "Armoury",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "z4",
+        "name": "Jewel room",
+        "color": "#f4ecc2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z5",
+        "name": "Atrium",
+        "color": "#e0c2f4",
+        "textureId": "grass"
+      },
+      {
+        "id": "z6",
+        "name": "Storeroom",
+        "color": "#f4d3c2",
+        "textureId": "marble"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "shelf",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "o2",
+        "typeId": "lamp",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "o3",
+        "typeId": "window",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "id": "o4",
+        "typeId": "tv",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "id": "o5",
+        "typeId": "table",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "o6",
+        "typeId": "plant",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "o7",
+        "typeId": "chair",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "o8",
+        "typeId": "door",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "o9",
+        "typeId": "carpet",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "o10",
+        "typeId": "stool",
+        "row": 5,
+        "col": 1
+      },
+      {
+        "id": "o11",
+        "typeId": "shelf",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "o12",
+        "typeId": "table",
+        "row": 4,
+        "col": 5
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Dr. Valli",
+      "iconId": "person1",
+      "isVictim": true,
+      "bio": "The museum director.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "c2",
+      "name": "Agatha",
+      "iconId": "professor",
+      "isVictim": false,
+      "bio": "The curator of the Egyptian collection.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "c3",
+      "name": "Bob",
+      "iconId": "driver",
+      "isVictim": false,
+      "bio": "The night guard.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "c4",
+      "name": "Carla",
+      "iconId": "artist",
+      "isVictim": false,
+      "bio": "The restorer, golden hands.",
+      "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "c5",
+      "name": "David",
+      "iconId": "detective",
+      "isVictim": false,
+      "bio": "An unusually curious visitor.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Emma",
+      "iconId": "glasses",
+      "isVictim": false,
+      "bio": "The last tour's guide.",
+      "color": "#4a6aca",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c6",
+      "type": "adjacent",
+      "params": {
+        "targetId": "o11"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 2,
+        "targetId": "c6"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c3",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "col",
+        "targetId": "o11"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c5",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "o8",
+        "targetBId": "objtype:chair"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c4",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "objtype:lamp",
+        "targetBId": "o10"
+      },
+      "negate": true
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c2",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "characterId": "c3",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "characterId": "c4",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "characterId": "c6",
+        "row": 5,
+        "col": 4
+      }
+    ]
+  },
+  "manualHints": []
+}

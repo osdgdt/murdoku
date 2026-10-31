@@ -24,7 +24,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
   const rerenderSelf = () => renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistOnly);
 
   clear(panelEl);
-  panelEl.appendChild(el("h3", {}, t("Suggerimenti passo-passo")));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Suggerimenti passo-passo")));
   panelEl.appendChild(
     el(
       "p",

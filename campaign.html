@@ -6,10 +6,20 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#8a1f2d" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Campagne a episodi con progressi sincronizzati. / Episodic campaigns with synced progress." />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/campaign.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Modalità campagna — Murdoku / Campaign mode — Murdoku" />
+  <meta property="og:description" content="Campagne a episodi con progressi sincronizzati. / Episodic campaigns with synced progress." />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/campaign.html" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <title>Modalità campagna — Murdoku</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/inter-normal-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/landing.css" />
   <link rel="stylesheet" href="styles/editor.css" />
@@ -21,7 +31,7 @@
   </script>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <a class="brand" href="index.html">🔎 Murdoku</a>
     <h2 id="campaign-header-title" style="margin:0">Modalità campagna</h2>
     <div class="topbar-right" style="display:flex;align-items:center;gap:0.6rem">
@@ -30,7 +40,8 @@
       <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
       <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
     </div>
-  </div>
+  </header>
+  <main>
 
   <div id="gate" class="hero"></div>
 
@@ -58,6 +69,7 @@
           <button id="hint-btn">💡 Suggerimento</button>
           <button id="submit-btn" class="primary">✓ Verifica soluzione</button>
         </div>
+        <p id="shortcuts-hint" class="muted">Scorciatoie: 1-9 scelgono un personaggio · X segna · E gomma · U annulla · H suggerimento.</p>
         <p id="notes-hint" class="muted">Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo su una casella per piazzarci il personaggio selezionato: le sue note esistenti verranno cancellate.</p>
         <div id="hint-panel"></div>
         <div id="result-panel"></div>
@@ -72,8 +84,13 @@
     </div>
   </div>
 
+  
+  <p class="footer-note"><a href="privacy.html">Privacy e cancellazione dati</a></p>
+  </main>
+
   <script type="module" src="src/i18n/i18n.js"></script>
   <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
   <script type="module" src="src/campaign/campaignApp.js"></script>
 </body>
 </html>

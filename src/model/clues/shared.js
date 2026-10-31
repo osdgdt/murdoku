@@ -1,4 +1,4 @@
-import { isObjectTypeTarget, parseObjectTypeTarget, objectIcon, OBJECT_TYPES } from "./../icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES } from "../icons.js";
 import { describeClue } from "../clueTypes.js";
 import { t } from "../../i18n/i18n.js";
 

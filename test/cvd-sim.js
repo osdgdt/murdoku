@@ -6,7 +6,6 @@ const M = {
 };
 const hex = (h)=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);
 const lin = (c)=>c<=0.04045?c/12.92:((c+0.055)/1.055)**2.4;
-const gam = (c)=>{c=Math.min(1,Math.max(0,c));return c<=0.0031308?c*12.92:1.055*c**(1/2.4)-0.055;};
 export const toLin = (h)=>hex(h).map(lin);
 export function sim(h,type){ if(!type) return toLin(h); const m=M[type], v=toLin(h); return m.map(r=>r[0]*v[0]+r[1]*v[1]+r[2]*v[2]); }
 export function lab(l){ const [r,g,b]=l; let X=0.4124*r+0.3576*g+0.1805*b, Y=0.2126*r+0.7152*g+0.0722*b, Z=0.0193*r+0.1192*g+0.9505*b; X/=0.95047;Z/=1.08883; const f=t=>t>216/24389?Math.cbrt(t):(24389/27*t+16)/116; const fx=f(X),fy=f(Y),fz=f(Z); return [116*fy-16,500*(fx-fy),200*(fy-fz)]; }

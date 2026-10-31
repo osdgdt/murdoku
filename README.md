@@ -32,6 +32,10 @@ Poi apri `http://localhost:8000` nel browser.
 
 - **Installabile e offline (PWA):** da telefono o desktop si può "Aggiungere alla schermata Home"; dopo la prima visita l'app funziona anche senza rete (campagne e login Google a parte).
 - **Condividi con un link:** in editor, **🔗 Condividi** copia un link `player.html#case=…` che contiene l'intero caso (compresso, nel frammento dell'URL: non passa da nessun server). Chi lo apre gioca subito, senza file da ospitare. Il vecchio `?import=<url>` continua a funzionare.
+- **Libreria di casi:** 8 casi inclusi (+ il tutorial), in italiano e inglese, di difficoltà crescente, con **📅 Caso del giorno**. Ogni caso ha soluzione unica verificata dal solver.
+- **Scorciatoie da tastiera** nel gioco: 1-9 scelgono un personaggio, X segna, E gomma, U annulla, H suggerimento.
+- **Privacy:** pagina dedicata (`privacy.html`) con i pulsanti per cancellare i dati locali e quelli nel cloud; font ospitati dal sito (nessuna richiesta a Google Fonts).
+- **Segnalazione errori:** se qualcosa si rompe compare un avviso con un link che apre una issue GitHub precompilata (nulla viene inviato in automatico).
 - **Tutorial incluso:** dalla home, **🎓 Tutorial** apre un piccolo caso guidato (`examples/`), con suggerimenti passo-passo scritti a mano.
 - **✂ Indizi superflui** (editor): trova gli indizi che si possono togliere senza perdere l'unicità della soluzione.
 - **📜 Storico** (pagina Traguardi): ogni risoluzione (data, tempo, suggerimenti), riepilogo per caso e tempo medio; resta solo sul dispositivo.
@@ -53,7 +57,7 @@ Poi apri `http://localhost:8000` nel browser.
 - `src/storage/` — salvataggio su localStorage, export/import JSON
 - `src/print/` — rendering della vista stampabile
 - `src/i18n/` — traduzioni: `t("testo italiano")` + dizionario inglese in `src/i18n/en/`
-- `examples/` — casi inclusi (tutorial), generati da `tools/make-tutorial.mjs` e verificati dal solver
+- `examples/` — casi inclusi: il tutorial (`tools/make-tutorial.mjs`) e la libreria (`tools/make-library.mjs`, specifiche in `tools/cases/library.mjs`); ogni caso è verificato dal solver
 - `sw.js`, `manifest.webmanifest`, `icons/` — PWA (la lista dei file in cache di `sw.js` si rigenera con `npm run build:sw`)
 - `test/` — test senza framework: apri `test/test-runner.html` nel browser, oppure `npm test` da terminale
 
@@ -118,7 +122,8 @@ npm install
 npm test          # ~320 test sotto Node + controllo che sw.js sia aggiornato
 npm run lint      # ESLint
 npm run i18n      # elenca le stringhe senza traduzione inglese (--strict per far fallire)
-npm run e2e       # test nel browser (Playwright): gioca il tutorial in IT e EN
+npm run e2e:all   # test nel browser (Playwright): gioca il tutorial in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor
+npm run make:library  # rigenera examples/library/ (casi proposti dallo strumento in tools/, tutti verificati dal solver)
 npm run build:sw  # rigenera la lista di file in cache del service worker
 ```
 

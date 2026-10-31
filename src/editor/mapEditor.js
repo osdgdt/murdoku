@@ -24,11 +24,11 @@ function onActivateKey(onActivate) {
 export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   clear(panelEl);
 
-  panelEl.appendChild(el("h3", {}, t("Mappa")));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Mappa")));
 
   // Grid size controls
-  const rowsInput = el("input", { type: "number", min: "3", max: "9", value: String(puzzle.grid.size.rows), style: "width:4em" });
-  const colsInput = el("input", { type: "number", min: "3", max: "9", value: String(puzzle.grid.size.cols), style: "width:4em" });
+  const rowsInput = el("input", { type: "number", "aria-label": t("Righe"), min: "3", max: "9", value: String(puzzle.grid.size.rows), style: "width:4em" });
+  const colsInput = el("input", { type: "number", "aria-label": t("Colonne"), min: "3", max: "9", value: String(puzzle.grid.size.cols), style: "width:4em" });
   const applySize = el("button", {
     onClick: () => {
       const rows = Math.max(3, Math.min(9, parseInt(rowsInput.value, 10) || 6));
@@ -46,7 +46,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   );
 
   // Zones
-  panelEl.appendChild(el("h3", {}, t("Stanze / Zone")));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Stanze / Zone")));
   const zoneNameInput = el("input", { type: "text", placeholder: t("Nome stanza") });
   const addZoneBtn = el("button", {
     onClick: () => {
@@ -98,7 +98,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(el("p", { class: "muted" }, t("Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza.")));
 
   // Objects
-  panelEl.appendChild(el("h3", {}, t("Oggetti / Mobili")));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Oggetti / Mobili")));
   const objectPalette = el("div", { class: "object-palette" });
   for (const [typeId, def] of Object.entries(OBJECT_TYPES)) {
     const selectObject = () => {
@@ -120,7 +120,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(objectPalette);
 
   // Shape tool
-  panelEl.appendChild(el("h3", {}, t("Forma della mappa")));
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Forma della mappa")));
   const blockBtn = el("button", {
     onClick: () => { tool = { kind: "block" }; onChange(); },
   }, tool?.kind === "block" ? t("🚫 Blocca/sblocca cella (attivo)") : t("🚫 Blocca/sblocca cella"));

@@ -9,6 +9,7 @@ import { validateSolution } from "../solver/validator.js";
 import { computeHintChainAsync, deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
 import { resolveClueHoverCells, resolveCharacterHoverDomain } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
+import { buildShareText, shareResult } from "../util/shareResult.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import { t } from "../i18n/i18n.js";
 
@@ -551,12 +552,26 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
               )
             )
           : null;
+        const shareBtnLabel = t("📤 Condividi risultato");
+        const shareBtn = el("button", { type: "button", class: "share-result-btn" }, shareBtnLabel);
+        shareBtn.addEventListener("click", async () => {
+          try {
+            const outcome = await shareResult(
+              buildShareText({ title: puzzle.title, elapsedSeconds: elapsed, hintsUsed: hintsUsedForThisSolve, url: new URL("index.html", location.href).href })
+            );
+            if (outcome === "copied") shareBtn.textContent = t("✓ Copiato negli appunti");
+          } catch {
+            shareBtn.textContent = t("Impossibile condividere");
+          }
+          setTimeout(() => { shareBtn.textContent = shareBtnLabel; }, 2500);
+        });
         resultEl.appendChild(
           el("div", { class: "win-panel result-banner success" }, [
             el("div", {}, t("🎉 Caso risolto! Tutti i piazzamenti sono corretti.")),
             murderer ? el("div", {}, t("L'assassino è: {murderer}", { murderer })) : null,
             timeLine,
             hintLine,
+            shareBtn,
             achievementBanner,
             puzzle.resolutionNote ? el("p", { class: "resolution-note" }, puzzle.resolutionNote) : null,
           ])

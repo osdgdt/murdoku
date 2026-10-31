@@ -220,4 +220,12 @@ export default {
   "{count} indizi si possono togliere senza perdere l'unicità. Toglierne uno alla volta: dopo ogni rimozione conviene rifare l'analisi, perché alcuni sono superflui solo in coppia.": "{count} clues can be removed without losing uniqueness. Remove them one at a time: re-run the analysis after each removal, since some are only redundant as a pair.",
   "Indizio rimosso. Rifai l'analisi per controllare gli altri.": "Clue removed. Re-run the analysis to check the others.",
   "Analisi non riuscita: {message}. Riprova.": "Analysis failed: {message}. Try again.",
+  "🔎 Ho risolto «{title}» su Murdoku in {time}, senza suggerimenti!": "🔎 I solved “{title}” on Murdoku in {time}, with no hints!",
+  "🔎 Ho risolto «{title}» su Murdoku in {time} (suggerimenti usati: {hints}).": "🔎 I solved “{title}” on Murdoku in {time} (hints used: {hints}).",
+  "📤 Condividi risultato": "📤 Share result",
+  "✓ Copiato negli appunti": "✓ Copied to clipboard",
+  "Impossibile condividere": "Could not share",
+  "🎓 Prova il caso tutorial": "🎓 Try the tutorial case",
+  "Tutorial": "Tutorial",
+  "Impara le regole risolvendo un piccolo caso guidato.": "Learn the rules by solving a small guided case.",
 };

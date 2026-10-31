@@ -13,19 +13,34 @@
 // `error` is always a plain string (not an Error instance) — reconstructed
 // as a real Error on the client side instead, avoiding any doubt about
 // Error's structured-clone support varying across engines.
-import { computeHintChain } from "./hints.js";
-import { deriveSolution } from "./deriveSolution.js";
-import { checkUniqueness } from "./validator.js";
+// NOTE: no static imports on purpose. The solver modules pull in i18n.js,
+// which uses top-level await to load the English dictionary; a module worker
+// whose graph is still evaluating when the first message arrives silently
+// drops it. So `self.onmessage` is installed synchronously below, and the
+// real modules are loaded lazily — requests simply wait on `ready`.
+let handlers = null;
+const ready = (async () => {
+  const [{ computeHintChain }, { deriveSolution }, { checkUniqueness }] = await Promise.all([
+    import("./hints.js"),
+    import("./deriveSolution.js"),
+    import("./validator.js"),
+  ]);
+  handlers = {
+    computeHintChain: (payload) => computeHintChain(payload.puzzle, payload.currentPlacements, payload.candidates),
+    deriveSolution: (payload) => deriveSolution(payload.puzzle, payload.options || {}),
+    checkUniqueness: (payload) => checkUniqueness(payload.puzzle, payload.options || {}),
+  };
+})();
 
-const HANDLERS = {
-  computeHintChain: (payload) => computeHintChain(payload.puzzle, payload.currentPlacements, payload.candidates),
-  deriveSolution: (payload) => deriveSolution(payload.puzzle, payload.options || {}),
-  checkUniqueness: (payload) => checkUniqueness(payload.puzzle, payload.options || {}),
-};
-
-self.onmessage = (event) => {
+self.onmessage = async (event) => {
   const { id, type, payload } = event.data || {};
-  const handler = HANDLERS[type];
+  try {
+    await ready;
+  } catch (err) {
+    self.postMessage({ id, ok: false, error: `Errore di caricamento del solver: ${(err && err.message) || String(err)}` });
+    return;
+  }
+  const handler = handlers[type];
   if (!handler) {
     self.postMessage({ id, ok: false, error: `Tipo di richiesta sconosciuto: ${type}` });
     return;

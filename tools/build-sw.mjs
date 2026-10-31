@@ -6,7 +6,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "..");
-const INCLUDE_DIRS = ["src", "styles", "icons"];
+const INCLUDE_DIRS = ["src", "styles", "icons", "examples"];
 
 function walk(dir, out = []) {
   for (const name of readdirSync(dir).sort()) {

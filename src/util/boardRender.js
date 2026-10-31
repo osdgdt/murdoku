@@ -222,8 +222,11 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   }
 
   const gutter = showLabels ? `${LABEL_SIZE}px ` : "";
-  container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, ${CELL_SIZE}px)`;
-  container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, ${CELL_SIZE}px)`;
+  // Cell size lives in a CSS variable (default CELL_SIZE) so the stylesheet can
+  // shrink the whole board to fit a phone viewport (see `.board-grid` in editor.css).
+  container.style.setProperty("--cols", String(grid.size.cols));
+  container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, var(--cell-size, ${CELL_SIZE}px))`;
+  container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, var(--cell-size, ${CELL_SIZE}px))`;
 
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
 
@@ -415,5 +418,24 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
 
       container.appendChild(cellNode);
     }
+  }
+
+  // On narrow screens the room names that hang off the left of the board no
+  // longer fit, so the same information is repeated as a compact legend
+  // under the board (hidden on wide screens by CSS; purely visual — each
+  // cell's aria-label already names its room).
+  const usedZoneIds = new Set(grid.cells.flat().map((cell) => cell.zoneId).filter(Boolean));
+  const legendZones = grid.zones.filter((z) => usedZoneIds.has(z.id));
+  if (showLabels && legendZones.length > 0) {
+    container.appendChild(
+      el("div", { class: "room-legend", "aria-hidden": "true" },
+        legendZones.map((zone) =>
+          el("span", { class: "room-legend-item" }, [
+            el("span", { class: "room-label-swatch", style: `background:${zone.color}` }),
+            el("span", {}, zone.name),
+          ])
+        )
+      )
+    );
   }
 }

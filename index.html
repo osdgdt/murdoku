@@ -38,6 +38,11 @@
       </span>
     </a>
     <div class="card-links">
+      <a id="tutorial-link" class="card-link" href="player.html?import=examples%2Ftutorial.it.murdoku.json">
+        <span class="icon-badge">🎓</span>
+        <h3>Tutorial</h3>
+        <p class="muted">Impara le regole risolvendo un piccolo caso guidato.</p>
+      </a>
       <a class="card-link" href="editor.html">
         <span class="icon-badge">✏️</span>
         <h3>Nuovo puzzle</h3>
@@ -85,6 +90,8 @@
     import * as recentActivity from "./src/storage/recentActivityStore.js";
     import { el, clear } from "./src/util/dom.js";
     import { t, intlLocale } from "./src/i18n/i18n.js";
+    import { tutorialPlayerUrl } from "./src/util/examples.js";
+    document.getElementById("tutorial-link").href = tutorialPlayerUrl();
     import { isSafeId } from "./src/util/safe.js";
     wireThemeToggle();
 

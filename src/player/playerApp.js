@@ -8,6 +8,7 @@ import { decodePuzzleFromFragment } from "../storage/shareLink.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
+import { tutorialPlayerUrl } from "../util/examples.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
 import { t, intlLocale } from "../i18n/i18n.js";
 
@@ -112,6 +113,8 @@ function showPicker() {
   if (puzzles.length === 0) {
     const panel = el("div", { class: "panel" }, [
       el("p", { class: "muted" }, t("Nessun puzzle salvato. Creane uno nell'Editor prima.")),
+      el("a", { class: "play", href: tutorialPlayerUrl() }, t("🎓 Prova il caso tutorial")),
+      " ",
       el("a", { href: "editor.html" }, t("Vai all'editor →")),
     ]);
     pickerEl.appendChild(panel);

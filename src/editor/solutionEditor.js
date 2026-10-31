@@ -26,7 +26,7 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
         class: "char-chip" + (selectedCharacterId === character.id ? " selected" : "") + (placed ? " used" : ""),
         tabindex: "0",
         role: "button",
-        "aria-label": character.name + (character.isVictim ? " (vittima)" : ""),
+        "aria-label": character.name + (character.isVictim ? t(" (vittima)") : ""),
         onClick: selectThis,
         onKeydown: onActivateKey(selectThis),
       },

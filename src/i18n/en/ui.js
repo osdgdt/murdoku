@@ -228,4 +228,6 @@ export default {
   "🎓 Prova il caso tutorial": "🎓 Try the tutorial case",
   "Tutorial": "Tutorial",
   "Impara le regole risolvendo un piccolo caso guidato.": "Learn the rules by solving a small guided case.",
+  " vittima": " victim",
+  " (vittima)": " (victim)",
 };

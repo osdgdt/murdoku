@@ -75,7 +75,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
           onChange();
         },
       }),
-      " vittima",
+      t(" vittima"),
     ]);
 
     // Only used by clues that ask about a person's gender ("qualcun altro

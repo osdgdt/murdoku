@@ -273,7 +273,7 @@ export function renderClueBuilder(container, puzzle, onChange) {
 
   for (const character of puzzle.characters) {
     const wrap = el("div", { class: "character-card" });
-    wrap.appendChild(el("strong", {}, character.name + (character.isVictim ? " (vittima)" : "")));
+    wrap.appendChild(el("strong", {}, character.name + (character.isVictim ? t(" (vittima)") : "")));
 
     const clueList = el("div", { class: "clue-list" });
     for (const clue of cluesForCharacter(puzzle, character.id)) {

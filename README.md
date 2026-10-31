@@ -34,6 +34,8 @@ Poi apri `http://localhost:8000` nel browser.
 - **Condividi con un link:** in editor, **🔗 Condividi** copia un link `player.html#case=…` che contiene l'intero caso (compresso, nel frammento dell'URL: non passa da nessun server). Chi lo apre gioca subito, senza file da ospitare. Il vecchio `?import=<url>` continua a funzionare.
 - **Tutorial incluso:** dalla home, **🎓 Tutorial** apre un piccolo caso guidato (`examples/`), con suggerimenti passo-passo scritti a mano.
 - **✂ Indizi superflui** (editor): trova gli indizi che si possono togliere senza perdere l'unicità della soluzione.
+- **📜 Storico** (pagina Traguardi): ogni risoluzione (data, tempo, suggerimenti), riepilogo per caso e tempo medio; resta solo sul dispositivo.
+- **Colori accessibili:** la palette dei personaggi è scelta per restare distinguibile con protanopia, deuteranopia e tritanopia (e token/note hanno comunque icona e iniziale); i casi esistenti vengono ricolorati da una migrazione.
 - **📤 Condividi risultato** a fine caso: un testo senza spoiler (titolo, tempo, suggerimenti).
 - **Mobile:** su schermi stretti la griglia si rimpicciolisce per entrare nel viewport e i nomi delle stanze passano in una legenda sotto la mappa.
 - **Sicurezza dell'import:** ogni file/link importato è validato (id e colori solo in forma sicura, dimensione massima 1 MB, versione dello schema) prima di toccare la pagina.

@@ -10,6 +10,7 @@ import { computeHintChainAsync } from "../solver/solverClient.js";
 import { resolveClueHoverCells, resolveCharacterHoverDomain } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
+import * as solveHistory from "../storage/solveHistoryStore.js";
 import { t } from "../i18n/i18n.js";
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
@@ -267,6 +268,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         await onSolved(elapsed);
         const hintsUsed = state.hintsUsed;
         const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed });
+        solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed });
         resultEl.appendChild(renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked }));
       } else {
         // Deliberately doesn't say how many are right — that would let you brute

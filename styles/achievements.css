@@ -51,3 +51,8 @@
   color: var(--accent-dark);
 }
 .locked-label { font-style: italic; }
+
+.solve-history { max-width: 640px; margin: 0 auto 2rem; padding: 1.25rem 1.5rem; }
+.solve-history h3 { margin-top: 0; }
+.solve-history h4 { margin: 1rem 0 0.4rem; font-size: 0.85rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.history-list { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; line-height: 1.6; }

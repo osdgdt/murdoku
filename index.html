@@ -72,6 +72,7 @@
 
   <p class="footer-note">Murdoku Editor — creato, giocato e stampato interamente sul tuo computer.</p>
 
+  <script type="module" src="src/i18n/i18n.js"></script>
   <script type="module">
     import "./src/i18n/i18n.js";
     import * as store from "./src/storage/puzzleStore.js";
@@ -79,6 +80,7 @@
     import { wireThemeToggle } from "./src/util/theme.js";
     import * as recentActivity from "./src/storage/recentActivityStore.js";
     import { el, clear } from "./src/util/dom.js";
+    import { t, intlLocale } from "./src/i18n/i18n.js";
     import { isSafeId } from "./src/util/safe.js";
     wireThemeToggle();
 
@@ -132,22 +134,22 @@
         // value is attached as text / attribute through el() — never
         // interpolated into markup.
         if (!isSafeId(p.id)) continue;
-        const updated = new Date(p.updatedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+        const updated = new Date(p.updatedAt).toLocaleDateString(intlLocale(), { day: "numeric", month: "long", year: "numeric" });
         const safeDifficulty = DIFFICULTY_LEVELS.some((d) => d.value === p.difficulty) ? p.difficulty : "";
         const row = el("div", { class: "saved-row" }, [
           el("div", {}, [
             el("span", { class: "title" }, [
-              p.completed ? el("span", { class: "completed-badge", title: "Completato" }, "✓") : null,
+              p.completed ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null,
               String(p.title ?? ""),
             ]),
             safeDifficulty ? el("span", { class: `difficulty-badge difficulty-${safeDifficulty}` }, difficultyLabel(safeDifficulty)) : null,
-            el("span", { class: "meta" }, `Aggiornato il ${updated}`),
+            el("span", { class: "meta" }, t("Aggiornato il {updated}", { updated })),
           ]),
           el("div", { class: "actions" }, [
-            el("a", { href: `editor.html?id=${encodeURIComponent(p.id)}` }, "Modifica"),
-            el("a", { class: "play", href: `player.html?id=${encodeURIComponent(p.id)}` }, "Gioca"),
-            el("button", { class: "duplicate", type: "button", dataset: { duplicateId: p.id }, title: "Duplica" }, "📋"),
-            el("button", { class: "delete", type: "button", dataset: { deleteId: p.id, deleteTitle: String(p.title ?? "") }, title: "Elimina" }, "🗑"),
+            el("a", { href: `editor.html?id=${encodeURIComponent(p.id)}` }, t("Modifica")),
+            el("a", { class: "play", href: `player.html?id=${encodeURIComponent(p.id)}` }, t("Gioca")),
+            el("button", { class: "duplicate", type: "button", dataset: { duplicateId: p.id }, title: t("Duplica") }, "📋"),
+            el("button", { class: "delete", type: "button", dataset: { deleteId: p.id, deleteTitle: String(p.title ?? "") }, title: t("Elimina") }, "🗑"),
           ]),
         ]);
         items.appendChild(row);
@@ -159,7 +161,7 @@
     items.addEventListener("click", (e) => {
       const deleteBtn = e.target.closest("[data-delete-id]");
       if (deleteBtn) {
-        const ok = confirm(`Eliminare definitivamente il caso "${deleteBtn.dataset.deleteTitle}"? L'azione non è reversibile.`);
+        const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: deleteBtn.dataset.deleteTitle }));
         if (!ok) return;
         store.remove(deleteBtn.dataset.deleteId);
         render();

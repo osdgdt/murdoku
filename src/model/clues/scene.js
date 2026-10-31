@@ -1,5 +1,5 @@
 import { t } from "../../i18n/i18n.js";
-import { targetLabel, describeProperty, describeNestedClue, propertyParams } from "./shared.js";
+import { targetLabel, axisNoun, describeProperty, describeNestedClue, propertyParams } from "./shared.js";
 
 export const SCENE_CLUES = {
 
@@ -8,37 +8,37 @@ export const SCENE_CLUES = {
     scope: "generic",
     label: t("Nessuno si trova nella stanza"),
     params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
-    describe: (params, puzzle) => `Nessuno si trova nella stanza ${targetLabel(puzzle, params.zoneId)}.`,
-    negatedDescribe: (params, puzzle) => `Qualcuno si trova nella stanza ${targetLabel(puzzle, params.zoneId)}.`,
+    describe: (params, puzzle) => t("Nessuno si trova nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
+    negatedDescribe: (params, puzzle) => t("Qualcuno si trova nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
   },
   noOneInRowOrCol: {
     scope: "generic",
     label: t("Nessuno si trova nella riga/colonna"),
     params: [
-      { name: "axis", kind: "enum", values: ["row", "col"], labels: { row: "Riga", col: "Colonna" }, label: t("Riga o colonna") },
+      { name: "axis", kind: "enum", values: ["row", "col"], labels: { row: t("Riga"), col: t("Colonna") }, label: t("Riga o colonna") },
       { name: "index", kind: "number", min: 1, label: t("Numero (1 = la prima)") },
     ],
-    describe: (params) => `Nessuno si trova nella ${params.axis === "row" ? "riga" : "colonna"} ${params.index}.`,
-    negatedDescribe: (params) => `Qualcuno si trova nella ${params.axis === "row" ? "riga" : "colonna"} ${params.index}.`,
+    describe: (params) => t("Nessuno si trova nella {axis} {index}.", { axis: axisNoun(params.axis), index: params.index }),
+    negatedDescribe: (params) => t("Qualcuno si trova nella {axis} {index}.", { axis: axisNoun(params.axis), index: params.index }),
   },
   exactlyOneInRoom: {
     scope: "generic",
     label: t("Esattamente una persona si trova nella stanza"),
     params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
-    describe: (params, puzzle) => `Esattamente una persona si trova nella stanza ${targetLabel(puzzle, params.zoneId)}.`,
+    describe: (params, puzzle) => t("Esattamente una persona si trova nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
   },
   noOneNear: {
     scope: "generic",
     label: t("Nessuno è vicino a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
-    describe: (params, puzzle) => `Nessuno è vicino a ${targetLabel(puzzle, params.targetId)}.`,
-    negatedDescribe: (params, puzzle) => `Qualcuno è vicino a ${targetLabel(puzzle, params.targetId)}.`,
+    describe: (params, puzzle) => t("Nessuno è vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
+    negatedDescribe: (params, puzzle) => t("Qualcuno è vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   exactlyOneNear: {
     scope: "generic",
     label: t("Esattamente una persona è vicino a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
-    describe: (params, puzzle) => `Esattamente una persona è vicino a ${targetLabel(puzzle, params.targetId)}.`,
+    describe: (params, puzzle) => t("Esattamente una persona è vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   sameRoomTogether: {
     scope: "generic",
@@ -48,9 +48,9 @@ export const SCENE_CLUES = {
       { name: "targetBId", kind: "character", label: t("Personaggio B") },
     ],
     describe: (params, puzzle) =>
-      `${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} si trovano nella stessa stanza.`,
+      t("{v} e {v2} si trovano nella stessa stanza.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
     negatedDescribe: (params, puzzle) =>
-      `${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} non si trovano nella stessa stanza.`,
+      t("{v} e {v2} non si trovano nella stessa stanza.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
   },
   emptyRoomsCount: {
     legacy: true,
@@ -58,21 +58,21 @@ export const SCENE_CLUES = {
     label: t("N stanze sono vuote"),
     params: [{ name: "count", kind: "number", min: 0, label: t("Numero di stanze vuote") }],
     describe: (params) =>
-      params.count === 1 ? `Esattamente una stanza è vuota.` : `Esattamente ${params.count} stanze sono vuote.`,
+      params.count === 1 ? t(`Esattamente una stanza è vuota.`) : t("Esattamente {count} stanze sono vuote.", { count: params.count }),
   },
   roomsWithStateCount: {
     scope: "generic",
     label: t("N stanze erano piene/vuote"),
     params: [
       { name: "count", kind: "number", min: 0, label: t("Numero di stanze") },
-      { name: "state", kind: "enum", values: ["empty", "occupied"], labels: { empty: "vuote", occupied: "piene (almeno una persona)" }, label: t("Stato") },
+      { name: "state", kind: "enum", values: ["empty", "occupied"], labels: { empty: "vuote", occupied: t("piene (almeno una persona)") }, label: t("Stato") },
     ],
     describe: (params) => {
-      const plural = params.count !== 1;
-      const noun = plural ? "stanze" : "stanza";
-      const verb = plural ? "sono" : "è";
-      const stateWord = params.state === "empty" ? "vuot" : "pien";
-      return `Esattamente ${params.count} ${noun} ${verb} ${stateWord}${plural ? "e" : "a"}.`;
+      const count = params.count;
+      if (params.state === "empty") {
+        return count === 1 ? t("Esattamente {count} stanza è vuota.", { count }) : t("Esattamente {count} stanze sono vuote.", { count });
+      }
+      return count === 1 ? t("Esattamente {count} stanza è piena.", { count }) : t("Esattamente {count} stanze sono piene.", { count });
     },
   },
   emptyRoomsSameSize: {
@@ -80,11 +80,9 @@ export const SCENE_CLUES = {
     label: t("N stanze erano vuote, con lo stesso numero di caselle"),
     params: [{ name: "count", kind: "number", min: 0, label: t("Numero di stanze vuote") }],
     describe: (params) => {
-      const plural = params.count !== 1;
-      const noun = plural ? "stanze" : "stanza";
-      const verb = plural ? "sono" : "è";
-      const sizeClause = params.count > 1 ? ", e hanno tutte lo stesso numero di caselle" : "";
-      return `Esattamente ${params.count} ${noun} ${verb} vuot${plural ? "e" : "a"}${sizeClause}.`;
+      const count = params.count;
+      if (count === 1) return t("Esattamente {count} stanza è vuota.", { count });
+      return t("Esattamente {count} stanze sono vuote, e hanno tutte lo stesso numero di caselle.", { count });
     },
   },
   sameRoomSizeAs: {
@@ -95,9 +93,9 @@ export const SCENE_CLUES = {
       { name: "targetBId", kind: "character", label: t("Personaggio B") },
     ],
     describe: (params, puzzle) =>
-      `Le stanze di ${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} hanno lo stesso numero di caselle.`,
+      t("Le stanze di {v} e {v2} hanno lo stesso numero di caselle.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
     negatedDescribe: (params, puzzle) =>
-      `Le stanze di ${targetLabel(puzzle, params.targetAId)} e ${targetLabel(puzzle, params.targetBId)} non hanno lo stesso numero di caselle.`,
+      t("Le stanze di {v} e {v2} non hanno lo stesso numero di caselle.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
   },
   noOneWithProperty: {
     scope: "generic",
@@ -114,22 +112,22 @@ export const SCENE_CLUES = {
       ...propertyParams,
     ],
     describe: (params, puzzle) => {
-      const where = params.zoneId ? ` nella stanza ${targetLabel(puzzle, params.zoneId)}` : "";
-      const who = params.onlyGender === "male" ? "Nessun uomo" : params.onlyGender === "female" ? "Nessuna donna" : "Nessuno";
+      const where = params.zoneId ? t(" nella stanza {zone}", { zone: targetLabel(puzzle, params.zoneId) }) : "";
+      const who = params.onlyGender === "male" ? t("Nessun uomo") : params.onlyGender === "female" ? t("Nessuna donna") : t("Nessuno");
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);
-        if (nested) return `${who}${where} verifica: ${nested}.`;
+        if (nested) return t("{who}{where} verifica: {nested}.", { who, where, nested });
       }
-      return `${who} che è ${describeProperty(params, puzzle)} si trova${where}.`;
+      return t("{who} che è {v} si trova{where}.", { who, v: describeProperty(params, puzzle), where });
     },
     negatedDescribe: (params, puzzle) => {
-      const where = params.zoneId ? ` nella stanza ${targetLabel(puzzle, params.zoneId)}` : "";
-      const who = params.onlyGender === "male" ? "Un uomo" : params.onlyGender === "female" ? "Una donna" : "Qualcuno";
+      const where = params.zoneId ? t(" nella stanza {zone}", { zone: targetLabel(puzzle, params.zoneId) }) : "";
+      const who = params.onlyGender === "male" ? t("Un uomo") : params.onlyGender === "female" ? t("Una donna") : t("Qualcuno");
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);
-        if (nested) return `${who}${where} verifica: ${nested}.`;
+        if (nested) return t("{who}{where} verifica: {nested}.", { who, where, nested });
       }
-      return `${who} che è ${describeProperty(params, puzzle)} si trova${where}.`;
+      return t("{who} che è {v} si trova{where}.", { who, v: describeProperty(params, puzzle), where });
     },
   },
 };

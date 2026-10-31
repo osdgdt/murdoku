@@ -17,8 +17,9 @@
   </div>
   <div id="print-root"></div>
 
+  <script type="module" src="src/i18n/i18n.js"></script>
   <script type="module">
-    import "./src/i18n/i18n.js";
+    import { t } from "./src/i18n/i18n.js";
     import * as store from "./src/storage/puzzleStore.js";
     import { renderPrintView } from "./src/print/printView.js";
 
@@ -27,7 +28,10 @@
     const puzzle = id ? store.get(id) : null;
     const root = document.getElementById("print-root");
     if (!puzzle) {
-      root.innerHTML = '<p style="padding:1rem">Puzzle non trovato.</p>';
+      const p = document.createElement("p");
+      p.style.padding = "1rem";
+      p.textContent = t("Puzzle non trovato.");
+      root.appendChild(p);
     } else {
       renderPrintView(root, puzzle);
     }

@@ -16,9 +16,9 @@ import { t } from "../i18n/i18n.js";
 // who reaches it and every case after it, so this is worth flagging before
 // it goes live rather than discovering it only when a real player hits it.
 const SOLUTION_STATUS_WARNINGS = {
-  unsatisfiable: "Questo caso non ha alcuna soluzione compatibile con i suoi indizi: i giocatori non potranno mai completarlo.",
-  ambiguous: "Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta.",
-  inconclusive: "Non riesco a stabilire con certezza se questo caso ha una soluzione univoca (troppo complesso da analizzare).",
+  unsatisfiable: t("Questo caso non ha alcuna soluzione compatibile con i suoi indizi: i giocatori non potranno mai completarlo."),
+  ambiguous: t("Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta."),
+  inconclusive: t("Non riesco a stabilire con certezza se questo caso ha una soluzione univoca (troppo complesso da analizzare)."),
 };
 
 wireThemeToggle();
@@ -97,7 +97,7 @@ async function loadListView() {
     campaigns = await campaignStore.listCampaigns();
   } catch (err) {
     clear(campaignListEl);
-    campaignListEl.appendChild(el("p", { class: "violation" }, "Impossibile caricare le campagne: " + err.message));
+    campaignListEl.appendChild(el("p", { class: "violation" }, t("Impossibile caricare le campagne: ") + err.message));
     return;
   }
   clear(campaignListEl);
@@ -110,7 +110,7 @@ async function loadListView() {
       el("div", { class: "saved-row" }, [
         el("div", {}, [
           el("span", { class: "title" }, c.title),
-          el("span", { class: "meta" }, `${c.cases.length} ${c.cases.length === 1 ? "caso" : "casi"}`),
+          el("span", { class: "meta" }, c.cases.length === 1 ? t("1 caso") : t("{count} casi", { count: c.cases.length })),
         ]),
         el("div", { class: "actions" }, [el("a", { href: `campaign-editor.html?id=${c.id}` }, t("Modifica"))]),
       ])
@@ -125,7 +125,7 @@ async function persistCampaign(statusEl) {
     if (statusEl) { statusEl.textContent = t("Salvato."); statusEl.className = "muted"; }
     return true;
   } catch (err) {
-    if (statusEl) { statusEl.textContent = "Errore nel salvataggio: " + err.message; statusEl.className = "violation"; }
+    if (statusEl) { statusEl.textContent = t("Errore nel salvataggio: ") + err.message; statusEl.className = "violation"; }
     return false;
   }
 }
@@ -161,7 +161,7 @@ async function loadDetailView(id) {
   try {
     campaign = await campaignStore.getCampaign(id);
   } catch (err) {
-    detailStatus.textContent = "Impossibile caricare la campagna: " + err.message;
+    detailStatus.textContent = t("Impossibile caricare la campagna: ") + err.message;
     detailStatus.className = "violation";
     return;
   }
@@ -214,7 +214,7 @@ addCaseBtn.addEventListener("click", async () => {
       solutionStatus = (await deriveSolutionAsync(puzzle)).status;
     }
     if (solutionStatus !== "unique") {
-      const ok = confirm(`${SOLUTION_STATUS_WARNINGS[solutionStatus]} Aggiungerlo comunque alla campagna?`);
+      const ok = confirm(t("{v} Aggiungerlo comunque alla campagna?", { v: SOLUTION_STATUS_WARNINGS[solutionStatus] }));
       if (!ok) {
         addCaseStatus.textContent = "";
         return;
@@ -233,7 +233,7 @@ addCaseBtn.addEventListener("click", async () => {
       addCaseStatus.className = "violation";
     }
   } catch (err) {
-    addCaseStatus.textContent = "Errore: " + err.message;
+    addCaseStatus.textContent = t("Errore: ") + err.message;
     addCaseStatus.className = "violation";
   } finally {
     addCaseBtn.disabled = false;

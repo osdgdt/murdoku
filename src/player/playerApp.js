@@ -8,7 +8,7 @@ import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
-import { t } from "../i18n/i18n.js";
+import { t, intlLocale } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -70,7 +70,7 @@ function showPicker() {
   gameEl.classList.add("hidden");
   clear(pickerEl);
   if (importError) {
-    pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a importare il caso dal link: ${importError}`));
+    pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a importare il caso dal link: {importError}", { importError })));
   }
   const puzzles = sortPuzzleEntries(store.list());
   pickerEl.appendChild(
@@ -101,7 +101,7 @@ function showPicker() {
   }
   const panel = el("div", { class: "panel" });
   for (const entry of puzzles) {
-    const updated = new Date(entry.updatedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+    const updated = new Date(entry.updatedAt).toLocaleDateString(intlLocale(), { day: "numeric", month: "long", year: "numeric" });
     panel.appendChild(
       el("div", { class: "saved-row" }, [
         el("div", {}, [
@@ -111,7 +111,7 @@ function showPicker() {
           ]),
           entry.difficulty ? el("span", { class: `difficulty-badge difficulty-${entry.difficulty}` }, difficultyLabel(entry.difficulty)) : null,
           typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
-          el("span", { class: "meta" }, `Aggiornato il ${updated}`),
+          el("span", { class: "meta" }, t("Aggiornato il {updated}", { updated })),
         ]),
         el("div", { class: "actions" }, [
           el("a", { class: "play", href: `player.html?id=${entry.id}` }, t("Gioca")),
@@ -131,7 +131,7 @@ function showPicker() {
             class: "delete",
             title: t("Elimina"),
             onClick: () => {
-              const ok = confirm(`Eliminare definitivamente il caso "${entry.title}"? L'azione non è reversibile.`);
+              const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: entry.title }));
               if (!ok) return;
               store.remove(entry.id);
               showPicker();

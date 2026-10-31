@@ -1,4 +1,5 @@
 import { writeRaw } from "../storage/storage.js";
+import { t } from "../i18n/i18n.js";
 
 function tryWriteRaw(key, value) {
   try { writeRaw(key, value); } catch { /* theme just won't persist */ }
@@ -17,7 +18,7 @@ function isDark() {
 function updateToggleLabels() {
   for (const btn of document.querySelectorAll("[data-theme-toggle]")) {
     btn.textContent = isDark() ? "☀️" : "🌙";
-    btn.title = isDark() ? "Passa al tema chiaro" : "Passa al tema scuro";
+    btn.title = isDark() ? t("Passa al tema chiaro") : t("Passa al tema scuro");
   }
 }
 

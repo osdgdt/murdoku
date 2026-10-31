@@ -19,11 +19,11 @@ import { t } from "../i18n/i18n.js";
 const REAL_HINT_STEP_TYPES = new Set(["forcedPlacement", "eliminatedCell", "contradiction"]);
 
 const SOLUTION_UNSATISFIABLE_MSG =
-  "Gli indizi di questo caso non ammettono nessuna soluzione: il caso non può essere risolto così com'è. Se sei l'autore, correggilo nell'editor.";
+  t("Gli indizi di questo caso non ammettono nessuna soluzione: il caso non può essere risolto così com'è. Se sei l'autore, correggilo nell'editor.");
 const SOLUTION_AMBIGUOUS_MSG =
-  "Gli indizi di questo caso ammettono più soluzioni diverse: non è possibile stabilire con certezza quale sia quella corretta. Se sei l'autore, usa \"Verifica unicità\" nell'editor per individuare l'ambiguità.";
+  t("Gli indizi di questo caso ammettono più soluzioni diverse: non è possibile stabilire con certezza quale sia quella corretta. Se sei l'autore, usa \"Verifica unicità\" nell'editor per individuare l'ambiguità.");
 const SOLUTION_INCONCLUSIVE_MSG =
-  "Non riesco a stabilire con certezza la soluzione di questo caso: gli indizi lasciano lo spazio di ricerca troppo ampio anche per un'analisi approfondita. Se sei l'autore, aggiungi indizi più stringenti.";
+  t("Non riesco a stabilire con certezza la soluzione di questo caso: gli indizi lasciano lo spazio di ricerca troppo ampio anche per un'analisi approfondita. Se sei l'autore, aggiungi indizi più stringenti.");
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
 // hint-chain stepping, and submit-check. player.html and campaign.html's
@@ -188,12 +188,12 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     const selectErase = () => selectTool({ kind: "erase" });
     toolbarEl.appendChild(el("div", {
       class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""),
-      tabindex: "0", role: "button", "aria-label": "Segna X",
+      tabindex: "0", role: "button", "aria-label": t("Segna X"),
       onClick: selectX, onKeydown: onActivateKey(selectX),
     }, t("✕ Segna")));
     toolbarEl.appendChild(el("div", {
       class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""),
-      tabindex: "0", role: "button", "aria-label": "Gomma",
+      tabindex: "0", role: "button", "aria-label": t("Gomma"),
       onClick: selectErase, onKeydown: onActivateKey(selectErase),
     }, t("🧹 Gomma")));
   }
@@ -346,7 +346,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       // leaving no room for anyone else in a shared set of cells.
       blocks.push(el("div", { class: "hint-explain-label" }, t("Interazione tra personaggi:")));
       blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedGroups.map((g) =>
-        el("li", {}, `${g.characterNames.join(" e ")} possono stare solo in ${g.cellLabels.join(" o ")}: nessun altro personaggio può occupare quelle celle.`)
+        el("li", {}, t("{v} possono stare solo in {v2}: nessun altro personaggio può occupare quelle celle.", { v: g.characterNames.join(" e "), v2: g.cellLabels.join(" o ") }))
       )));
     }
     if (blocks.length === 0) return null;
@@ -377,7 +377,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       hintPanel.appendChild(
         el("div", { class: "hint-nav" }, [
           el("button", { onClick: () => { hintChainIndex--; showHintStep(); }, disabled: hintChainIndex === 0 || undefined }, "‹"),
-          el("span", {}, `Passo ${hintChainIndex + 1} di ${hintChain.length}`),
+          el("span", {}, t("Passo {v} di {length}", { v: hintChainIndex + 1, length: hintChain.length })),
           el("button", { onClick: () => { hintChainIndex++; showHintStep(); }, disabled: hintChainIndex === hintChain.length - 1 || undefined }, "›"),
         ])
       );
@@ -420,7 +420,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
 
     const zoneId = zoneOfCell(puzzle.grid, target.row, target.col);
     const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
-    const where = zone ? ` (nella zona "${zone.name}")` : "";
+    const where = zone ? t(" (nella zona \"{name}\")", { name: zone.name }) : "";
     chain.push({
       type: "forcedPlacement",
       variant: "success",
@@ -428,7 +428,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       row: target.row,
       col: target.col,
       viaDerivedSolution: true,
-      message: `${next.name} deve trovarsi nella cella evidenziata${where}: lo rivela un'analisi completa del caso, non uno specifico indizio.`,
+      message: t("{name} deve trovarsi nella cella evidenziata{where}: lo rivela un'analisi completa del caso, non uno specifico indizio.", { name: next.name, where }),
     });
   }
 
@@ -480,7 +480,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       showHintStep(); // already clears and re-renders hintPanel
     } catch (err) {
       clear(hintPanel);
-      hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a calcolare un suggerimento: ${err.message}. Riprova.`));
+      hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message })));
     } finally {
       hintBtn.disabled = false;
     }
@@ -530,14 +530,14 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
             "div",
             { class: "time-result" },
             isNewBest
-              ? `⏱ Tempo: ${formatElapsed(elapsed)} — nuovo record personale!`
-              : `⏱ Tempo: ${formatElapsed(elapsed)} (miglior tempo: ${formatElapsed(puzzle.bestTimeSeconds)})`
+              ? t("⏱ Tempo: {v} — nuovo record personale!", { v: formatElapsed(elapsed) })
+              : t("⏱ Tempo: {v} (miglior tempo: {v2})", { v: formatElapsed(elapsed), v2: formatElapsed(puzzle.bestTimeSeconds) })
           );
         }
         const hintLine = el(
           "div",
           { class: "hint-result" },
-          hintsUsedForThisSolve === 0 ? "🎉 Risolto senza alcun suggerimento!" : `💡 Suggerimenti usati: ${hintsUsedForThisSolve}`
+          hintsUsedForThisSolve === 0 ? t("🎉 Risolto senza alcun suggerimento!") : t("💡 Suggerimenti usati: {hintsUsedForThisSolve}", { hintsUsedForThisSolve })
         );
         const achievementBanner = newlyUnlocked.length > 0
           ? el(
@@ -545,7 +545,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
               { class: "achievement-banner" },
               newlyUnlocked.map((a) =>
                 el("div", { class: "achievement-unlocked" }, [
-                  el("div", { class: "achievement-unlocked-title" }, `🏆 Nuovo traguardo: ${a.title}`),
+                  el("div", { class: "achievement-unlocked-title" }, t("🏆 Nuovo traguardo: {title}", { title: a.title })),
                   el("p", { class: "achievement-unlocked-desc" }, a.description),
                 ])
               )
@@ -554,7 +554,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         resultEl.appendChild(
           el("div", { class: "win-panel result-banner success" }, [
             el("div", {}, t("🎉 Caso risolto! Tutti i piazzamenti sono corretti.")),
-            murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
+            murderer ? el("div", {}, t("L'assassino è: {murderer}", { murderer })) : null,
             timeLine,
             hintLine,
             achievementBanner,
@@ -568,7 +568,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       }
     } catch (err) {
       clear(resultEl);
-      resultEl.appendChild(el("div", { class: "result-banner hint-error" }, `Non sono riuscito a verificare la soluzione: ${err.message}. Riprova.`));
+      resultEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message })));
     } finally {
       submitBtn.disabled = solved;
     }

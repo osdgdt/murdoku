@@ -1,3 +1,4 @@
+import { getLanguage } from "../i18n/i18n.js";
 // Thin Promise-based wrapper around a single lazily-created solver Worker
 // (module-level singleton, created on first actual use, not at import time —
 // mirrors gameScreen.js's own "compute lazily, only when first needed"
@@ -33,7 +34,7 @@ function handleWorkerError(event) {
 
 function ensureWorker() {
   if (worker) return worker;
-  worker = new Worker(new URL("./solverWorker.js", import.meta.url), { type: "module" });
+  worker = new Worker(new URL(`./solverWorker.js?lang=${getLanguage()}`, import.meta.url), { type: "module" });
   worker.onmessage = handleWorkerMessage;
   worker.onerror = handleWorkerError;
   return worker;

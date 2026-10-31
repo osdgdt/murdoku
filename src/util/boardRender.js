@@ -1,6 +1,7 @@
 import { el, clear } from "./dom.js";
 import { objectIcon } from "../model/icons.js";
 import { zoneTextureCss } from "../model/textures.js";
+import { t } from "../i18n/i18n.js";
 
 const CELL_SIZE = 56;
 const LABEL_SIZE = 24;
@@ -284,9 +285,9 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
       // the caller alone holds, added later via `decorateCell`) — a richer,
       // per-caller description is a natural follow-up, not required for
       // this first accessibility pass to be useful.
-      let cellLabel = `Riga ${r + 1}, colonna ${c + 1}`;
-      if (cellData.blocked) cellLabel += ", bloccata";
-      else if (zone) cellLabel += `, stanza ${zone.name}`;
+      let cellLabel = t("Riga {v}, colonna {v2}", { v: r + 1, v2: c + 1 });
+      if (cellData.blocked) cellLabel += t(", bloccata");
+      else if (zone) cellLabel += t(", stanza {name}", { name: zone.name });
 
       const cellNode = el("div", {
         class: classes,

@@ -7,16 +7,32 @@
 // Interpolation uses `{name}` placeholders: t("Aggiornato il {date}", { date }).
 // Static markup in the .html pages is translated at load by translateDom(),
 // so pages need no per-element annotations.
-import { readRaw, writeRaw } from "../storage/storage.js";
 
 export const LANGUAGES = ["it", "en"];
 const LANG_KEY = "murdoku:lang";
+
+// Own tiny localStorage access (not storage/storage.js, which itself needs
+// t() for its error messages — that would be an import cycle through the
+// top-level await below).
+function readStored() {
+  try {
+    return localStorage.getItem(LANG_KEY);
+  } catch {
+    return null;
+  }
+}
 
 function detectLanguage() {
   // Escape hatch for non-browser contexts: the test runners pin Italian so
   // assertions on UI text stay deterministic whatever the host's locale is.
   if (LANGUAGES.includes(globalThis.__MURDOKU_LANG__)) return globalThis.__MURDOKU_LANG__;
-  const stored = readRaw(LANG_KEY);
+  // A Web Worker has no localStorage: the page tells it which language to use
+  // through the worker script's own URL (`solverWorker.js?lang=en`).
+  if (typeof WorkerGlobalScope !== "undefined" && typeof self !== "undefined" && self instanceof WorkerGlobalScope) {
+    const fromUrl = new URLSearchParams(self.location?.search || "").get("lang");
+    if (LANGUAGES.includes(fromUrl)) return fromUrl;
+  }
+  const stored = readStored();
   if (LANGUAGES.includes(stored)) return stored;
   const nav = typeof navigator !== "undefined" ? navigator.language || "" : "";
   return nav.toLowerCase().startsWith("it") ? "it" : "en";
@@ -49,7 +65,7 @@ export async function setLanguageForSession(target) {
 export function setLanguage(target) {
   if (!LANGUAGES.includes(target)) return;
   try {
-    writeRaw(LANG_KEY, target);
+    localStorage.setItem(LANG_KEY, target);
   } catch {
     // preference simply won't persist
   }

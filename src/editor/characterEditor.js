@@ -59,7 +59,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
           title: t("Colore del personaggio"),
           tabindex: "0",
           role: "button",
-          "aria-label": `Colore ${color} per ${character.name}`,
+          "aria-label": t("Colore {color} per {name}", { color, name: character.name }),
           onClick: selectColor,
           onKeydown: onActivateKey(selectColor),
         }));

@@ -2,6 +2,7 @@ import { PLACEMENT_CLUES } from "./clues/placement.js";
 import { ROOMS_CLUES } from "./clues/rooms.js";
 import { SCENE_CLUES } from "./clues/scene.js";
 import { LOGIC_CLUES } from "./clues/logic.js";
+import { t, getLanguage } from "../i18n/i18n.js";
 
 // Each clue type declares its label, the shape of its params (for the builder UI),
 // and a describe() function for human-readable text. Predicate logic lives in
@@ -48,12 +49,28 @@ export function genericClueTypeIds() {
 // override this with their own `negatedDescribe` instead, since a blind
 // prefix would misplace the negation or double it up ("non nessuno...").
 function negateText(text) {
-  return text ? "Non " + text.charAt(0).toLowerCase() + text.slice(1) : text;
+  if (!text) return text;
+  if (getLanguage() === "en") return negateEnglish(text);
+  return "Non " + text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+// English clue sentences are all written to open with one of these verbs, so
+// negating is a plain substitution of the opening word. Anything unexpected
+// falls back to an explicit (if wordier) wrapper instead of a wrong sentence.
+const EN_NEGATIONS = {
+  Is: "Is not", Was: "Was not", Shares: "Does not share", Stands: "Does not stand", Sits: "Does not sit",
+  Has: "Does not have", Faces: "Does not face", Lies: "Does not lie", Stood: "Did not stand", Sat: "Did not sit",
+};
+function negateEnglish(text) {
+  if (text.startsWith("Is not ")) return "Is " + text.slice(7); // double negation (legacy "not…" types)
+  const [first, ...rest] = text.split(" ");
+  if (EN_NEGATIONS[first]) return [EN_NEGATIONS[first], ...rest].join(" ");
+  return "It is not true that " + text.charAt(0).toLowerCase() + text.slice(1);
 }
 
 export function describeClue(clue, puzzle) {
   const def = CLUE_TYPES[clue.type];
-  if (!def) return "Indizio sconosciuto.";
+  if (!def) return t("Indizio sconosciuto.");
   try {
     if (clue.negate) {
       if (def.negatedDescribe) return def.negatedDescribe(clue.params || {}, puzzle);
@@ -61,6 +78,6 @@ export function describeClue(clue, puzzle) {
     }
     return def.describe(clue.params || {}, puzzle);
   } catch {
-    return "Indizio incompleto.";
+    return t("Indizio incompleto.");
   }
 }

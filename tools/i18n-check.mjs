@@ -5,6 +5,7 @@ import path from "node:path";
 import en from "../src/i18n/en.js";
 
 const root = path.resolve(import.meta.dirname, "..");
+const IGNORED = new Set(["EN", "IT", "🔎 Murdoku"]);
 const missing = new Map();
 
 function walk(dir, out = []) {
@@ -29,7 +30,7 @@ for (const file of readdirSync(root).filter((f) => f.endsWith(".html"))) {
   const html = readFileSync(path.join(root, file), "utf8").replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<!--[\s\S]*?-->/g, "");
   for (const m of html.matchAll(/>([^<>]+)</g)) {
     const key = m[1].trim().replace(/\s+/g, " ");
-    if (key.length > 1 && /[A-Za-zÀ-ú]{2}/.test(key) && !(key in en)) missing.set(key, file);
+    if (key.length > 1 && /[A-Za-zÀ-ú]{2}/.test(key) && !IGNORED.has(key) && !(key in en)) missing.set(key, file);
   }
   for (const m of html.matchAll(/\b(?:title|placeholder|aria-label|alt)="([^"]+)"/g)) {
     const key = m[1].trim();

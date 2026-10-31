@@ -74,7 +74,7 @@ function persist() {
   try {
     store.save(puzzle);
     history.replaceState(null, "", `editor.html?id=${puzzle.id}`);
-    setStatus("Salvato in locale.", "muted");
+    setStatus(t("Salvato in locale."), "muted");
   } catch (err) {
     setStatus(err.message, "violation");
   }
@@ -182,7 +182,7 @@ importInput.addEventListener("change", async () => {
     persist();
     render();
     updateUndoRedoButtons();
-    setStatus("Puzzle importato.", "muted");
+    setStatus(t("Puzzle importato."), "muted");
   } catch (err) {
     setStatus(err.message, "violation");
   }
@@ -200,7 +200,7 @@ printBtn.addEventListener("click", () => {
 });
 
 deleteBtn.addEventListener("click", () => {
-  const ok = confirm(`Eliminare definitivamente il caso "${puzzle.title}"? L'azione non è reversibile.`);
+  const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: puzzle.title }));
   if (!ok) return;
   store.remove(puzzle.id);
   location.href = "index.html";
@@ -278,7 +278,7 @@ function renderSolutionPreview(puzzle, placements, index) {
   }
 
   return el("div", { class: "solution-preview-item" }, [
-    el("span", { class: "solution-preview-label" }, `Soluzione ${index + 1}`),
+    el("span", { class: "solution-preview-label" }, t("Soluzione {v}", { v: index + 1 })),
     grid,
   ]);
 }
@@ -309,15 +309,15 @@ uniqueBtn.addEventListener("click", async () => {
       // "Almeno N" instead of a bare count when the cap (not exhaustion) is
       // what ended the search — never claim the preview list below is complete
       // when it might not be.
-      const countLabel = report.truncated ? `almeno ${report.solutionCount}` : `${report.solutionCount}`;
+      const countLabel = report.truncated ? t("almeno {count}", { count: report.solutionCount }) : `${report.solutionCount}`;
       validationPanel.appendChild(
-        el("p", { class: "violation" }, `Il puzzle è ambiguo: esistono ${countLabel} soluzioni possibili. Aggiungi altri indizi.`)
+        el("p", { class: "violation" }, t("Il puzzle è ambiguo: esistono {countLabel} soluzioni possibili. Aggiungi altri indizi.", { countLabel }))
       );
       validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
     }
   } catch (err) {
     clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a verificare l'unicità: ${err.message}. Riprova.`));
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message })));
   } finally {
     uniqueBtn.disabled = false;
   }
@@ -347,12 +347,12 @@ estimateBtn.addEventListener("click", async () => {
       el(
         "p",
         { class: "ok-message" },
-        `Stima difficoltà: ${difficultyLabel(estimate)} (nodi esplorati dal solver: ${report.nodesVisited}). È solo un'indicazione — il campo "Difficoltà" in alto resta una scelta manuale dell'autore.`
+        t("Stima difficoltà: {v} (nodi esplorati dal solver: {nodesVisited}). È solo un'indicazione — il campo \"Difficoltà\" in alto resta una scelta manuale dell'autore.", { v: difficultyLabel(estimate), nodesVisited: report.nodesVisited })
       )
     );
   } catch (err) {
     clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a calcolare la stima: ${err.message}. Riprova.`));
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a calcolare la stima: {message}. Riprova.", { message: err.message })));
   } finally {
     estimateBtn.disabled = false;
   }
@@ -366,7 +366,7 @@ calcSolutionBtn.addEventListener("click", async () => {
   // puzzle is genuinely unique (deriveSolution reproduces the same values)
   // or it isn't (in which case nothing gets overwritten below anyway).
   if (hasExistingSolution && !validateSolution(puzzle).valid) {
-    const ok = confirm('Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?');
+    const ok = confirm(t("Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?"));
     if (!ok) return;
   }
 
@@ -407,7 +407,7 @@ calcSolutionBtn.addEventListener("click", async () => {
     }
   } catch (err) {
     clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, `Non sono riuscito a calcolare la soluzione: ${err.message}. Riprova.`));
+    validationPanel.appendChild(el("p", { class: "violation" }, t("Non sono riuscito a calcolare la soluzione: {message}. Riprova.", { message: err.message })));
   } finally {
     calcSolutionBtn.disabled = false;
   }

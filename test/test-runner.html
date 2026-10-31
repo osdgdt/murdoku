@@ -34,8 +34,9 @@
     import { tests as progressCodecTests } from "./test-progress-codec.js";
     import { tests as securityTests } from "./test-security.js";
     import { tests as migrationTests } from "./test-migrations.js";
+    import { tests as i18nTests } from "./test-i18n.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

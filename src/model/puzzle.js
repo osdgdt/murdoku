@@ -51,7 +51,7 @@ export function characterColor(character) {
   return character.color || CHARACTER_COLORS[0];
 }
 
-export function createPuzzle(title = "Nuovo caso") {
+export function createPuzzle(title = t("Nuovo caso")) {
   return {
     schemaVersion: SCHEMA_VERSION,
     id: makeId("puzzle"),
@@ -188,14 +188,14 @@ const MAX_GRID_SIZE = 9;
 // trusting every render site to escape. Absent optional fields stay valid.
 function validateUntrustedStrings(puzzle, errors) {
   const badId = (what, value) => {
-    if (value !== undefined && value !== null && !isSafeId(value)) errors.push(`ID non valido (${what}).`);
+    if (value !== undefined && value !== null && !isSafeId(value)) errors.push(t("ID non valido ({what}).", { what }));
   };
   const badColor = (what, value) => {
-    if (value !== undefined && value !== null && !isSafeColor(value)) errors.push(`Colore non valido (${what}).`);
+    if (value !== undefined && value !== null && !isSafeColor(value)) errors.push(t("Colore non valido ({what}).", { what }));
   };
   badId("puzzle", puzzle.id);
   for (const field of ["title", "author", "briefing", "resolutionNote"]) {
-    if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(`Il campo "${field}" deve essere testo.`);
+    if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(t("Il campo \"{field}\" deve essere testo.", { field }));
   }
   for (const c of Array.isArray(puzzle.characters) ? puzzle.characters : []) {
     if (!c || typeof c !== "object") { errors.push(t("Personaggio non valido.")); continue; }
@@ -225,17 +225,17 @@ function validateUntrustedStrings(puzzle, errors) {
 
 export function validatePuzzleShape(puzzle) {
   const errors = [];
-  if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: ["Il puzzle non è un oggetto valido."] };
+  if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: [t("Il puzzle non è un oggetto valido.")] };
   if (!puzzle.grid || !puzzle.grid.size) {
     errors.push(t("Manca la griglia."));
   } else {
     const { rows, cols } = puzzle.grid.size;
     if (!(rows >= MIN_GRID_SIZE && rows <= MAX_GRID_SIZE) || !(cols >= MIN_GRID_SIZE && cols <= MAX_GRID_SIZE)) {
-      errors.push(`Le dimensioni della griglia devono essere comprese tra ${MIN_GRID_SIZE} e ${MAX_GRID_SIZE} (trovato ${rows}×${cols}).`);
+      errors.push(t("Le dimensioni della griglia devono essere comprese tra {MIN_GRID_SIZE} e {MAX_GRID_SIZE} (trovato {rows}×{cols}).", { MIN_GRID_SIZE, MAX_GRID_SIZE, rows, cols }));
     }
   }
   if (schemaVersionOf(puzzle) > SCHEMA_VERSION) {
-    errors.push(`Questo caso è stato creato con una versione più recente di Murdoku (formato ${puzzle.schemaVersion}): aggiorna la pagina e riprova.`);
+    errors.push(t("Questo caso è stato creato con una versione più recente di Murdoku (formato {schemaVersion}): aggiorna la pagina e riprova.", { schemaVersion: puzzle.schemaVersion }));
   }
   validateUntrustedStrings(puzzle, errors);
   if (!Array.isArray(puzzle.characters)) errors.push(t("Manca l'elenco personaggi."));
@@ -246,12 +246,12 @@ export function validatePuzzleShape(puzzle) {
     const ids = new Set();
     let victims = 0;
     for (const c of puzzle.characters) {
-      if (ids.has(c.id)) errors.push(`ID personaggio duplicato: ${c.id}`);
+      if (ids.has(c.id)) errors.push(t("ID personaggio duplicato: {id}", { id: c.id }));
       ids.add(c.id);
       if (c.isVictim) victims++;
     }
     if (puzzle.characters.length > 0 && victims !== 1) {
-      errors.push(`Deve esserci esattamente una vittima (trovate: ${victims}).`);
+      errors.push(t("Deve esserci esattamente una vittima (trovate: {victims}).", { victims }));
     }
     // Mirrors solvePuzzle's own guard (src/solver/solver.js) — one character
     // per row AND per column means more characters than rows/cols can never
@@ -263,7 +263,7 @@ export function validatePuzzleShape(puzzle) {
     if (puzzle.grid?.size) {
       const { rows, cols } = puzzle.grid.size;
       if (puzzle.characters.length > rows || puzzle.characters.length > cols) {
-        errors.push(`Troppi personaggi (${puzzle.characters.length}) per una griglia ${rows}×${cols}: al massimo uno per riga e uno per colonna.`);
+        errors.push(t("Troppi personaggi ({length}) per una griglia {rows}×{cols}: al massimo uno per riga e uno per colonna.", { length: puzzle.characters.length, rows, cols }));
       }
     }
   }
@@ -273,11 +273,11 @@ export function validatePuzzleShape(puzzle) {
       const inBounds =
         p.row >= 0 && p.row < puzzle.grid.size.rows && p.col >= 0 && p.col < puzzle.grid.size.cols;
       if (!inBounds) {
-        errors.push(`Piazzamento fuori griglia per il personaggio ${p.characterId}.`);
+        errors.push(t("Piazzamento fuori griglia per il personaggio {characterId}.", { characterId: p.characterId }));
       } else if (puzzle.grid.cells[p.row][p.col]?.blocked) {
-        errors.push(`Piazzamento su una cella bloccata per il personaggio ${p.characterId}.`);
+        errors.push(t("Piazzamento su una cella bloccata per il personaggio {characterId}.", { characterId: p.characterId }));
       } else if (!isOccupiable(puzzle.grid, p.row, p.col)) {
-        errors.push(`Piazzamento su una cella con un oggetto non occupabile per il personaggio ${p.characterId}.`);
+        errors.push(t("Piazzamento su una cella con un oggetto non occupabile per il personaggio {characterId}.", { characterId: p.characterId }));
       }
     }
   }
@@ -294,7 +294,7 @@ export function clonePuzzle(puzzle) {
 export function duplicatePuzzle(puzzle) {
   const copy = clonePuzzle(puzzle);
   copy.id = makeId("puzzle");
-  copy.title = `${puzzle.title} (copia)`;
+  copy.title = t("{title} (copia)", { title: puzzle.title });
   copy.createdAt = Date.now();
   copy.updatedAt = Date.now();
   return copy;

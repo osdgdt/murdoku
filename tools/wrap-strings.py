@@ -14,7 +14,8 @@ def looks_italian(s):
     if core.strip() in SKIP_WORDS: return False
     if re.search(r'px|var\(|rgb|--|[;]\s*\w+:|^\s*[#.]', core): return False
     if re.fullmatch(r'[\w\-\.#:\[\]=/>,]+', core.strip()) and not re.match(r'[A-ZÀ-Ú]', core.strip()): return False
-    words = core.split()
+    core = re.sub(r'^[^A-Za-zÀ-ú]+', '', core)  # leading emoji / symbols / punctuation
+    words = [w for w in core.split() if re.search(r'[A-Za-zÀ-ú]', w)]
     if re.search(r'[àèéìòùÀÈÉÌÒÙ]', core): return True
     if re.match(r'\s*[A-ZÀ-Ú]', core): return True
     if len(words) >= 3 and all(re.fullmatch(r"[A-Za-zÀ-ú'’,.…:;!?()\"\-]+", w) for w in words): return True

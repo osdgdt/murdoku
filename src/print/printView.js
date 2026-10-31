@@ -64,7 +64,7 @@ function renderClueCards(puzzle) {
     const iconWrap = el("span", { style: "display:inline-flex;width:18px;height:18px;vertical-align:middle;margin-right:4px" });
     iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
     const card = el("div", { class: "print-card" }, [
-      el("h3", {}, [iconWrap, character.name + (character.isVictim ? " (Vittima)" : "")]),
+      el("h3", {}, [iconWrap, character.name + (character.isVictim ? t(" (Vittima)") : "")]),
       character.bio ? el("p", { class: "print-bio" }, character.bio) : null,
       el(
         "ul",
@@ -96,8 +96,8 @@ function renderBlankGrid(puzzle) {
 export function renderPrintView(container, puzzle) {
   clear(container);
   const subtitleParts = [];
-  if (puzzle.author) subtitleParts.push(`di ${puzzle.author}`);
-  if (puzzle.difficulty) subtitleParts.push(`Difficoltà: ${difficultyLabel(puzzle.difficulty)}`);
+  if (puzzle.author) subtitleParts.push(t("di {author}", { author: puzzle.author }));
+  if (puzzle.difficulty) subtitleParts.push(t("Difficoltà: {v}", { v: difficultyLabel(puzzle.difficulty) }));
   const page = el("div", { class: "print-page" }, [
     el("h1", { class: "print-title" }, puzzle.title),
     el("p", { class: "print-subtitle" }, subtitleParts.join(" · ")),

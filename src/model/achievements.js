@@ -15,31 +15,31 @@ export const ACHIEVEMENTS = [
   {
     id: "first_solve",
     title: t("Primo caso archiviato"),
-    description: "Hai risolto il tuo primo caso.",
+    description: t("Hai risolto il tuo primo caso."),
     check: (stats) => stats.totalSolved >= 1,
   },
   {
     id: "ten_solves",
     title: t("Investigatore navigato"),
-    description: "Hai risolto 10 casi.",
+    description: t("Hai risolto 10 casi."),
     check: (stats) => stats.totalSolved >= 10,
   },
   {
     id: "fifty_solves",
     title: t("Detective leggendario"),
-    description: "Hai risolto 50 casi.",
+    description: t("Hai risolto 50 casi."),
     check: (stats) => stats.totalSolved >= 50,
   },
   {
     id: "no_hints",
     title: t("Intuito infallibile"),
-    description: "Hai risolto un caso senza usare nessun suggerimento.",
+    description: t("Hai risolto un caso senza usare nessun suggerimento."),
     check: (stats) => stats.totalSolvedWithoutHints >= 1,
   },
   {
     id: "under_2_minutes",
     title: t("Lampo di genio"),
-    description: "Hai risolto un caso in meno di 2 minuti.",
+    description: t("Hai risolto un caso in meno di 2 minuti."),
     check: (stats) => stats.fastestSolveSeconds != null && stats.fastestSolveSeconds < 120,
   },
 ];

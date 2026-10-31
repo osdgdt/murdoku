@@ -17,7 +17,7 @@ export const LOGIC_CLUES = {
       const lower = (s) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
       const descA = describeNestedClue(params.a, puzzle) ?? "?";
       const descB = params.b?.type ? lower(describeNestedClue(params.b, puzzle)) : "?";
-      return `${descA}, oppure ${descB}.`;
+      return t("{descA}, oppure {descB}.", { descA, descB });
     },
   },
 };

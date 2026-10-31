@@ -29,7 +29,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
     el(
       "p",
       { class: "muted" },
-      'Se questo caso ha almeno un passo qui sotto, il pulsante "Suggerimento" nel gioco mostrerà SOLO questa sequenza scritta da te, nell\'ordine, al posto del motore di suggerimenti automatico. Lascia questa lista vuota per continuare a usare i suggerimenti automatici (comportamento invariato).'
+      t("Se questo caso ha almeno un passo qui sotto, il pulsante \"Suggerimento\" nel gioco mostrerà SOLO questa sequenza scritta da te, nell'ordine, al posto del motore di suggerimenti automatico. Lascia questa lista vuota per continuare a usare i suggerimenti automatici (comportamento invariato).")
     )
   );
 
@@ -54,8 +54,8 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
       "span",
       { class: "muted" },
       character && step.row != null
-        ? `Evidenzia: ${character.name} in R${step.row + 1}/C${step.col + 1}${zone ? ` (${zone.name})` : ""}`
-        : "Nessuna evidenziazione (solo testo)"
+        ? t("Evidenzia: {name} in R{row}/C{col}{zone}", { name: character.name, row: step.row + 1, col: step.col + 1, zone: zone ? ` (${zone.name})` : "" })
+        : t("Nessuna evidenziazione (solo testo)")
     );
 
     const pickBtn = el(
@@ -71,7 +71,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
           rerenderSelf();
         },
       },
-      pickingStepId === step.id ? "✓ Scegli sulla mappa a destra…" : "🎯 Imposta su mappa"
+      pickingStepId === step.id ? t("✓ Scegli sulla mappa a destra…") : t("🎯 Imposta su mappa")
     );
     const clearHighlightBtn =
       character || step.row != null
@@ -108,7 +108,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
     list.appendChild(
       el("div", { class: "clue-card" }, [
         el("div", { class: "clue-card-header" }, [
-          el("span", { class: "clue-text" }, `Passo ${i + 1}`),
+          el("span", { class: "clue-text" }, t("Passo {v}", { v: i + 1 })),
           el("div", { class: "clue-card-actions" }, [upBtn, downBtn, removeBtn]),
         ]),
         textarea,

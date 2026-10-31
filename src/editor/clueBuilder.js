@@ -27,17 +27,17 @@ function targetOptions(puzzle, kind, excludeCharacterId) {
   if (kind === "characterOrObject") {
     // A room counts as a target too — e.g. "è accanto a" a whole zone means
     // adjacent to any one of its cells (see resolveTargetPositions).
-    for (const z of puzzle.grid.zones) options.push({ value: z.id, label: `${z.name} (stanza)` });
+    for (const z of puzzle.grid.zones) options.push({ value: z.id, label: t("{name} (stanza)", { name: z.name }) });
     for (const o of puzzle.grid.objects) {
       const def = objectIcon(o.typeId);
-      options.push({ value: o.id, label: `${def?.label || "Oggetto"} (${o.row + 1},${o.col + 1})` });
+      options.push({ value: o.id, label: t("{label} ({row},{col})", { label: def?.label || t("Oggetto"), row: o.row + 1, col: o.col + 1 }) });
     }
     // "Any door", "any shelf", etc. — one option per object type actually
     // present on the map, so the clue doesn't have to commit to one instance.
     for (const typeId of objectTypesPresent(puzzle)) {
       const def = objectIcon(typeId);
       if (!def) continue;
-      options.push({ value: objectTypeTargetId(typeId), label: `Qualsiasi ${def.label.toLowerCase()}` });
+      options.push({ value: objectTypeTargetId(typeId), label: t("Qualsiasi {v}", { v: def.label.toLowerCase() }) });
     }
   }
   return options;

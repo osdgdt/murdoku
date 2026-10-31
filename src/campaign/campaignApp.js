@@ -73,7 +73,7 @@ function createDebouncedSaver(fn, delayMs) {
 
 const boardSaver = createDebouncedSaver((uid, campaignId, caseId, snapshot) => {
   progressStore.saveCaseBoardState(uid, campaignId, caseId, snapshot).catch((err) => {
-    console.error("Impossibile salvare il progresso della campagna:", err);
+    console.error(t("Impossibile salvare il progresso della campagna:"), err);
   });
 }, 3000);
 
@@ -127,7 +127,7 @@ async function showCampaignListView() {
     campaigns = await campaignStore.listCampaigns();
   } catch (err) {
     clear(campaignListEl);
-    campaignListEl.appendChild(el("p", { class: "violation" }, "Impossibile caricare le campagne: " + err.message));
+    campaignListEl.appendChild(el("p", { class: "violation" }, t("Impossibile caricare le campagne: ") + err.message));
     return;
   }
   clear(campaignListEl);
@@ -141,7 +141,7 @@ async function showCampaignListView() {
         el("div", {}, [
           el("span", { class: "title" }, c.title),
           c.description ? el("span", { class: "meta" }, c.description) : null,
-          el("span", { class: "meta" }, `${c.cases.length} ${c.cases.length === 1 ? "caso" : "casi"}`),
+          el("span", { class: "meta" }, c.cases.length === 1 ? t("1 caso") : t("{count} casi", { count: c.cases.length })),
         ]),
         el("div", { class: "actions" }, [el("a", { class: "play", href: `campaign.html?campaign=${c.id}` }, t("Gioca"))]),
       ])
@@ -168,7 +168,7 @@ async function showCaseListView(campaignId) {
     loadedProgress = await progressStore.getCampaignProgress(currentUserState.uid, campaignId);
   } catch (err) {
     clear(caseListEl);
-    caseListEl.appendChild(el("p", { class: "violation" }, "Impossibile caricare la campagna: " + err.message));
+    caseListEl.appendChild(el("p", { class: "violation" }, t("Impossibile caricare la campagna: ") + err.message));
     return;
   }
   campaign = loadedCampaign;
@@ -218,7 +218,7 @@ async function showGameView(campaignId, caseId) {
     loadedProgress = await progressStore.getCampaignProgress(currentUserState.uid, campaignId);
   } catch (err) {
     clear(caseErrorPanel);
-    caseErrorPanel.appendChild(el("p", { class: "violation" }, "Impossibile caricare la campagna: " + err.message));
+    caseErrorPanel.appendChild(el("p", { class: "violation" }, t("Impossibile caricare la campagna: ") + err.message));
     return;
   }
   campaign = loadedCampaign;
@@ -248,7 +248,7 @@ async function showGameView(campaignId, caseId) {
     fetchedPuzzle = await importPuzzleFromUrl(currentCase.puzzleUrl);
   } catch (err) {
     clear(caseErrorPanel);
-    caseErrorPanel.appendChild(el("p", { class: "violation" }, `Non riesco a caricare questo caso: ${err.message}`));
+    caseErrorPanel.appendChild(el("p", { class: "violation" }, t("Non riesco a caricare questo caso: {message}", { message: err.message })));
     return;
   }
 
@@ -276,7 +276,7 @@ async function showGameView(campaignId, caseId) {
       try {
         await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex, elapsedSeconds);
       } catch (err) {
-        console.error("Impossibile registrare il completamento del caso:", err);
+        console.error(t("Impossibile registrare il completamento del caso:"), err);
       }
     },
   });

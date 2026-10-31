@@ -1,6 +1,7 @@
 import { buildPredicates } from "./predicates/index.js";
 import { describeClue } from "../model/clueTypes.js";
 import { solvePuzzle } from "./solver.js";
+import { t } from "../i18n/i18n.js";
 
 function placementsToMap(placements) {
   const map = new Map();
@@ -25,11 +26,11 @@ export function validateSolution(puzzle) {
   const violations = [];
 
   if (placements.length !== puzzle.characters.length) {
-    violations.push({ clueId: null, characterId: null, message: "Non tutti i personaggi hanno una posizione nella soluzione." });
+    violations.push({ clueId: null, characterId: null, message: t("Non tutti i personaggi hanno una posizione nella soluzione.") });
   }
 
   if (hasRowColConflict(placements)) {
-    violations.push({ clueId: null, characterId: null, message: "Due o più personaggi condividono riga o colonna." });
+    violations.push({ clueId: null, characterId: null, message: t("Due o più personaggi condividono riga o colonna.") });
   }
 
   const pm = placementsToMap(placements);

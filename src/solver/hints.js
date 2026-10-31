@@ -3,6 +3,7 @@ import { isOccupiable, zoneOfCell } from "../model/grid.js";
 import { buildPredicates } from "./predicates/index.js";
 import { describeClue } from "../model/clueTypes.js";
 import { propagate } from "./propagation.js";
+import { t } from "../i18n/i18n.js";
 
 // Generous but bounded budgets: at this app's scale (grids capped at 9x9,
 // characters capped at 9 by the editor) a well-clued puzzle exhausts its true
@@ -53,14 +54,14 @@ const HINT_MAX_ELIMINATIONS_PER_WAVE = 8;
 const HINT_CHAIN_MAX_STEPS = 120;
 
 const CLUES_CONTRADICTORY_MSG =
-  "Gli indizi di questo caso non ammettono nessuna soluzione: controlla il puzzle nell'editor.";
-const INCONCLUSIVE_MSG = "Non riesco a determinare un suggerimento affidabile in questo momento.";
-const MULTI_CULPRIT_MSG = "Uno dei piazzamenti attuali è in conflitto con gli indizi, ma non riesco a isolarlo con certezza.";
-const TOO_COMPLEX_MSG = "Ci sono troppe possibilità da esaminare per dare un suggerimento sicuro: aggiungi qualche piazzamento o indizio in più.";
-const ALREADY_COMPLETE_MSG = "Hai già piazzato tutti i personaggi compatibili con gli indizi attuali.";
-const NO_DEDUCTION_MSG = "Con le informazioni attuali non c'è ancora nessuna deduzione certa: prova a piazzare qualcosa o rileggi gli indizi.";
+  t("Gli indizi di questo caso non ammettono nessuna soluzione: controlla il puzzle nell'editor.");
+const INCONCLUSIVE_MSG = t("Non riesco a determinare un suggerimento affidabile in questo momento.");
+const MULTI_CULPRIT_MSG = t("Uno dei piazzamenti attuali è in conflitto con gli indizi, ma non riesco a isolarlo con certezza.");
+const TOO_COMPLEX_MSG = t("Ci sono troppe possibilità da esaminare per dare un suggerimento sicuro: aggiungi qualche piazzamento o indizio in più.");
+const ALREADY_COMPLETE_MSG = t("Hai già piazzato tutti i personaggi compatibili con gli indizi attuali.");
+const NO_DEDUCTION_MSG = t("Con le informazioni attuali non c'è ancora nessuna deduzione certa: prova a piazzare qualcosa o rileggi gli indizi.");
 const NO_FURTHER_DEDUCTION_MSG =
-  "Ho verificato a fondo: da qui in poi esistono più soluzioni diverse, tutte valide secondo gli indizi attuali, quindi non c'è nient'altro da dedurre con certezza. Prova a piazzare qualcosa per ipotesi, o rileggi gli indizi.";
+  t("Ho verificato a fondo: da qui in poi esistono più soluzioni diverse, tutte valide secondo gli indizi attuali, quindi non c'è nient'altro da dedurre con certezza. Prova a piazzare qualcosa per ipotesi, o rileggi gli indizi.");
 
 function buildForcedMessage(puzzle, character, row, col) {
   const zoneId = zoneOfCell(puzzle.grid, row, col);
@@ -72,20 +73,20 @@ function buildForcedMessage(puzzle, character, row, col) {
   // her. Framed accordingly, distinct from the generic "compatible with the
   // clues" wording used for everyone else.
   if (character.isVictim) {
-    return `${character.name} deve trovarsi nell'unica casella rimasta libera${where}.`;
+    return t("{name} deve trovarsi nell'unica casella rimasta libera{where}.", { name: character.name, where });
   }
-  return `${character.name} deve trovarsi nella cella evidenziata${where}: è l'unica posizione compatibile con gli indizi attuali.`;
+  return t("{name} deve trovarsi nella cella evidenziata{where}: è l'unica posizione compatibile con gli indizi attuali.", { name: character.name, where });
 }
 
 function buildEliminatedMessage(character) {
-  return `${character.name} non può trovarsi nella cella evidenziata, secondo gli indizi attuali.`;
+  return t("{name} non può trovarsi nella cella evidenziata, secondo gli indizi attuali.", { name: character.name });
 }
 
 function buildCulpritMessage(puzzle, culpritIds) {
   const names = culpritIds.map((id) => puzzle.characters.find((c) => c.id === id)?.name || "?");
   return names.length === 1
-    ? `${names[0]} sembra nella posizione sbagliata: rimuovendo quel piazzamento, gli indizi tornano soddisfacibili.`
-    : `Uno di questi piazzamenti sembra sbagliato: ${names.join(", ")}. Prova a rimuoverne uno e verifica di nuovo.`;
+    ? t("{v} sembra nella posizione sbagliata: rimuovendo quel piazzamento, gli indizi tornano soddisfacibili.", { v: names[0] })
+    : t("Uno di questi piazzamenti sembra sbagliato: {v}. Prova a rimuoverne uno e verifica di nuovo.", { v: names.join(", ") });
 }
 
 function clueOwnerLabel(puzzle, clue) {
@@ -96,8 +97,8 @@ function clueOwnerLabel(puzzle, clue) {
 function buildDirectViolationMessage(puzzle, violatedClues) {
   const labels = violatedClues.map((clue) => clueOwnerLabel(puzzle, clue));
   return labels.length === 1
-    ? `Un indizio è già violato dai piazzamenti attuali: ${labels[0]}`
-    : `Alcuni indizi sono già violati dai piazzamenti attuali: ${labels.join(" — ")}`;
+    ? t("Un indizio è già violato dai piazzamenti attuali: {v}", { v: labels[0] })
+    : t("Alcuni indizi sono già violati dai piazzamenti attuali: {v}", { v: labels.join(" — ") });
 }
 
 function buildOccupancyIndex(solutions) {

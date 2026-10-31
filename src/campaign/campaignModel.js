@@ -3,7 +3,7 @@ import { t } from "../i18n/i18n.js";
 
 export const CAMPAIGN_SCHEMA_VERSION = 1;
 
-export function createCampaign(title = "Nuova campagna", description = "") {
+export function createCampaign(title = t("Nuova campagna"), description = "") {
   return {
     schemaVersion: CAMPAIGN_SCHEMA_VERSION,
     id: makeId("campaign"),
@@ -45,7 +45,7 @@ export function reorderCases(campaign, fromIndex, toIndex) {
 
 export function validateCampaignShape(campaign) {
   const errors = [];
-  if (!campaign || typeof campaign !== "object") return { valid: false, errors: ["La campagna non è un oggetto valido."] };
+  if (!campaign || typeof campaign !== "object") return { valid: false, errors: [t("La campagna non è un oggetto valido.")] };
   if (typeof campaign.title !== "string" || !campaign.title.trim()) errors.push(t("Manca il titolo della campagna."));
   if (!Array.isArray(campaign.cases)) {
     errors.push(t("Manca l'elenco dei casi."));
@@ -53,13 +53,13 @@ export function validateCampaignShape(campaign) {
     const ids = new Set();
     campaign.cases.forEach((c, i) => {
       if (!c || typeof c !== "object") {
-        errors.push(`Caso ${i + 1} non valido.`);
+        errors.push(t("Caso {v} non valido.", { v: i + 1 }));
         return;
       }
-      if (ids.has(c.id)) errors.push(`ID caso duplicato: ${c.id}`);
+      if (ids.has(c.id)) errors.push(t("ID caso duplicato: {id}", { id: c.id }));
       ids.add(c.id);
-      if (!c.puzzleUrl) errors.push(`Caso ${i + 1}: manca l'URL del file .murdoku.json.`);
-      if (!c.puzzleId) errors.push(`Caso ${i + 1}: manca l'id del puzzle.`);
+      if (!c.puzzleUrl) errors.push(t("Caso {v}: manca l'URL del file .murdoku.json.", { v: i + 1 }));
+      if (!c.puzzleId) errors.push(t("Caso {v}: manca l'id del puzzle.", { v: i + 1 }));
     });
   }
   return { valid: errors.length === 0, errors };

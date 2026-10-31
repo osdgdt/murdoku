@@ -36,7 +36,7 @@ export async function importPuzzleFromUrl(url) {
   }
   if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") throw new Error(t("sono ammessi solo indirizzi http(s)."));
   const res = await fetch(parsedUrl.href, { credentials: "omit", referrerPolicy: "no-referrer" });
-  if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
+  if (!res.ok) throw new Error(t("impossibile scaricare il file ({status}).", { status: res.status }));
   const declared = Number(res.headers.get("content-length"));
   if (declared > MAX_IMPORT_BYTES) throw new Error(t("file troppo grande."));
   const text = await res.text();

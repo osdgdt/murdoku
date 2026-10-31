@@ -6,14 +6,14 @@ export default [
   js.configs.recommended,
   {
     files: ["src/**/*.js", "test/**/*.js"],
-    languageOptions: { ecmaVersion: 2023, sourceType: "module", globals: { ...globals.browser } },
+    languageOptions: { ecmaVersion: 2023, sourceType: "module", globals: { ...globals.browser, ...globals.worker } },
     rules: {
       "no-unused-vars": ["warn", { args: "none", caughtErrors: "none" }],
       "no-empty": ["error", { allowEmptyCatch: true }],
     },
   },
   {
-    files: ["test/node/**/*.mjs", "eslint.config.js"],
+    files: ["test/node/**/*.mjs", "tools/**/*.mjs", "eslint.config.js"],
     languageOptions: { ecmaVersion: 2023, sourceType: "module", globals: { ...globals.node, ...globals.browser } },
   },
 ];

@@ -44,7 +44,7 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
       class: "clue-card" + (character.isVictim ? " victim" : "") + (placed ? " placed" : "") + (active ? " active" : ""),
       style: character.isVictim ? "" : `--clue-accent: ${characterColor(character)}`,
     }, [
-      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name + (character.isVictim ? " (Vittima)" : ""))]),
+      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name + (character.isVictim ? t(" (Vittima)") : ""))]),
       character.bio ? el("p", { class: "bio-text" }, character.bio) : null,
       list,
     ]);

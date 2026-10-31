@@ -2,7 +2,7 @@ import { el, clear } from "../util/dom.js";
 import { ACHIEVEMENTS } from "../model/achievements.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import { formatElapsed } from "../util/time.js";
-import { t } from "../i18n/i18n.js";
+import { t, intlLocale } from "../i18n/i18n.js";
 
 // Always shows every achievement in the registry — unlocked ones with when
 // they were earned, locked ones dimmed but with their description still
@@ -28,7 +28,7 @@ export function renderAchievementsPage(root) {
   for (const achievement of ACHIEVEMENTS) {
     const unlockedAt = unlocked[achievement.id];
     const dateLabel = unlockedAt
-      ? new Date(unlockedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })
+      ? new Date(unlockedAt).toLocaleDateString(intlLocale(), { day: "numeric", month: "long", year: "numeric" })
       : null;
     grid.appendChild(
       el("div", { class: "achievement-tile" + (unlockedAt ? " unlocked" : " locked") }, [
@@ -36,7 +36,7 @@ export function renderAchievementsPage(root) {
         el("h3", {}, achievement.title),
         el("p", { class: "muted" }, achievement.description),
         dateLabel
-          ? el("span", { class: "unlock-date" }, `Sbloccato il ${dateLabel}`)
+          ? el("span", { class: "unlock-date" }, t("Sbloccato il {dateLabel}", { dateLabel }))
           : el("span", { class: "muted locked-label" }, t("Non ancora sbloccato")),
       ])
     );

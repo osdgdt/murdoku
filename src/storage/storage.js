@@ -1,3 +1,4 @@
+import { t } from "../i18n/i18n.js";
 // The single door to localStorage. Every store goes through here so that the
 // three real-world failure modes are handled in exactly one place instead of
 // per call site: storage unavailable (private mode, blocked cookies — merely
@@ -5,7 +6,7 @@
 // our keys, and a full quota on write.
 
 export class StorageFullError extends Error {
-  constructor(message = "Spazio di archiviazione locale esaurito: impossibile salvare le modifiche.") {
+  constructor(message = t("Spazio di archiviazione locale esaurito: impossibile salvare le modifiche.")) {
     super(message);
     this.name = "StorageFullError";
   }
@@ -43,7 +44,7 @@ export function readJson(key, fallback = null) {
 // tryWriteJson instead.
 export function writeRaw(key, value) {
   const store = backend();
-  if (!store) throw new StorageFullError("Archiviazione locale non disponibile in questo browser.");
+  if (!store) throw new StorageFullError(t("Archiviazione locale non disponibile in questo browser."));
   try {
     store.setItem(key, value);
   } catch {

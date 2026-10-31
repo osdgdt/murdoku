@@ -76,6 +76,8 @@
     import { duplicatePuzzle, difficultyLabel, DIFFICULTY_LEVELS } from "./src/model/puzzle.js";
     import { wireThemeToggle } from "./src/util/theme.js";
     import * as recentActivity from "./src/storage/recentActivityStore.js";
+    import { el, clear } from "./src/util/dom.js";
+    import { isSafeId } from "./src/util/safe.js";
     wireThemeToggle();
 
     const resumeBanner = document.getElementById("resume-banner");
@@ -93,6 +95,9 @@
       // index.html deliberately never loads — shown optimistically; a
       // since-deleted/locked case is handled by campaign.html's own
       // existing error panel instead.
+      // Only same-site relative player/campaign links are ever stored; refuse
+      // anything else (e.g. a tampered `javascript:` value) instead of linking it.
+      if (typeof recent.url !== "string" || !/^(player|campaign)\.html\?[\w=&%.-]*$/.test(recent.url)) { resumeBanner.classList.add("hidden"); return; }
       resumeTitle.textContent = recent.title;
       resumeBanner.href = recent.url;
       resumeBanner.classList.remove("hidden");
@@ -118,26 +123,31 @@
 
     function render() {
       const puzzles = sortPuzzles(store.list());
-      items.innerHTML = "";
+      clear(items);
       listPanel.classList.toggle("hidden", puzzles.length === 0);
       for (const p of puzzles) {
-        const row = document.createElement("div");
-        row.className = "saved-row";
+        // Saved titles can originate from an imported file, so every dynamic
+        // value is attached as text / attribute through el() — never
+        // interpolated into markup.
+        if (!isSafeId(p.id)) continue;
         const updated = new Date(p.updatedAt).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
-        const badge = p.difficulty ? `<span class="difficulty-badge difficulty-${p.difficulty}">${difficultyLabel(p.difficulty)}</span>` : "";
-        const completedBadge = p.completed ? `<span class="completed-badge" title="Completato">✓</span>` : "";
-        row.innerHTML = `
-          <div>
-            <span class="title">${completedBadge}${p.title}</span>
-            ${badge}
-            <span class="meta">Aggiornato il ${updated}</span>
-          </div>
-          <div class="actions">
-            <a href="editor.html?id=${p.id}">Modifica</a>
-            <a class="play" href="player.html?id=${p.id}">Gioca</a>
-            <button class="duplicate" type="button" data-duplicate-id="${p.id}" title="Duplica">📋</button>
-            <button class="delete" type="button" data-delete-id="${p.id}" data-delete-title="${p.title.replace(/"/g, "&quot;")}" title="Elimina">🗑</button>
-          </div>`;
+        const safeDifficulty = DIFFICULTY_LEVELS.some((d) => d.value === p.difficulty) ? p.difficulty : "";
+        const row = el("div", { class: "saved-row" }, [
+          el("div", {}, [
+            el("span", { class: "title" }, [
+              p.completed ? el("span", { class: "completed-badge", title: "Completato" }, "✓") : null,
+              String(p.title ?? ""),
+            ]),
+            safeDifficulty ? el("span", { class: `difficulty-badge difficulty-${safeDifficulty}` }, difficultyLabel(safeDifficulty)) : null,
+            el("span", { class: "meta" }, `Aggiornato il ${updated}`),
+          ]),
+          el("div", { class: "actions" }, [
+            el("a", { href: `editor.html?id=${encodeURIComponent(p.id)}` }, "Modifica"),
+            el("a", { class: "play", href: `player.html?id=${encodeURIComponent(p.id)}` }, "Gioca"),
+            el("button", { class: "duplicate", type: "button", dataset: { duplicateId: p.id }, title: "Duplica" }, "📋"),
+            el("button", { class: "delete", type: "button", dataset: { deleteId: p.id, deleteTitle: String(p.title ?? "") }, title: "Elimina" }, "🗑"),
+          ]),
+        ]);
         items.appendChild(row);
       }
     }

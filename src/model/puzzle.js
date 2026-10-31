@@ -1,6 +1,7 @@
 import { makeId } from "../util/id.js";
 import { createGrid, isOccupiable } from "./grid.js";
 import { isObjectTypeTarget } from "./icons.js";
+import { isSafeId, isSafeColor } from "../util/safe.js";
 
 export const SCHEMA_VERSION = 1;
 
@@ -178,6 +179,47 @@ export function placementFor(puzzle, characterId) {
 const MIN_GRID_SIZE = 3;
 const MAX_GRID_SIZE = 9;
 
+// Everything below is about *safety*, not game rules: ids and colors from an
+// imported puzzle flow into attributes, URLs and inline styles, so anything
+// that isn't a plain id / hex color is rejected here, once, instead of
+// trusting every render site to escape. Absent optional fields stay valid.
+function validateUntrustedStrings(puzzle, errors) {
+  const badId = (what, value) => {
+    if (value !== undefined && value !== null && !isSafeId(value)) errors.push(`ID non valido (${what}).`);
+  };
+  const badColor = (what, value) => {
+    if (value !== undefined && value !== null && !isSafeColor(value)) errors.push(`Colore non valido (${what}).`);
+  };
+  badId("puzzle", puzzle.id);
+  for (const field of ["title", "author", "briefing", "resolutionNote"]) {
+    if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(`Il campo "${field}" deve essere testo.`);
+  }
+  for (const c of Array.isArray(puzzle.characters) ? puzzle.characters : []) {
+    if (!c || typeof c !== "object") { errors.push("Personaggio non valido."); continue; }
+    badId("personaggio", c.id);
+    badColor("personaggio", c.color);
+    if (typeof c.name !== "string") errors.push("Il nome di un personaggio deve essere testo.");
+  }
+  for (const z of Array.isArray(puzzle.grid?.zones) ? puzzle.grid.zones : []) {
+    if (!z || typeof z !== "object") { errors.push("Zona non valida."); continue; }
+    badId("zona", z.id);
+    badColor("zona", z.color);
+  }
+  for (const o of Array.isArray(puzzle.grid?.objects) ? puzzle.grid.objects : []) {
+    if (!o || typeof o !== "object") { errors.push("Oggetto non valido."); continue; }
+    badId("oggetto", o.id);
+  }
+  for (const cl of Array.isArray(puzzle.clues) ? puzzle.clues : []) {
+    if (!cl || typeof cl !== "object") { errors.push("Indizio non valido."); continue; }
+    badId("indizio", cl.id);
+  }
+  const cells = puzzle.grid?.cells;
+  const size = puzzle.grid?.size;
+  if (size && (!Array.isArray(cells) || cells.length !== size.rows || cells.some((row) => !Array.isArray(row) || row.length !== size.cols || row.some((cell) => !cell || typeof cell !== "object")))) {
+    errors.push("Le celle della griglia non corrispondono alle sue dimensioni.");
+  }
+}
+
 export function validatePuzzleShape(puzzle) {
   const errors = [];
   if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: ["Il puzzle non è un oggetto valido."] };
@@ -189,6 +231,7 @@ export function validatePuzzleShape(puzzle) {
       errors.push(`Le dimensioni della griglia devono essere comprese tra ${MIN_GRID_SIZE} e ${MAX_GRID_SIZE} (trovato ${rows}×${cols}).`);
     }
   }
+  validateUntrustedStrings(puzzle, errors);
   if (!Array.isArray(puzzle.characters)) errors.push("Manca l'elenco personaggi.");
   if (!Array.isArray(puzzle.clues)) errors.push("Manca l'elenco indizi.");
   if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push("Manca la soluzione.");

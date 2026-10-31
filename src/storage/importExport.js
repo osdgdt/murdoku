@@ -1,4 +1,5 @@
 import { validatePuzzleShape } from "../model/puzzle.js";
+import { MAX_IMPORT_BYTES } from "../util/safe.js";
 
 function slugify(text) {
   return (text || "puzzle")
@@ -25,9 +26,25 @@ export function exportPuzzle(puzzle) {
 // campaign-editor.html's "add case by URL", which used to duplicate this
 // exact 5-line block (including the Italian error strings) three times.
 export async function importPuzzleFromUrl(url) {
-  const res = await fetch(url);
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url, location.href);
+  } catch {
+    throw new Error("indirizzo non valido.");
+  }
+  if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") throw new Error("sono ammessi solo indirizzi http(s).");
+  const res = await fetch(parsedUrl.href, { credentials: "omit", referrerPolicy: "no-referrer" });
   if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
-  const puzzle = await res.json();
+  const declared = Number(res.headers.get("content-length"));
+  if (declared > MAX_IMPORT_BYTES) throw new Error("file troppo grande.");
+  const text = await res.text();
+  if (text.length > MAX_IMPORT_BYTES) throw new Error("file troppo grande.");
+  let puzzle;
+  try {
+    puzzle = JSON.parse(text);
+  } catch {
+    throw new Error("il file non è un JSON valido.");
+  }
   const { valid, errors } = validatePuzzleShape(puzzle);
   if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
   return puzzle;
@@ -35,6 +52,10 @@ export async function importPuzzleFromUrl(url) {
 
 export function importPuzzleFromFile(file) {
   return new Promise((resolve, reject) => {
+    if (file.size > MAX_IMPORT_BYTES) {
+      reject(new Error("File troppo grande."));
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       try {

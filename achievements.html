@@ -20,6 +20,7 @@
   <div class="topbar">
     <a class="brand" href="index.html">🔎 Murdoku</a>
     <nav class="topbar-nav">
+      <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
       <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
       <div id="auth-bar"></div>
       <a href="index.html">← Torna alla home</a>
@@ -39,6 +40,7 @@
   <p class="footer-note">Murdoku — restano solo su questo dispositivo, a meno che tu non scelga di accedere con Google per sincronizzarli su più dispositivi.</p>
 
   <script type="module">
+    import "./src/i18n/i18n.js";
     import { wireThemeToggle } from "./src/util/theme.js";
     import { renderAchievementsPage } from "./src/achievements/achievementsView.js";
     import { onAuthChange, signIn, signOutUser } from "./src/auth/googleAuth.js";

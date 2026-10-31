@@ -2,6 +2,7 @@ import { el, clear } from "../util/dom.js";
 import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds, describeClue } from "../model/clueTypes.js";
 import { objectIcon, objectTypeTargetId } from "../model/icons.js";
 import { addClue, removeClue, updateClue, setClueNegate, cluesForCharacter, genericClues } from "../model/puzzle.js";
+import { t } from "../i18n/i18n.js";
 
 // Object types actually present on the current puzzle's map — shared by the
 // "Qualsiasi X" characterOrObject options below AND by the objectTypeId enum
@@ -134,7 +135,7 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
   const select = el(
     "select",
     { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) },
-    [el("option", { value: "" }, "-- scegli --"), ...options.map((o) =>
+    [el("option", { value: "" }, t("-- scegli --")), ...options.map((o) =>
       el("option", { value: o.value, selected: currentParams[paramDef.name] === o.value || undefined }, o.label)
     )]
   );
@@ -164,7 +165,7 @@ function renderNestedClue(spec, puzzle, ownerId, onSetSpec) {
     {
       onChange: (e) => onSetSpec({ type: e.target.value, params: defaultParams(e.target.value, puzzle) }),
     },
-    [el("option", { value: "" }, "-- scegli indizio --"), ...subTypeIds.map((id) =>
+    [el("option", { value: "" }, t("-- scegli indizio --")), ...subTypeIds.map((id) =>
       el("option", { value: id, selected: current.type === id || undefined }, CLUE_TYPES[id].label)
     )]
   );
@@ -183,12 +184,12 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
   const controlsArea = def?.combinator
     ? el("div", { class: "clue-branches" }, [
         el("div", { class: "clue-branch" }, [
-          el("span", { class: "clue-branch-label" }, "Ramo A"),
+          el("span", { class: "clue-branch-label" }, t("Ramo A")),
           renderNestedClue(clue.params.a, puzzle, ownerId, (spec) => { updateClue(puzzle, clue.id, { a: spec }); onChange(); }),
         ]),
-        el("div", { class: "clue-branch-joiner" }, "oppure"),
+        el("div", { class: "clue-branch-joiner" }, t("oppure")),
         el("div", { class: "clue-branch" }, [
-          el("span", { class: "clue-branch-label" }, "Ramo B"),
+          el("span", { class: "clue-branch-label" }, t("Ramo B")),
           renderNestedClue(clue.params.b, puzzle, ownerId, (spec) => { updateClue(puzzle, clue.id, { b: spec }); onChange(); }),
         ]),
       ])
@@ -205,7 +206,7 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
 
   // Flips the clue to its negation instead of needing a mirror-image type for
   // every "not X" — see buildPredicate()/describeClue().
-  const negateToggle = el("label", { class: "clue-negate", title: "Inverte l'indizio nel suo opposto" }, [
+  const negateToggle = el("label", { class: "clue-negate", title: t("Inverte l'indizio nel suo opposto") }, [
     el("input", {
       type: "checkbox",
       checked: clue.negate || undefined,
@@ -215,9 +216,9 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
   ]);
   const removeBtn = el("button", {
     class: "clue-remove",
-    title: "Rimuovi indizio",
+    title: t("Rimuovi indizio"),
     onClick: () => { removeClue(puzzle, clue.id); onChange(); },
-  }, "×");
+  }, t("×"));
 
   const header = el("div", { class: "clue-card-header" }, [
     el("span", { class: "clue-text" }, describeClue(clue, puzzle)),
@@ -229,8 +230,8 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
 
 function renderGenericCluesSection(puzzle, onChange) {
   const wrap = el("div", { class: "character-card" });
-  wrap.appendChild(el("strong", {}, "🔎 Indizi generali del caso"));
-  wrap.appendChild(el("p", { class: "muted" }, "Fatti sulla scena non legati a un personaggio specifico."));
+  wrap.appendChild(el("strong", {}, t("🔎 Indizi generali del caso")));
+  wrap.appendChild(el("p", { class: "muted" }, t("Fatti sulla scena non legati a un personaggio specifico.")));
 
   const clueList = el("div", { class: "clue-list" });
   for (const clue of genericClues(puzzle)) {
@@ -251,7 +252,7 @@ function renderGenericCluesSection(puzzle, onChange) {
       addClue(puzzle, null, typeSelect.value, defaultParams(typeSelect.value, puzzle));
       onChange();
     },
-  }, "+ Indizio generale");
+  }, t("+ Indizio generale"));
   wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
 
   return wrap;
@@ -259,12 +260,12 @@ function renderGenericCluesSection(puzzle, onChange) {
 
 export function renderClueBuilder(container, puzzle, onChange) {
   clear(container);
-  container.appendChild(el("h3", {}, "Indizi"));
+  container.appendChild(el("h3", {}, t("Indizi")));
 
   container.appendChild(renderGenericCluesSection(puzzle, onChange));
 
   if (puzzle.characters.length === 0) {
-    container.appendChild(el("p", { class: "muted" }, "Aggiungi prima dei personaggi per aggiungere indizi a loro dedicati."));
+    container.appendChild(el("p", { class: "muted" }, t("Aggiungi prima dei personaggi per aggiungere indizi a loro dedicati.")));
     return;
   }
 
@@ -290,7 +291,7 @@ export function renderClueBuilder(container, puzzle, onChange) {
         addClue(puzzle, character.id, typeSelect.value, defaultParams(typeSelect.value, puzzle));
         onChange();
       },
-    }, "+ Indizio");
+    }, t("+ Indizio"));
     wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
 
     container.appendChild(wrap);

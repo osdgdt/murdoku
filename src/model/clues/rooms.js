@@ -1,44 +1,45 @@
+import { t } from "../../i18n/i18n.js";
 import { targetLabel, propertyClause, propertyParams } from "./shared.js";
 
 export const ROOMS_CLUES = {
   inRoom: {
-    label: "Si trova nella stanza",
-    params: [{ name: "zoneId", kind: "zone", label: "Stanza" }],
+    label: t("Si trova nella stanza"),
+    params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
     describe: (params, puzzle) => `Si trova nella stanza ${targetLabel(puzzle, params.zoneId)}.`,
   },
   notInRoom: {
     legacy: true,
-    label: "Non si trova nella stanza",
-    params: [{ name: "zoneId", kind: "zone", label: "Stanza" }],
+    label: t("Non si trova nella stanza"),
+    params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
     describe: (params, puzzle) => `Non si trova nella stanza ${targetLabel(puzzle, params.zoneId)}.`,
   },
   zoneAdjacentTo: {
-    label: "Si trova in una stanza adiacente a",
+    label: t("Si trova in una stanza adiacente a"),
     // Target can be a specific room, but also a character/object (or object
     // type) — "adiacente a" then means adjacent to whichever room THEY end
     // up in, resolved dynamically like every other characterOrObject target.
-    params: [{ name: "zoneId", kind: "characterOrObject", label: "Bersaglio" }],
+    params: [{ name: "zoneId", kind: "characterOrObject", label: t("Bersaglio") }],
     describe: (params, puzzle) => `Si trova in una stanza adiacente a ${targetLabel(puzzle, params.zoneId)}.`,
   },
   sameRoomAs: {
-    label: "Si trova nella stessa stanza di",
-    params: [{ name: "targetId", kind: "character", label: "Personaggio" }],
+    label: t("Si trova nella stessa stanza di"),
+    params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],
     describe: (params, puzzle) => `Si trova nella stessa stanza di ${targetLabel(puzzle, params.targetId)}.`,
   },
   notSameRoomAs: {
     legacy: true,
-    label: "Non si trova nella stessa stanza di",
-    params: [{ name: "targetId", kind: "character", label: "Personaggio" }],
+    label: t("Non si trova nella stessa stanza di"),
+    params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],
     describe: (params, puzzle) => `Non si trova nella stessa stanza di ${targetLabel(puzzle, params.targetId)}.`,
   },
   onlyPersonNear: {
-    label: "È l'unica persona vicino a",
-    params: [{ name: "targetId", kind: "characterOrObject", label: "Bersaglio" }],
+    label: t("È l'unica persona vicino a"),
+    params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
     describe: (params, puzzle) => `È l'unica persona vicino a ${targetLabel(puzzle, params.targetId)}.`,
   },
   aloneWithVictim: {
     legacy: true,
-    label: "È sola con la vittima nella stanza",
+    label: t("È sola con la vittima nella stanza"),
     params: [],
     describe: () => `È sola con la vittima nella stanza.`,
   },
@@ -51,23 +52,23 @@ export const ROOMS_CLUES = {
   victimRoomRule: {
     internal: true,
     scope: "generic",
-    label: "La vittima è sola con l'assassino nella sua stanza",
+    label: t("La vittima è sola con l'assassino nella sua stanza"),
     params: [],
     describe: () => "La vittima deve trovarsi in una stanza con esattamente un'altra persona: l'assassino.",
   },
   aloneWithPerson: {
-    label: "È sola con (un personaggio)",
-    params: [{ name: "targetId", kind: "character", label: "Personaggio" }],
+    label: t("È sola con (un personaggio)"),
+    params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],
     describe: (params, puzzle) => `È sola con ${targetLabel(puzzle, params.targetId)} nella stanza.`,
   },
   aloneWithPersonProperty: {
-    label: "È sola con qualcuno che era...",
+    label: t("È sola con qualcuno che era..."),
     params: propertyParams,
     describe: (params, puzzle) => `È sola nella stanza con qualcuno${propertyClause(params, puzzle, " che era")}.`,
   },
   aloneInRoom: {
-    label: "È sola nella stanza",
-    params: [{ name: "zoneId", kind: "zone", optional: true, label: "Stanza specifica (vuoto = quella in cui si trova)" }],
+    label: t("È sola nella stanza"),
+    params: [{ name: "zoneId", kind: "zone", optional: true, label: t("Stanza specifica (vuoto = quella in cui si trova)") }],
     describe: (params, puzzle) =>
       params.zoneId
         ? `È l'unica persona nella stanza ${targetLabel(puzzle, params.zoneId)}.`
@@ -75,12 +76,12 @@ export const ROOMS_CLUES = {
   },
   onlyPersonInRoom: {
     legacy: true,
-    label: "È l'unica persona nella stanza",
-    params: [{ name: "zoneId", kind: "zone", label: "Stanza" }],
+    label: t("È l'unica persona nella stanza"),
+    params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
     describe: (params, puzzle) => `È l'unica persona nella stanza ${targetLabel(puzzle, params.zoneId)}.`,
   },
   inRoomCorner: {
-    label: "Si trova in un angolo della sua stanza",
+    label: t("Si trova in un angolo della sua stanza"),
     // Diverso da "si trova in un angolo": quello vale solo per i 4 angoli
     // dell'intera mappa; questo vale per gli angoli della stanza in cui si
     // trova il personaggio, qualunque forma abbia (anche irregolare) e
@@ -89,7 +90,7 @@ export const ROOMS_CLUES = {
     describe: () => "Si trova in un angolo della sua stanza.",
   },
   someoneInRoomWithProperty: {
-    label: "Qualcun altro nella sua stanza era...",
+    label: t("Qualcun altro nella sua stanza era..."),
     params: propertyParams,
     describe: (params, puzzle) => `Qualcun altro nella sua stanza${propertyClause(params, puzzle, " era")}.`,
     negatedDescribe: (params, puzzle) => `Nessun altro nella sua stanza${propertyClause(params, puzzle, " era")}.`,

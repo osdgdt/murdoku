@@ -10,6 +10,7 @@ import { computeHintChainAsync, deriveSolutionAsync, checkUniquenessAsync } from
 import { resolveClueHoverCells, resolveCharacterHoverDomain } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
+import { t } from "../i18n/i18n.js";
 
 // Which computeHintChain step types count as "a hint actually helped" — see
 // onHint() below. tooComplex/noHint alone disclose zero new information
@@ -189,12 +190,12 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""),
       tabindex: "0", role: "button", "aria-label": "Segna X",
       onClick: selectX, onKeydown: onActivateKey(selectX),
-    }, "✕ Segna"));
+    }, t("✕ Segna")));
     toolbarEl.appendChild(el("div", {
       class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""),
       tabindex: "0", role: "button", "aria-label": "Gomma",
       onClick: selectErase, onKeydown: onActivateKey(selectErase),
-    }, "🧹 Gomma"));
+    }, t("🧹 Gomma")));
   }
 
   // Ephemeral, non-serialized cell highlighting for hover — mirrors
@@ -314,7 +315,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   function renderHintExplanation(result) {
     if (result.type === "contradiction" && result.cause === "clue") {
       return el("div", { class: "hint-explain" }, [
-        el("div", { class: "hint-explain-label" }, "Indizio in conflitto:"),
+        el("div", { class: "hint-explain-label" }, t("Indizio in conflitto:")),
         el("ul", { class: "hint-clue-list" }, result.clueIds.map((id) => {
           const clue = puzzle.clues.find((c) => c.id === id);
           if (!clue) return null;
@@ -328,22 +329,22 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       return el(
         "div",
         { class: "hint-explain" },
-        el("p", { class: "hint-explain-note" }, "Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso.")
+        el("p", { class: "hint-explain-note" }, t("Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso."))
       );
     }
     if (result.jointlyDetermined) {
-      return el("div", { class: "hint-explain" }, el("p", { class: "hint-explain-note" }, "Questa deduzione dipende dalla combinazione di più indizi insieme."));
+      return el("div", { class: "hint-explain" }, el("p", { class: "hint-explain-note" }, t("Questa deduzione dipende dalla combinazione di più indizi insieme.")));
     }
     const blocks = [];
     if (result.involvedClues?.length) {
-      blocks.push(el("div", { class: "hint-explain-label" }, "Perché:"));
+      blocks.push(el("div", { class: "hint-explain-label" }, t("Perché:")));
       blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedClues.map((c) => el("li", {}, (c.ownerName ? c.ownerName + ": " : "") + c.description))));
     }
     if (result.involvedGroups?.length) {
       // "Naked subset" deductions (see propagation.js): not caused by any one
       // clue, but by several characters' clue-narrowed domains jointly
       // leaving no room for anyone else in a shared set of cells.
-      blocks.push(el("div", { class: "hint-explain-label" }, "Interazione tra personaggi:"));
+      blocks.push(el("div", { class: "hint-explain-label" }, t("Interazione tra personaggi:")));
       blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedGroups.map((g) =>
         el("li", {}, `${g.characterNames.join(" e ")} possono stare solo in ${g.cellLabels.join(" o ")}: nessun altro personaggio può occupare quelle celle.`)
       )));
@@ -464,7 +465,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       return;
     }
 
-    hintPanel.appendChild(el("div", { class: "result-banner hint-info" }, "Sto calcolando un suggerimento…"));
+    hintPanel.appendChild(el("div", { class: "result-banner hint-info" }, t("Sto calcolando un suggerimento…")));
     try {
       hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates);
       await extendChainWithOracleStep(hintChain);
@@ -488,7 +489,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   async function onSubmit() {
     clear(resultEl);
     submitBtn.disabled = true;
-    resultEl.appendChild(el("div", { class: "result-banner hint-info" }, "Sto verificando la soluzione…"));
+    resultEl.appendChild(el("div", { class: "result-banner hint-info" }, t("Sto verificando la soluzione…")));
     try {
       const effective = await getEffectiveSolution();
       clear(resultEl);
@@ -552,7 +553,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
           : null;
         resultEl.appendChild(
           el("div", { class: "win-panel result-banner success" }, [
-            el("div", {}, "🎉 Caso risolto! Tutti i piazzamenti sono corretti."),
+            el("div", {}, t("🎉 Caso risolto! Tutti i piazzamenti sono corretti.")),
             murderer ? el("div", {}, `L'assassino è: ${murderer}`) : null,
             timeLine,
             hintLine,
@@ -563,7 +564,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       } else {
         // Deliberately doesn't say how many are right — that would let you brute
         // force it by trial and error instead of reasoning from the clues.
-        resultEl.appendChild(el("div", { class: "result-banner partial" }, "Non è ancora tutto corretto. Continua a dedurre dagli indizi."));
+        resultEl.appendChild(el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi.")));
       }
     } catch (err) {
       clear(resultEl);
@@ -577,7 +578,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     clear(briefingEl);
     briefingEl.classList.toggle("hidden", !puzzle.briefing);
     if (puzzle.briefing) {
-      briefingEl.appendChild(el("h3", {}, "Il caso"));
+      briefingEl.appendChild(el("h3", {}, t("Il caso")));
       briefingEl.appendChild(el("p", {}, puzzle.briefing));
     }
   }

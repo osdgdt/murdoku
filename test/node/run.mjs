@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import { installLocalStorage, installWorkerShim } from "./shims.mjs";
 
+globalThis.__MURDOKU_LANG__ = "it";
 installLocalStorage();
 installWorkerShim();
 

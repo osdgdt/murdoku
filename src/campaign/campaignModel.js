@@ -1,4 +1,5 @@
 import { makeId } from "../util/id.js";
+import { t } from "../i18n/i18n.js";
 
 export const CAMPAIGN_SCHEMA_VERSION = 1;
 
@@ -45,9 +46,9 @@ export function reorderCases(campaign, fromIndex, toIndex) {
 export function validateCampaignShape(campaign) {
   const errors = [];
   if (!campaign || typeof campaign !== "object") return { valid: false, errors: ["La campagna non è un oggetto valido."] };
-  if (typeof campaign.title !== "string" || !campaign.title.trim()) errors.push("Manca il titolo della campagna.");
+  if (typeof campaign.title !== "string" || !campaign.title.trim()) errors.push(t("Manca il titolo della campagna."));
   if (!Array.isArray(campaign.cases)) {
-    errors.push("Manca l'elenco dei casi.");
+    errors.push(t("Manca l'elenco dei casi."));
   } else {
     const ids = new Set();
     campaign.cases.forEach((c, i) => {

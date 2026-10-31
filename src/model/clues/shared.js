@@ -1,5 +1,6 @@
 import { isObjectTypeTarget, parseObjectTypeTarget, objectIcon, OBJECT_TYPES } from "./../icons.js";
 import { describeClue } from "../clueTypes.js";
+import { t } from "../../i18n/i18n.js";
 
 export function targetLabel(puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
@@ -83,14 +84,14 @@ export function propertyClause(params, puzzle, verb) {
 }
 
 export const propertyParams = [
-  { name: "property", kind: "enum", values: PERSON_PROPERTIES, labels: PERSON_PROPERTY_LABELS, label: "Proprietà" },
-  { name: "targetId", kind: "characterOrObject", label: "Bersaglio (se 'accanto a')" },
-  { name: "objectTypeId", kind: "enum", values: OBJECT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: "Tipo di oggetto (se 'seduto su')" },
-  { name: "customClue", kind: "clueRef", label: "Condizione (se 'un'altra condizione')" },
+  { name: "property", kind: "enum", values: PERSON_PROPERTIES, labels: PERSON_PROPERTY_LABELS, label: t("Proprietà") },
+  { name: "targetId", kind: "characterOrObject", label: t("Bersaglio (se 'accanto a')") },
+  { name: "objectTypeId", kind: "enum", values: OBJECT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto (se 'seduto su')") },
+  { name: "customClue", kind: "clueRef", label: t("Condizione (se 'un'altra condizione')") },
 ];
 // Same, but the property filter itself is optional ("chiunque") — for clue
 // types where a plain, unfiltered "someone" is the natural default.
 export const optionalPropertyParams = [
-  { name: "property", kind: "enum", values: ["", ...PERSON_PROPERTIES], labels: { "": "chiunque", ...PERSON_PROPERTY_LABELS }, label: "Che era..." },
+  { name: "property", kind: "enum", values: ["", ...PERSON_PROPERTIES], labels: { "": "chiunque", ...PERSON_PROPERTY_LABELS }, label: t("Che era...") },
   ...propertyParams.slice(1),
 ];

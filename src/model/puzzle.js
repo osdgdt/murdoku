@@ -4,16 +4,17 @@ import { isObjectTypeTarget } from "./icons.js";
 import { isSafeId, isSafeColor } from "../util/safe.js";
 
 import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
+import { t } from "../i18n/i18n.js";
 
 export const SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
 export const DIFFICULTY_LEVELS = [
-  { value: "", label: "Non specificata" },
-  { value: "very-easy", label: "Molto facile" },
-  { value: "easy", label: "Facile" },
-  { value: "medium", label: "Media" },
-  { value: "hard", label: "Difficile" },
-  { value: "expert", label: "Esperto" },
+  { value: "", label: t("Non specificata") },
+  { value: "very-easy", label: t("Molto facile") },
+  { value: "easy", label: t("Facile") },
+  { value: "medium", label: t("Media") },
+  { value: "hard", label: t("Difficile") },
+  { value: "expert", label: t("Esperto") },
 ];
 
 export function difficultyLabel(value) {
@@ -197,28 +198,28 @@ function validateUntrustedStrings(puzzle, errors) {
     if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(`Il campo "${field}" deve essere testo.`);
   }
   for (const c of Array.isArray(puzzle.characters) ? puzzle.characters : []) {
-    if (!c || typeof c !== "object") { errors.push("Personaggio non valido."); continue; }
+    if (!c || typeof c !== "object") { errors.push(t("Personaggio non valido.")); continue; }
     badId("personaggio", c.id);
     badColor("personaggio", c.color);
-    if (typeof c.name !== "string") errors.push("Il nome di un personaggio deve essere testo.");
+    if (typeof c.name !== "string") errors.push(t("Il nome di un personaggio deve essere testo."));
   }
   for (const z of Array.isArray(puzzle.grid?.zones) ? puzzle.grid.zones : []) {
-    if (!z || typeof z !== "object") { errors.push("Zona non valida."); continue; }
+    if (!z || typeof z !== "object") { errors.push(t("Zona non valida.")); continue; }
     badId("zona", z.id);
     badColor("zona", z.color);
   }
   for (const o of Array.isArray(puzzle.grid?.objects) ? puzzle.grid.objects : []) {
-    if (!o || typeof o !== "object") { errors.push("Oggetto non valido."); continue; }
+    if (!o || typeof o !== "object") { errors.push(t("Oggetto non valido.")); continue; }
     badId("oggetto", o.id);
   }
   for (const cl of Array.isArray(puzzle.clues) ? puzzle.clues : []) {
-    if (!cl || typeof cl !== "object") { errors.push("Indizio non valido."); continue; }
+    if (!cl || typeof cl !== "object") { errors.push(t("Indizio non valido.")); continue; }
     badId("indizio", cl.id);
   }
   const cells = puzzle.grid?.cells;
   const size = puzzle.grid?.size;
   if (size && (!Array.isArray(cells) || cells.length !== size.rows || cells.some((row) => !Array.isArray(row) || row.length !== size.cols || row.some((cell) => !cell || typeof cell !== "object")))) {
-    errors.push("Le celle della griglia non corrispondono alle sue dimensioni.");
+    errors.push(t("Le celle della griglia non corrispondono alle sue dimensioni."));
   }
 }
 
@@ -226,7 +227,7 @@ export function validatePuzzleShape(puzzle) {
   const errors = [];
   if (!puzzle || typeof puzzle !== "object") return { valid: false, errors: ["Il puzzle non è un oggetto valido."] };
   if (!puzzle.grid || !puzzle.grid.size) {
-    errors.push("Manca la griglia.");
+    errors.push(t("Manca la griglia."));
   } else {
     const { rows, cols } = puzzle.grid.size;
     if (!(rows >= MIN_GRID_SIZE && rows <= MAX_GRID_SIZE) || !(cols >= MIN_GRID_SIZE && cols <= MAX_GRID_SIZE)) {
@@ -237,9 +238,9 @@ export function validatePuzzleShape(puzzle) {
     errors.push(`Questo caso è stato creato con una versione più recente di Murdoku (formato ${puzzle.schemaVersion}): aggiorna la pagina e riprova.`);
   }
   validateUntrustedStrings(puzzle, errors);
-  if (!Array.isArray(puzzle.characters)) errors.push("Manca l'elenco personaggi.");
-  if (!Array.isArray(puzzle.clues)) errors.push("Manca l'elenco indizi.");
-  if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push("Manca la soluzione.");
+  if (!Array.isArray(puzzle.characters)) errors.push(t("Manca l'elenco personaggi."));
+  if (!Array.isArray(puzzle.clues)) errors.push(t("Manca l'elenco indizi."));
+  if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push(t("Manca la soluzione."));
 
   if (Array.isArray(puzzle.characters)) {
     const ids = new Set();

@@ -1,3 +1,4 @@
+import "../i18n/i18n.js";
 import { el, qs, clear } from "../util/dom.js";
 import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
@@ -10,6 +11,7 @@ import { renderClueBuilder } from "./clueBuilder.js";
 import { renderSolutionEditor } from "./solutionEditor.js";
 import { renderHintsEditor } from "./hintsEditor.js";
 import { wireThemeToggle } from "../util/theme.js";
+import { t } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -220,7 +222,7 @@ validateBtn.addEventListener("click", () => {
   clear(validationPanel);
   const allErrors = [...shape.errors, ...result.violations.map((v) => v.message)];
   if (allErrors.length === 0) {
-    validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ La soluzione dichiarata soddisfa tutte le regole e gli indizi."));
+    validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ La soluzione dichiarata soddisfa tutte le regole e gli indizi.")));
   } else {
     for (const message of allErrors) {
       validationPanel.appendChild(el("p", { class: "violation" }, message));
@@ -292,7 +294,7 @@ function renderSolutionPreviews(puzzle, solutions) {
 uniqueBtn.addEventListener("click", async () => {
   uniqueBtn.disabled = true;
   clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, "Verifica unicità in corso…"));
+  validationPanel.appendChild(el("p", { class: "info-message" }, t("Verifica unicità in corso…")));
   try {
     const report = await checkUniquenessAsync(puzzle, {
       maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS,
@@ -300,9 +302,9 @@ uniqueBtn.addEventListener("click", async () => {
     });
     clear(validationPanel);
     if (report.solutionCount === 0) {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi.")));
     } else if (report.solutionCount === 1) {
-      validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione unica."));
+      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Soluzione unica.")));
     } else {
       // "Almeno N" instead of a bare count when the cap (not exhaustion) is
       // what ended the search — never claim the preview list below is complete
@@ -324,7 +326,7 @@ uniqueBtn.addEventListener("click", async () => {
 estimateBtn.addEventListener("click", async () => {
   estimateBtn.disabled = true;
   clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, "Stima in corso…"));
+  validationPanel.appendChild(el("p", { class: "info-message" }, t("Stima in corso…")));
   try {
     const report = await checkUniquenessAsync(puzzle, {
       maxSolutions: 2,
@@ -336,7 +338,7 @@ estimateBtn.addEventListener("click", async () => {
       // — with zero or several, "how hard was it to find" isn't a meaningful
       // question yet (fix that first, via Verifica unicità, before estimating).
       validationPanel.appendChild(
-        el("p", { class: "violation" }, "La stima richiede una soluzione unica: usa prima \"Verifica unicità\".")
+        el("p", { class: "violation" }, t("La stima richiede una soluzione unica: usa prima \"Verifica unicità\"."))
       );
       return;
     }
@@ -380,12 +382,12 @@ calcSolutionBtn.addEventListener("click", async () => {
   const startedAtPuzzle = puzzle;
   calcSolutionBtn.disabled = true;
   clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, "Calcolo della soluzione in corso…"));
+  validationPanel.appendChild(el("p", { class: "info-message" }, t("Calcolo della soluzione in corso…")));
   try {
     const result = await deriveSolutionAsync(puzzle);
     clear(validationPanel);
     if (puzzle !== startedAtPuzzle || puzzle.updatedAt !== startedAtVersion) {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è stato modificato nel frattempo: riprova."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è stato modificato nel frattempo: riprova.")));
       return;
     }
 
@@ -395,13 +397,13 @@ calcSolutionBtn.addEventListener("click", async () => {
         setSolutionPlacement(puzzle, character.id, p ? p.row : null, p ? p.col : null);
       }
       handleChange(); // one combined undo step for the whole auto-fill
-      validationPanel.appendChild(el("p", { class: "ok-message" }, "✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi."));
+      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Soluzione calcolata e compilata automaticamente a partire dagli indizi.")));
     } else if (result.status === "unsatisfiable") {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Nessuna soluzione trovata: gli indizi di questo caso sono contraddittori. La soluzione dichiarata non è stata modificata.")));
     } else if (result.status === "ambiguous") {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata.")));
     } else {
-      validationPanel.appendChild(el("p", { class: "violation" }, "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."));
+      validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata.")));
     }
   } catch (err) {
     clear(validationPanel);

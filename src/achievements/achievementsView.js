@@ -2,6 +2,7 @@ import { el, clear } from "../util/dom.js";
 import { ACHIEVEMENTS } from "../model/achievements.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import { formatElapsed } from "../util/time.js";
+import { t } from "../i18n/i18n.js";
 
 // Always shows every achievement in the registry — unlocked ones with when
 // they were earned, locked ones dimmed but with their description still
@@ -14,11 +15,11 @@ export function renderAchievementsPage(root) {
 
   root.appendChild(
     el("div", { class: "panel achievement-stats" }, [
-      el("div", { class: "achievement-stat" }, [el("strong", {}, String(stats.totalSolved)), el("span", {}, "casi risolti")]),
-      el("div", { class: "achievement-stat" }, [el("strong", {}, String(stats.totalSolvedWithoutHints)), el("span", {}, "senza indizi")]),
+      el("div", { class: "achievement-stat" }, [el("strong", {}, String(stats.totalSolved)), el("span", {}, t("casi risolti"))]),
+      el("div", { class: "achievement-stat" }, [el("strong", {}, String(stats.totalSolvedWithoutHints)), el("span", {}, t("senza indizi"))]),
       el("div", { class: "achievement-stat" }, [
         el("strong", {}, stats.fastestSolveSeconds != null ? formatElapsed(stats.fastestSolveSeconds) : "—"),
-        el("span", {}, "miglior tempo"),
+        el("span", {}, t("miglior tempo")),
       ]),
     ])
   );
@@ -36,7 +37,7 @@ export function renderAchievementsPage(root) {
         el("p", { class: "muted" }, achievement.description),
         dateLabel
           ? el("span", { class: "unlock-date" }, `Sbloccato il ${dateLabel}`)
-          : el("span", { class: "muted locked-label" }, "Non ancora sbloccato"),
+          : el("span", { class: "muted locked-label" }, t("Non ancora sbloccato")),
       ])
     );
   }

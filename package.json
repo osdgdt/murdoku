@@ -9,6 +9,7 @@
     "test": "node test/node/run.mjs",
     "lint": "eslint .",
     "format": "prettier --check \"src/**/*.js\" \"test/**/*.{js,mjs}\"",
+    "i18n": "node tools/i18n-check.mjs",
     "check": "npm run lint && npm test"
   },
   "engines": { "node": ">=20" },

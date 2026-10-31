@@ -1,3 +1,4 @@
+import "../i18n/i18n.js";
 import { el, qs, clear } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
@@ -6,6 +7,7 @@ import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync } from "../solver/solverClient.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
 import * as campaignStore from "./campaignStore.js";
+import { t } from "../i18n/i18n.js";
 
 // Shown when a linked case's declared solution isn't already valid and a
 // deeper search (deriveSolutionAsync) couldn't confirm a usable one either —
@@ -54,25 +56,25 @@ function renderAuthBar() {
   authBar.appendChild(themeBtn);
   if (currentUserState) {
     authBar.appendChild(el("span", { class: "muted" }, currentUserState.email));
-    authBar.appendChild(el("button", { onClick: () => signOutUser() }, "Esci"));
+    authBar.appendChild(el("button", { onClick: () => signOutUser() }, t("Esci")));
   }
 }
 
 function renderGate() {
   clear(gateEl);
   if (!currentUserState) {
-    gateEl.appendChild(el("h1", {}, "Editor campagne"));
-    gateEl.appendChild(el("p", { class: "lede" }, "Riservato al proprietario del sito: accedi con Google per continuare."));
+    gateEl.appendChild(el("h1", {}, t("Editor campagne")));
+    gateEl.appendChild(el("p", { class: "lede" }, t("Riservato al proprietario del sito: accedi con Google per continuare.")));
     gateEl.appendChild(
-      el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, "Accedi con Google")
+      el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, t("Accedi con Google"))
     );
     gateEl.classList.remove("hidden");
     appEl.classList.add("hidden");
     return;
   }
   if (currentUserState.uid !== OWNER_UID) {
-    gateEl.appendChild(el("h1", {}, "Accesso negato"));
-    gateEl.appendChild(el("p", { class: "lede" }, "Questo account non è autorizzato a gestire le campagne."));
+    gateEl.appendChild(el("h1", {}, t("Accesso negato")));
+    gateEl.appendChild(el("p", { class: "lede" }, t("Questo account non è autorizzato a gestire le campagne.")));
     gateEl.classList.remove("hidden");
     appEl.classList.add("hidden");
     return;
@@ -89,7 +91,7 @@ async function loadListView() {
   listViewEl.classList.remove("hidden");
   detailViewEl.classList.add("hidden");
   clear(campaignListEl);
-  campaignListEl.appendChild(el("p", { class: "muted" }, "Caricamento…"));
+  campaignListEl.appendChild(el("p", { class: "muted" }, t("Caricamento…")));
   let campaigns;
   try {
     campaigns = await campaignStore.listCampaigns();
@@ -100,7 +102,7 @@ async function loadListView() {
   }
   clear(campaignListEl);
   if (campaigns.length === 0) {
-    campaignListEl.appendChild(el("p", { class: "muted" }, "Nessuna campagna ancora. Creane una."));
+    campaignListEl.appendChild(el("p", { class: "muted" }, t("Nessuna campagna ancora. Creane una.")));
     return;
   }
   for (const c of campaigns.sort((a, b) => b.updatedAt - a.updatedAt)) {
@@ -110,7 +112,7 @@ async function loadListView() {
           el("span", { class: "title" }, c.title),
           el("span", { class: "meta" }, `${c.cases.length} ${c.cases.length === 1 ? "caso" : "casi"}`),
         ]),
-        el("div", { class: "actions" }, [el("a", { href: `campaign-editor.html?id=${c.id}` }, "Modifica")]),
+        el("div", { class: "actions" }, [el("a", { href: `campaign-editor.html?id=${c.id}` }, t("Modifica"))]),
       ])
     );
   }
@@ -120,7 +122,7 @@ async function persistCampaign(statusEl) {
   touchCampaign(campaign);
   try {
     await campaignStore.saveCampaign(campaign);
-    if (statusEl) { statusEl.textContent = "Salvato."; statusEl.className = "muted"; }
+    if (statusEl) { statusEl.textContent = t("Salvato."); statusEl.className = "muted"; }
     return true;
   } catch (err) {
     if (statusEl) { statusEl.textContent = "Errore nel salvataggio: " + err.message; statusEl.className = "violation"; }
@@ -131,7 +133,7 @@ async function persistCampaign(statusEl) {
 function renderCaseList() {
   clear(caseListEl);
   if (campaign.cases.length === 0) {
-    caseListEl.appendChild(el("p", { class: "muted" }, "Nessun caso ancora."));
+    caseListEl.appendChild(el("p", { class: "muted" }, t("Nessun caso ancora.")));
     return;
   }
   campaign.cases.forEach((c, i) => {
@@ -154,7 +156,7 @@ function renderCaseList() {
 async function loadDetailView(id) {
   listViewEl.classList.add("hidden");
   detailViewEl.classList.remove("hidden");
-  detailStatus.textContent = "Caricamento…";
+  detailStatus.textContent = t("Caricamento…");
   detailStatus.className = "muted";
   try {
     campaign = await campaignStore.getCampaign(id);
@@ -164,7 +166,7 @@ async function loadDetailView(id) {
     return;
   }
   if (!campaign) {
-    detailStatus.textContent = "Campagna non trovata.";
+    detailStatus.textContent = t("Campagna non trovata.");
     detailStatus.className = "violation";
     return;
   }
@@ -181,7 +183,7 @@ newCampaignBtn.addEventListener("click", async () => {
     await campaignStore.saveCampaign(created);
     location.href = `campaign-editor.html?id=${created.id}`;
   } catch (err) {
-    alert("Impossibile creare la campagna: " + err.message);
+    alert(t("Impossibile creare la campagna: ") + err.message);
   } finally {
     newCampaignBtn.disabled = false;
   }
@@ -200,12 +202,12 @@ addCaseBtn.addEventListener("click", async () => {
   const url = addCaseUrlInput.value.trim();
   if (!url) return;
   addCaseBtn.disabled = true;
-  addCaseStatus.textContent = "Verifica del file…";
+  addCaseStatus.textContent = t("Verifica del file…");
   addCaseStatus.className = "info-message";
   try {
     const puzzle = await importPuzzleFromUrl(url);
 
-    addCaseStatus.textContent = "Controllo della soluzione…";
+    addCaseStatus.textContent = t("Controllo della soluzione…");
     addCaseStatus.className = "info-message";
     let solutionStatus = "unique";
     if (!validateSolution(puzzle).valid) {
@@ -224,10 +226,10 @@ addCaseBtn.addEventListener("click", async () => {
     renderCaseList();
     if (saved) {
       addCaseUrlInput.value = "";
-      addCaseStatus.textContent = "Caso aggiunto.";
+      addCaseStatus.textContent = t("Caso aggiunto.");
       addCaseStatus.className = "ok-message";
     } else {
-      addCaseStatus.textContent = "Caso aggiunto localmente ma il salvataggio è fallito. Riprova.";
+      addCaseStatus.textContent = t("Caso aggiunto localmente ma il salvataggio è fallito. Riprova.");
       addCaseStatus.className = "violation";
     }
   } catch (err) {

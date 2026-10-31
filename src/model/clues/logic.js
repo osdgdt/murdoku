@@ -1,4 +1,5 @@
 import { describeNestedClue } from "./shared.js";
+import { t } from "../../i18n/i18n.js";
 
 export const LOGIC_CLUES = {
   orClue: {
@@ -10,7 +11,7 @@ export const LOGIC_CLUES = {
     // ({type, params}); clueBuilder.js renders each as a nested mini clue
     // row instead of the normal flat param list (see `combinator: true`).
     combinator: true,
-    label: "O uno o l'altro (indizio composto)",
+    label: t("O uno o l'altro (indizio composto)"),
     params: [],
     describe: (params, puzzle) => {
       const lower = (s) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);

@@ -1,3 +1,4 @@
+import "../i18n/i18n.js";
 import { el, clear, qs } from "../util/dom.js";
 import * as store from "../storage/puzzleStore.js";
 import { createBoardState, serializeBoardState, deserializeBoardState } from "./board.js";
@@ -7,6 +8,7 @@ import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
+import { t } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -73,7 +75,7 @@ function showPicker() {
   const puzzles = sortPuzzleEntries(store.list());
   pickerEl.appendChild(
     el("div", { class: "saved-list-header" }, [
-      el("h2", {}, "Scegli un caso da giocare"),
+      el("h2", {}, t("Scegli un caso da giocare")),
       puzzles.length > 0
         ? el(
             "select",
@@ -81,9 +83,9 @@ function showPicker() {
               onChange: (e) => { pickerSortMode = e.target.value; showPicker(); },
             },
             [
-              el("option", { value: "updated", selected: pickerSortMode === "updated" || undefined }, "Aggiornati di recente"),
-              el("option", { value: "title", selected: pickerSortMode === "title" || undefined }, "Titolo"),
-              el("option", { value: "difficulty", selected: pickerSortMode === "difficulty" || undefined }, "Difficoltà"),
+              el("option", { value: "updated", selected: pickerSortMode === "updated" || undefined }, t("Aggiornati di recente")),
+              el("option", { value: "title", selected: pickerSortMode === "title" || undefined }, t("Titolo")),
+              el("option", { value: "difficulty", selected: pickerSortMode === "difficulty" || undefined }, t("Difficoltà")),
             ]
           )
         : null,
@@ -91,8 +93,8 @@ function showPicker() {
   );
   if (puzzles.length === 0) {
     const panel = el("div", { class: "panel" }, [
-      el("p", { class: "muted" }, "Nessun puzzle salvato. Creane uno nell'Editor prima."),
-      el("a", { href: "editor.html" }, "Vai all'editor →"),
+      el("p", { class: "muted" }, t("Nessun puzzle salvato. Creane uno nell'Editor prima.")),
+      el("a", { href: "editor.html" }, t("Vai all'editor →")),
     ]);
     pickerEl.appendChild(panel);
     return;
@@ -104,19 +106,19 @@ function showPicker() {
       el("div", { class: "saved-row" }, [
         el("div", {}, [
           el("span", { class: "title" }, [
-            entry.completed ? el("span", { class: "completed-badge", title: "Completato" }, "✓") : null,
+            entry.completed ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null,
             entry.title,
           ]),
           entry.difficulty ? el("span", { class: `difficulty-badge difficulty-${entry.difficulty}` }, difficultyLabel(entry.difficulty)) : null,
-          typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: "Miglior tempo" }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
+          typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
           el("span", { class: "meta" }, `Aggiornato il ${updated}`),
         ]),
         el("div", { class: "actions" }, [
-          el("a", { class: "play", href: `player.html?id=${entry.id}` }, "Gioca"),
+          el("a", { class: "play", href: `player.html?id=${entry.id}` }, t("Gioca")),
           el("button", {
             type: "button",
             class: "duplicate",
-            title: "Duplica",
+            title: t("Duplica"),
             onClick: () => {
               const original = store.get(entry.id);
               if (!original) return;
@@ -127,7 +129,7 @@ function showPicker() {
           el("button", {
             type: "button",
             class: "delete",
-            title: "Elimina",
+            title: t("Elimina"),
             onClick: () => {
               const ok = confirm(`Eliminare definitivamente il caso "${entry.title}"? L'azione non è reversibile.`);
               if (!ok) return;

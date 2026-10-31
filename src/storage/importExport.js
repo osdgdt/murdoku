@@ -1,6 +1,7 @@
 import { validatePuzzleShape } from "../model/puzzle.js";
 import { migratePuzzle } from "../model/migrations.js";
 import { MAX_IMPORT_BYTES } from "../util/safe.js";
+import { t } from "../i18n/i18n.js";
 
 function slugify(text) {
   return (text || "puzzle")
@@ -31,31 +32,31 @@ export async function importPuzzleFromUrl(url) {
   try {
     parsedUrl = new URL(url, location.href);
   } catch {
-    throw new Error("indirizzo non valido.");
+    throw new Error(t("indirizzo non valido."));
   }
-  if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") throw new Error("sono ammessi solo indirizzi http(s).");
+  if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") throw new Error(t("sono ammessi solo indirizzi http(s)."));
   const res = await fetch(parsedUrl.href, { credentials: "omit", referrerPolicy: "no-referrer" });
   if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
   const declared = Number(res.headers.get("content-length"));
-  if (declared > MAX_IMPORT_BYTES) throw new Error("file troppo grande.");
+  if (declared > MAX_IMPORT_BYTES) throw new Error(t("file troppo grande."));
   const text = await res.text();
-  if (text.length > MAX_IMPORT_BYTES) throw new Error("file troppo grande.");
+  if (text.length > MAX_IMPORT_BYTES) throw new Error(t("file troppo grande."));
   let puzzle;
   try {
     puzzle = JSON.parse(text);
   } catch {
-    throw new Error("il file non è un JSON valido.");
+    throw new Error(t("il file non è un JSON valido."));
   }
   migratePuzzle(puzzle);
   const { valid, errors } = validatePuzzleShape(puzzle);
-  if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
+  if (!valid) throw new Error(t("file puzzle non valido: ") + errors.join("; "));
   return puzzle;
 }
 
 export function importPuzzleFromFile(file) {
   return new Promise((resolve, reject) => {
     if (file.size > MAX_IMPORT_BYTES) {
-      reject(new Error("File troppo grande."));
+      reject(new Error(t("File troppo grande.")));
       return;
     }
     const reader = new FileReader();
@@ -65,15 +66,15 @@ export function importPuzzleFromFile(file) {
         migratePuzzle(puzzle);
         const { valid, errors } = validatePuzzleShape(puzzle);
         if (!valid) {
-          reject(new Error("File puzzle non valido:\n" + errors.join("\n")));
+          reject(new Error(t("File puzzle non valido:\n") + errors.join("\n")));
           return;
         }
         resolve(puzzle);
       } catch (err) {
-        reject(new Error("Impossibile leggere il file JSON: " + err.message));
+        reject(new Error(t("Impossibile leggere il file JSON: ") + err.message));
       }
     };
-    reader.onerror = () => reject(new Error("Errore di lettura del file."));
+    reader.onerror = () => reject(new Error(t("Errore di lettura del file.")));
     reader.readAsText(file);
   });
 }

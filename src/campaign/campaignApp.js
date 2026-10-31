@@ -1,3 +1,4 @@
+import "../i18n/i18n.js";
 import { el, clear, qs } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
@@ -8,6 +9,7 @@ import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
+import { t } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -97,17 +99,17 @@ function renderAuthBar() {
   clear(authBar);
   if (currentUserState) {
     authBar.appendChild(el("span", { class: "muted" }, currentUserState.email));
-    authBar.appendChild(el("button", { onClick: () => signOutUser() }, "Esci"));
+    authBar.appendChild(el("button", { onClick: () => signOutUser() }, t("Esci")));
   }
 }
 
 function renderGate() {
   clear(gateEl);
   if (currentUserState) return;
-  gateEl.appendChild(el("h1", {}, "Modalità campagna"));
-  gateEl.appendChild(el("p", { class: "lede" }, "Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo."));
+  gateEl.appendChild(el("h1", {}, t("Modalità campagna")));
+  gateEl.appendChild(el("p", { class: "lede" }, t("Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo.")));
   gateEl.appendChild(
-    el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, "Accedi con Google")
+    el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, t("Accedi con Google"))
   );
 }
 
@@ -116,10 +118,10 @@ function showGateError(message) {
 }
 
 async function showCampaignListView() {
-  headerTitleEl.textContent = "Modalità campagna";
+  headerTitleEl.textContent = t("Modalità campagna");
   showView("campaign-list");
   clear(campaignListEl);
-  campaignListEl.appendChild(el("p", { class: "muted" }, "Caricamento…"));
+  campaignListEl.appendChild(el("p", { class: "muted" }, t("Caricamento…")));
   let campaigns;
   try {
     campaigns = await campaignStore.listCampaigns();
@@ -130,7 +132,7 @@ async function showCampaignListView() {
   }
   clear(campaignListEl);
   if (campaigns.length === 0) {
-    campaignListEl.appendChild(el("p", { class: "muted" }, "Nessuna campagna disponibile ancora."));
+    campaignListEl.appendChild(el("p", { class: "muted" }, t("Nessuna campagna disponibile ancora.")));
     return;
   }
   for (const c of campaigns) {
@@ -141,14 +143,14 @@ async function showCampaignListView() {
           c.description ? el("span", { class: "meta" }, c.description) : null,
           el("span", { class: "meta" }, `${c.cases.length} ${c.cases.length === 1 ? "caso" : "casi"}`),
         ]),
-        el("div", { class: "actions" }, [el("a", { class: "play", href: `campaign.html?campaign=${c.id}` }, "Gioca")]),
+        el("div", { class: "actions" }, [el("a", { class: "play", href: `campaign.html?campaign=${c.id}` }, t("Gioca"))]),
       ])
     );
   }
 }
 
 function caseStatusBadge(index, caseEntry, progressData) {
-  if (progressData.completedCaseIds.includes(caseEntry.id)) return el("span", { class: "completed-badge", title: "Completato" }, "✓");
+  if (progressData.completedCaseIds.includes(caseEntry.id)) return el("span", { class: "completed-badge", title: t("Completato") }, "✓");
   if (index > progressData.unlockedCaseIndex) return el("span", { class: "muted" }, "🔒");
   return null;
 }
@@ -158,11 +160,11 @@ async function showCaseListView(campaignId) {
   clear(caseListEl);
   caseListTitleEl.textContent = "";
   caseListDescriptionEl.textContent = "";
-  caseListEl.appendChild(el("p", { class: "muted" }, "Caricamento…"));
+  caseListEl.appendChild(el("p", { class: "muted" }, t("Caricamento…")));
   let loadedCampaign, loadedProgress;
   try {
     loadedCampaign = await campaignStore.getCampaign(campaignId);
-    if (!loadedCampaign) throw new Error("campagna non trovata.");
+    if (!loadedCampaign) throw new Error(t("campagna non trovata."));
     loadedProgress = await progressStore.getCampaignProgress(currentUserState.uid, campaignId);
   } catch (err) {
     clear(caseListEl);
@@ -177,7 +179,7 @@ async function showCaseListView(campaignId) {
 
   clear(caseListEl);
   if (campaign.cases.length === 0) {
-    caseListEl.appendChild(el("p", { class: "muted" }, "Questa campagna non ha ancora nessun caso."));
+    caseListEl.appendChild(el("p", { class: "muted" }, t("Questa campagna non ha ancora nessun caso.")));
     return;
   }
   campaign.cases.forEach((c, index) => {
@@ -189,13 +191,13 @@ async function showCaseListView(campaignId) {
           el("span", { class: "title" }, [
             caseStatusBadge(index, c, progress),
             ` ${index + 1}. ${c.label || c.puzzleId}`,
-            typeof bestTime === "number" ? el("span", { class: "best-time-badge", title: "Miglior tempo" }, `⏱ ${formatElapsed(bestTime)}`) : null,
+            typeof bestTime === "number" ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(bestTime)}`) : null,
           ]),
         ]),
         el("div", { class: "actions" }, [
           unlocked
-            ? el("a", { class: "play", href: `campaign.html?campaign=${campaign.id}&case=${c.id}` }, "Gioca")
-            : el("span", { class: "muted" }, "Da sbloccare"),
+            ? el("a", { class: "play", href: `campaign.html?campaign=${campaign.id}&case=${c.id}` }, t("Gioca"))
+            : el("span", { class: "muted" }, t("Da sbloccare")),
         ]),
       ])
     );
@@ -206,13 +208,13 @@ async function showGameView(campaignId, caseId) {
   showView("game");
   gameContentEl.classList.add("hidden");
   clear(caseErrorPanel);
-  caseErrorPanel.appendChild(el("p", { class: "muted" }, "Caricamento…"));
+  caseErrorPanel.appendChild(el("p", { class: "muted" }, t("Caricamento…")));
   backToCasesLink.href = `campaign.html?campaign=${campaignId}`;
 
   let loadedCampaign, loadedProgress;
   try {
     loadedCampaign = await campaignStore.getCampaign(campaignId);
-    if (!loadedCampaign) throw new Error("campagna non trovata.");
+    if (!loadedCampaign) throw new Error(t("campagna non trovata."));
     loadedProgress = await progressStore.getCampaignProgress(currentUserState.uid, campaignId);
   } catch (err) {
     clear(caseErrorPanel);
@@ -226,12 +228,12 @@ async function showGameView(campaignId, caseId) {
   const index = campaign.cases.findIndex((c) => c.id === caseId);
   if (index === -1) {
     clear(caseErrorPanel);
-    caseErrorPanel.appendChild(el("p", { class: "violation" }, "Questo caso non fa parte della campagna."));
+    caseErrorPanel.appendChild(el("p", { class: "violation" }, t("Questo caso non fa parte della campagna.")));
     return;
   }
   if (index > progress.unlockedCaseIndex) {
     clear(caseErrorPanel);
-    caseErrorPanel.appendChild(el("p", { class: "violation" }, "Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo."));
+    caseErrorPanel.appendChild(el("p", { class: "violation" }, t("Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo.")));
     return;
   }
   currentCase = campaign.cases[index];

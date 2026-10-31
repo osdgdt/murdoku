@@ -1,0 +1,21 @@
+{
+  "name": "murdoku",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Murdoku — editor e player di puzzle di deduzione. Il sito gira senza build: questo package.json serve solo agli strumenti di sviluppo (test, lint).",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node test/node/run.mjs",
+    "lint": "eslint .",
+    "format": "prettier --check \"src/**/*.js\" \"test/**/*.{js,mjs}\"",
+    "check": "npm run lint && npm test"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.3.0"
+  }
+}

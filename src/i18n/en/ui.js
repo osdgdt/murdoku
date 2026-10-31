@@ -230,4 +230,5 @@ export default {
   "Impara le regole risolvendo un piccolo caso guidato.": "Learn the rules by solving a small guided case.",
   " vittima": " victim",
   " (vittima)": " (victim)",
+  " (V)": " (V)",
 };

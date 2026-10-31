@@ -1,7 +1,7 @@
 import { migratePuzzle, CURRENT_SCHEMA_VERSION } from "../src/model/migrations.js";
 import { validatePuzzleShape, createPuzzle } from "../src/model/puzzle.js";
 import * as store from "../src/storage/puzzleStore.js";
-import { readJson, writeRaw, StorageFullError } from "../src/storage/storage.js";
+import { readJson, writeRaw, StorageFullError, useBackendForTests } from "../src/storage/storage.js";
 import { assert, assertEqual } from "./assert.js";
 
 export const tests = [
@@ -57,14 +57,13 @@ export const tests = [
   {
     name: "writeRaw lancia StorageFullError quando lo storage rifiuta la scrittura",
     fn: () => {
-      const original = globalThis.localStorage;
-      globalThis.localStorage = { setItem() { throw new Error("QuotaExceededError"); }, getItem() { return null; }, removeItem() {} };
+      useBackendForTests({ setItem() { throw new Error("QuotaExceededError"); }, getItem() { return null; }, removeItem() {} });
       try {
         let thrown = null;
         try { writeRaw("k", "v"); } catch (e) { thrown = e; }
         assert(thrown instanceof StorageFullError, "atteso StorageFullError");
       } finally {
-        globalThis.localStorage = original;
+        useBackendForTests(null);
       }
     },
   },

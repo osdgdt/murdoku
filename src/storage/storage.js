@@ -12,7 +12,14 @@ export class StorageFullError extends Error {
   }
 }
 
+// Lets tests swap in a failing backend (window.localStorage can't be reassigned).
+let backendOverride = null;
+export function useBackendForTests(fake) {
+  backendOverride = fake;
+}
+
 function backend() {
+  if (backendOverride) return backendOverride;
   try {
     return typeof localStorage === "undefined" ? null : localStorage;
   } catch {

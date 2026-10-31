@@ -3,6 +3,7 @@ import { el, qs, clear } from "../util/dom.js";
 import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
+import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
 import { renderMapEditor } from "./mapEditor.js";
@@ -41,6 +42,7 @@ const tabSolutionBtn = qs("#tab-solution");
 const tabHintsBtn = qs("#tab-hints");
 const saveBtn = qs("#save-btn");
 const exportBtn = qs("#export-btn");
+const shareBtn = qs("#share-btn");
 const importInput = qs("#import-input");
 const playBtn = qs("#play-btn");
 const printBtn = qs("#print-btn");
@@ -169,6 +171,21 @@ tabHintsBtn.addEventListener("click", () => { activeTab = "hints"; render(); });
 saveBtn.addEventListener("click", () => { persist(); });
 
 exportBtn.addEventListener("click", () => { exportPuzzle(puzzle); });
+
+shareBtn.addEventListener("click", async () => {
+  if (!isShareLinkSupported()) {
+    setStatus(t("Il tuo browser non supporta i link di condivisione: usa Esporta."), "violation");
+    return;
+  }
+  try {
+    const url = new URL("player.html", location.href);
+    url.hash = await encodePuzzleToFragment(puzzle);
+    await navigator.clipboard.writeText(url.href);
+    setStatus(t("Link copiato: chi lo apre può giocare il caso subito."));
+  } catch {
+    setStatus(t("Impossibile copiare il link negli appunti."), "violation");
+  }
+});
 
 importInput.addEventListener("change", async () => {
   const file = importInput.files[0];

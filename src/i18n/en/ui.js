@@ -38,6 +38,7 @@ export default {
   "il file non è un JSON valido.": "the file is not valid JSON.",
   "file puzzle non valido: ": "invalid puzzle file: ",
   "File troppo grande.": "File too large.",
+  "il link non è valido o è incompleto.": "the link is invalid or incomplete.",
   "File puzzle non valido:\n": "Invalid puzzle file:\n",
   "Impossibile leggere il file JSON: ": "Could not read the JSON file: ",
   "Errore di lettura del file.": "Error reading the file.",
@@ -204,4 +205,9 @@ export default {
   "Accedi per giocare le campagne a episodi.": "Sign in to play episodic campaigns.", "Rivedi i tuoi progressi e i traguardi sbloccati.": "Review your progress and unlocked achievements.",
   "I tuoi puzzle": "Your puzzles", "Murdoku Editor — creato, giocato e stampato interamente sul tuo computer.": "Murdoku Editor — created, played and printed entirely on your own device.",
   "Gioca a Murdoku": "Play Murdoku", "Cambia caso": "Change case", "Stampa Murdoku": "Print Murdoku", "← Torna indietro": "← Go back",
+  "🔗 Condividi": "🔗 Share",
+  "Copia un link che contiene l'intero caso: chi lo apre può giocarlo subito": "Copy a link containing the whole case: anyone who opens it can play it right away",
+  "Il tuo browser non supporta i link di condivisione: usa Esporta.": "Your browser doesn't support share links: use Export.",
+  "Link copiato: chi lo apre può giocare il caso subito.": "Link copied: whoever opens it can play the case right away.",
+  "Impossibile copiare il link negli appunti.": "Could not copy the link to the clipboard.",
 };

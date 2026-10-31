@@ -6,13 +6,16 @@
   "description": "Murdoku — editor e player di puzzle di deduzione. Il sito gira senza build: questo package.json serve solo agli strumenti di sviluppo (test, lint).",
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node test/node/run.mjs",
+    "test": "node test/node/run.mjs && node tools/build-sw.mjs --check",
     "lint": "eslint .",
     "format": "prettier --check \"src/**/*.js\" \"test/**/*.{js,mjs}\"",
     "i18n": "node tools/i18n-check.mjs",
-    "check": "npm run lint && npm test"
+    "check": "npm run lint && npm test",
+    "build:sw": "node tools/build-sw.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",

@@ -4,6 +4,7 @@ import * as store from "../storage/puzzleStore.js";
 import { createBoardState, serializeBoardState, deserializeBoardState } from "./board.js";
 import { duplicatePuzzle, difficultyLabel } from "../model/puzzle.js";
 import { importPuzzleFromUrl } from "../storage/importExport.js";
+import { decodePuzzleFromFragment } from "../storage/shareLink.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { createGameScreen } from "./gameScreen.js";
 import { formatElapsed } from "../util/time.js";
@@ -31,6 +32,23 @@ if (!puzzleId && importUrl) {
     if (!store.get(imported.id)) store.save(imported);
     puzzleId = imported.id;
     history.replaceState(null, "", `player.html?id=${puzzleId}`);
+  } catch (err) {
+    importError = err.message;
+  }
+}
+
+// Share-by-link, no hosting needed: `player.html#case=<payload>` carries the
+// whole (compressed) puzzle in the URL fragment — see storage/shareLink.js.
+// Same rule as ?import=: an already-saved case is never overwritten, so
+// reopening the link keeps the recipient's progress.
+if (!puzzleId && location.hash.startsWith("#case=")) {
+  try {
+    const shared = await decodePuzzleFromFragment(location.hash);
+    if (shared) {
+      if (!store.get(shared.id)) store.save(shared);
+      puzzleId = shared.id;
+      history.replaceState(null, "", `player.html?id=${encodeURIComponent(puzzleId)}`);
+    }
   } catch (err) {
     importError = err.message;
   }

@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#8a1f2d" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <title>Traguardi — Murdoku</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -40,6 +43,7 @@
   <p class="footer-note">Murdoku — restano solo su questo dispositivo, a meno che tu non scelga di accedere con Google per sincronizzarli su più dispositivi.</p>
 
   <script type="module" src="src/i18n/i18n.js"></script>
+  <script type="module" src="src/util/pwa.js"></script>
   <script type="module">
     import { t } from "./src/i18n/i18n.js";
     import { wireThemeToggle } from "./src/util/theme.js";

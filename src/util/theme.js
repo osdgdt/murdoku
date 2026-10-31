@@ -1,3 +1,9 @@
+import { writeRaw } from "../storage/storage.js";
+
+function tryWriteRaw(key, value) {
+  try { writeRaw(key, value); } catch { /* theme just won't persist */ }
+}
+
 // The actual dark/light attribute is applied synchronously by a tiny inline
 // script in each page's <head> (before first paint, to avoid a light-mode
 // flash) — see the `<script>` snippet duplicated at the top of every HTML
@@ -19,7 +25,7 @@ export function toggleTheme() {
   const next = isDark() ? "light" : "dark";
   if (next === "dark") document.documentElement.setAttribute("data-theme", "dark");
   else document.documentElement.removeAttribute("data-theme");
-  localStorage.setItem(STORAGE_KEY, next);
+  tryWriteRaw(STORAGE_KEY, next);
   updateToggleLabels();
 }
 

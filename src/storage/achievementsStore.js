@@ -1,3 +1,4 @@
+import { readJson, writeJson } from "./storage.js";
 import { ACHIEVEMENTS } from "../model/achievements.js";
 
 const KEY = "murdoku:achievements";
@@ -21,22 +22,16 @@ function defaultData() {
 // attempting an impossible reconstruction (raw counters don't record WHICH
 // puzzles were solved).
 function read() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return defaultData();
-    const parsed = JSON.parse(raw);
-    if (!parsed?.solves || typeof parsed.solves !== "object") return defaultData();
-    return {
-      solves: { ...parsed.solves },
-      unlocked: parsed?.unlocked && typeof parsed.unlocked === "object" ? { ...parsed.unlocked } : {},
-    };
-  } catch {
-    return defaultData();
-  }
+  const parsed = readJson(KEY, null);
+  if (!parsed?.solves || typeof parsed.solves !== "object") return defaultData();
+  return {
+    solves: { ...parsed.solves },
+    unlocked: parsed.unlocked && typeof parsed.unlocked === "object" ? { ...parsed.unlocked } : {},
+  };
 }
 
 function write(data) {
-  localStorage.setItem(KEY, JSON.stringify(data));
+  writeJson(KEY, data);
 }
 
 function computeStats(solves) {

@@ -3,7 +3,9 @@ import { createGrid, isOccupiable } from "./grid.js";
 import { isObjectTypeTarget } from "./icons.js";
 import { isSafeId, isSafeColor } from "../util/safe.js";
 
-export const SCHEMA_VERSION = 1;
+import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
+
+export const SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
 export const DIFFICULTY_LEVELS = [
   { value: "", label: "Non specificata" },
@@ -230,6 +232,9 @@ export function validatePuzzleShape(puzzle) {
     if (!(rows >= MIN_GRID_SIZE && rows <= MAX_GRID_SIZE) || !(cols >= MIN_GRID_SIZE && cols <= MAX_GRID_SIZE)) {
       errors.push(`Le dimensioni della griglia devono essere comprese tra ${MIN_GRID_SIZE} e ${MAX_GRID_SIZE} (trovato ${rows}×${cols}).`);
     }
+  }
+  if (schemaVersionOf(puzzle) > SCHEMA_VERSION) {
+    errors.push(`Questo caso è stato creato con una versione più recente di Murdoku (formato ${puzzle.schemaVersion}): aggiorna la pagina e riprova.`);
   }
   validateUntrustedStrings(puzzle, errors);
   if (!Array.isArray(puzzle.characters)) errors.push("Manca l'elenco personaggi.");

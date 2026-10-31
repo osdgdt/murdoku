@@ -1,3 +1,6 @@
+import { readJson, writeJson, remove as removeKey } from "./storage.js";
+import { migratePuzzle } from "../model/migrations.js";
+
 const INDEX_KEY = "murdoku:index";
 const puzzleKey = (id) => `murdoku:puzzle:${id}`;
 // Player progress (placements, X marks, candidates) — separate from the
@@ -6,15 +9,12 @@ const puzzleKey = (id) => `murdoku:puzzle:${id}`;
 const progressKey = (id) => `murdoku:progress:${id}`;
 
 function readIndex() {
-  try {
-    return JSON.parse(localStorage.getItem(INDEX_KEY) || "[]");
-  } catch {
-    return [];
-  }
+  const index = readJson(INDEX_KEY, []);
+  return Array.isArray(index) ? index : [];
 }
 
 function writeIndex(index) {
-  localStorage.setItem(INDEX_KEY, JSON.stringify(index));
+  writeJson(INDEX_KEY, index);
 }
 
 export function list() {
@@ -22,12 +22,8 @@ export function list() {
 }
 
 export function get(id) {
-  try {
-    const raw = localStorage.getItem(puzzleKey(id));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+  const puzzle = readJson(puzzleKey(id), null);
+  return puzzle ? migratePuzzle(puzzle) : null;
 }
 
 export function save(puzzle) {
@@ -40,29 +36,21 @@ export function save(puzzle) {
     completed: !!puzzle.completed,
     bestTimeSeconds: typeof puzzle.bestTimeSeconds === "number" ? puzzle.bestTimeSeconds : null,
   });
-  try {
-    localStorage.setItem(puzzleKey(puzzle.id), JSON.stringify(puzzle));
-    writeIndex(index);
-  } catch {
-    throw new Error("Spazio di archiviazione locale esaurito: impossibile salvare le modifiche.");
-  }
+  // writeJson throws StorageFullError (quota / storage unavailable).
+  writeJson(puzzleKey(puzzle.id), puzzle);
+  writeIndex(index);
 }
 
 export function remove(id) {
-  localStorage.removeItem(puzzleKey(id));
-  localStorage.removeItem(progressKey(id));
+  removeKey(puzzleKey(id));
+  removeKey(progressKey(id));
   writeIndex(readIndex().filter((entry) => entry.id !== id));
 }
 
 export function getProgress(id) {
-  try {
-    const raw = localStorage.getItem(progressKey(id));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+  return readJson(progressKey(id), null);
 }
 
 export function saveProgress(id, progress) {
-  localStorage.setItem(progressKey(id), JSON.stringify(progress));
+  writeJson(progressKey(id), progress);
 }

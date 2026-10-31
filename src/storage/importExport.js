@@ -1,4 +1,5 @@
 import { validatePuzzleShape } from "../model/puzzle.js";
+import { migratePuzzle } from "../model/migrations.js";
 import { MAX_IMPORT_BYTES } from "../util/safe.js";
 
 function slugify(text) {
@@ -45,6 +46,7 @@ export async function importPuzzleFromUrl(url) {
   } catch {
     throw new Error("il file non è un JSON valido.");
   }
+  migratePuzzle(puzzle);
   const { valid, errors } = validatePuzzleShape(puzzle);
   if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
   return puzzle;
@@ -60,6 +62,7 @@ export function importPuzzleFromFile(file) {
     reader.onload = () => {
       try {
         const puzzle = JSON.parse(reader.result);
+        migratePuzzle(puzzle);
         const { valid, errors } = validatePuzzleShape(puzzle);
         if (!valid) {
           reject(new Error("File puzzle non valido:\n" + errors.join("\n")));

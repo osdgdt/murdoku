@@ -53,6 +53,7 @@ export function renderWinPanel({ puzzle, murderer, elapsed, previousBest, hintsU
   });
 
   return el("div", { class: "win-panel result-banner success" }, [
+    el("div", { class: "case-closed-stamp", "aria-hidden": "true" }, t("Caso chiuso")),
     el("div", {}, t("🎉 Caso risolto! Tutti i piazzamenti sono corretti.")),
     murderer ? el("div", {}, t("L'assassino è: {murderer}", { murderer })) : null,
     timeLine,

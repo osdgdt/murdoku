@@ -260,4 +260,5 @@ export default {
   "Il caso ha più di una soluzione: i giocatori potrebbero non capire quale sia quella giusta.": "The case has more than one solution: players may not be able to tell which one is right.",
   "Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.": "I couldn't verify within a reasonable time that the solution is unique.",
   "Vuoi procedere comunque?": "Do you want to go ahead anyway?",
+  "Caso chiuso": "Case closed",
 };

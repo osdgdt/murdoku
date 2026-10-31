@@ -1,6 +1,7 @@
 import { el, clear } from "./dom.js";
 import { objectIcon } from "../model/icons.js";
 import { zoneTextureCss } from "../model/textures.js";
+import { roomColor } from "../skin/paper/rooms.js";
 import { t } from "../i18n/i18n.js";
 
 const CELL_SIZE = 56;
@@ -225,6 +226,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   // Cell size lives in a CSS variable (default CELL_SIZE) so the stylesheet can
   // shrink the whole board to fit a phone viewport (see `.board-grid` in editor.css).
   container.style.setProperty("--cols", String(grid.size.cols));
+  container.style.setProperty("--rows", String(grid.size.rows));
   container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, var(--cell-size, ${CELL_SIZE}px))`;
   container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, var(--cell-size, ${CELL_SIZE}px))`;
 
@@ -311,7 +313,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // the paint-by-dragging feature outside of synthetic/automated
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
-        style: zone ? `background-color:${zone.color};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
+        style: zone ? `--room:${roomColor(zone.color)};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers
@@ -407,7 +409,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         }
         stack.appendChild(
           el("span", { class: "room-label" }, [
-            el("span", { class: "room-label-swatch", style: `background:${zone.color}` }),
+            el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),
             el("span", { class: "room-label-text" }, zone.name),
           ])
         );
@@ -440,7 +442,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
       el("div", { class: "room-legend", "aria-hidden": "true" },
         legendZones.map((zone) =>
           el("span", { class: "room-legend-item" }, [
-            el("span", { class: "room-label-swatch", style: `background:${zone.color}` }),
+            el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),
             el("span", {}, zone.name),
           ])
         )

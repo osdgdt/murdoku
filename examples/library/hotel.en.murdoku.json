@@ -9,7 +9,7 @@
   "briefing": "The Hotel Belvedere is fully booked when its owner is found dead in the room \"Ballroom\". Seven people, nine rooms, two blocked passages. Only one was with her.",
   "resolutionNote": "Rocky was the only person with Mrs. Belvedere. Immediate check-out.",
   "createdAt": 1767225600000,
-  "updatedAt": 1793459314866,
+  "updatedAt": 1767225600000,
   "grid": {
     "size": {
       "rows": 7,
@@ -328,7 +328,7 @@
       {
         "id": "z9",
         "name": "Garden",
-        "color": "#f4c2c2",
+        "color": "#d6e8a4",
         "textureId": "wood"
       }
     ],

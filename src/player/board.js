@@ -409,7 +409,7 @@ export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHol
         if (character) {
           const token = document.createElement("div");
           token.className = "char-token";
-          token.style.background = character.isVictim ? "var(--danger)" : characterColor(character);
+          token.style.color = character.isVictim ? "var(--danger)" : characterColor(character);
           token.title = character.name;
           token.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
           cellNode.appendChild(token);

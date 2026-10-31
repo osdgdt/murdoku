@@ -132,7 +132,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
         if (character) {
           const token = el("div", {
             class: "char-token",
-            style: `background:${character.isVictim ? "var(--danger)" : characterColor(character)}`,
+            style: `color:${character.isVictim ? "var(--danger)" : characterColor(character)}`,
             title: character.name,
           });
           token.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;

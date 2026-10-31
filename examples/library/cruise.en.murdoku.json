@@ -9,7 +9,7 @@
   "briefing": "In the middle of the ocean, Commodore Hale stops answering the helm: he is found dead in the room \"Bridge\". Nobody can get off, and seven people know more than they say.",
   "resolutionNote": "Sylvia was the only person with the commodore. The ship returns to port with one guest fewer.",
   "createdAt": 1767225600000,
-  "updatedAt": 1793459312295,
+  "updatedAt": 1767225600000,
   "grid": {
     "size": {
       "rows": 7,
@@ -328,7 +328,7 @@
       {
         "id": "z9",
         "name": "Cargo hold",
-        "color": "#f4c2c2",
+        "color": "#d6e8a4",
         "textureId": "wood"
       }
     ],

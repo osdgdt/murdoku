@@ -17,8 +17,9 @@ function walk(dir, out = []) {
 }
 
 function precacheFiles() {
+  const keep = (f) => !f.endsWith(".md");
   const files = readdirSync(root).filter((f) => f.endsWith(".html") || f === "manifest.webmanifest").sort();
-  for (const dir of INCLUDE_DIRS) files.push(...walk(path.join(root, dir)).map((f) => path.relative(root, f)));
+  for (const dir of INCLUDE_DIRS) files.push(...walk(path.join(root, dir)).map((f) => path.relative(root, f)).filter(keep));
   return files.map((f) => f.split(path.sep).join("/")).filter((f) => f !== "icons/icon.svg");
 }
 

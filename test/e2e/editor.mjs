@@ -61,6 +61,19 @@ try {
   await player.waitForSelector("#board [role=gridcell]", { timeout: 20000 });
   check("opening the share link loads the case in the player", (await player.innerText("#player-title")) === "Murder in the Study");
 
+  // The map editor's own tools: add a room, paint a cell, place a prop, resize the grid.
+  await page.fill('input[placeholder="Room name"]', "Test room");
+  await page.click("text=+ Add room");
+  await page.click('[data-row="4"][data-col="2"]');
+  check("a new room can be added and painted (it appears in the legend)", /Test room/.test(await page.innerText(".room-legend")), await page.innerText(".room-legend"));
+  const propsBefore = await page.locator(".obj-icon").count();
+  await page.locator(".palette-item").first().click();
+  await page.click('[data-row="4"][data-col="1"]');
+  check("a prop can be placed on the map", (await page.locator(".obj-icon").count()) === propsBefore + 1);
+  await page.fill('input[aria-label="Rows"]', "7");
+  await page.click("text=Apply");
+  check("the grid can be resized", (await page.locator('[data-row="6"][data-col="0"]').count()) === 1);
+
   check("no uncaught errors", errors.length === 0, errors.join(" | "));
 } finally {
   await browser.close();

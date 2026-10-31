@@ -8,6 +8,7 @@ import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
 import { findRedundantClues } from "../solver/redundancy.js";
 import { describeClue } from "../model/clueTypes.js";
+import { roomColor } from "../skin/paper/rooms.js";
 import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
@@ -298,7 +299,7 @@ function renderSolutionPreview(puzzle, placements, index) {
       const zone = !cellData.blocked && cellData.zoneId ? puzzle.grid.zones.find((z) => z.id === cellData.zoneId) : null;
       const cellNode = el("div", {
         class: "solution-preview-cell" + (cellData.blocked ? " blocked" : ""),
-        style: zone ? `background:${zone.color}` : "",
+        style: zone ? `background:${roomColor(zone.color)}` : "",
       });
       const placement = byCell.get(`${r},${c}`);
       const character = placement && puzzle.characters.find((ch) => ch.id === placement.characterId);

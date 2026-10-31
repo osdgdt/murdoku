@@ -9,7 +9,7 @@
   "briefing": "In mezzo all'oceano, il commodoro Hale non risponde più al comando: lo trovano senza vita nella stanza «Plancia». Non si può scendere, e sette persone sanno più di quanto dicono.",
   "resolutionNote": "Silvana era l'unica persona con il commodoro. La nave ritorna in porto con un ospite in meno.",
   "createdAt": 1767225600000,
-  "updatedAt": 1793459312221,
+  "updatedAt": 1767225600000,
   "grid": {
     "size": {
       "rows": 7,
@@ -328,7 +328,7 @@
       {
         "id": "z9",
         "name": "Stiva",
-        "color": "#f4c2c2",
+        "color": "#d6e8a4",
         "textureId": "wood"
       }
     ],

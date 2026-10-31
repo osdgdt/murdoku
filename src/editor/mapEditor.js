@@ -1,3 +1,4 @@
+import { roomColor } from "../skin/paper/rooms.js";
 import { el, clear } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import { addZone, removeZone, paintCellZone, placeObject, removeObject, resizeGrid, setBlocked } from "../model/grid.js";
@@ -68,7 +69,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     };
     const swatch = el("div", {
       class: "swatch" + (tool?.kind === "zone" && tool.zoneId === zone.id ? " selected" : ""),
-      style: `background:${zone.color}`,
+      style: `background:${roomColor(zone.color)}`,
       title: zone.name + t(" (click per dipingere, doppio click per rimuovere)"),
       tabindex: "0",
       role: "button",

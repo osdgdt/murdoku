@@ -59,6 +59,7 @@ function finish(spec, lang, base, ids, clues) {
   const murderer = puzzle.characters.find((c) => c.id === other.characterId).name;
   const roomPhrase = lang === "it" ? `nella stanza «${roomName}»` : `in the room "${roomName}"`;
   const fill = (s) => s.replaceAll("{victimRoom}", roomPhrase).replaceAll("{murderer}", murderer).replaceAll("{room}", roomName);
+  puzzle.updatedAt = puzzle.createdAt; // addClue() touched it: keep the output byte-stable
   puzzle.briefing = fill(spec.text[lang].briefing);
   puzzle.resolutionNote = fill(spec.text[lang].resolution);
   return puzzle;

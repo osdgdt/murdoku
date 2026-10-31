@@ -39,7 +39,7 @@ export function buildBase(spec, lang) {
   puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
   const zoneIds = {};
   const textures = ["hatch", "wood", "stone", "carpet", "grass", "marble", "water"];
-  const colors = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8"];
+  const colors = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8", "#d6e8a4"];
   Object.entries(spec.zones).forEach(([letter, names], i) => {
     zoneIds[letter] = addZone(puzzle.grid, names[lang], colors[i % colors.length], spec.textures?.[letter] ?? textures[i % textures.length]).id;
   });

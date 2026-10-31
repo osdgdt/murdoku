@@ -67,6 +67,7 @@
   <script type="module" src="src/util/errorReport.js"></script>
   <script type="module">
     import { t } from "./src/i18n/i18n.js";
+    import { describeAuthError, renderLoginHelp } from "./src/auth/loginHelp.js";
     import { wireThemeToggle } from "./src/util/theme.js";
     import { renderAchievementsPage } from "./src/achievements/achievementsView.js";
     import { onAuthChange, signIn, signOutUser } from "./src/auth/googleAuth.js";
@@ -92,7 +93,7 @@
         const signInBtn = document.createElement("button");
         signInBtn.type = "button";
         signInBtn.textContent = t("Accedi con Google");
-        signInBtn.onclick = () => signIn().catch((err) => { syncStatus.textContent = err.message; });
+        signInBtn.onclick = () => signIn().catch((err) => { syncStatus.textContent = describeAuthError(err); });
         authBar.append(signInBtn);
       }
     }
@@ -106,6 +107,7 @@
       renderAchievementsPage(root);
       if (!user) {
         syncStatus.textContent = t("Salvati solo su questo dispositivo. Accedi con Google per sincronizzarli tra più dispositivi.");
+        syncStatus.appendChild(renderLoginHelp());
         return;
       }
       syncStatus.textContent = t("Sincronizzazione in corso…");

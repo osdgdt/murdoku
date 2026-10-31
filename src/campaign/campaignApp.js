@@ -9,6 +9,7 @@ import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
+import { describeAuthError, renderLoginHelp } from "../auth/loginHelp.js";
 import { t } from "../i18n/i18n.js";
 
 wireThemeToggle();
@@ -109,8 +110,9 @@ function renderGate() {
   gateEl.appendChild(el("h1", {}, t("Modalità campagna")));
   gateEl.appendChild(el("p", { class: "lede" }, t("Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo.")));
   gateEl.appendChild(
-    el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, t("Accedi con Google"))
+    el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(describeAuthError(err))) }, t("Accedi con Google"))
   );
+  gateEl.appendChild(renderLoginHelp());
 }
 
 function showGateError(message) {

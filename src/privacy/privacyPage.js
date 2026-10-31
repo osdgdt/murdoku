@@ -3,6 +3,7 @@ import { el, qs, clear } from "../util/dom.js";
 import { wireThemeToggle } from "../util/theme.js";
 import { clearLocalData, localDataKeys } from "../storage/dataControl.js";
 import { t } from "../i18n/i18n.js";
+import { describeAuthError } from "../auth/loginHelp.js";
 
 wireThemeToggle();
 
@@ -44,6 +45,6 @@ qs("#clear-cloud-btn").addEventListener("click", async () => {
     }
     say(message);
   } catch (err) {
-    say(t("Operazione non riuscita: {message}", { message: err.message }), "violation");
+    say(t("Operazione non riuscita: {message}", { message: describeAuthError(err) }), "violation");
   }
 });

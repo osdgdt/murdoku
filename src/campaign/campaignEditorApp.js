@@ -7,6 +7,7 @@ import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync } from "../solver/solverClient.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
 import * as campaignStore from "./campaignStore.js";
+import { describeAuthError, renderLoginHelp } from "../auth/loginHelp.js";
 import { t } from "../i18n/i18n.js";
 
 // Shown when a linked case's declared solution isn't already valid and a
@@ -66,8 +67,9 @@ function renderGate() {
     gateEl.appendChild(el("h1", {}, t("Editor campagne")));
     gateEl.appendChild(el("p", { class: "lede" }, t("Riservato al proprietario del sito: accedi con Google per continuare.")));
     gateEl.appendChild(
-      el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, t("Accedi con Google"))
+      el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(describeAuthError(err))) }, t("Accedi con Google"))
     );
+    gateEl.appendChild(renderLoginHelp());
     gateEl.classList.remove("hidden");
     appEl.classList.add("hidden");
     return;

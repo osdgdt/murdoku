@@ -1,6 +1,6 @@
 import { isAdjacent } from "../../util/geometry.js";
 import { cellAt } from "../../model/grid.js";
-import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeOccupiable } from "../../model/icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeOccupiable, isEdgeObjectType } from "../../model/icons.js";
 import { buildPredicate } from "./index.js";
 
 // A predicate is (placementMap, puzzle) -> true | false | undefined.
@@ -11,9 +11,17 @@ export function posOfCharacter(placementMap, characterId) {
   return placementMap.get(characterId) || null;
 }
 
+// Where an object counts as being. A door/window sits on a SIDE of its cell
+// instead of filling it, so its position is flagged `edge: true`: someone
+// standing in that very cell is "next to" it too (see geometry.js' isAdjacent).
+// Always a fresh object — callers must never mutate the placement map's.
+function objectPosition(obj) {
+  return isEdgeObjectType(obj.typeId) ? { row: obj.row, col: obj.col, edge: true } : { row: obj.row, col: obj.col };
+}
+
 export function posOfObject(puzzle, objectId) {
   const obj = puzzle.grid.objects.find((o) => o.id === objectId);
-  return obj ? { row: obj.row, col: obj.col } : null;
+  return obj ? objectPosition(obj) : null;
 }
 
 export function resolveTargetPos(placementMap, puzzle, targetId) {
@@ -45,7 +53,7 @@ export function positionsInZone(puzzle, zoneId) {
 export function resolveTargetPositions(placementMap, puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
     const typeId = parseObjectTypeTarget(targetId);
-    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map((o) => ({ row: o.row, col: o.col }));
+    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map(objectPosition);
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
     return positionsInZone(puzzle, targetId);

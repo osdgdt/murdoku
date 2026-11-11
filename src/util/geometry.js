@@ -3,8 +3,13 @@ export function manhattan(a, b) {
   return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
 }
 
+// Orthogonal neighbours. A position flagged `edge: true` (a door/window, which
+// sits on a side of its cell instead of filling it — see predicates.js'
+// object positions) also counts as adjacent to someone standing IN that very
+// cell: if you're on the door's cell you're next to the door.
 export function isAdjacent(a, b) {
-  return manhattan(a, b) === 1;
+  const d = manhattan(a, b);
+  return d === 1 || (d === 0 && (a.edge === true || b.edge === true));
 }
 
 export function isDiagonal(a, b) {

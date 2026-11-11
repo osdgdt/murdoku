@@ -1,5 +1,5 @@
 import { roomColor } from "../src/skin/paper/rooms.js";
-import { OBJECT_ART } from "../src/skin/paper/objects.js";
+import { OBJECT_ART, EDGE_ART } from "../src/skin/paper/objects.js";
 import { CHARACTER_ART } from "../src/skin/paper/characters.js";
 import { OBJECT_TYPES, CHARACTER_ICONS } from "../src/model/icons.js";
 import { assert, assertEqual } from "./assert.js";
@@ -24,6 +24,23 @@ export const tests = [
         assert(balanced(def.icon) && def.icon.startsWith("<svg"), `personaggio ${id}`);
         if (id !== "victim") assert(def.icon.includes('fill="currentColor"'), `${id}: il corpo deve usare currentColor`);
       }
+    },
+  },
+  {
+    name: "skin: ogni tipo di bordo (porta, finestra) ha il suo disegno orizzontale, ben formato",
+    fn: () => {
+      for (const [id, def] of Object.entries(OBJECT_TYPES)) {
+        if (!def.edge) continue;
+        assert(EDGE_ART[id], `manca il disegno di bordo di ${id}`);
+        assert(def.edgeIcon && def.edgeIcon.startsWith("<svg") && balanced(def.edgeIcon), `${id}: edgeIcon deve essere un SVG ben formato`);
+      }
+      for (const id of Object.keys(EDGE_ART)) assert(OBJECT_TYPES[id]?.edge, `disegno di bordo orfano: ${id}`);
+    },
+  },
+  {
+    name: "skin: nessun avatar usa id propri (gli id duplicati nella pagina romperebbero i riferimenti)",
+    fn: () => {
+      for (const [id, def] of Object.entries(CHARACTER_ICONS)) assert(!/\sid=/.test(def.icon.replace(/xmlns/g, "")), `${id}: contiene un id`);
     },
   },
   {

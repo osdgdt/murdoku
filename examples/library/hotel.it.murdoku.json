@@ -586,6 +586,14 @@
         "targetId": "objtype:plant"
       },
       "negate": true
+    },
+    {
+      "id": "k10",
+      "characterId": "c3",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "z1"
+      }
     }
   ],
   "solution": {

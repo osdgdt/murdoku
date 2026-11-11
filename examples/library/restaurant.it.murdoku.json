@@ -439,6 +439,12 @@
         "axis": "col",
         "targetId": "z2"
       }
+    },
+    {
+      "id": "k7",
+      "characterId": "c3",
+      "type": "inRoomCorner",
+      "params": {}
     }
   ],
   "solution": {

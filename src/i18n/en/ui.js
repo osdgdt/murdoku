@@ -261,4 +261,17 @@ export default {
   "Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.": "I couldn't verify within a reasonable time that the solution is unique.",
   "Vuoi procedere comunque?": "Do you want to go ahead anyway?",
   "Caso chiuso": "Case closed",
+  // Professions, doors/windows on a cell side, floors
+  "Professione: {label}": "Profession: {label}",
+  "Scegli la professione": "Pick a profession",
+  "{label} ({row},{col}, lato {side})": "{label} ({row},{col}, {side} side)",
+  "{label} (lato {side})": "{label} ({side} side)",
+  "Pavimento: {label}": "Floor: {label}",
+  "Porte e finestre stanno su un lato della cella: clicca vicino al bordo dove devono andare (puoi metterne più di una nella stessa cella, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click.": "Doors and windows sit on one side of a cell: click near the edge where they should go (you can put several in the same cell, and a person can stand there too). The eraser or a right-click removes the one nearest to the click.",
+  "Parquet a quadrotti": "Parquet squares", "Listoni chiari": "Light planks", "Listoni scuri": "Dark planks",
+  "Scacchiera bianco e nero": "Black and white checkerboard", "Scacchiera crema e cotto": "Cream and terracotta checkerboard",
+  "Cotto": "Terracotta", "Lastre di pietra": "Stone slabs", "Ciottoli": "Cobblestones", "Ardesia": "Slate",
+  "Marmo bianco": "White marble", "Marmo nero": "Black marble", "Moquette rossa": "Red carpet", "Moquette blu": "Blue carpet",
+  "Moquette verde": "Green carpet", "Ghiaia": "Gravel", "Sabbia": "Sand", "Mosaico": "Mosaic", "Acqua": "Water",
+  "Linoleum": "Linoleum", "Mattoni": "Bricks", "Piastrelle bianche": "White tiles", "Cemento": "Concrete",
 };

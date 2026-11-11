@@ -58,4 +58,19 @@ export const OBJECT_ART = {
     L(`<circle cx="32" cy="33" r="5"/>`, "#fff6e4", 1),
 };
 
+// Doors and windows as they sit ON THE EDGE of a cell (viewBox 0 0 64 16, drawn
+// horizontally; CSS rotates it for the E/W sides): a thin strip of cut paper.
+export const EDGE_ART = {
+  door:
+    L(`<rect x="2" y="2" width="60" height="12" rx="3.5"/>`, "#8a5a3a", 1.2) +
+    L(`<rect x="6" y="4.5" width="22" height="7" rx="2"/><rect x="31" y="4.5" width="22" height="7" rx="2"/>`, "#c98a52", 0.6) +
+    `<circle cx="57" cy="8" r="2.1" fill="#ffd45e"/>`,
+  window:
+    L(`<rect x="2" y="2" width="60" height="12" rx="3.5"/>`, "#fff6e4", 1.2) +
+    L(`<rect x="6" y="4.5" width="52" height="7" rx="2"/>`, "#8fc7e6", 0.6) +
+    `<path d="M21 4.5V11.5M32 4.5V11.5M43 4.5V11.5" stroke="#fff6e4" stroke-width="2"/><path d="M9 6.5L16 6.5" stroke="rgba(255,255,255,.75)" stroke-width="1.6" stroke-linecap="round"/>`,
+};
+
+export const edgeSvg = (inner) => `<svg viewBox="0 0 64 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;
+
 export const paperSvg = (inner) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;

@@ -169,6 +169,28 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
   });
 }
 
+// Unione deduplicata dei bersagli di TUTTI gli indizi PROPRI di characterId
+// (stanze intere, tutte le istanze di un tipo di oggetto, righe/colonne…),
+// usata per l'evidenziazione stabile al click su un personaggio
+// (src/player/gameScreen.js). Diversa da resolveCharacterHoverDomain (hover),
+// che è l'INTERSEZIONE delle celle compatibili con tutti gli indizi insieme.
+// Gli indizi generici (characterId null) e quelli di altri personaggi non
+// contano; un bersaglio-personaggio non ancora piazzato non aggiunge celle.
+export function resolveCharacterTargetCells(puzzle, characterId, placementMap) {
+  const seen = new Set();
+  const cells = [];
+  for (const clue of puzzle.clues) {
+    if (clue.characterId !== characterId) continue;
+    for (const { row, col } of resolveClueHoverCells(clue, puzzle, placementMap)) {
+      const k = `${row},${col}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      cells.push({ row, col });
+    }
+  }
+  return cells;
+}
+
 // Dominio di celle compatibili con TUTTI gli indizi PROPRI di characterId
 // contemporaneamente (src/player/gameScreen.js's showCharacterHover) —
 // deliberatamente NON un'unione dei "bersagli" di ciascun indizio

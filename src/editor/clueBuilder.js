@@ -1,6 +1,6 @@
 import { el, clear } from "../util/dom.js";
 import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds, describeClue } from "../model/clueTypes.js";
-import { objectIcon, objectTypeTargetId } from "../model/icons.js";
+import { objectIcon, objectTypeTargetId, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { addClue, removeClue, updateClue, setClueNegate, cluesForCharacter, genericClues } from "../model/puzzle.js";
 import { t } from "../i18n/i18n.js";
 
@@ -9,8 +9,14 @@ import { t } from "../i18n/i18n.js";
 // controls (onObjectType, and the property family's "sittingOn") so an
 // author can never pick a type that doesn't exist anywhere on the grid and
 // accidentally write an always-false clue.
-function objectTypesPresent(puzzle) {
-  return [...new Set(puzzle.grid.objects.map((o) => o.typeId))];
+//
+// `includeEdges: false` leaves out doors/windows, which sit on a side of a
+// cell and can't be "stood on" — right for the on-an-object-of-a-type clues
+// (onObjectType, the property family's sittingOn), while "Qualsiasi porta" as
+// a nearness target still wants them.
+function objectTypesPresent(puzzle, { includeEdges = true } = {}) {
+  const types = [...new Set(puzzle.grid.objects.map((o) => o.typeId))];
+  return includeEdges ? types : types.filter((id) => !isEdgeObjectType(id));
 }
 
 function targetOptions(puzzle, kind, excludeCharacterId) {
@@ -30,7 +36,13 @@ function targetOptions(puzzle, kind, excludeCharacterId) {
     for (const z of puzzle.grid.zones) options.push({ value: z.id, label: t("{name} (stanza)", { name: z.name }) });
     for (const o of puzzle.grid.objects) {
       const def = objectIcon(o.typeId);
-      options.push({ value: o.id, label: t("{label} ({row},{col})", { label: def?.label || t("Oggetto"), row: o.row + 1, col: o.col + 1 }) });
+      const label = def?.label || t("Oggetto");
+      options.push({
+        value: o.id,
+        label: o.side
+          ? t("{label} ({row},{col}, lato {side})", { label, row: o.row + 1, col: o.col + 1, side: sideLabel(o.side) })
+          : t("{label} ({row},{col})", { label, row: o.row + 1, col: o.col + 1 }),
+      });
     }
     // "Any door", "any shelf", etc. — one option per object type actually
     // present on the map, so the clue doesn't have to commit to one instance.
@@ -56,7 +68,7 @@ function defaultParams(typeId, puzzle) {
       // first PRESENT type, falling back to the registry's first entry only
       // if the map has no objects at all yet, matching renderParamControl's
       // own fallback below so the shown default always matches what's stored.
-      params[p.name] = p.name === "objectTypeId" ? (objectTypesPresent(puzzle)[0] ?? p.values[0]) : p.values[0];
+      params[p.name] = p.name === "objectTypeId" ? (objectTypesPresent(puzzle, { includeEdges: false })[0] ?? p.values[0]) : p.values[0];
     }
     if (p.kind === "number") params[p.name] = p.optional ? null : (p.min ?? 1);
     if (p.kind === "characterOrObjectMulti") params[p.name] = [];
@@ -79,7 +91,7 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
     // write an always-false clue by picking a type that doesn't exist
     // anywhere on the grid. Falls back to the full registry only if the map
     // has no objects at all yet (an empty <select> would be worse).
-    const presentTypes = paramDef.name === "objectTypeId" ? objectTypesPresent(puzzle) : null;
+    const presentTypes = paramDef.name === "objectTypeId" ? objectTypesPresent(puzzle, { includeEdges: false }) : null;
     const values = presentTypes && presentTypes.length > 0 ? presentTypes : paramDef.values;
     const select = el(
       "select",

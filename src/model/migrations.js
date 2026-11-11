@@ -42,6 +42,20 @@ const MIGRATIONS = [
       if (index !== -1) c.color = MIGRATED_CHARACTER_COLORS[index];
     }
   },
+  // 2 -> 3: doors and windows live on a SIDE of a cell instead of filling it.
+  // Each old one gets `side: "N"` and its cell is freed (a person can stand
+  // there now). The ids of the two edge types are duplicated by value here
+  // (see icons.js's `edge` flag) to keep this module import-free.
+  (p) => {
+    const grid = p.grid;
+    if (!grid || !Array.isArray(grid.objects) || !Array.isArray(grid.cells)) return;
+    for (const obj of grid.objects) {
+      if (!obj || (obj.typeId !== "door" && obj.typeId !== "window") || obj.side) continue;
+      obj.side = "N";
+      const cell = grid.cells[obj.row] && grid.cells[obj.row][obj.col];
+      if (cell && cell.objectId === obj.id) cell.objectId = null;
+    }
+  },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS.length;

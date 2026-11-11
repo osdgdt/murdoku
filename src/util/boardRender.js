@@ -1,6 +1,6 @@
 import { el, clear } from "./dom.js";
-import { objectIcon } from "../model/icons.js";
-import { zoneTextureCss } from "../model/textures.js";
+import { objectIcon, isEdgeObjectType, sideLabel } from "../model/icons.js";
+import { floorStyle } from "../model/textures.js";
 import { roomColor } from "../skin/paper/rooms.js";
 import { t } from "../i18n/i18n.js";
 
@@ -231,6 +231,24 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, var(--cell-size, ${CELL_SIZE}px))`;
 
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
+  // Doors/windows sit on a side of a cell (object.side), not inside it: group
+  // them per cell so each cell can draw its own thin edge pieces.
+  const edgesByCell = new Map();
+  for (const o of grid.objects) {
+    if (!isEdgeObjectType(o.typeId)) continue;
+    const k = `${o.row},${o.col}`;
+    if (!edgesByCell.has(k)) edgesByCell.set(k, []);
+    edgesByCell.get(k).push(o);
+  }
+  // Every cell of a room shares one floor style: build it once per zone.
+  const floorCache = new Map();
+  const floorOf = (zone) => {
+    if (!floorCache.has(zone.id)) {
+      const { image, size, own } = floorStyle(zone.textureId, roomColor(zone.color));
+      floorCache.set(zone.id, { own, style: `--room:${roomColor(zone.color)};--zone-texture:${image};--zone-texture-size:${size}` });
+    }
+    return floorCache.get(zone.id);
+  };
 
   // A cell only "belongs" to a zone for wall/texture purposes when usable and
   // painted — blocked cells always act as a boundary (solid rock), while two
@@ -287,7 +305,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
 
       let classes = "board-cell";
       if (cellData.blocked) classes += " blocked";
-      if (zone) classes += " zoned";
+      if (zone) classes += floorOf(zone).own ? " zoned floored" : " zoned";
       if (wallBetween(r, c, r - 1, c)) classes += " wall-t";
       if (wallBetween(r, c, r, c + 1)) classes += " wall-r";
       if (wallBetween(r, c, r + 1, c)) classes += " wall-b";
@@ -313,7 +331,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // the paint-by-dragging feature outside of synthetic/automated
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
-        style: zone ? `--room:${roomColor(zone.color)};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
+        style: zone ? floorOf(zone).style : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers
@@ -322,11 +340,11 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // nothing useful to land keyboard focus on, and skipping it here is
         // simpler than adding tab-order logic that jumps over it.
         tabindex: cellData.blocked ? undefined : "0",
-        onClick: () => onCellClick && onCellClick(r, c),
+        onClick: (e) => onCellClick && onCellClick(r, c, e),
         onContextmenu: (e) => {
           if (onCellRightClick) {
             e.preventDefault();
-            onCellRightClick(r, c);
+            onCellRightClick(r, c, e);
           }
         },
         onMousedown: (e) => {
@@ -423,6 +441,18 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           iconWrap.innerHTML = def.icon;
           cellNode.appendChild(iconWrap);
         }
+      }
+
+      for (const edge of edgesByCell.get(`${r},${c}`) || []) {
+        const def = objectIcon(edge.typeId);
+        if (!def || !def.edgeIcon) continue;
+        const piece = el("span", {
+          class: `edge-obj edge-${edge.side || "N"}`,
+          title: t("{label} (lato {side})", { label: def.label, side: sideLabel(edge.side || "N") }),
+          "aria-hidden": "true",
+        });
+        piece.innerHTML = def.edgeIcon;
+        cellNode.appendChild(piece);
       }
 
       if (decorateCell) decorateCell(cellNode, r, c);

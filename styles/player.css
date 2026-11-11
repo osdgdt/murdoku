@@ -54,7 +54,7 @@
 }
 .player-toolbar .char-chip:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .player-toolbar .char-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.player-toolbar .char-chip svg { width: 16px; height: 16px; }
+.player-toolbar .char-chip svg { width: 24px; height: 24px; }
 .player-toolbar .char-chip.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
 .player-toolbar .char-chip.used { opacity: 0.45; }
 
@@ -211,12 +211,23 @@
   transition: box-shadow 0.12s ease;
 }
 
+/* Bersagli degli indizi del personaggio selezionato (click sul chip): ombra
+   INSET oro, stabile. Inset perché l'hover/hint usano anelli esterni: così
+   convivono senza cambiare z-index. Niente outline (preso da :focus-visible)
+   né pseudo-elementi (budget della cella già pieno). */
+.board-cell.char-target {
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 5px var(--gold-soft);
+}
+.board-cell.char-target.hover-target {
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 5px var(--gold-soft), 0 0 0 3px var(--success), 0 0 12px 3px var(--success-soft);
+}
+
 /* Pressione prolungata su una casella (per piazzare il personaggio
    selezionato) — una rotella circolare reale che si riempie mentre il timer
    di HOLD_THRESHOLD_MS conta (src/util/boardRender.js). z-index:4 sulla
    cella stessa, sopra gli anelli hint/hover (3); la rotella (un vero nodo
    DOM figlio, .hold-wheel, non uno pseudo-elemento: le celle usano già
-   ::before/::after per .x-mark e per la texture di .zoned, un terzo
+   ::before/::after per .x-mark, un terzo
    pseudo-elemento li romperebbe silenziosamente) sta a z-index:5, sopra
    anche il contenuto della cella (token/candidate-grid, tutti a z-index:2). */
 .board-cell.holding { z-index: 4; }
@@ -279,7 +290,7 @@
 }
 .clue-card.active.placed { opacity: 0.7; }
 .clue-card .row { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.35rem; }
-.clue-card .row svg { width: 22px; height: 22px; }
+.clue-card .row svg { width: 30px; height: 30px; }
 .clue-card ul { margin: 0.35em 0 0; padding-left: 1.3em; font-size: 0.85rem; color: var(--ink-soft); }
 .clue-card .bio-text { margin: 0 0 0.4em; font-size: 0.8rem; font-style: italic; color: var(--ink-soft); }
 

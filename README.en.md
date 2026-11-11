@@ -10,13 +10,14 @@ The app is available in **Italian and English** (IT/EN button, top right; it fol
 
 1. Open **Tutorial** on the home page for a tiny guided case.
 2. Pick a character from the toolbar. **Tap a cell** to jot a note (a candidate); **press and hold** a cell to place the character there; **press, hold and drag** to mark several cells at once. Placing someone crosses out the rest of their row and column.
-3. Stuck? **💡 Hint** explains a certain deduction from the clues (never from a stored answer) and highlights the cell; use ‹ › to move through the chain.
-4. **✓ Check solution** only says whether the case is solved — it never reveals how many placements are right.
-5. After solving you can **📤 share your result** (title, time, hints — no spoilers).
+3. **Click a character** in the toolbar to light up, in gold, every cell their clues point at (a whole room, every plant…); hovering shows only the cells that fit all their clues together.
+4. Stuck? **💡 Hint** explains a certain deduction from the clues (never from a stored answer) and highlights the cell; use ‹ › to move through the chain.
+5. **✓ Check solution** only says whether the case is solved — it never reveals how many placements are right.
+6. After solving you can **📤 share your result** (title, time, hints — no spoilers).
 
 ## Create and share cases
 
-- **Editor:** build the map (rooms, textures, furniture, blocked cells), add characters, and give each character clues from 40+ clue types (any clue can be negated, combined with "either/or", or be a general fact about the scene). **✓ Validate** and **? Check uniqueness** make sure the case has exactly one solution; **✂ Redundant clues** finds clues you can drop without losing uniqueness; **🧮 Compute solution** derives the answer from your clues.
+- **Editor:** build the map (rooms with ~25 floors, furniture, doors and windows set on one side of a cell, blocked cells), add characters (~55 professions to pick from), and give each character clues from 40+ clue types (any clue can be negated, combined with "either/or", or be a general fact about the scene). **✓ Validate** and **? Check uniqueness** make sure the case has exactly one solution; **✂ Redundant clues** finds clues you can drop without losing uniqueness; **🧮 Compute solution** derives the answer from your clues.
 - **Share:** **🔗 Share** copies a link containing the whole case (compressed, in the URL fragment — it never reaches a server). Or **⬇ Export** a `.murdoku.json` file, or **🖨 Print** it.
 - **Campaigns** (sign in with Google): ordered sequences of cases with progress synced across devices. Only the site owner can create them.
 

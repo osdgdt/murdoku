@@ -732,6 +732,43 @@ export const tests = [
     },
   },
   {
+    name: "predicate adjacent a una porta (elemento di bordo): vero nella stessa cella e nelle ortogonali, falso a distanza 2 e in diagonale",
+    fn: () => {
+      const puzzle = basePuzzle(5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      const door = placeObject(puzzle.grid, "door", 2, 2, "N");
+      const predicate = buildPredicate(addClue(puzzle, a.id, "adjacent", { targetId: door.id }), puzzle);
+      const at = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
+      assertEqual(at(2, 2), true, "nella cella della porta");
+      assertEqual(at(1, 2), true);
+      assertEqual(at(2, 3), true);
+      assertEqual(at(2, 4), false, "distanza 2");
+      assertEqual(at(1, 1), false, "diagonale");
+    },
+  },
+  {
+    name: "predicate adjacent a un mobile a tutta cella (tavolo): resta solo ortogonale, mai nella stessa cella",
+    fn: () => {
+      const puzzle = basePuzzle(5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      const table = placeObject(puzzle.grid, "table", 2, 2);
+      const predicate = buildPredicate(addClue(puzzle, a.id, "adjacent", { targetId: table.id }), puzzle);
+      assertEqual(predicate(mapOf([[a.id, { row: 2, col: 3 }]]), true), true);
+      assertEqual(predicate(mapOf([[a.id, { row: 2, col: 2 }]]), true), false);
+    },
+  },
+  {
+    name: "predicate adjacent con bersaglio generico 'qualsiasi finestra': conta anche chi sta nella cella della finestra",
+    fn: () => {
+      const puzzle = basePuzzle(5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      placeObject(puzzle.grid, "window", 0, 4, "E");
+      const predicate = buildPredicate(addClue(puzzle, a.id, "adjacent", { targetId: objectTypeTargetId("window") }), puzzle);
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 4 }]]), true), true);
+      assertEqual(predicate(mapOf([[a.id, { row: 3, col: 0 }]]), true), false);
+    },
+  },
+  {
     name: "predicate generico noOneInRoom: falso appena qualcuno è nella stanza, vero solo a completamento",
     fn: () => {
       const puzzle = basePuzzle();

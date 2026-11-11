@@ -545,6 +545,14 @@
         "property": "adjacentTo",
         "targetId": "z1"
       }
+    },
+    {
+      "id": "k9",
+      "characterId": "c3",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "z1"
+      }
     }
   ],
   "solution": {

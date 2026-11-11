@@ -1,19 +1,20 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_cruise_it",
-  "title": "La nave da crociera",
+  "schemaVersion": 4,
+  "id": "lib_castello_en",
+  "title": "The King's Banquet",
   "author": "Murdoku",
-  "difficulty": "hard",
+  "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "In mezzo all'oceano, il commodoro Hale non risponde più al comando: lo trovano senza vita nella stanza «Plancia». Non si può scendere, e sette persone sanno più di quanto dicono.",
-  "resolutionNote": "Silvana era l'unica persona con il commodoro. La nave ritorna in porto con un ospite in meno.",
+  "briefing": "During the winter banquet, King Aldovrand was found dead in the room \"Great hall\". The castle gates were barred: who was with him?",
+  "resolutionNote": "Isolde was the only person with the king. The realm needs a new ruler.",
+  "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
     "size": {
-      "rows": 7,
-      "cols": 7
+      "rows": 6,
+      "cols": 6
     },
     "cells": [
       [
@@ -24,12 +25,7 @@
         },
         {
           "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o1",
+          "objectId": "o9",
           "blocked": false
         },
         {
@@ -38,13 +34,13 @@
           "blocked": false
         },
         {
-          "zoneId": "z2",
+          "zoneId": null,
           "objectId": null,
-          "blocked": false
+          "blocked": true
         },
         {
           "zoneId": "z3",
-          "objectId": "o3",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -56,7 +52,7 @@
       [
         {
           "zoneId": "z1",
-          "objectId": null,
+          "objectId": "o10",
           "blocked": false
         },
         {
@@ -71,11 +67,6 @@
         },
         {
           "zoneId": "z2",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
           "objectId": null,
           "blocked": false
         },
@@ -86,19 +77,14 @@
         },
         {
           "zoneId": "z3",
-          "objectId": "o4",
+          "objectId": null,
           "blocked": false
         }
       ],
       [
         {
           "zoneId": "z4",
-          "objectId": "o5",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
+          "objectId": "o12",
           "blocked": false
         },
         {
@@ -108,7 +94,7 @@
         },
         {
           "zoneId": "z5",
-          "objectId": null,
+          "objectId": "o5",
           "blocked": false
         },
         {
@@ -122,7 +108,7 @@
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z6",
           "objectId": null,
           "blocked": false
         }
@@ -135,17 +121,17 @@
         },
         {
           "zoneId": "z4",
-          "objectId": "o6",
+          "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z4",
+          "zoneId": "z5",
           "objectId": "o7",
           "blocked": false
         },
         {
           "zoneId": "z5",
-          "objectId": null,
+          "objectId": "o6",
           "blocked": false
         },
         {
@@ -154,24 +140,14 @@
           "blocked": false
         },
         {
-          "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
+          "zoneId": "z6",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z6",
-          "objectId": "o9",
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
+          "zoneId": "z7",
           "objectId": null,
           "blocked": false
         },
@@ -181,97 +157,55 @@
           "blocked": false
         },
         {
-          "zoneId": "z7",
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
           "objectId": "o11",
           "blocked": false
         },
         {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z8",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z8",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z6",
+          "zoneId": "z9",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z6",
-          "objectId": "o10",
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": "o12",
-          "blocked": false
-        },
-        {
-          "zoneId": "z8",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z8",
           "objectId": "o13",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z6",
+          "zoneId": "z7",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z6",
+          "zoneId": "z7",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z9",
+          "zoneId": "z8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z9",
-          "objectId": "o15",
-          "blocked": false
-        },
-        {
-          "zoneId": "z9",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z9",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z9",
+          "zoneId": "z8",
           "objectId": "o14",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
           "blocked": false
         }
       ]
@@ -279,95 +213,99 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Plancia",
+        "name": "Tower",
         "color": "#f4c2c2",
-        "textureId": "hatch"
-      },
-      {
-        "id": "z2",
-        "name": "Sala da pranzo",
-        "color": "#c2e0f4",
-        "textureId": "wood"
-      },
-      {
-        "id": "z3",
-        "name": "Spa",
-        "color": "#c9f4c2",
         "textureId": "stone"
       },
       {
-        "id": "z4",
-        "name": "Cabine",
-        "color": "#f4ecc2",
+        "id": "z2",
+        "name": "Throne room",
+        "color": "#c2e0f4",
         "textureId": "carpet"
       },
       {
+        "id": "z3",
+        "name": "Armoury",
+        "color": "#c9f4c2",
+        "textureId": "slate"
+      },
+      {
+        "id": "z4",
+        "name": "Kitchens",
+        "color": "#f4ecc2",
+        "textureId": "terracotta"
+      },
+      {
         "id": "z5",
-        "name": "Ponte passeggio",
+        "name": "Great hall",
         "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "checker_cream"
       },
       {
         "id": "z6",
-        "name": "Sala macchine",
+        "name": "Dungeon",
         "color": "#f4d3c2",
-        "textureId": "marble"
+        "textureId": "cobble"
       },
       {
         "id": "z7",
-        "name": "Casinò",
+        "name": "Chapel",
         "color": "#c2f4e8",
-        "textureId": "water"
+        "textureId": "marble"
       },
       {
         "id": "z8",
-        "name": "Biblioteca",
+        "name": "Garden",
         "color": "#e8e8e8",
-        "textureId": "hatch"
+        "textureId": "grass"
       },
       {
         "id": "z9",
-        "name": "Stiva",
+        "name": "Stables",
         "color": "#d6e8a4",
-        "textureId": "wood"
+        "textureId": "sand"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "window",
+        "typeId": "door",
         "row": 0,
-        "col": 2
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o2",
-        "typeId": "lamp",
-        "row": 1,
-        "col": 3
+        "typeId": "window",
+        "row": 0,
+        "col": 5,
+        "side": "N"
       },
       {
         "id": "o3",
-        "typeId": "table",
-        "row": 0,
-        "col": 5
+        "typeId": "window",
+        "row": 1,
+        "col": 5,
+        "side": "S"
       },
       {
         "id": "o4",
-        "typeId": "plant",
-        "row": 1,
-        "col": 6
+        "typeId": "window",
+        "row": 3,
+        "col": 0,
+        "side": "W"
       },
       {
         "id": "o5",
-        "typeId": "chair",
+        "typeId": "table",
         "row": 2,
-        "col": 0
+        "col": 2
       },
       {
         "id": "o6",
-        "typeId": "carpet",
+        "typeId": "chair",
         "row": 3,
-        "col": 1
+        "col": 3
       },
       {
         "id": "o7",
@@ -377,50 +315,44 @@
       },
       {
         "id": "o8",
-        "typeId": "tv",
+        "typeId": "carpet",
         "row": 2,
-        "col": 5
+        "col": 4
       },
       {
         "id": "o9",
-        "typeId": "shelf",
-        "row": 4,
-        "col": 0
-      },
-      {
-        "id": "o10",
-        "typeId": "door",
-        "row": 5,
+        "typeId": "lamp",
+        "row": 0,
         "col": 1
       },
       {
+        "id": "o10",
+        "typeId": "shelf",
+        "row": 1,
+        "col": 0
+      },
+      {
         "id": "o11",
-        "typeId": "table",
+        "typeId": "plant",
         "row": 4,
         "col": 3
       },
       {
         "id": "o12",
-        "typeId": "carpet",
-        "row": 5,
-        "col": 4
+        "typeId": "tv",
+        "row": 2,
+        "col": 0
       },
       {
         "id": "o13",
-        "typeId": "window",
-        "row": 5,
-        "col": 6
+        "typeId": "table",
+        "row": 4,
+        "col": 5
       },
       {
         "id": "o14",
-        "typeId": "shelf",
-        "row": 6,
-        "col": 6
-      },
-      {
-        "id": "o15",
-        "typeId": "stool",
-        "row": 6,
+        "typeId": "plant",
+        "row": 5,
         "col": 3
       }
     ]
@@ -428,161 +360,110 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Commodoro Hale",
-      "iconId": "person1",
+      "name": "King Aldovrand",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "Il comandante della nave.",
+      "bio": "The king, who loved feasts and debts.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Silvana",
-      "iconId": "detective",
+      "name": "Isolde",
+      "iconId": "queen",
       "isVictim": false,
-      "bio": "La prima ufficiale.",
+      "bio": "The queen, weary of the court.",
       "color": "#ea558a",
       "gender": "female"
     },
     {
       "id": "c3",
-      "name": "Teo",
-      "iconId": "butler",
+      "name": "Gawain",
+      "iconId": "knight",
       "isVictim": false,
-      "bio": "Il capo cameriere.",
+      "bio": "The king's knight, loyal up to a point.",
       "color": "#158060",
       "gender": "male"
     },
     {
       "id": "c4",
-      "name": "Ines",
-      "iconId": "chef",
+      "name": "Ambrose",
+      "iconId": "wizard",
       "isVictim": false,
-      "bio": "La chef di bordo.",
+      "bio": "The court wizard, with his book of spells.",
       "color": "#9f5595",
-      "gender": "female"
-    },
-    {
-      "id": "c5",
-      "name": "Gabriele",
-      "iconId": "glasses",
-      "isVictim": false,
-      "bio": "Un passeggero misterioso.",
-      "color": "#bf8020",
       "gender": "male"
     },
     {
-      "id": "c6",
-      "name": "Mara",
-      "iconId": "artist",
+      "id": "c5",
+      "name": "Brunhild",
+      "iconId": "chef",
       "isVictim": false,
-      "bio": "La pianista della sala.",
-      "color": "#4a6aca",
+      "bio": "The royal cook, who knew every poison.",
+      "color": "#bf8020",
       "gender": "female"
     },
     {
-      "id": "c7",
-      "name": "Orazio",
-      "iconId": "driver",
+      "id": "c6",
+      "name": "Toby",
+      "iconId": "clown",
       "isVictim": false,
-      "bio": "Il motorista, sempre sporco di grasso.",
-      "color": "#9f80b5",
+      "bio": "The jester, the only one allowed to tell the truth.",
+      "color": "#4a6aca",
       "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c5",
-      "type": "between",
-      "params": {
-        "targetAId": "objtype:shelf",
-        "targetBId": "z5"
-      }
-    },
-    {
-      "id": "k2",
       "characterId": "c1",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
-        "distance": 4,
+        "direction": "south",
+        "distance": 2,
         "targetId": "o9"
       }
     },
     {
-      "id": "k3",
-      "characterId": "c4",
-      "type": "between",
-      "params": {
-        "targetAId": "z9",
-        "targetBId": "objtype:table"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c6",
-      "type": "closerTo",
-      "params": {
-        "targetAId": "o11",
-        "targetBId": "o1"
-      }
-    },
-    {
-      "id": "k5",
+      "id": "k2",
       "characterId": "c3",
-      "type": "between",
-      "params": {
-        "targetAId": "z9",
-        "targetBId": "objtype:lamp"
-      }
-    },
-    {
-      "id": "k6",
-      "characterId": "c5",
       "type": "directionDistance",
       "params": {
         "direction": "north",
-        "distance": 2,
+        "distance": 3,
         "targetId": "objtype:stool"
       }
     },
     {
-      "id": "k7",
+      "id": "k3",
       "characterId": "c2",
+      "type": "onlyPersonNear",
+      "params": {
+        "targetId": "z9"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c5",
       "type": "directionDistance",
       "params": {
-        "direction": "west",
-        "distance": 4,
-        "targetId": "o12"
+        "direction": "south",
+        "distance": 1,
+        "targetId": "z5"
       }
     },
     {
-      "id": "k8",
-      "characterId": null,
-      "type": "sameRoomTogether",
-      "params": {
-        "targetAId": "c4",
-        "targetBId": "c5"
-      },
-      "negate": true
+      "id": "k5",
+      "characterId": "c4",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
-      "id": "k9",
+      "id": "k6",
       "characterId": "c6",
-      "type": "inRowOrCol",
+      "type": "facing",
       "params": {
-        "axis": "col",
-        "index": 3
-      }
-    },
-    {
-      "id": "k10",
-      "characterId": "c6",
-      "type": "inRowOrCol",
-      "params": {
-        "axis": "row",
-        "index": 6
+        "targetId": "o5"
       }
     }
   ],
@@ -590,38 +471,33 @@
     "placements": [
       {
         "characterId": "c1",
-        "row": 0,
-        "col": 1
-      },
-      {
-        "characterId": "c2",
-        "row": 1,
-        "col": 0
-      },
-      {
-        "characterId": "c3",
         "row": 2,
         "col": 3
       },
       {
-        "characterId": "c4",
+        "characterId": "c2",
         "row": 3,
+        "col": 4
+      },
+      {
+        "characterId": "c3",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 1,
         "col": 5
       },
       {
         "characterId": "c5",
         "row": 4,
-        "col": 6
+        "col": 1
       },
       {
         "characterId": "c6",
         "row": 5,
         "col": 2
-      },
-      {
-        "characterId": "c7",
-        "row": 6,
-        "col": 4
       }
     ]
   },

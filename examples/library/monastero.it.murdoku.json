@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_cruise_en",
-  "title": "The Cruise Ship",
+  "schemaVersion": 4,
+  "id": "lib_monastero_it",
+  "title": "Il segreto del monastero",
   "author": "Murdoku",
   "difficulty": "hard",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "In the middle of the ocean, Commodore Hale stops answering the helm: he is found dead in the room \"Bridge\". Nobody can get off, and seven people know more than they say.",
-  "resolutionNote": "Sylvia was the only person with the commodore. The ship returns to port with one guest fewer.",
+  "briefing": "All'ora dei vespri, l'abate Benedetto fu trovato senza vita nella stanza «Chiesa». Il monastero era isolato dalla neve: chi era con lui?",
+  "resolutionNote": "Tommaso era l'unica persona con l'abate. Il segreto ora è al sicuro... forse.",
+  "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,17 +25,22 @@
         },
         {
           "zoneId": "z1",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z2",
-          "objectId": "o1",
+          "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z2",
-          "objectId": null,
+          "objectId": "o11",
           "blocked": false
         },
         {
@@ -44,12 +50,7 @@
         },
         {
           "zoneId": "z3",
-          "objectId": "o3",
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": null,
+          "objectId": "o17",
           "blocked": false
         }
       ],
@@ -65,13 +66,18 @@
           "blocked": false
         },
         {
-          "zoneId": "z2",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z2",
-          "objectId": "o2",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -82,21 +88,48 @@
         {
           "zoneId": "z3",
           "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": "o4",
           "blocked": false
         }
       ],
       [
         {
           "zoneId": "z4",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
           "objectId": "o5",
           "blocked": false
         },
         {
+          "zoneId": "z5",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
           "zoneId": "z4",
           "objectId": null,
           "blocked": false
@@ -108,12 +141,7 @@
         },
         {
           "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
-          "objectId": null,
+          "objectId": "o7",
           "blocked": false
         },
         {
@@ -125,64 +153,27 @@
           "zoneId": "z5",
           "objectId": null,
           "blocked": false
-        }
-      ],
-      [
+        },
         {
-          "zoneId": "z4",
+          "zoneId": "z6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z4",
-          "objectId": "o6",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o7",
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
+          "zoneId": "z6",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z6",
-          "objectId": "o9",
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
           "zoneId": "z7",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z7",
-          "objectId": "o11",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -199,9 +190,7 @@
           "zoneId": "z8",
           "objectId": null,
           "blocked": false
-        }
-      ],
-      [
+        },
         {
           "zoneId": "z6",
           "objectId": null,
@@ -209,53 +198,70 @@
         },
         {
           "zoneId": "z6",
-          "objectId": "o10",
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": "o12",
-          "blocked": false
-        },
-        {
-          "zoneId": "z8",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z8",
           "objectId": "o13",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z6",
+          "zoneId": "z7",
+          "objectId": "o18",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z6",
+          "zoneId": "z7",
           "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o16",
           "blocked": false
         },
         {
           "zoneId": "z9",
           "objectId": null,
           "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
         },
         {
-          "zoneId": "z9",
+          "zoneId": "z10",
+          "objectId": "o14",
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
           "objectId": "o15",
           "blocked": false
         },
@@ -268,68 +274,69 @@
           "zoneId": "z9",
           "objectId": null,
           "blocked": false
-        },
-        {
-          "zoneId": "z9",
-          "objectId": "o14",
-          "blocked": false
         }
       ]
     ],
     "zones": [
       {
         "id": "z1",
-        "name": "Bridge",
+        "name": "Chiostro",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "grass"
       },
       {
         "id": "z2",
-        "name": "Dining room",
+        "name": "Biblioteca",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "planks_dark"
       },
       {
         "id": "z3",
-        "name": "Spa",
+        "name": "Campanile",
         "color": "#c9f4c2",
         "textureId": "stone"
       },
       {
         "id": "z4",
-        "name": "Cabins",
+        "name": "Refettorio",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "terracotta"
       },
       {
         "id": "z5",
-        "name": "Promenade deck",
+        "name": "Chiesa",
         "color": "#e0c2f4",
-        "textureId": "grass"
-      },
-      {
-        "id": "z6",
-        "name": "Engine room",
-        "color": "#f4d3c2",
         "textureId": "marble"
       },
       {
+        "id": "z6",
+        "name": "Orto",
+        "color": "#f4d3c2",
+        "textureId": "gravel"
+      },
+      {
         "id": "z7",
-        "name": "Casino",
+        "name": "Dormitorio",
         "color": "#c2f4e8",
-        "textureId": "water"
+        "textureId": "wood"
       },
       {
         "id": "z8",
-        "name": "Library",
+        "name": "Scriptorium",
         "color": "#e8e8e8",
-        "textureId": "hatch"
+        "textureId": "parquet"
       },
       {
         "id": "z9",
-        "name": "Cargo hold",
+        "name": "Cantina",
         "color": "#d6e8a4",
-        "textureId": "wood"
+        "textureId": "cobble"
+      },
+      {
+        "id": "z10",
+        "name": "Foresteria",
+        "color": "#f4c2c2",
+        "textureId": "sand"
       }
     ],
     "objects": [
@@ -337,291 +344,295 @@
         "id": "o1",
         "typeId": "window",
         "row": 0,
-        "col": 2
+        "col": 2,
+        "side": "N"
       },
       {
         "id": "o2",
-        "typeId": "lamp",
-        "row": 1,
-        "col": 3
+        "typeId": "window",
+        "row": 3,
+        "col": 6,
+        "side": "E"
       },
       {
         "id": "o3",
-        "typeId": "table",
-        "row": 0,
-        "col": 5
+        "typeId": "door",
+        "row": 1,
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o4",
-        "typeId": "plant",
-        "row": 1,
-        "col": 6
+        "typeId": "door",
+        "row": 3,
+        "col": 1,
+        "side": "S"
       },
       {
         "id": "o5",
         "typeId": "chair",
         "row": 2,
-        "col": 0
+        "col": 3
       },
       {
         "id": "o6",
-        "typeId": "carpet",
-        "row": 3,
-        "col": 1
+        "typeId": "chair",
+        "row": 2,
+        "col": 4
       },
       {
         "id": "o7",
-        "typeId": "stool",
+        "typeId": "chair",
         "row": 3,
         "col": 2
       },
       {
         "id": "o8",
-        "typeId": "tv",
-        "row": 2,
-        "col": 5
+        "typeId": "chair",
+        "row": 3,
+        "col": 3
       },
       {
         "id": "o9",
-        "typeId": "shelf",
-        "row": 4,
+        "typeId": "carpet",
+        "row": 2,
         "col": 0
       },
       {
         "id": "o10",
-        "typeId": "door",
-        "row": 5,
+        "typeId": "lamp",
+        "row": 0,
         "col": 1
       },
       {
         "id": "o11",
-        "typeId": "table",
-        "row": 4,
-        "col": 3
-      },
-      {
-        "id": "o12",
-        "typeId": "carpet",
-        "row": 5,
+        "typeId": "shelf",
+        "row": 0,
         "col": 4
       },
       {
+        "id": "o12",
+        "typeId": "table",
+        "row": 1,
+        "col": 3
+      },
+      {
         "id": "o13",
-        "typeId": "window",
-        "row": 5,
+        "typeId": "plant",
+        "row": 4,
         "col": 6
       },
       {
         "id": "o14",
-        "typeId": "shelf",
+        "typeId": "stool",
         "row": 6,
-        "col": 6
+        "col": 1
       },
       {
         "id": "o15",
-        "typeId": "stool",
+        "typeId": "table",
         "row": 6,
-        "col": 3
+        "col": 4
+      },
+      {
+        "id": "o16",
+        "typeId": "tv",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "o17",
+        "typeId": "plant",
+        "row": 0,
+        "col": 6
+      },
+      {
+        "id": "o18",
+        "typeId": "shelf",
+        "row": 5,
+        "col": 0
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Commodore Hale",
-      "iconId": "person1",
+      "name": "Abate Benedetto",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "The ship's captain.",
+      "bio": "L'abate, custode di un grande segreto.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Sylvia",
-      "iconId": "detective",
+      "name": "Tommaso",
+      "iconId": "monk",
       "isVictim": false,
-      "bio": "The first officer.",
+      "bio": "Il monaco copista.",
       "color": "#ea558a",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c3",
-      "name": "Theo",
-      "iconId": "butler",
+      "name": "Chiara",
+      "iconId": "nun",
       "isVictim": false,
-      "bio": "The head steward.",
+      "bio": "La suora dell'infermeria.",
       "color": "#158060",
-      "gender": "male"
+      "gender": "female"
     },
     {
       "id": "c4",
-      "name": "Ines",
-      "iconId": "chef",
+      "name": "Ruggero",
+      "iconId": "farmer",
       "isVictim": false,
-      "bio": "The ship's chef.",
+      "bio": "Il contadino che lavora l'orto.",
       "color": "#9f5595",
-      "gender": "female"
-    },
-    {
-      "id": "c5",
-      "name": "Gabriel",
-      "iconId": "glasses",
-      "isVictim": false,
-      "bio": "A mysterious passenger.",
-      "color": "#bf8020",
       "gender": "male"
     },
     {
-      "id": "c6",
-      "name": "Mara",
-      "iconId": "artist",
+      "id": "c5",
+      "name": "Ilaria",
+      "iconId": "librarian",
       "isVictim": false,
-      "bio": "The lounge pianist.",
-      "color": "#4a6aca",
+      "bio": "La studiosa venuta a consultare i codici.",
+      "color": "#bf8020",
       "gender": "female"
     },
     {
-      "id": "c7",
-      "name": "Horace",
-      "iconId": "driver",
+      "id": "c6",
+      "name": "Aldo",
+      "iconId": "tourist",
       "isVictim": false,
-      "bio": "The engineer, always covered in grease.",
-      "color": "#9f80b5",
+      "bio": "Un pellegrino arrivato la sera prima.",
+      "color": "#4a6aca",
       "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c5",
-      "type": "between",
+      "characterId": null,
+      "type": "noOneInRowOrCol",
       "params": {
-        "targetAId": "objtype:shelf",
-        "targetBId": "z5"
+        "axis": "col",
+        "index": 6
       }
     },
     {
       "id": "k2",
-      "characterId": "c1",
+      "characterId": "c6",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
-        "distance": 4,
-        "targetId": "o9"
+        "direction": "south",
+        "distance": 6,
+        "targetId": "objtype:shelf"
       }
     },
     {
       "id": "k3",
-      "characterId": "c4",
-      "type": "between",
+      "characterId": "c1",
+      "type": "extremeInDirection",
       "params": {
-        "targetAId": "z9",
-        "targetBId": "objtype:table"
+        "direction": "west",
+        "scope": "room",
+        "property": "adjacentTo",
+        "targetId": "objtype:chair"
       }
     },
     {
       "id": "k4",
-      "characterId": "c6",
-      "type": "closerTo",
+      "characterId": "c3",
+      "type": "extremeInDirection",
       "params": {
-        "targetAId": "o11",
-        "targetBId": "o1"
+        "direction": "south",
+        "scope": "room",
+        "property": "adjacentTo",
+        "targetId": "objtype:lamp"
       }
     },
     {
       "id": "k5",
-      "characterId": "c3",
-      "type": "between",
+      "characterId": "c2",
+      "type": "extremeInDirection",
       "params": {
-        "targetAId": "z9",
-        "targetBId": "objtype:lamp"
+        "direction": "south",
+        "scope": "map",
+        "property": "adjacentTo",
+        "targetId": "o8"
       }
     },
     {
       "id": "k6",
-      "characterId": "c5",
-      "type": "directionDistance",
+      "characterId": "c4",
+      "type": "closerTo",
       "params": {
-        "direction": "north",
-        "distance": 2,
-        "targetId": "objtype:stool"
-      }
-    },
-    {
-      "id": "k7",
-      "characterId": "c2",
-      "type": "directionDistance",
-      "params": {
-        "direction": "west",
-        "distance": 4,
-        "targetId": "o12"
-      }
-    },
-    {
-      "id": "k8",
-      "characterId": null,
-      "type": "sameRoomTogether",
-      "params": {
-        "targetAId": "c4",
-        "targetBId": "c5"
+        "targetAId": "objtype:stool",
+        "targetBId": "o11"
       },
       "negate": true
     },
     {
-      "id": "k9",
-      "characterId": "c6",
-      "type": "inRowOrCol",
+      "id": "k7",
+      "characterId": "c5",
+      "type": "between",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetAId": "o4",
+        "targetBId": "z10"
       }
     },
     {
-      "id": "k10",
-      "characterId": "c6",
-      "type": "inRowOrCol",
+      "id": "k8",
+      "characterId": "c1",
+      "type": "closerTo",
       "params": {
-        "axis": "row",
-        "index": 6
+        "targetAId": "objtype:stool",
+        "targetBId": "o17"
       }
+    },
+    {
+      "id": "k9",
+      "characterId": "c5",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "z9",
+        "targetBId": "o13"
+      },
+      "negate": true
     }
   ],
   "solution": {
     "placements": [
       {
         "characterId": "c1",
-        "row": 0,
-        "col": 1
+        "row": 2,
+        "col": 2
       },
       {
         "characterId": "c2",
-        "row": 1,
-        "col": 0
+        "row": 3,
+        "col": 4
       },
       {
         "characterId": "c3",
-        "row": 2,
-        "col": 3
+        "row": 0,
+        "col": 0
       },
       {
         "characterId": "c4",
-        "row": 3,
-        "col": 5
+        "row": 1,
+        "col": 6
       },
       {
         "characterId": "c5",
         "row": 4,
-        "col": 6
+        "col": 1
       },
       {
         "characterId": "c6",
-        "row": 5,
-        "col": 2
-      },
-      {
-        "characterId": "c7",
         "row": 6,
-        "col": 4
+        "col": 3
       }
     ]
   },

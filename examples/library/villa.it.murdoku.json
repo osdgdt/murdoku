@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_opera_en",
-  "title": "The Opera House",
+  "schemaVersion": 4,
+  "id": "lib_villa_it",
+  "title": "La villa sul lago",
   "author": "Murdoku",
   "difficulty": "hard",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "The curtain falls on opening night, but not on Maestro Rossi: he is found dead in the room \"Backstage\". There were too many people in the house... but in his room, only one.",
-  "resolutionNote": "Greta was the only person beside the maestro. Applause, and curtain.",
+  "briefing": "Il giorno della lettura del testamento, la contessa Lavinia fu trovata senza vita nella stanza «Sala da pranzo». Sei persone, dieci stanze, un solo testimone muto: la villa.",
+  "resolutionNote": "Edmondo era l'unica persona con la contessa. Il testamento ora è tutto da riscrivere.",
+  "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -19,11 +20,6 @@
       [
         {
           "zoneId": "z1",
-          "objectId": "o9",
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
@@ -34,49 +30,12 @@
         },
         {
           "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o11",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z1",
-          "objectId": null,
+          "objectId": "o12",
           "blocked": false
         },
         {
           "zoneId": "z1",
           "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o10",
           "blocked": false
         },
         {
@@ -88,41 +47,9 @@
           "zoneId": "z2",
           "objectId": null,
           "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
         },
         {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
+          "zoneId": "z2",
           "objectId": "o14",
           "blocked": false
         }
@@ -140,28 +67,28 @@
         },
         {
           "zoneId": "z4",
-          "objectId": "o3",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o4",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
           "objectId": "o15",
           "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
         }
       ],
       [
@@ -177,12 +104,12 @@
         },
         {
           "zoneId": "z4",
-          "objectId": "o5",
+          "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z4",
-          "objectId": "o6",
+          "objectId": "o16",
           "blocked": false
         },
         {
@@ -191,8 +118,8 @@
           "blocked": false
         },
         {
-          "zoneId": "z4",
-          "objectId": "o7",
+          "zoneId": "z5",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -204,27 +131,22 @@
       [
         {
           "zoneId": "z6",
-          "objectId": "o8",
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
           "objectId": "o13",
           "blocked": false
         },
         {
-          "zoneId": "z7",
+          "zoneId": "z6",
           "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o9",
           "blocked": false
         },
         {
@@ -233,7 +155,12 @@
           "blocked": false
         },
         {
-          "zoneId": "z7",
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
           "objectId": null,
           "blocked": false
         }
@@ -241,11 +168,6 @@
       [
         {
           "zoneId": "z6",
-          "objectId": "o12",
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
           "objectId": null,
           "blocked": false
         },
@@ -256,6 +178,38 @@
         },
         {
           "zoneId": "z7",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": "o21",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": "o18",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z9",
+          "objectId": "o17",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
           "objectId": null,
           "blocked": false
         },
@@ -266,11 +220,58 @@
         },
         {
           "zoneId": "z7",
-          "objectId": null,
+          "objectId": "o11",
           "blocked": false
         },
         {
           "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": "o19",
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": "o20",
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
           "objectId": null,
           "blocked": false
         }
@@ -279,331 +280,378 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Stage",
+        "name": "Veranda",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "planks"
       },
       {
         "id": "z2",
-        "name": "Dressing room",
+        "name": "Terrazza",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "gravel"
       },
       {
         "id": "z3",
-        "name": "Backstage",
+        "name": "Studio",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "planks_dark"
       },
       {
         "id": "z4",
-        "name": "Stalls",
+        "name": "Salotto",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "carpet_blue"
       },
       {
         "id": "z5",
-        "name": "Boxes",
+        "name": "Darsena",
         "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "water"
       },
       {
         "id": "z6",
-        "name": "Foyer",
+        "name": "Biblioteca",
         "color": "#f4d3c2",
-        "textureId": "marble"
+        "textureId": "parquet"
       },
       {
         "id": "z7",
-        "name": "Bar",
+        "name": "Sala da pranzo",
         "color": "#c2f4e8",
-        "textureId": "water"
+        "textureId": "checker_cream"
+      },
+      {
+        "id": "z8",
+        "name": "Serra",
+        "color": "#e8e8e8",
+        "textureId": "grass"
+      },
+      {
+        "id": "z9",
+        "name": "Cucina",
+        "color": "#d6e8a4",
+        "textureId": "terracotta"
+      },
+      {
+        "id": "z10",
+        "name": "Cantina",
+        "color": "#f4c2c2",
+        "textureId": "brick"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "chair",
-        "row": 2,
-        "col": 2
+        "typeId": "window",
+        "row": 0,
+        "col": 4,
+        "side": "N"
       },
       {
         "id": "o2",
-        "typeId": "chair",
-        "row": 2,
-        "col": 3
+        "typeId": "window",
+        "row": 3,
+        "col": 6,
+        "side": "E"
       },
       {
         "id": "o3",
-        "typeId": "chair",
+        "typeId": "window",
         "row": 3,
-        "col": 2
+        "col": 4,
+        "side": "E"
       },
       {
         "id": "o4",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "o5",
+        "typeId": "door",
+        "row": 3,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "o6",
+        "typeId": "door",
+        "row": 5,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "o7",
+        "typeId": "table",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "id": "o8",
+        "typeId": "chair",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "id": "o9",
         "typeId": "chair",
         "row": 3,
         "col": 3
       },
       {
-        "id": "o5",
-        "typeId": "chair",
-        "row": 4,
-        "col": 2
-      },
-      {
-        "id": "o6",
-        "typeId": "chair",
-        "row": 4,
-        "col": 3
-      },
-      {
-        "id": "o7",
-        "typeId": "chair",
-        "row": 4,
-        "col": 5
-      },
-      {
-        "id": "o8",
-        "typeId": "carpet",
-        "row": 5,
-        "col": 0
-      },
-      {
-        "id": "o9",
-        "typeId": "lamp",
-        "row": 0,
-        "col": 0
-      },
-      {
         "id": "o10",
-        "typeId": "table",
-        "row": 1,
+        "typeId": "chair",
+        "row": 4,
         "col": 4
       },
       {
         "id": "o11",
-        "typeId": "window",
-        "row": 0,
-        "col": 6
-      },
-      {
-        "id": "o12",
-        "typeId": "shelf",
-        "row": 6,
-        "col": 0
-      },
-      {
-        "id": "o13",
-        "typeId": "door",
+        "typeId": "carpet",
         "row": 5,
         "col": 3
       },
       {
+        "id": "o12",
+        "typeId": "lamp",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "o13",
+        "typeId": "shelf",
+        "row": 3,
+        "col": 0
+      },
+      {
         "id": "o14",
         "typeId": "plant",
-        "row": 2,
+        "row": 0,
         "col": 6
       },
       {
         "id": "o15",
+        "typeId": "tv",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "o16",
         "typeId": "stool",
-        "row": 3,
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "o17",
+        "typeId": "plant",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "o18",
+        "typeId": "shelf",
+        "row": 4,
         "col": 6
+      },
+      {
+        "id": "o19",
+        "typeId": "table",
+        "row": 6,
+        "col": 4
+      },
+      {
+        "id": "o20",
+        "typeId": "lamp",
+        "row": 6,
+        "col": 5
+      },
+      {
+        "id": "o21",
+        "typeId": "carpet",
+        "row": 4,
+        "col": 5
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Maestro Rossi",
-      "iconId": "person1",
+      "name": "Contessa Lavinia",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "The conductor, thoroughly feared.",
+      "bio": "La padrona della villa sul lago.",
       "color": "#608aea",
-      "gender": "male"
+      "gender": "female"
     },
     {
       "id": "c2",
-      "name": "Greta",
-      "iconId": "hat",
+      "name": "Edmondo",
+      "iconId": "butler",
       "isVictim": false,
-      "bio": "The soprano, the maestro's old rival.",
+      "bio": "Il maggiordomo di sempre.",
       "color": "#ea558a",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c3",
-      "name": "Hugh",
-      "iconId": "butler",
+      "name": "Giacinta",
+      "iconId": "maid",
       "isVictim": false,
-      "bio": "The lighting technician.",
+      "bio": "La cameriera che origliava alle porte.",
       "color": "#158060",
-      "gender": "male"
+      "gender": "female"
     },
     {
       "id": "c4",
-      "name": "Viola",
-      "iconId": "artist",
+      "name": "Rodolfo",
+      "iconId": "gardener",
       "isVictim": false,
-      "bio": "The costume designer.",
+      "bio": "Il giardiniere, licenziato il giorno prima.",
       "color": "#9f5595",
-      "gender": "female"
-    },
-    {
-      "id": "c5",
-      "name": "Terry",
-      "iconId": "professor",
-      "isVictim": false,
-      "bio": "The newspaper's music critic.",
-      "color": "#bf8020",
       "gender": "male"
     },
     {
-      "id": "c6",
-      "name": "Lily",
-      "iconId": "maid",
+      "id": "c5",
+      "name": "Caterina",
+      "iconId": "artist",
       "isVictim": false,
-      "bio": "The usher who shows guests to their seats.",
-      "color": "#4a6aca",
+      "bio": "La pittrice ospite della villa.",
+      "color": "#bf8020",
       "gender": "female"
+    },
+    {
+      "id": "c6",
+      "name": "Leopoldo",
+      "iconId": "lawyer",
+      "isVictim": false,
+      "bio": "L'avvocato di famiglia, con il testamento.",
+      "color": "#4a6aca",
+      "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c3",
-      "type": "directionDistance",
+      "characterId": "c2",
+      "type": "between",
       "params": {
-        "direction": "east",
-        "distance": 3,
-        "targetId": "o12"
+        "targetAId": "o2",
+        "targetBId": "z6"
       }
     },
     {
       "id": "k2",
-      "characterId": "c4",
-      "type": "inRowOrCol",
-      "params": {
-        "axis": "row",
-        "index": 2
-      }
-    },
-    {
-      "id": "k11",
-      "characterId": "c4",
-      "type": "adjacent",
-      "params": {
-        "targetId": "objtype:window"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c2",
-      "type": "rowOrColAdjacentTo",
-      "params": {
-        "axis": "col",
-        "targetId": "objtype:lamp"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c5",
+      "characterId": "c1",
       "type": "directionDistance",
       "params": {
         "direction": "north",
         "distance": 2,
-        "targetId": "objtype:carpet"
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c4",
+      "type": "extremeInDirection",
+      "params": {
+        "direction": "north",
+        "scope": "map",
+        "property": "adjacentTo",
+        "targetId": "z5"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c6",
+      "type": "extremeInDirection",
+      "params": {
+        "direction": "south",
+        "scope": "room",
+        "property": "adjacentTo",
+        "targetId": "objtype:shelf"
       }
     },
     {
       "id": "k5",
-      "characterId": "c6",
+      "characterId": "c2",
       "type": "closerTo",
       "params": {
-        "targetAId": "objtype:plant",
-        "targetBId": "objtype:table"
-      }
+        "targetAId": "o5",
+        "targetBId": "o21"
+      },
+      "negate": true
     },
     {
       "id": "k6",
-      "characterId": null,
-      "type": "noOneWithProperty",
+      "characterId": "c5",
+      "type": "closerTo",
       "params": {
-        "zoneId": "z7",
-        "onlyGender": "female",
-        "property": "adjacentTo",
-        "targetId": "objtype:chair"
+        "targetAId": "o8",
+        "targetBId": "o7"
       }
     },
     {
       "id": "k7",
-      "characterId": "c5",
+      "characterId": "c3",
       "type": "closerTo",
       "params": {
-        "targetAId": "objtype:table",
-        "targetBId": "o5"
-      }
+        "targetAId": "o3",
+        "targetBId": "c4"
+      },
+      "negate": true
     },
     {
       "id": "k8",
-      "characterId": "c2",
-      "type": "someoneInRoomWithProperty",
+      "characterId": "c5",
+      "type": "directionDistance",
       "params": {
-        "property": "adjacentTo",
-        "targetId": "z1"
-      }
+        "direction": "west",
+        "distance": 4,
+        "targetId": "o10"
+      },
+      "negate": true
     },
     {
       "id": "k9",
-      "characterId": "c3",
-      "type": "inRoom",
+      "characterId": null,
+      "type": "noOneNear",
       "params": {
-        "zoneId": "z1"
+        "targetId": "o16"
       }
-    },
-    {
-      "id": "k10",
-      "characterId": "c6",
-      "type": "inRowOrCol",
-      "params": {
-        "axis": "row",
-        "index": 6
-      },
-      "negate": true
     }
   ],
   "solution": {
     "placements": [
       {
         "characterId": "c1",
-        "row": 2,
-        "col": 0
-      },
-      {
-        "characterId": "c2",
         "row": 4,
-        "col": 1
-      },
-      {
-        "characterId": "c3",
-        "row": 0,
         "col": 3
       },
       {
-        "characterId": "c4",
-        "row": 1,
-        "col": 6
-      },
-      {
-        "characterId": "c5",
+        "characterId": "c2",
         "row": 3,
         "col": 4
       },
       {
-        "characterId": "c6",
-        "row": 6,
+        "characterId": "c3",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 1,
         "col": 5
+      },
+      {
+        "characterId": "c5",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "characterId": "c6",
+        "row": 5,
+        "col": 6
       }
     ]
   },

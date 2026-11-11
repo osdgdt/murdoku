@@ -25,7 +25,7 @@
       }
     },
     {
-      "id": "library",
+      "id": "faro",
       "order": 1,
       "difficulty": "very-easy",
       "size": [
@@ -33,22 +33,22 @@
         5
       ],
       "characters": 4,
-      "clues": 6,
+      "clues": 7,
       "title": {
-        "it": "Delitto nello studio",
-        "en": "Murder in the Study"
+        "it": "Il faro nella tempesta",
+        "en": "The Lighthouse in the Storm"
       },
       "files": {
-        "it": "examples/library/library.it.murdoku.json",
-        "en": "examples/library/library.en.murdoku.json"
+        "it": "examples/library/faro.it.murdoku.json",
+        "en": "examples/library/faro.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_library_it",
-        "en": "lib_library_en"
+        "it": "lib_faro_it",
+        "en": "lib_faro_en"
       }
     },
     {
-      "id": "dinner",
+      "id": "pasticceria",
       "order": 2,
       "difficulty": "easy",
       "size": [
@@ -58,20 +58,20 @@
       "characters": 5,
       "clues": 6,
       "title": {
-        "it": "Cena con delitto",
-        "en": "Dinner Party Murder"
+        "it": "Amaro in pasticceria",
+        "en": "Bitter in the Bakery"
       },
       "files": {
-        "it": "examples/library/dinner.it.murdoku.json",
-        "en": "examples/library/dinner.en.murdoku.json"
+        "it": "examples/library/pasticceria.it.murdoku.json",
+        "en": "examples/library/pasticceria.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_dinner_it",
-        "en": "lib_dinner_en"
+        "it": "lib_pasticceria_it",
+        "en": "lib_pasticceria_en"
       }
     },
     {
-      "id": "train",
+      "id": "clinica",
       "order": 3,
       "difficulty": "easy",
       "size": [
@@ -79,22 +79,22 @@
         6
       ],
       "characters": 5,
-      "clues": 7,
+      "clues": 6,
       "title": {
-        "it": "Il treno della notte",
-        "en": "The Night Train"
+        "it": "Turno di notte in clinica",
+        "en": "Night Shift at the Clinic"
       },
       "files": {
-        "it": "examples/library/train.it.murdoku.json",
-        "en": "examples/library/train.en.murdoku.json"
+        "it": "examples/library/clinica.it.murdoku.json",
+        "en": "examples/library/clinica.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_train_it",
-        "en": "lib_train_en"
+        "it": "lib_clinica_it",
+        "en": "lib_clinica_en"
       }
     },
     {
-      "id": "restaurant",
+      "id": "collegio",
       "order": 4,
       "difficulty": "medium",
       "size": [
@@ -102,22 +102,22 @@
         6
       ],
       "characters": 6,
-      "clues": 8,
+      "clues": 7,
       "title": {
-        "it": "Veleno al ristorante",
-        "en": "Poison at the Restaurant"
+        "it": "Esame finale al collegio",
+        "en": "Final Exam at the College"
       },
       "files": {
-        "it": "examples/library/restaurant.it.murdoku.json",
-        "en": "examples/library/restaurant.en.murdoku.json"
+        "it": "examples/library/collegio.it.murdoku.json",
+        "en": "examples/library/collegio.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_restaurant_it",
-        "en": "lib_restaurant_en"
+        "it": "lib_collegio_it",
+        "en": "lib_collegio_en"
       }
     },
     {
-      "id": "museum",
+      "id": "castello",
       "order": 5,
       "difficulty": "medium",
       "size": [
@@ -125,87 +125,87 @@
         6
       ],
       "characters": 6,
-      "clues": 5,
+      "clues": 6,
       "title": {
-        "it": "Mistero al museo",
-        "en": "Museum Mystery"
+        "it": "Il banchetto del re",
+        "en": "The King's Banquet"
       },
       "files": {
-        "it": "examples/library/museum.it.murdoku.json",
-        "en": "examples/library/museum.en.murdoku.json"
+        "it": "examples/library/castello.it.murdoku.json",
+        "en": "examples/library/castello.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_museum_it",
-        "en": "lib_museum_en"
+        "it": "lib_castello_it",
+        "en": "lib_castello_en"
       }
     },
     {
-      "id": "opera",
+      "id": "stazione",
       "order": 6,
-      "difficulty": "hard",
+      "difficulty": "medium",
       "size": [
         7,
         7
       ],
       "characters": 6,
-      "clues": 11,
+      "clues": 7,
       "title": {
-        "it": "Il teatro dell'opera",
-        "en": "The Opera House"
+        "it": "Delitto in orbita",
+        "en": "Murder in Orbit"
       },
       "files": {
-        "it": "examples/library/opera.it.murdoku.json",
-        "en": "examples/library/opera.en.murdoku.json"
+        "it": "examples/library/stazione.it.murdoku.json",
+        "en": "examples/library/stazione.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_opera_it",
-        "en": "lib_opera_en"
+        "it": "lib_stazione_it",
+        "en": "lib_stazione_en"
       }
     },
     {
-      "id": "cruise",
+      "id": "monastero",
       "order": 7,
       "difficulty": "hard",
       "size": [
         7,
         7
       ],
-      "characters": 7,
-      "clues": 10,
+      "characters": 6,
+      "clues": 9,
       "title": {
-        "it": "La nave da crociera",
-        "en": "The Cruise Ship"
+        "it": "Il segreto del monastero",
+        "en": "The Secret of the Monastery"
       },
       "files": {
-        "it": "examples/library/cruise.it.murdoku.json",
-        "en": "examples/library/cruise.en.murdoku.json"
+        "it": "examples/library/monastero.it.murdoku.json",
+        "en": "examples/library/monastero.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_cruise_it",
-        "en": "lib_cruise_en"
+        "it": "lib_monastero_it",
+        "en": "lib_monastero_en"
       }
     },
     {
-      "id": "hotel",
+      "id": "villa",
       "order": 8,
-      "difficulty": "expert",
+      "difficulty": "hard",
       "size": [
         7,
         7
       ],
-      "characters": 7,
-      "clues": 11,
+      "characters": 6,
+      "clues": 9,
       "title": {
-        "it": "Hotel Belvedere",
-        "en": "Hotel Belvedere"
+        "it": "La villa sul lago",
+        "en": "The Villa on the Lake"
       },
       "files": {
-        "it": "examples/library/hotel.it.murdoku.json",
-        "en": "examples/library/hotel.en.murdoku.json"
+        "it": "examples/library/villa.it.murdoku.json",
+        "en": "examples/library/villa.en.murdoku.json"
       },
       "puzzleId": {
-        "it": "lib_hotel_it",
-        "en": "lib_hotel_en"
+        "it": "lib_villa_it",
+        "en": "lib_villa_en"
       }
     }
   ]

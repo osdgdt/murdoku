@@ -49,7 +49,7 @@ export function buildBase(spec, lang) {
       else if (zoneIds[ch]) paintCellZone(puzzle.grid, r, c, zoneIds[ch]);
     });
   });
-  for (const o of spec.objects || []) placeObject(puzzle.grid, o.type, o.row, o.col);
+  for (const o of spec.objects || []) placeObject(puzzle.grid, o.type, o.row, o.col, o.side);
   const ids = {};
   spec.cast.forEach((member) => {
     const c = addCharacter(puzzle, member.names[lang], member.icon, !!member.victim);

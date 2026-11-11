@@ -1,0 +1,607 @@
+{
+  "schemaVersion": 4,
+  "id": "lib_stazione_en",
+  "title": "Murder in Orbit",
+  "author": "Murdoku",
+  "difficulty": "medium",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Four hundred kilometres above Earth, Commander Volkov was found dead in the room \"Engine room\". No shuttle could leave: who was with him?",
+  "resolutionNote": "Imani was the only person with the commander. The silence of space has spoken.",
+  "tense": "past",
+  "createdAt": 1767225600000,
+  "updatedAt": 1767225600000,
+  "grid": {
+    "size": {
+      "rows": 7,
+      "cols": 7
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": "o8",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": "o10",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o16",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z10",
+          "objectId": "o11",
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": "o14",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o13",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z10",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z11",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z11",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z11",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": "o15",
+          "blocked": false
+        },
+        {
+          "zoneId": "z9",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "z1",
+        "name": "Bridge",
+        "color": "#f4c2c2",
+        "textureId": "tiles_white"
+      },
+      {
+        "id": "z2",
+        "name": "Greenhouse",
+        "color": "#c2e0f4",
+        "textureId": "grass"
+      },
+      {
+        "id": "z3",
+        "name": "Quarters",
+        "color": "#c9f4c2",
+        "textureId": "carpet_blue"
+      },
+      {
+        "id": "z4",
+        "name": "Mess",
+        "color": "#f4ecc2",
+        "textureId": "checker_bw"
+      },
+      {
+        "id": "z5",
+        "name": "Lab",
+        "color": "#e0c2f4",
+        "textureId": "linoleum"
+      },
+      {
+        "id": "z6",
+        "name": "Airlock",
+        "color": "#f4d3c2",
+        "textureId": "concrete"
+      },
+      {
+        "id": "z7",
+        "name": "Infirmary",
+        "color": "#c2f4e8",
+        "textureId": "tiles_white"
+      },
+      {
+        "id": "z8",
+        "name": "Engine room",
+        "color": "#e8e8e8",
+        "textureId": "slate"
+      },
+      {
+        "id": "z9",
+        "name": "Cargo bay",
+        "color": "#d6e8a4",
+        "textureId": "gravel"
+      },
+      {
+        "id": "z10",
+        "name": "Gym",
+        "color": "#f4c2c2",
+        "textureId": "carpet_green"
+      },
+      {
+        "id": "z11",
+        "name": "Observatory",
+        "color": "#c2e0f4",
+        "textureId": "marble_black"
+      }
+    ],
+    "objects": [
+      {
+        "id": "o1",
+        "typeId": "window",
+        "row": 0,
+        "col": 2,
+        "side": "N"
+      },
+      {
+        "id": "o2",
+        "typeId": "window",
+        "row": 2,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "o3",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "o4",
+        "typeId": "door",
+        "row": 4,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "o5",
+        "typeId": "table",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "id": "o6",
+        "typeId": "chair",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "o7",
+        "typeId": "stool",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "o8",
+        "typeId": "lamp",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "o9",
+        "typeId": "plant",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "o10",
+        "typeId": "shelf",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "o11",
+        "typeId": "carpet",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "o12",
+        "typeId": "tv",
+        "row": 6,
+        "col": 3
+      },
+      {
+        "id": "o13",
+        "typeId": "plant",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "o14",
+        "typeId": "table",
+        "row": 5,
+        "col": 3
+      },
+      {
+        "id": "o15",
+        "typeId": "shelf",
+        "row": 6,
+        "col": 5
+      },
+      {
+        "id": "o16",
+        "typeId": "lamp",
+        "row": 4,
+        "col": 6
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c1",
+      "name": "Commander Volkov",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "The commander of the orbital station.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "c2",
+      "name": "Imani",
+      "iconId": "scientist",
+      "isVictim": false,
+      "bio": "The greenhouse biologist.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "c3",
+      "name": "Hiro",
+      "iconId": "astronaut",
+      "isVictim": false,
+      "bio": "The spacewalk astronaut.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "c4",
+      "name": "Sven",
+      "iconId": "mechanic",
+      "isVictim": false,
+      "bio": "The engine technician.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Leah",
+      "iconId": "doctor",
+      "isVictim": false,
+      "bio": "The station doctor.",
+      "color": "#bf8020",
+      "gender": "female"
+    },
+    {
+      "id": "c6",
+      "name": "Omar",
+      "iconId": "pilot",
+      "isVictim": false,
+      "bio": "The supply shuttle pilot.",
+      "color": "#4a6aca",
+      "gender": "male"
+    }
+  ],
+  "clues": [
+    {
+      "id": "k1",
+      "characterId": "c4",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "objtype:stool",
+        "targetBId": "objtype:chair"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c1",
+      "type": "between",
+      "params": {
+        "targetAId": "z5",
+        "targetBId": "objtype:table"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 3,
+        "targetId": "o13"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c3",
+      "type": "rowOrColAdjacentTo",
+      "params": {
+        "axis": "col",
+        "targetId": "objtype:shelf"
+      },
+      "negate": true
+    },
+    {
+      "id": "k5",
+      "characterId": "c3",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 4,
+        "targetId": "c1"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c5",
+      "type": "inFrontOfWindow",
+      "params": {}
+    },
+    {
+      "id": "k7",
+      "characterId": "c6",
+      "type": "closerTo",
+      "params": {
+        "targetAId": "objtype:lamp",
+        "targetBId": "z9"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "c1",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "characterId": "c2",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "characterId": "c3",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "characterId": "c5",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "characterId": "c6",
+        "row": 3,
+        "col": 6
+      }
+    ]
+  },
+  "manualHints": []
+}

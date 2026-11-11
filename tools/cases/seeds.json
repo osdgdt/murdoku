@@ -1,10 +1,10 @@
 {
-  "library": 1,
-  "train": 1,
-  "restaurant": 11,
-  "museum": 21,
-  "opera": 84,
-  "cruise": 81,
-  "dinner": 43,
-  "hotel": 111
+  "faro": 27,
+  "pasticceria": 68,
+  "clinica": 72,
+  "collegio": 256,
+  "castello": 1183,
+  "stazione": 62,
+  "monastero": 222,
+  "villa": 2
 }

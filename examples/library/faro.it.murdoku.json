@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_dinner_en",
-  "title": "Dinner Party Murder",
+  "schemaVersion": 4,
+  "id": "lib_faro_it",
+  "title": "Il faro nella tempesta",
   "author": "Murdoku",
-  "difficulty": "easy",
+  "difficulty": "very-easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Countess Vera will not live to see dessert: she is found in the room \"Dining room\". Five guests, and only one person in the room with her. Who?",
-  "resolutionNote": "Edward was the only guest with the countess: dessert can wait.",
+  "briefing": "Una notte di tempesta, il capitano Morgan viene trovato senza vita nella stanza «Lanterna». Il faro è isolato dal mare in burrasca: chi era con lui?",
+  "resolutionNote": "Ettore era l'unica persona con il capitano. La luce del faro torna a girare.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,28 +25,6 @@
         },
         {
           "zoneId": "z1",
-          "objectId": "o4",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
@@ -56,44 +35,39 @@
         },
         {
           "zoneId": "z2",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
           "objectId": "o7",
           "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": "o8",
+          "blocked": false
         },
         {
-          "zoneId": "z4",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z4",
-          "objectId": "o3",
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
           "blocked": false
         }
       ],
@@ -109,7 +83,7 @@
           "blocked": false
         },
         {
-          "zoneId": "z3",
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
@@ -126,17 +100,44 @@
       ],
       [
         {
-          "zoneId": "z5",
+          "zoneId": "z3",
           "objectId": "o6",
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
           "objectId": "o5",
           "blocked": false
         },
@@ -155,148 +156,155 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Hall",
+        "name": "Lanterna",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "planks"
       },
       {
         "id": "z2",
-        "name": "Dining room",
+        "name": "Alloggio del guardiano",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "parquet"
       },
       {
         "id": "z3",
-        "name": "Lounge",
+        "name": "Rimessa delle barche",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "gravel"
       },
       {
         "id": "z4",
-        "name": "Kitchen",
+        "name": "Cantina",
         "color": "#f4ecc2",
-        "textureId": "carpet"
-      },
-      {
-        "id": "z5",
-        "name": "Pantry",
-        "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "stone"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "table",
+        "typeId": "window",
         "row": 1,
-        "col": 2
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o2",
-        "typeId": "carpet",
-        "row": 2,
-        "col": 1
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
       },
       {
         "id": "o3",
-        "typeId": "stool",
+        "typeId": "door",
         "row": 2,
-        "col": 4
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o4",
-        "typeId": "lamp",
-        "row": 0,
-        "col": 1
+        "typeId": "table",
+        "row": 3,
+        "col": 3
       },
       {
         "id": "o5",
-        "typeId": "shelf",
+        "typeId": "chair",
         "row": 4,
         "col": 2
       },
       {
         "id": "o6",
-        "typeId": "plant",
-        "row": 4,
+        "typeId": "carpet",
+        "row": 3,
         "col": 0
       },
       {
         "id": "o7",
-        "typeId": "door",
-        "row": 2,
-        "col": 2
+        "typeId": "plant",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "o8",
+        "typeId": "lamp",
+        "row": 1,
+        "col": 0
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Countess Vera",
-      "iconId": "person1",
+      "name": "Capitano Morgan",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "The guest of honour.",
+      "bio": "Il vecchio guardiano del faro.",
       "color": "#608aea",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Edward",
-      "iconId": "professor",
+      "name": "Ettore",
+      "iconId": "sailor",
       "isVictim": false,
-      "bio": "The professor, passed over as guest of honour.",
+      "bio": "Il marinaio che porta le provviste.",
       "color": "#ea558a",
       "gender": "male"
     },
     {
       "id": "c3",
-      "name": "Livia",
-      "iconId": "artist",
+      "name": "Lucia",
+      "iconId": "photographer",
       "isVictim": false,
-      "bio": "The artist, always late.",
+      "bio": "Una fotografa venuta per le tempeste.",
       "color": "#158060",
       "gender": "female"
     },
     {
       "id": "c4",
-      "name": "Marcus",
-      "iconId": "driver",
+      "name": "Nino",
+      "iconId": "mechanic",
       "isVictim": false,
-      "bio": "The driver, waiting by the door.",
+      "bio": "Il meccanico del generatore.",
       "color": "#9f5595",
       "gender": "male"
-    },
-    {
-      "id": "c5",
-      "name": "Nora",
-      "iconId": "glasses",
-      "isVictim": false,
-      "bio": "The countess's cousin, fascinated by poisons.",
-      "color": "#bf8020",
-      "gender": "female"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c5",
-      "type": "aloneInRoom",
-      "params": {
-        "zoneId": "z5"
-      }
+      "characterId": "c2",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k2",
-      "characterId": "c4",
-      "type": "inRowOrCol",
+      "characterId": "c2",
+      "type": "diagonal",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetId": "o3"
       }
     },
     {
       "id": "k3",
-      "characterId": "c4",
+      "characterId": "c1",
+      "type": "adjacent",
+      "params": {
+        "targetId": "o2"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c1",
+      "type": "diagonal",
+      "params": {
+        "targetId": "objtype:window"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c3",
       "type": "inRowOrCol",
       "params": {
         "axis": "row",
@@ -304,29 +312,21 @@
       }
     },
     {
-      "id": "k4",
-      "characterId": "c3",
-      "type": "adjacent",
-      "params": {
-        "targetId": "o2"
-      }
-    },
-    {
-      "id": "k5",
-      "characterId": "c2",
-      "type": "facing",
-      "params": {
-        "targetId": "objtype:table"
-      }
-    },
-    {
       "id": "k6",
-      "characterId": "c2",
-      "type": "adjacent",
+      "characterId": "c3",
+      "type": "aloneInRoom",
       "params": {
-        "targetId": "objtype:table"
-      },
-      "negate": true
+        "zoneId": "z4"
+      }
+    },
+    {
+      "id": "k7",
+      "characterId": "c4",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "row",
+        "targetId": "o5"
+      }
     }
   ],
   "solution": {
@@ -334,27 +334,22 @@
       {
         "characterId": "c1",
         "row": 0,
-        "col": 3
+        "col": 1
       },
       {
         "characterId": "c2",
         "row": 1,
-        "col": 4
-      },
-      {
-        "characterId": "c3",
-        "row": 2,
-        "col": 0
-      },
-      {
-        "characterId": "c4",
-        "row": 3,
         "col": 2
       },
       {
-        "characterId": "c5",
+        "characterId": "c3",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "characterId": "c4",
         "row": 4,
-        "col": 1
+        "col": 0
       }
     ]
   },

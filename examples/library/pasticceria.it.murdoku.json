@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_dinner_it",
-  "title": "Cena con delitto",
+  "schemaVersion": 4,
+  "id": "lib_pasticceria_it",
+  "title": "Amaro in pasticceria",
   "author": "Murdoku",
   "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "La Contessa Vera non arriverà al dolce: la trovano nella stanza «Sala da pranzo». Cinque ospiti, una sola persona nella stanza con lei. Chi?",
-  "resolutionNote": "Edoardo era l'unico ospite con la contessa: il dolce può aspettare.",
+  "briefing": "All'alba, il maestro Ferrante viene trovato senza vita nella stanza «Negozio». Nell'aria c'è profumo di zucchero... e di guai. Chi c'era con lui?",
+  "resolutionNote": "Anselmo era l'unica persona con il maestro. La torta resta incompiuta.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,6 +25,38 @@
         },
         {
           "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o5",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
           "objectId": "o4",
           "blocked": false
         },
@@ -36,41 +69,14 @@
           "zoneId": "z2",
           "objectId": null,
           "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z1",
-          "objectId": null,
+          "zoneId": "z3",
+          "objectId": "o6",
           "blocked": false
         },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
         {
           "zoneId": "z3",
           "objectId": null,
@@ -78,34 +84,29 @@
         },
         {
           "zoneId": "z3",
-          "objectId": "o2",
+          "objectId": null,
           "blocked": false
         },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
         {
           "zoneId": "z3",
           "objectId": "o7",
           "blocked": false
         },
         {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o3",
-          "blocked": false
-        }
-      ],
-      [
-        {
           "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": null,
+          "objectId": "o8",
           "blocked": false
         },
         {
@@ -127,7 +128,7 @@
       [
         {
           "zoneId": "z5",
-          "objectId": "o6",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -137,7 +138,7 @@
         },
         {
           "zoneId": "z5",
-          "objectId": "o5",
+          "objectId": "o9",
           "blocked": false
         },
         {
@@ -147,7 +148,7 @@
         },
         {
           "zoneId": "z4",
-          "objectId": null,
+          "objectId": "o10",
           "blocked": false
         }
       ]
@@ -155,123 +156,144 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Atrio",
+        "name": "Laboratorio",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "tiles_white"
       },
       {
         "id": "z2",
-        "name": "Sala da pranzo",
+        "name": "Negozio",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "checker_cream"
       },
       {
         "id": "z3",
-        "name": "Salotto",
+        "name": "Sala da tè",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "carpet_blue"
       },
       {
         "id": "z4",
-        "name": "Cucina",
+        "name": "Magazzino",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "concrete"
       },
       {
         "id": "z5",
-        "name": "Dispensa",
+        "name": "Cella frigorifera",
         "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "linoleum"
       }
     ],
     "objects": [
       {
         "id": "o1",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "o2",
+        "typeId": "window",
+        "row": 2,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "o3",
+        "typeId": "window",
+        "row": 0,
+        "col": 3,
+        "side": "N"
+      },
+      {
+        "id": "o4",
         "typeId": "table",
         "row": 1,
         "col": 2
       },
       {
-        "id": "o2",
-        "typeId": "carpet",
-        "row": 2,
-        "col": 1
-      },
-      {
-        "id": "o3",
-        "typeId": "stool",
-        "row": 2,
+        "id": "o5",
+        "typeId": "shelf",
+        "row": 0,
         "col": 4
       },
       {
-        "id": "o4",
-        "typeId": "lamp",
-        "row": 0,
-        "col": 1
-      },
-      {
-        "id": "o5",
-        "typeId": "shelf",
-        "row": 4,
-        "col": 2
-      },
-      {
         "id": "o6",
-        "typeId": "plant",
-        "row": 4,
+        "typeId": "chair",
+        "row": 2,
         "col": 0
       },
       {
         "id": "o7",
-        "typeId": "door",
-        "row": 2,
+        "typeId": "stool",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "o8",
+        "typeId": "carpet",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "id": "o9",
+        "typeId": "lamp",
+        "row": 4,
         "col": 2
+      },
+      {
+        "id": "o10",
+        "typeId": "plant",
+        "row": 4,
+        "col": 4
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Contessa Vera",
-      "iconId": "person1",
+      "name": "Maestro Ferrante",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "L'ospite d'onore della serata.",
+      "bio": "Il pasticcere più famoso della città.",
       "color": "#608aea",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Edoardo",
-      "iconId": "professor",
+      "name": "Anselmo",
+      "iconId": "banker",
       "isVictim": false,
-      "bio": "Il professore, ospite d'onore mancato.",
+      "bio": "Il banchiere a cui Ferrante doveva molti soldi.",
       "color": "#ea558a",
       "gender": "male"
     },
     {
       "id": "c3",
-      "name": "Livia",
-      "iconId": "artist",
+      "name": "Rosa",
+      "iconId": "photographer",
       "isVictim": false,
-      "bio": "L'artista, sempre in ritardo.",
+      "bio": "La food blogger, sempre a caccia di scoop.",
       "color": "#158060",
       "gender": "female"
     },
     {
       "id": "c4",
-      "name": "Marco",
-      "iconId": "driver",
+      "name": "Tino",
+      "iconId": "mechanic",
       "isVictim": false,
-      "bio": "L'autista, in attesa fuori dalla porta.",
+      "bio": "Il tecnico che ripara i forni.",
       "color": "#9f5595",
       "gender": "male"
     },
     {
       "id": "c5",
-      "name": "Nora",
-      "iconId": "glasses",
+      "name": "Vera",
+      "iconId": "police",
       "isVictim": false,
-      "bio": "La cugina della contessa, appassionata di veleni.",
+      "bio": "L'ispettrice, venuta per un controllo igienico.",
       "color": "#bf8020",
       "gender": "female"
     }
@@ -280,53 +302,49 @@
     {
       "id": "k1",
       "characterId": "c5",
-      "type": "aloneInRoom",
-      "params": {
-        "zoneId": "z5"
-      }
+      "type": "inCorner",
+      "params": {}
     },
     {
       "id": "k2",
-      "characterId": "c4",
-      "type": "inRowOrCol",
+      "characterId": "c5",
+      "type": "adjacent",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetId": "z3"
       }
     },
     {
       "id": "k3",
-      "characterId": "c4",
-      "type": "inRowOrCol",
+      "characterId": "c3",
+      "type": "adjacent",
       "params": {
-        "axis": "row",
-        "index": 4
+        "targetId": "o8"
       }
     },
     {
       "id": "k4",
-      "characterId": "c3",
-      "type": "adjacent",
+      "characterId": "c2",
+      "type": "diagonal",
       "params": {
-        "targetId": "o2"
+        "targetId": "o3"
       }
     },
     {
       "id": "k5",
-      "characterId": "c2",
-      "type": "facing",
+      "characterId": "c3",
+      "type": "inRowOrCol",
       "params": {
-        "targetId": "objtype:table"
+        "axis": "row",
+        "index": 3
       }
     },
     {
       "id": "k6",
-      "characterId": "c2",
-      "type": "adjacent",
+      "characterId": "c4",
+      "type": "inRoom",
       "params": {
-        "targetId": "objtype:table"
-      },
-      "negate": true
+        "zoneId": "z3"
+      }
     }
   ],
   "solution": {
@@ -344,7 +362,7 @@
       {
         "characterId": "c3",
         "row": 2,
-        "col": 0
+        "col": 1
       },
       {
         "characterId": "c4",
@@ -354,7 +372,7 @@
       {
         "characterId": "c5",
         "row": 4,
-        "col": 1
+        "col": 0
       }
     ]
   },

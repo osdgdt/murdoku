@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_restaurant_it",
-  "title": "Veleno al ristorante",
+  "schemaVersion": 4,
+  "id": "lib_collegio_it",
+  "title": "Esame finale al collegio",
   "author": "Murdoku",
   "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "La serata del tutto esaurito finisce male: lo chef Moreau viene trovato senza vita nella stanza «Sala». Sei persone in locale e un solo testimone silenzioso: la mappa dei posti.",
-  "resolutionNote": "Giulia era l'unico nella stessa stanza dello chef Moreau. Il conto, stavolta, è salatissimo.",
+  "briefing": "La notte prima degli esami, il rettore Alberti fu trovato senza vita nella stanza «Biblioteca». Il collegio era chiuso a chiave: chi era con lui?",
+  "resolutionNote": "Sandri era l'unica persona con il rettore. Nessuno sarà promosso a pieni voti.",
+  "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -19,107 +20,85 @@
       [
         {
           "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": "o4",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": "o6",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z1",
-          "objectId": "o5",
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
           "objectId": "o8",
           "blocked": false
         },
         {
-          "zoneId": "z5",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z3",
-          "objectId": "o7",
+          "zoneId": "z1",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z4",
+          "zoneId": "z3",
+          "objectId": "o14",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z4",
+          "objectId": "o7",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
@@ -130,80 +109,102 @@
         },
         {
           "zoneId": "z5",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
-          "objectId": "o3",
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
           "objectId": "o10",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z7",
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o5",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
           "objectId": "o11",
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": "o12",
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z7",
-          "objectId": "o9",
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
           "zoneId": "z6",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": "o13",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z8",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
           "objectId": null,
           "blocked": false
         }
@@ -212,246 +213,260 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Cucina",
+        "name": "Aula magna",
         "color": "#f4c2c2",
-        "textureId": "hatch"
-      },
-      {
-        "id": "z2",
-        "name": "Dispensa",
-        "color": "#c2e0f4",
-        "textureId": "wood"
-      },
-      {
-        "id": "z3",
-        "name": "Terrazza",
-        "color": "#c9f4c2",
-        "textureId": "stone"
-      },
-      {
-        "id": "z4",
-        "name": "Guardaroba",
-        "color": "#f4ecc2",
-        "textureId": "carpet"
-      },
-      {
-        "id": "z5",
-        "name": "Sala",
-        "color": "#e0c2f4",
-        "textureId": "grass"
-      },
-      {
-        "id": "z6",
-        "name": "Bar",
-        "color": "#f4d3c2",
         "textureId": "marble"
       },
       {
+        "id": "z2",
+        "name": "Biblioteca",
+        "color": "#c2e0f4",
+        "textureId": "planks_dark"
+      },
+      {
+        "id": "z3",
+        "name": "Laboratorio",
+        "color": "#c9f4c2",
+        "textureId": "linoleum"
+      },
+      {
+        "id": "z4",
+        "name": "Cortile",
+        "color": "#f4ecc2",
+        "textureId": "grass"
+      },
+      {
+        "id": "z5",
+        "name": "Dormitorio",
+        "color": "#e0c2f4",
+        "textureId": "carpet"
+      },
+      {
+        "id": "z6",
+        "name": "Mensa",
+        "color": "#f4d3c2",
+        "textureId": "checker_bw"
+      },
+      {
         "id": "z7",
-        "name": "Cantina",
+        "name": "Palestra",
         "color": "#c2f4e8",
-        "textureId": "water"
+        "textureId": "wood"
+      },
+      {
+        "id": "z8",
+        "name": "Cappella",
+        "color": "#e8e8e8",
+        "textureId": "stone"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "table",
-        "row": 2,
-        "col": 2
+        "typeId": "window",
+        "row": 0,
+        "col": 2,
+        "side": "N"
       },
       {
         "id": "o2",
-        "typeId": "table",
-        "row": 3,
-        "col": 3
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o3",
-        "typeId": "table",
-        "row": 3,
-        "col": 4
+        "typeId": "window",
+        "row": 1,
+        "col": 4,
+        "side": "W"
       },
       {
         "id": "o4",
-        "typeId": "lamp",
-        "row": 0,
-        "col": 2
+        "typeId": "window",
+        "row": 3,
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o5",
-        "typeId": "shelf",
-        "row": 1,
-        "col": 0
+        "typeId": "table",
+        "row": 3,
+        "col": 2
       },
       {
         "id": "o6",
-        "typeId": "plant",
-        "row": 0,
-        "col": 5
+        "typeId": "chair",
+        "row": 2,
+        "col": 2
       },
       {
         "id": "o7",
-        "typeId": "chair",
-        "row": 2,
-        "col": 5
+        "typeId": "stool",
+        "row": 1,
+        "col": 2
       },
       {
         "id": "o8",
-        "typeId": "door",
-        "row": 2,
-        "col": 1
+        "typeId": "lamp",
+        "row": 0,
+        "col": 0
       },
       {
         "id": "o9",
-        "typeId": "stool",
-        "row": 5,
-        "col": 0
+        "typeId": "shelf",
+        "row": 0,
+        "col": 3
       },
       {
         "id": "o10",
         "typeId": "tv",
-        "row": 3,
+        "row": 2,
         "col": 5
       },
       {
         "id": "o11",
-        "typeId": "window",
-        "row": 4,
-        "col": 0
+        "typeId": "carpet",
+        "row": 3,
+        "col": 5
       },
       {
         "id": "o12",
-        "typeId": "carpet",
+        "typeId": "shelf",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "o13",
+        "typeId": "plant",
         "row": 4,
-        "col": 3
+        "col": 5
+      },
+      {
+        "id": "o14",
+        "typeId": "table",
+        "row": 1,
+        "col": 0
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Chef Moreau",
-      "iconId": "person1",
+      "name": "Rettore Alberti",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "Lo chef stellato, tiranno dei fornelli.",
+      "bio": "Il rettore, severo con tutti.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Giulia",
-      "iconId": "chef",
+      "name": "Sandri",
+      "iconId": "professor",
       "isVictim": false,
-      "bio": "La sous-chef, stufa di prendere ordini.",
+      "bio": "Il professore di storia, escluso dalla cattedra.",
       "color": "#ea558a",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c3",
-      "name": "Pietro",
-      "iconId": "butler",
+      "name": "Elisa",
+      "iconId": "librarian",
       "isVictim": false,
-      "bio": "Il maître di sala.",
+      "bio": "La bibliotecaria dei libri proibiti.",
       "color": "#158060",
-      "gender": "male"
+      "gender": "female"
     },
     {
       "id": "c4",
-      "name": "Sofia",
-      "iconId": "glasses",
+      "name": "Matteo",
+      "iconId": "scientist",
       "isVictim": false,
-      "bio": "La critica gastronomica, con il taccuino sempre in mano.",
+      "bio": "Il ricercatore dei laboratori.",
       "color": "#9f5595",
-      "gender": "female"
-    },
-    {
-      "id": "c5",
-      "name": "Dario",
-      "iconId": "gardener",
-      "isVictim": false,
-      "bio": "Il fornitore di erbe aromatiche.",
-      "color": "#bf8020",
       "gender": "male"
     },
     {
-      "id": "c6",
-      "name": "Elena",
-      "iconId": "hat",
+      "id": "c5",
+      "name": "Agnese",
+      "iconId": "nun",
       "isVictim": false,
-      "bio": "La sommelier, custode della cantina.",
-      "color": "#4a6aca",
+      "bio": "La suora che cura la cappella.",
+      "color": "#bf8020",
       "gender": "female"
+    },
+    {
+      "id": "c6",
+      "name": "Bruno",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "Il cuoco della mensa.",
+      "color": "#4a6aca",
+      "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c5",
-      "type": "directionDistance",
+      "characterId": "c4",
+      "type": "between",
       "params": {
-        "direction": "north",
-        "distance": 1,
-        "targetId": "objtype:stool"
+        "targetAId": "objtype:window",
+        "targetBId": "z5"
       }
     },
     {
+      "id": "k2",
+      "characterId": "c2",
+      "type": "inFrontOfWindow",
+      "params": {}
+    },
+    {
       "id": "k3",
-      "characterId": "c4",
-      "type": "closerTo",
+      "characterId": "c3",
+      "type": "directionDistance",
       "params": {
-        "targetAId": "z3",
-        "targetBId": "z2"
+        "direction": "west",
+        "targetId": "objtype:door"
       }
     },
     {
       "id": "k4",
-      "characterId": "c4",
-      "type": "closerTo",
-      "params": {
-        "targetAId": "z3",
-        "targetBId": "objtype:chair"
-      }
-    },
-    {
-      "id": "k5",
       "characterId": "c3",
       "type": "closerTo",
       "params": {
-        "targetAId": "z2",
-        "targetBId": "o11"
+        "targetAId": "o12",
+        "targetBId": "o8"
+      },
+      "negate": true
+    },
+    {
+      "id": "k5",
+      "characterId": "c1",
+      "type": "aloneWithPerson",
+      "params": {
+        "targetId": "c2"
       }
     },
     {
       "id": "k6",
-      "characterId": "c6",
-      "type": "rowOrColWith",
+      "characterId": "c5",
+      "type": "closerTo",
       "params": {
-        "axis": "col",
-        "targetId": "z2"
+        "targetAId": "o14",
+        "targetBId": "o11"
       }
     },
     {
       "id": "k7",
-      "characterId": "c3",
-      "type": "inRoomCorner",
-      "params": {}
-    },
-    {
-      "id": "k20",
-      "characterId": "c2",
-      "type": "inRowOrCol",
+      "characterId": "c6",
+      "type": "directionDistance",
       "params": {
-        "axis": "col",
-        "index": 4
-      }
-    },
-    {
-      "id": "k21",
-      "characterId": "c2",
-      "type": "adjacent",
-      "params": {
-        "targetId": "objtype:table"
+        "direction": "south",
+        "distance": 4,
+        "targetId": "z4"
       }
     }
   ],
@@ -459,23 +474,23 @@
     "placements": [
       {
         "characterId": "c1",
-        "row": 3,
-        "col": 2
+        "row": 0,
+        "col": 5
       },
       {
         "characterId": "c2",
-        "row": 2,
-        "col": 3
+        "row": 1,
+        "col": 4
       },
       {
         "characterId": "c3",
-        "row": 0,
+        "row": 2,
         "col": 0
       },
       {
         "characterId": "c4",
-        "row": 1,
-        "col": 5
+        "row": 3,
+        "col": 3
       },
       {
         "characterId": "c5",
@@ -485,7 +500,7 @@
       {
         "characterId": "c6",
         "row": 5,
-        "col": 4
+        "col": 2
       }
     ]
   },

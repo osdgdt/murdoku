@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_train_en",
-  "title": "The Night Train",
+  "schemaVersion": 4,
+  "id": "lib_clinica_it",
+  "title": "Turno di notte in clinica",
   "author": "Murdoku",
   "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "The train rushes through the night when Madame Orlova is found dead in the room \"Sleeper car\". Nobody got off at the previous station. Who was with her?",
-  "resolutionNote": "Count Petrov was the only passenger in the same car as Madame Orlova. The journey ends here.",
+  "briefing": "Durante il turno di notte, il dottor Bellandi viene trovato senza vita nella stanza «Sala d'attesa». Le porte erano chiuse dall'interno: chi era con lui?",
+  "resolutionNote": "Sabrina era l'unica persona con il dottore. La diagnosi era sbagliata, il colpevole no.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -19,44 +20,12 @@
       [
         {
           "zoneId": "z1",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
+          "objectId": "o5",
           "blocked": false
         },
         {
@@ -71,87 +40,87 @@
         },
         {
           "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o3",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o4",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
           "objectId": "o7",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
+          "zoneId": "z1",
           "objectId": "o6",
           "blocked": false
         },
         {
-          "zoneId": "z4",
-          "objectId": "o5",
-          "blocked": false
-        },
-        {
-          "zoneId": "z5",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z6",
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z6",
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": "o8",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
           "objectId": "o10",
           "blocked": false
         },
@@ -161,35 +130,30 @@
           "blocked": false
         },
         {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
           "zoneId": "z5",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z5",
+          "objectId": "o11",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z6",
-          "objectId": null,
+          "zoneId": "z7",
+          "objectId": "o12",
           "blocked": false
         },
         {
-          "zoneId": "z6",
+          "zoneId": "z7",
           "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": "o8",
           "blocked": false
         },
         {
@@ -203,8 +167,45 @@
           "blocked": false
         },
         {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
           "zoneId": "z6",
-          "objectId": "o9",
+          "objectId": "o13",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
           "blocked": false
         }
       ]
@@ -212,39 +213,51 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Sleeper car",
+        "name": "Reception",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "marble"
       },
       {
         "id": "z2",
-        "name": "Dining car",
+        "name": "Sala d'attesa",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "carpet_green"
       },
       {
         "id": "z3",
-        "name": "Lounge",
+        "name": "Corridoio",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "concrete"
       },
       {
         "id": "z4",
-        "name": "Bar",
+        "name": "Ambulatorio",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "tiles_white"
       },
       {
         "id": "z5",
-        "name": "Baggage car",
+        "name": "Laboratorio",
         "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "linoleum"
       },
       {
         "id": "z6",
-        "name": "Freight car",
+        "name": "Radiologia",
         "color": "#f4d3c2",
-        "textureId": "marble"
+        "textureId": "slate"
+      },
+      {
+        "id": "z7",
+        "name": "Farmacia",
+        "color": "#c2f4e8",
+        "textureId": "parquet"
+      },
+      {
+        "id": "z8",
+        "name": "Obitorio",
+        "color": "#e8e8e8",
+        "textureId": "marble_black"
       }
     ],
     "objects": [
@@ -252,176 +265,184 @@
         "id": "o1",
         "typeId": "window",
         "row": 0,
-        "col": 0
+        "col": 0,
+        "side": "N"
       },
       {
         "id": "o2",
-        "typeId": "table",
-        "row": 0,
-        "col": 4
+        "typeId": "door",
+        "row": 1,
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o3",
-        "typeId": "chair",
+        "typeId": "window",
         "row": 1,
-        "col": 5
+        "col": 3,
+        "side": "S"
       },
       {
         "id": "o4",
-        "typeId": "tv",
-        "row": 2,
-        "col": 2
+        "typeId": "door",
+        "row": 3,
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o5",
-        "typeId": "lamp",
-        "row": 3,
-        "col": 3
+        "typeId": "chair",
+        "row": 0,
+        "col": 1
       },
       {
         "id": "o6",
-        "typeId": "stool",
-        "row": 3,
-        "col": 2
+        "typeId": "table",
+        "row": 1,
+        "col": 0
       },
       {
         "id": "o7",
-        "typeId": "shelf",
-        "row": 2,
+        "typeId": "plant",
+        "row": 0,
         "col": 5
       },
       {
         "id": "o8",
-        "typeId": "carpet",
-        "row": 5,
-        "col": 2
-      },
-      {
-        "id": "o9",
-        "typeId": "plant",
-        "row": 5,
+        "typeId": "lamp",
+        "row": 2,
         "col": 5
       },
       {
+        "id": "o9",
+        "typeId": "tv",
+        "row": 2,
+        "col": 3
+      },
+      {
         "id": "o10",
-        "typeId": "door",
-        "row": 4,
+        "typeId": "shelf",
+        "row": 3,
         "col": 1
+      },
+      {
+        "id": "o11",
+        "typeId": "stool",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "o12",
+        "typeId": "carpet",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "o13",
+        "typeId": "table",
+        "row": 5,
+        "col": 2
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Madame Orlova",
-      "iconId": "person1",
+      "name": "Dottor Bellandi",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "A celebrated opera singer.",
+      "bio": "Il primario, stimato e temuto.",
       "color": "#608aea",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Count Petrov",
-      "iconId": "detective",
+      "name": "Sabrina",
+      "iconId": "nurse",
       "isVictim": false,
-      "bio": "Claims to be travelling incognito.",
+      "bio": "L'infermiera capo, sempre al suo fianco.",
       "color": "#ea558a",
-      "gender": "male"
+      "gender": "female"
     },
     {
       "id": "c3",
-      "name": "Irina",
-      "iconId": "maid",
+      "name": "Ottavio",
+      "iconId": "pharmacist",
       "isVictim": false,
-      "bio": "Madame Orlova's housekeeper.",
+      "bio": "Il farmacista, che sapeva troppo sui farmaci.",
       "color": "#158060",
-      "gender": "female"
-    },
-    {
-      "id": "c4",
-      "name": "Sergei",
-      "iconId": "driver",
-      "isVictim": false,
-      "bio": "The conductor, with keys to every car.",
-      "color": "#9f5595",
       "gender": "male"
     },
     {
-      "id": "c5",
-      "name": "Katya",
-      "iconId": "artist",
+      "id": "c4",
+      "name": "Greta",
+      "iconId": "lawyer",
       "isVictim": false,
-      "bio": "A painter on her way to the seaside.",
-      "color": "#bf8020",
+      "bio": "L'avvocata di un paziente scontento.",
+      "color": "#9f5595",
       "gender": "female"
+    },
+    {
+      "id": "c5",
+      "name": "Franco",
+      "iconId": "construction",
+      "isVictim": false,
+      "bio": "L'operaio dei lavori nel reparto.",
+      "color": "#bf8020",
+      "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c3",
-      "type": "between",
-      "params": {
-        "targetAId": "o7",
-        "targetBId": "objtype:tv"
-      }
-    },
-    {
-      "id": "k2",
-      "characterId": "c4",
-      "type": "directionDistance",
-      "params": {
-        "direction": "west",
-        "distance": 5,
-        "targetId": "z5"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c5",
+      "characterId": "c1",
       "type": "directionDistance",
       "params": {
         "direction": "north",
         "distance": 1,
-        "targetId": "objtype:carpet"
+        "targetId": "o3"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c3",
+      "type": "between",
+      "params": {
+        "targetAId": "z7",
+        "targetBId": "objtype:table"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c4",
+      "type": "adjacent",
+      "params": {
+        "targetId": "o13"
       }
     },
     {
       "id": "k4",
-      "characterId": "c4",
-      "type": "directionDistance",
-      "params": {
-        "direction": "south",
-        "distance": 3,
-        "targetId": "objtype:window"
-      }
+      "characterId": "c2",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k5",
-      "characterId": "c5",
+      "characterId": "c3",
       "type": "directionDistance",
       "params": {
-        "direction": "west",
+        "direction": "south",
         "distance": 1,
-        "targetId": "c3"
+        "targetId": "objtype:tv"
       }
     },
     {
       "id": "k6",
-      "characterId": "c2",
-      "type": "adjacent",
-      "params": {
-        "targetId": "z4"
-      }
-    },
-    {
-      "id": "k7",
-      "characterId": "c1",
+      "characterId": "c5",
       "type": "closerTo",
       "params": {
-        "targetAId": "z4",
-        "targetBId": "objtype:carpet"
+        "targetAId": "z3",
+        "targetBId": "c3"
       }
     }
   ],
@@ -430,27 +451,27 @@
       {
         "characterId": "c1",
         "row": 0,
-        "col": 1
+        "col": 4
       },
       {
         "characterId": "c2",
         "row": 1,
-        "col": 2
+        "col": 3
       },
       {
         "characterId": "c3",
-        "row": 2,
-        "col": 4
-      },
-      {
-        "characterId": "c4",
         "row": 3,
         "col": 0
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 4,
-        "col": 3
+        "col": 2
+      },
+      {
+        "characterId": "c5",
+        "row": 5,
+        "col": 5
       }
     ]
   },

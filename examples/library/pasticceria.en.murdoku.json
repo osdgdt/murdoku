@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_library_en",
-  "title": "Murder in the Study",
+  "schemaVersion": 4,
+  "id": "lib_pasticceria_en",
+  "title": "Bitter in the Bakery",
   "author": "Murdoku",
-  "difficulty": "very-easy",
+  "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "During the family gathering, Lord Ashford is found dead in the room \"Study\". The house is full of people, but only one of them was with him. Work out who was where.",
-  "resolutionNote": "Ada was the only person with Lord Ashford when it happened: case closed.",
+  "briefing": "At dawn, Master Ferrante is found dead in the room \"Shop\". The air smells of sugar... and trouble. Who was with him?",
+  "resolutionNote": "Anselm was the only person with the master. The cake stays unfinished.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,11 +25,6 @@
         },
         {
           "zoneId": "z1",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
@@ -40,6 +36,11 @@
         {
           "zoneId": "z2",
           "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": "o5",
           "blocked": false
         }
       ],
@@ -55,40 +56,40 @@
           "blocked": false
         },
         {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
           "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
           "objectId": "o4",
           "blocked": false
         },
         {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
           "zoneId": "z4",
-          "objectId": "o1",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -100,16 +101,16 @@
       [
         {
           "zoneId": "z3",
-          "objectId": null,
+          "objectId": "o7",
           "blocked": false
         },
         {
           "zoneId": "z3",
-          "objectId": null,
+          "objectId": "o8",
           "blocked": false
         },
         {
-          "zoneId": "z4",
+          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         },
@@ -126,28 +127,28 @@
       ],
       [
         {
-          "zoneId": "z3",
+          "zoneId": "z5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z3",
+          "zoneId": "z5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z5",
+          "objectId": "o9",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o3",
+          "objectId": "o10",
           "blocked": false
         }
       ]
@@ -155,143 +156,194 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Study",
+        "name": "Workshop",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "tiles_white"
       },
       {
         "id": "z2",
-        "name": "Library",
+        "name": "Shop",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "checker_cream"
       },
       {
         "id": "z3",
-        "name": "Parlour",
+        "name": "Tea room",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "carpet_blue"
       },
       {
         "id": "z4",
-        "name": "Kitchen",
+        "name": "Storeroom",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "concrete"
+      },
+      {
+        "id": "z5",
+        "name": "Cold room",
+        "color": "#e0c2f4",
+        "textureId": "linoleum"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "table",
-        "row": 2,
-        "col": 3
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o2",
-        "typeId": "chair",
-        "row": 0,
-        "col": 1
+        "typeId": "window",
+        "row": 2,
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o3",
-        "typeId": "plant",
-        "row": 4,
-        "col": 4
+        "typeId": "window",
+        "row": 0,
+        "col": 3,
+        "side": "N"
       },
       {
         "id": "o4",
-        "typeId": "door",
-        "row": 2,
+        "typeId": "table",
+        "row": 1,
         "col": 2
+      },
+      {
+        "id": "o5",
+        "typeId": "shelf",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "o6",
+        "typeId": "chair",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "o7",
+        "typeId": "stool",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "o8",
+        "typeId": "carpet",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "id": "o9",
+        "typeId": "lamp",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "id": "o10",
+        "typeId": "plant",
+        "row": 4,
+        "col": 4
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Lord Ashford",
-      "iconId": "person1",
+      "name": "Master Ferrante",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "The master of the house.",
+      "bio": "The city's most famous pastry chef.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Ada",
-      "iconId": "maid",
+      "name": "Anselm",
+      "iconId": "banker",
       "isVictim": false,
-      "bio": "The maid: she always knows everything about everyone.",
+      "bio": "The banker Ferrante owed a lot of money.",
       "color": "#ea558a",
-      "gender": "female"
-    },
-    {
-      "id": "c3",
-      "name": "Bruno",
-      "iconId": "butler",
-      "isVictim": false,
-      "bio": "The butler, impeccable and silent.",
-      "color": "#158060",
       "gender": "male"
     },
     {
-      "id": "c4",
-      "name": "Clara",
-      "iconId": "chef",
+      "id": "c3",
+      "name": "Rosie",
+      "iconId": "photographer",
       "isVictim": false,
-      "bio": "The cook, who hated Lord Ashford's criticism.",
+      "bio": "The food blogger, always chasing a scoop.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "c4",
+      "name": "Tim",
+      "iconId": "mechanic",
+      "isVictim": false,
+      "bio": "The technician who fixes the ovens.",
       "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Vera",
+      "iconId": "police",
+      "isVictim": false,
+      "bio": "The inspector, there for a hygiene check.",
+      "color": "#bf8020",
       "gender": "female"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c2",
-      "type": "diagonal",
-      "params": {
-        "targetId": "o2"
-      }
+      "characterId": "c5",
+      "type": "inCorner",
+      "params": {}
     },
     {
       "id": "k2",
-      "characterId": "c2",
-      "type": "inRowOrCol",
+      "characterId": "c5",
+      "type": "adjacent",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetId": "z3"
       }
     },
     {
       "id": "k3",
-      "characterId": "c1",
+      "characterId": "c3",
       "type": "adjacent",
       "params": {
-        "targetId": "objtype:chair"
+        "targetId": "o8"
       }
     },
     {
       "id": "k4",
-      "characterId": "c4",
-      "type": "rowOrColWith",
+      "characterId": "c2",
+      "type": "diagonal",
       "params": {
-        "axis": "row",
-        "targetId": "objtype:plant"
+        "targetId": "o3"
       }
     },
     {
       "id": "k5",
-      "characterId": "c4",
-      "type": "facing",
+      "characterId": "c3",
+      "type": "inRowOrCol",
       "params": {
-        "targetId": "z1"
+        "axis": "row",
+        "index": 3
       }
     },
     {
       "id": "k6",
-      "characterId": "c3",
-      "type": "diagonal",
+      "characterId": "c4",
+      "type": "inRoom",
       "params": {
-        "targetId": "objtype:table"
+        "zoneId": "z3"
       }
     }
   ],
@@ -300,22 +352,27 @@
       {
         "characterId": "c1",
         "row": 0,
-        "col": 0
+        "col": 3
       },
       {
         "characterId": "c2",
         "row": 1,
-        "col": 2
-      },
-      {
-        "characterId": "c3",
-        "row": 3,
         "col": 4
       },
       {
-        "characterId": "c4",
-        "row": 4,
+        "characterId": "c3",
+        "row": 2,
         "col": 1
+      },
+      {
+        "characterId": "c4",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "characterId": "c5",
+        "row": 4,
+        "col": 0
       }
     ]
   },

@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_library_it",
-  "title": "Delitto nello studio",
+  "schemaVersion": 4,
+  "id": "lib_faro_en",
+  "title": "The Lighthouse in the Storm",
   "author": "Murdoku",
   "difficulty": "very-easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Durante la riunione di famiglia, Lord Ashford viene trovato senza vita nella stanza «Studio». La casa è piena di gente, ma solo una persona era con lui. Ricostruisci chi si trovava dove.",
-  "resolutionNote": "Ada era l'unica persona con Lord Ashford al momento del delitto: il caso è chiuso.",
+  "briefing": "On a stormy night, Captain Morgan is found dead in the room \"Lantern room\". The lighthouse is cut off by the raging sea: who was with him?",
+  "resolutionNote": "Hector was the only person with the captain. The lighthouse beam turns again.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,7 +25,7 @@
         },
         {
           "zoneId": "z1",
-          "objectId": "o2",
+          "objectId": null,
           "blocked": false
         },
         {
@@ -39,14 +40,14 @@
         },
         {
           "zoneId": "z2",
-          "objectId": null,
+          "objectId": "o7",
           "blocked": false
         }
       ],
       [
         {
           "zoneId": "z1",
-          "objectId": null,
+          "objectId": "o8",
           "blocked": false
         },
         {
@@ -78,6 +79,38 @@
         },
         {
           "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
@@ -88,11 +121,6 @@
         },
         {
           "zoneId": "z4",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         }
@@ -110,7 +138,7 @@
         },
         {
           "zoneId": "z4",
-          "objectId": null,
+          "objectId": "o5",
           "blocked": false
         },
         {
@@ -121,33 +149,6 @@
         {
           "zoneId": "z4",
           "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o3",
           "blocked": false
         }
       ]
@@ -155,110 +156,134 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Studio",
+        "name": "Lantern room",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "planks"
       },
       {
         "id": "z2",
-        "name": "Biblioteca",
+        "name": "Keeper's quarters",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "parquet"
       },
       {
         "id": "z3",
-        "name": "Salotto",
+        "name": "Boat shed",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "gravel"
       },
       {
         "id": "z4",
-        "name": "Cucina",
+        "name": "Cellar",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "stone"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "table",
-        "row": 2,
-        "col": 3
+        "typeId": "window",
+        "row": 1,
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o2",
-        "typeId": "chair",
+        "typeId": "window",
         "row": 0,
-        "col": 1
+        "col": 0,
+        "side": "N"
       },
       {
         "id": "o3",
-        "typeId": "plant",
-        "row": 4,
-        "col": 4
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o4",
-        "typeId": "door",
-        "row": 2,
+        "typeId": "table",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "o5",
+        "typeId": "chair",
+        "row": 4,
         "col": 2
+      },
+      {
+        "id": "o6",
+        "typeId": "carpet",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "o7",
+        "typeId": "plant",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "o8",
+        "typeId": "lamp",
+        "row": 1,
+        "col": 0
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Lord Ashford",
-      "iconId": "person1",
+      "name": "Captain Morgan",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "Il padrone di casa.",
+      "bio": "The old lighthouse keeper.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Ada",
-      "iconId": "maid",
+      "name": "Hector",
+      "iconId": "sailor",
       "isVictim": false,
-      "bio": "La cameriera: sa sempre tutto di tutti.",
+      "bio": "The sailor who brings the supplies.",
       "color": "#ea558a",
-      "gender": "female"
-    },
-    {
-      "id": "c3",
-      "name": "Bruno",
-      "iconId": "butler",
-      "isVictim": false,
-      "bio": "Il maggiordomo, impeccabile e silenzioso.",
-      "color": "#158060",
       "gender": "male"
     },
     {
-      "id": "c4",
-      "name": "Clara",
-      "iconId": "chef",
+      "id": "c3",
+      "name": "Lucy",
+      "iconId": "photographer",
       "isVictim": false,
-      "bio": "La cuoca, odiava le critiche di Lord Ashford.",
-      "color": "#9f5595",
+      "bio": "A photographer who came for the storms.",
+      "color": "#158060",
       "gender": "female"
+    },
+    {
+      "id": "c4",
+      "name": "Nick",
+      "iconId": "mechanic",
+      "isVictim": false,
+      "bio": "The generator mechanic.",
+      "color": "#9f5595",
+      "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
       "characterId": "c2",
-      "type": "diagonal",
-      "params": {
-        "targetId": "o2"
-      }
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k2",
       "characterId": "c2",
-      "type": "inRowOrCol",
+      "type": "diagonal",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetId": "o3"
       }
     },
     {
@@ -266,32 +291,41 @@
       "characterId": "c1",
       "type": "adjacent",
       "params": {
-        "targetId": "objtype:chair"
+        "targetId": "o2"
       }
     },
     {
       "id": "k4",
-      "characterId": "c4",
-      "type": "rowOrColWith",
+      "characterId": "c1",
+      "type": "diagonal",
       "params": {
-        "axis": "row",
-        "targetId": "objtype:plant"
+        "targetId": "objtype:window"
       }
     },
     {
       "id": "k5",
-      "characterId": "c4",
-      "type": "facing",
+      "characterId": "c3",
+      "type": "inRowOrCol",
       "params": {
-        "targetId": "z1"
+        "axis": "row",
+        "index": 4
       }
     },
     {
       "id": "k6",
       "characterId": "c3",
-      "type": "diagonal",
+      "type": "aloneInRoom",
       "params": {
-        "targetId": "objtype:table"
+        "zoneId": "z4"
+      }
+    },
+    {
+      "id": "k7",
+      "characterId": "c4",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "row",
+        "targetId": "o5"
       }
     }
   ],
@@ -300,7 +334,7 @@
       {
         "characterId": "c1",
         "row": 0,
-        "col": 0
+        "col": 1
       },
       {
         "characterId": "c2",
@@ -315,7 +349,7 @@
       {
         "characterId": "c4",
         "row": 4,
-        "col": 1
+        "col": 0
       }
     ]
   },

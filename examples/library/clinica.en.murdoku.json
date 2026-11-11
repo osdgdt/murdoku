@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_museum_en",
-  "title": "Museum Mystery",
+  "schemaVersion": 4,
+  "id": "lib_clinica_en",
+  "title": "Night Shift at the Clinic",
   "author": "Murdoku",
-  "difficulty": "medium",
+  "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "After closing time, Director Valli is found dead in the room \"Egyptian hall\". The alarm never went off and the halls were empty... almost.",
-  "resolutionNote": "Agatha was the only person with the director. The alarm, ironically, was useless.",
+  "briefing": "During the night shift, Dr. Bellandi is found dead in the room \"Waiting room\". The doors were locked from the inside: who was with him?",
+  "resolutionNote": "Sabrina was the only person with the doctor. The diagnosis was wrong, the culprit was not.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,127 +25,78 @@
         },
         {
           "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o3",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z1",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": "o4",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
           "objectId": "o5",
           "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
-          "objectId": "o6",
-          "blocked": false
         },
         {
-          "zoneId": "z3",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": null,
-          "objectId": null,
-          "blocked": true
-        },
-        {
-          "zoneId": null,
-          "objectId": null,
-          "blocked": true
-        },
-        {
-          "zoneId": "z4",
+          "zoneId": "z2",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z4",
+          "zoneId": "z2",
           "objectId": null,
           "blocked": false
-        }
-      ],
-      [
+        },
         {
           "zoneId": "z3",
           "objectId": "o7",
           "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": "o6",
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
         },
         {
           "zoneId": "z3",
           "objectId": null,
           "blocked": false
-        },
-        {
-          "zoneId": null,
-          "objectId": null,
-          "blocked": true
-        },
-        {
-          "zoneId": null,
-          "objectId": null,
-          "blocked": true
-        },
-        {
-          "zoneId": "z4",
-          "objectId": "o8",
-          "blocked": false
-        },
-        {
-          "zoneId": "z4",
-          "objectId": null,
-          "blocked": false
         }
       ],
       [
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": true
+        },
         {
           "zoneId": "z5",
           "objectId": "o9",
@@ -156,55 +108,104 @@
           "blocked": false
         },
         {
-          "zoneId": "z5",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": "o12",
+          "zoneId": "z3",
+          "objectId": "o8",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "z5",
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z4",
           "objectId": "o10",
           "blocked": false
         },
         {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
           "zoneId": "z5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z6",
+          "zoneId": "z5",
           "objectId": "o11",
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": "o12",
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z7",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": "o13",
+          "blocked": false
+        },
+        {
+          "zoneId": "z6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z8",
+          "objectId": null,
           "blocked": false
         }
       ]
@@ -212,218 +213,237 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Egyptian hall",
+        "name": "Reception",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "marble"
       },
       {
         "id": "z2",
-        "name": "Picture gallery",
+        "name": "Waiting room",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "carpet_green"
       },
       {
         "id": "z3",
-        "name": "Armoury",
+        "name": "Corridor",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "concrete"
       },
       {
         "id": "z4",
-        "name": "Jewel room",
+        "name": "Surgery",
         "color": "#f4ecc2",
-        "textureId": "carpet"
+        "textureId": "tiles_white"
       },
       {
         "id": "z5",
-        "name": "Atrium",
+        "name": "Laboratory",
         "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "linoleum"
       },
       {
         "id": "z6",
-        "name": "Storeroom",
+        "name": "X-ray room",
         "color": "#f4d3c2",
-        "textureId": "marble"
+        "textureId": "slate"
+      },
+      {
+        "id": "z7",
+        "name": "Pharmacy",
+        "color": "#c2f4e8",
+        "textureId": "parquet"
+      },
+      {
+        "id": "z8",
+        "name": "Morgue",
+        "color": "#e8e8e8",
+        "textureId": "marble_black"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "shelf",
+        "typeId": "window",
         "row": 0,
-        "col": 2
+        "col": 0,
+        "side": "N"
       },
       {
         "id": "o2",
-        "typeId": "lamp",
+        "typeId": "door",
         "row": 1,
-        "col": 0
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o3",
         "typeId": "window",
-        "row": 0,
-        "col": 3
+        "row": 1,
+        "col": 3,
+        "side": "S"
       },
       {
         "id": "o4",
-        "typeId": "tv",
-        "row": 1,
-        "col": 4
+        "typeId": "door",
+        "row": 3,
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o5",
-        "typeId": "table",
-        "row": 1,
-        "col": 5
+        "typeId": "chair",
+        "row": 0,
+        "col": 1
       },
       {
         "id": "o6",
-        "typeId": "plant",
-        "row": 2,
+        "typeId": "table",
+        "row": 1,
         "col": 0
       },
       {
         "id": "o7",
-        "typeId": "chair",
-        "row": 3,
-        "col": 0
+        "typeId": "plant",
+        "row": 0,
+        "col": 5
       },
       {
         "id": "o8",
-        "typeId": "door",
+        "typeId": "lamp",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "o9",
+        "typeId": "tv",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "o10",
+        "typeId": "shelf",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "id": "o11",
+        "typeId": "stool",
         "row": 3,
         "col": 4
       },
       {
-        "id": "o9",
+        "id": "o12",
         "typeId": "carpet",
         "row": 4,
         "col": 0
       },
       {
-        "id": "o10",
-        "typeId": "stool",
-        "row": 5,
-        "col": 1
-      },
-      {
-        "id": "o11",
-        "typeId": "shelf",
-        "row": 5,
-        "col": 5
-      },
-      {
-        "id": "o12",
+        "id": "o13",
         "typeId": "table",
-        "row": 4,
-        "col": 5
+        "row": 5,
+        "col": 2
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Dr. Valli",
-      "iconId": "person1",
+      "name": "Dr. Bellandi",
+      "iconId": "victim",
       "isVictim": true,
-      "bio": "The museum director.",
+      "bio": "The chief physician, respected and feared.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Agatha",
-      "iconId": "professor",
+      "name": "Sabrina",
+      "iconId": "nurse",
       "isVictim": false,
-      "bio": "The curator of the Egyptian collection.",
+      "bio": "The head nurse, always at his side.",
       "color": "#ea558a",
       "gender": "female"
     },
     {
       "id": "c3",
-      "name": "Bob",
-      "iconId": "driver",
+      "name": "Octavius",
+      "iconId": "pharmacist",
       "isVictim": false,
-      "bio": "The night guard.",
+      "bio": "The pharmacist, who knew too much about drugs.",
       "color": "#158060",
       "gender": "male"
     },
     {
       "id": "c4",
-      "name": "Carla",
-      "iconId": "artist",
+      "name": "Greta",
+      "iconId": "lawyer",
       "isVictim": false,
-      "bio": "The restorer, golden hands.",
+      "bio": "The lawyer of a disgruntled patient.",
       "color": "#9f5595",
       "gender": "female"
     },
     {
       "id": "c5",
-      "name": "David",
-      "iconId": "detective",
+      "name": "Frank",
+      "iconId": "construction",
       "isVictim": false,
-      "bio": "An unusually curious visitor.",
+      "bio": "The workman renovating the ward.",
       "color": "#bf8020",
       "gender": "male"
-    },
-    {
-      "id": "c6",
-      "name": "Emma",
-      "iconId": "glasses",
-      "isVictim": false,
-      "bio": "The last tour's guide.",
-      "color": "#4a6aca",
-      "gender": "female"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c6",
-      "type": "adjacent",
+      "characterId": "c1",
+      "type": "directionDistance",
       "params": {
-        "targetId": "o11"
+        "direction": "north",
+        "distance": 1,
+        "targetId": "o3"
       }
     },
     {
       "id": "k2",
-      "characterId": "c2",
-      "type": "directionDistance",
+      "characterId": "c3",
+      "type": "between",
       "params": {
-        "direction": "west",
-        "distance": 2,
-        "targetId": "c6"
+        "targetAId": "z7",
+        "targetBId": "objtype:table"
       }
     },
     {
       "id": "k3",
-      "characterId": "c3",
-      "type": "rowOrColWith",
+      "characterId": "c4",
+      "type": "adjacent",
       "params": {
-        "axis": "col",
-        "targetId": "o11"
+        "targetId": "o13"
       }
     },
     {
       "id": "k4",
-      "characterId": "c5",
-      "type": "closerTo",
-      "params": {
-        "targetAId": "o8",
-        "targetBId": "objtype:chair"
-      }
+      "characterId": "c2",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k5",
-      "characterId": "c4",
+      "characterId": "c3",
+      "type": "directionDistance",
+      "params": {
+        "direction": "south",
+        "distance": 1,
+        "targetId": "objtype:tv"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c5",
       "type": "closerTo",
       "params": {
-        "targetAId": "objtype:lamp",
-        "targetBId": "o10"
-      },
-      "negate": true
+        "targetAId": "z3",
+        "targetBId": "c3"
+      }
     }
   ],
   "solution": {
@@ -431,32 +451,27 @@
       {
         "characterId": "c1",
         "row": 0,
-        "col": 0
+        "col": 4
       },
       {
         "characterId": "c2",
         "row": 1,
-        "col": 2
-      },
-      {
-        "characterId": "c3",
-        "row": 2,
-        "col": 5
-      },
-      {
-        "characterId": "c4",
-        "row": 3,
-        "col": 1
-      },
-      {
-        "characterId": "c5",
-        "row": 4,
         "col": 3
       },
       {
-        "characterId": "c6",
+        "characterId": "c3",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "characterId": "c5",
         "row": 5,
-        "col": 4
+        "col": 5
       }
     ]
   },

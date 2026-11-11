@@ -56,6 +56,50 @@ const MIGRATIONS = [
       if (cell && cell.objectId === obj.id) cell.objectId = null;
     }
   },
+  // 3 -> 4: the obsolete clue types are gone, and a case now has a verb tense
+  // for its clues. Each old clue is rewritten into the equivalent unified form
+  // (same meaning, same solutions): "not…" types become the positive type with
+  // `negate`, `direction` becomes `directionDistance` with no distance, and so
+  // on. Type names are duplicated by value (this module stays import-free).
+  (p) => {
+    p.tense ??= "present";
+    const victim = (Array.isArray(p.characters) ? p.characters : []).find((c) => c && c.isVictim);
+    const flip = (spec, type) => { spec.type = type; spec.negate = !spec.negate; };
+
+    // Upgrades one clue-shaped object ({type, params, negate}) in place.
+    // Returns false when it has no equivalent and must be dropped.
+    const upgrade = (spec) => {
+      if (!spec || typeof spec !== "object") return true;
+      const params = (spec.params && typeof spec.params === "object") ? spec.params : (spec.params = {});
+      for (const key of ["a", "b", "customClue"]) {
+        if (params[key] && typeof params[key] === "object") upgrade(params[key]);
+      }
+      switch (spec.type) {
+        case "notAdjacent": flip(spec, "adjacent"); break;
+        case "notInRoom": flip(spec, "inRoom"); break;
+        case "notSameRoomAs": flip(spec, "sameRoomAs"); break;
+        case "direction": spec.type = "directionDistance"; params.distance = null; break;
+        case "onlyPersonInRoom": spec.type = "aloneInRoom"; break;
+        case "emptyRoomsCount": spec.type = "roomsWithStateCount"; spec.params = { count: params.count, state: "empty" }; break;
+        case "eitherAdjacent":
+          spec.type = "orClue";
+          spec.params = {
+            a: { type: "adjacent", params: { targetId: params.targetAId } },
+            b: { type: "adjacent", params: { targetId: params.targetBId } },
+          };
+          break;
+        case "aloneWithVictim":
+          if (!victim) return false;
+          spec.type = "aloneWithPerson";
+          spec.params = { targetId: victim.id };
+          break;
+        default: break;
+      }
+      return true;
+    };
+
+    if (Array.isArray(p.clues)) p.clues = p.clues.filter((clue) => upgrade(clue));
+  },
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS.length;

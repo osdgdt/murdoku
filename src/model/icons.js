@@ -14,8 +14,8 @@ export const OBJECT_TYPES = {
   shelf: { label: t("Scaffale"), article: "uno", icon: paperSvg(OBJECT_ART.shelf) },
   plant: { label: t("Pianta"), article: "una", icon: paperSvg(OBJECT_ART.plant) },
   carpet: { label: t("Tappeto"), article: "un", occupiable: true, icon: paperSvg(OBJECT_ART.carpet) },
-  chair: { label: t("Sedia"), article: "una", occupiable: true, icon: paperSvg(OBJECT_ART.chair) },
-  stool: { label: t("Sgabello"), article: "uno", occupiable: true, icon: paperSvg(OBJECT_ART.stool) },
+  chair: { label: t("Sedia"), article: "una", occupiable: true, seat: true, icon: paperSvg(OBJECT_ART.chair) },
+  stool: { label: t("Sgabello"), article: "uno", occupiable: true, seat: true, icon: paperSvg(OBJECT_ART.stool) },
   table: { label: t("Tavolo"), article: "un", icon: paperSvg(OBJECT_ART.table) },
   lamp: { label: t("Lampada"), article: "una", icon: paperSvg(OBJECT_ART.lamp) },
   // `edge: true` types (doors, windows) are NOT furniture filling a cell: they
@@ -107,6 +107,12 @@ export function sideLabel(side) {
 // Doors and windows sit on a side of a cell instead of filling it.
 export function isEdgeObjectType(typeId) {
   return !!OBJECT_TYPES[typeId]?.edge;
+}
+
+// Only some of the things you can stand on are things you can SIT on: a chair
+// or a stool, not a rug (`seat: true`).
+export function isObjectTypeSeat(typeId) {
+  return !!OBJECT_TYPES[typeId]?.seat;
 }
 
 export function objectIcon(typeId) {

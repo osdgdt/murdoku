@@ -1,4 +1,4 @@
-import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES } from "../icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES, isObjectTypeOccupiable, isObjectTypeSeat } from "../icons.js";
 import { describeClue } from "../clueTypes.js";
 import { t } from "../../i18n/i18n.js";
 
@@ -58,6 +58,10 @@ export const PERSON_PROPERTY_LABELS = {
   custom: t("che soddisfaceva un'altra condizione..."),
 };
 export const OBJECT_TYPE_IDS = Object.keys(OBJECT_TYPES);
+// What a character can stand on (rug, chair, stool) and what they can sit on
+// (chair, stool): the choices of "si trova su…" and "seduto su…".
+export const STANDABLE_TYPE_IDS = OBJECT_TYPE_IDS.filter(isObjectTypeOccupiable);
+export const SEAT_TYPE_IDS = OBJECT_TYPE_IDS.filter(isObjectTypeSeat);
 export const OBJECT_TYPE_LABELS = Object.fromEntries(OBJECT_TYPE_IDS.map((id) => [id, OBJECT_TYPES[id].label]));
 export const SHORT_DIRECTION_LABELS = { north: t("Nord"), south: t("Sud"), east: t("Est"), west: t("Ovest") };
 export const SUPERLATIVE_DIRECTION_LABELS = { north: t("a nord"), south: t("a sud"), east: t("a est"), west: t("a ovest") };
@@ -104,12 +108,12 @@ export function propertyClause(params, puzzle, verb) {
 export const propertyParams = [
   { name: "property", kind: "enum", values: PERSON_PROPERTIES, labels: PERSON_PROPERTY_LABELS, label: t("Proprietà") },
   { name: "targetId", kind: "characterOrObject", label: t("Bersaglio (se 'accanto a')") },
-  { name: "objectTypeId", kind: "enum", values: OBJECT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto (se 'seduto su')") },
+  { name: "objectTypeId", kind: "enum", values: SEAT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto (se 'seduto su')") },
   { name: "customClue", kind: "clueRef", label: t("Condizione (se 'un'altra condizione')") },
 ];
 // Same, but the property filter itself is optional ("chiunque") — for clue
 // types where a plain, unfiltered "someone" is the natural default.
 export const optionalPropertyParams = [
-  { name: "property", kind: "enum", values: ["", ...PERSON_PROPERTIES], labels: { "": t("chiunque"), ...PERSON_PROPERTY_LABELS }, label: t("Che era...") },
+  { name: "property", kind: "enum", values: ["", ...PERSON_PROPERTIES], labels: { "": t("chiunque"), ...PERSON_PROPERTY_LABELS }, label: t("Che è...") },
   ...propertyParams.slice(1),
 ];

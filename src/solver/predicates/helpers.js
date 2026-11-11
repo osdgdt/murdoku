@@ -1,6 +1,6 @@
 import { isAdjacent } from "../../util/geometry.js";
 import { cellAt } from "../../model/grid.js";
-import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeOccupiable, isEdgeObjectType } from "../../model/icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeSeat, isEdgeObjectType } from "../../model/icons.js";
 import { buildPredicate } from "./index.js";
 
 // A predicate is (placementMap, puzzle) -> true | false | undefined.
@@ -27,11 +27,26 @@ export function posOfObject(puzzle, objectId) {
 // "Next to" a character or object: orthogonally adjacent AND in the same room
 // as the target — standing across a wall, in the next room, doesn't count.
 // (Two cells outside any room count as the same open area, like on the board.)
-// The exception is a ROOM as the target ("next to the kitchen" means next to
-// its cells, from outside or inside): those positions carry `room: true`.
+// A ROOM as the target is the opposite: "next to the kitchen" means touching
+// one of its walls from OUTSIDE — standing inside the kitchen doesn't count.
+// Those positions carry `room: true` and the room's `zoneId`.
 export function isNextTo(puzzle, a, target) {
   if (!isAdjacent(a, target)) return false;
-  return target.room === true || zoneAt(puzzle, a) === zoneAt(puzzle, target);
+  if (target.room === true) return zoneAt(puzzle, a) !== target.zoneId;
+  return zoneAt(puzzle, a) === zoneAt(puzzle, target);
+}
+
+// The cells "in front of" a window: the two cells the window separates (it sits
+// on one side of its own cell, so the other one is the neighbour on that side),
+// or just its own cell when there is no room on the other side — the map ends
+// there, the cell is blocked, or it belongs to no room.
+const SIDE_STEP = { N: [-1, 0], E: [0, 1], S: [1, 0], W: [0, -1] };
+export function windowFrontPositions(puzzle, windowObj) {
+  const positions = [{ row: windowObj.row, col: windowObj.col }];
+  const [dr, dc] = SIDE_STEP[windowObj.side || "N"] || SIDE_STEP.N;
+  const neighbor = cellAt(puzzle.grid, windowObj.row + dr, windowObj.col + dc);
+  if (neighbor && !neighbor.blocked && neighbor.zoneId) positions.push({ row: windowObj.row + dr, col: windowObj.col + dc });
+  return positions;
 }
 
 export function resolveTargetPos(placementMap, puzzle, targetId) {
@@ -66,7 +81,7 @@ export function resolveTargetPositions(placementMap, puzzle, targetId) {
     return puzzle.grid.objects.filter((o) => o.typeId === typeId).map(objectPosition);
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
-    return positionsInZone(puzzle, targetId).map((p) => ({ ...p, room: true }));
+    return positionsInZone(puzzle, targetId).map((p) => ({ ...p, room: true, zoneId: targetId }));
   }
   const pos = resolveTargetPos(placementMap, puzzle, targetId);
   return pos ? [pos] : null;
@@ -174,12 +189,11 @@ export function characterHasProperty(puzzle, pm, characterId, params, isComplete
       return !!obj && obj.typeId === params.objectTypeId;
     }
     case "seated": {
-      // Any occupiable object type (chair, stool, a rug...), not just one
-      // specific type — see isObjectTypeOccupiable in icons.js, the same
-      // flag that already governs which furniture a character can stand on.
+      // Any seat (a chair, a stool...), not just one specific type — but not
+      // a rug: you stand on it, you don't sit on it (`seat` flag in icons.js).
       const cell = cellAt(puzzle.grid, pos.row, pos.col);
       const obj = cell?.objectId ? puzzle.grid.objects.find((o) => o.id === cell.objectId) : null;
-      return !!obj && isObjectTypeOccupiable(obj.typeId);
+      return !!obj && isObjectTypeSeat(obj.typeId);
     }
     case "adjacentTo": {
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);

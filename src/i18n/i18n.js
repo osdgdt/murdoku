@@ -8,6 +8,8 @@
 // Static markup in the .html pages is translated at load by translateDom(),
 // so pages need no per-element annotations.
 
+import { conjugate, isTense, DEFAULT_TENSE } from "./tense.js";
+
 export const LANGUAGES = ["it", "en"];
 const LANG_KEY = "murdoku:lang";
 
@@ -80,8 +82,28 @@ function interpolate(template, params) {
   return template.replace(/\{(\w+)\}/g, (match, name) => (name in params ? String(params[name]) : match));
 }
 
+// The verb tense clue sentences are being written in right now (see tense.js).
+// Only describeClue() ever changes it, for the duration of one clue, so every
+// other string in the app stays exactly as written.
+let activeTense = DEFAULT_TENSE;
+
+export function getTense() {
+  return activeTense;
+}
+
+export function withTense(tense, fn) {
+  const previous = activeTense;
+  activeTense = isTense(tense) ? tense : DEFAULT_TENSE;
+  try {
+    return fn();
+  } finally {
+    activeTense = previous;
+  }
+}
+
 export function t(key, params) {
-  const text = lang === "it" ? key : dictionary[key] ?? key;
+  let text = lang === "it" ? key : dictionary[key] ?? key;
+  if (activeTense !== DEFAULT_TENSE) text = conjugate(text, lang, activeTense);
   return interpolate(text, params);
 }
 

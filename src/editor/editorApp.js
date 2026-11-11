@@ -1,6 +1,6 @@
 import "../i18n/i18n.js";
 import { el, qs, clear } from "../util/dom.js";
-import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement, removeClue } from "../model/puzzle.js";
+import { createPuzzle, touch, validatePuzzleShape, clonePuzzle, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, characterColor, DIFFICULTY_LEVELS, TENSE_OPTIONS, setTense, difficultyLabel, estimateDifficultyFromNodes, setSolutionPlacement, removeClue } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
@@ -32,6 +32,10 @@ const authorInput = qs("#puzzle-author");
 const difficultyInput = qs("#puzzle-difficulty");
 for (const level of DIFFICULTY_LEVELS) {
   difficultyInput.appendChild(el("option", { value: level.value }, level.label));
+}
+const tenseInput = qs("#puzzle-tense");
+for (const option of TENSE_OPTIONS) {
+  tenseInput.appendChild(el("option", { value: option.value }, option.label));
 }
 const briefingInput = qs("#puzzle-briefing");
 const resolutionInput = qs("#puzzle-resolution");
@@ -143,6 +147,7 @@ function render() {
   titleInput.value = puzzle.title;
   authorInput.value = puzzle.author || "";
   difficultyInput.value = puzzle.difficulty || "";
+  tenseInput.value = puzzle.tense || "present";
   briefingInput.value = puzzle.briefing || "";
   resolutionInput.value = puzzle.resolutionNote || "";
 
@@ -165,6 +170,9 @@ function render() {
 titleInput.addEventListener("input", () => { puzzle.title = titleInput.value; persistBypassingUndo(); });
 authorInput.addEventListener("input", () => { puzzle.author = authorInput.value; persistBypassingUndo(); });
 difficultyInput.addEventListener("change", () => { puzzle.difficulty = difficultyInput.value; persistBypassingUndo(); });
+// One choice for the whole case: every clue is re-worded at once (handleChange
+// re-renders the clue list, and the change can be undone like any other).
+tenseInput.addEventListener("change", () => { setTense(puzzle, tenseInput.value); handleChange(); });
 briefingInput.addEventListener("input", () => { puzzle.briefing = briefingInput.value; persistBypassingUndo(); });
 resolutionInput.addEventListener("input", () => { puzzle.resolutionNote = resolutionInput.value; persistBypassingUndo(); });
 

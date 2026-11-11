@@ -1,6 +1,6 @@
 // Clue types about rooms: which room, who shares it, who is alone in it.
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, zonesAreAdjacent, isRoomCorner, victimId, characterHasProperty } from "./helpers.js";
+import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, zonesAreAdjacent, isRoomCorner, characterHasProperty } from "./helpers.js";
 
 export const builders = {
   inRoom: ({ clue, puzzle, ownerId, params }) => {
@@ -11,14 +11,6 @@ export const builders = {
       };
   },
 
-  notInRoom: ({ clue, puzzle, ownerId, params }) => {
-      return (pm) => {
-        const a = posOfCharacter(pm, ownerId);
-        if (!a) return undefined;
-        return zoneAt(puzzle, a) !== params.zoneId;
-      };
-  },
-
   sameRoomAs: ({ clue, puzzle, ownerId, params }) => {
       return (pm) => {
         const a = posOfCharacter(pm, ownerId);
@@ -26,16 +18,6 @@ export const builders = {
         if (!a || !b) return undefined;
         const za = zoneAt(puzzle, a);
         return za !== null && za === zoneAt(puzzle, b);
-      };
-  },
-
-  notSameRoomAs: ({ clue, puzzle, ownerId, params }) => {
-      return (pm) => {
-        const a = posOfCharacter(pm, ownerId);
-        const b = posOfCharacter(pm, params.targetId);
-        if (!a || !b) return undefined;
-        const za = zoneAt(puzzle, a);
-        return za === null || za !== zoneAt(puzzle, b);
       };
   },
 
@@ -56,25 +38,6 @@ export const builders = {
           if (c.id === ownerId) continue;
           const pos = posOfCharacter(pm, c.id);
           if (pos && nearTargets.some((t) => isNextTo(puzzle, pos, t))) return false;
-        }
-        return true;
-      };
-  },
-
-  aloneWithVictim: ({ clue, puzzle, ownerId, params }) => {
-      return (pm, isComplete) => {
-        const vId = victimId(puzzle);
-        if (!vId || vId === ownerId) return undefined;
-        const a = posOfCharacter(pm, ownerId);
-        const v = posOfCharacter(pm, vId);
-        if (!a || !v) return undefined;
-        const za = zoneAt(puzzle, a);
-        if (za === null || za !== zoneAt(puzzle, v)) return false;
-        if (!isComplete) return undefined;
-        for (const c of puzzle.characters) {
-          if (c.id === ownerId || c.id === vId) continue;
-          const pos = posOfCharacter(pm, c.id);
-          if (pos && zoneAt(puzzle, pos) === za) return false;
         }
         return true;
       };
@@ -122,8 +85,7 @@ export const builders = {
 
   aloneInRoom: ({ clue, puzzle, ownerId, params }) => {
       // With no zoneId, "alone" means in whatever room the owner turns out to
-      // be in; with one set, it also requires that specific room (subsuming
-      // the legacy, room-specific onlyPersonInRoom).
+      // be in; with one set, it also requires that specific room.
       return (pm, isComplete) => {
         const a = posOfCharacter(pm, ownerId);
         if (!a) return undefined;
@@ -152,21 +114,6 @@ export const builders = {
           if (c.id === ownerId || c.id === params.targetId) continue;
           const pos = posOfCharacter(pm, c.id);
           if (pos && zoneAt(puzzle, pos) === za) return false;
-        }
-        return true;
-      };
-  },
-
-  onlyPersonInRoom: ({ clue, puzzle, ownerId, params }) => {
-      return (pm, isComplete) => {
-        const a = posOfCharacter(pm, ownerId);
-        if (!a) return undefined;
-        if (zoneAt(puzzle, a) !== params.zoneId) return false;
-        if (!isComplete) return undefined;
-        for (const c of puzzle.characters) {
-          if (c.id === ownerId) continue;
-          const pos = posOfCharacter(pm, c.id);
-          if (pos && zoneAt(puzzle, pos) === params.zoneId) return false;
         }
         return true;
       };

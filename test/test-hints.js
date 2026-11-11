@@ -4,6 +4,14 @@ import { objectTypeTargetId } from "../src/model/icons.js";
 import { computeHint, computeHintChain } from "../src/solver/hints.js";
 import { assert, assertEqual } from "./assert.js";
 
+// The unified form of the old "not…" clue types: the positive type + `negate`.
+function addNegated(puzzle, ownerId, type, params) {
+  const clue = addClue(puzzle, ownerId, type, params);
+  clue.negate = true;
+  return clue;
+}
+
+
 function basePuzzle(rows = 3, cols = 3) {
   const puzzle = createPuzzle("Test hints");
   puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
@@ -26,7 +34,7 @@ function forcedPlacementPuzzle() {
 }
 
 // 3x3 grid, A and B, a zone painted on exactly cell (1,1); B is barred from
-// that one cell via "notInRoom". With nothing placed, A is unconstrained
+// that one cell via a negated "inRoom". With nothing placed, A is unconstrained
 // (reaches all 9 cells) and B reaches all cells except (1,1) — never forced,
 // but (1,1) genuinely never appears for B in any solution. Unlike a puzzle
 // where a *character* is already confirmed, `currentPlacements` here starts
@@ -37,7 +45,7 @@ function eliminatedCellPuzzle() {
   const b = addCharacter(puzzle, "B", "person2");
   const zone = addZone(puzzle.grid, "Studio", "#fff");
   paintCellZone(puzzle.grid, 1, 1, zone.id);
-  addClue(puzzle, b.id, "notInRoom", { zoneId: zone.id });
+  addNegated(puzzle, b.id, "inRoom", { zoneId: zone.id });
   return { puzzle, a, b };
 }
 
@@ -195,7 +203,7 @@ export const tests = [
       // forced together, in the same wave, by the exhaustive solve (neither
       // alone collapses via propagation, since C has no clue of her own and
       // the direction clue can't evaluate until a candidate for both exists).
-      addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
+      addClue(puzzle, d.id, "directionDistance", { direction: "north", distance: null, targetId: c.id });
 
       const chain = computeHintChain(puzzle, new Map());
       assertEqual(chain.length, 4, "A, B, D e infine C devono risultare tutti forzati in sequenza");
@@ -230,7 +238,7 @@ export const tests = [
       addClue(puzzle, a.id, "inRoom", { zoneId: zoneA.id });
       addClue(puzzle, b.id, "inRoom", { zoneId: zoneB.id });
       addClue(puzzle, d.id, "inRoom", { zoneId: zoneD.id });
-      addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
+      addClue(puzzle, d.id, "directionDistance", { direction: "north", distance: null, targetId: c.id });
 
       const chain = computeHintChain(puzzle, new Map());
       const cStep = chain.find((s) => s.characterId === c.id);
@@ -370,8 +378,8 @@ export const tests = [
       // delle due copie identiche resta comunque l'altra, e senza ENTRAMBE (né
       // la sola regola base, che con la vittima ancora ipotetica non basta a
       // ricavare la riga/colonna di D) la sua posizione resta ambigua.
-      addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
-      addClue(puzzle, d.id, "direction", { direction: "north", targetId: c.id });
+      addClue(puzzle, d.id, "directionDistance", { direction: "north", distance: null, targetId: c.id });
+      addClue(puzzle, d.id, "directionDistance", { direction: "north", distance: null, targetId: c.id });
 
       const chain = computeHintChain(puzzle, new Map());
       const cStep = chain.find((s) => s.characterId === c.id);

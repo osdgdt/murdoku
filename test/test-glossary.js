@@ -17,7 +17,7 @@ export const tests = [
     },
   },
   {
-    name: "glossario: id delle voci unici, famiglie esistenti, spiegazione e titolo non vuoti; gli obsoleti stanno nella famiglia 'legacy' e solo loro",
+    name: "glossario: id delle voci unici, famiglie esistenti, spiegazione e titolo non vuoti; nessuna voce obsoleta",
     fn: () => {
       const ids = ENTRIES.map((e) => e.id);
       assertEqual(new Set(ids).size, ids.length, "id duplicati");
@@ -25,7 +25,7 @@ export const tests = [
       for (const e of ENTRIES) {
         assert(families.has(e.family), `${e.id}: famiglia sconosciuta ${e.family}`);
         assert(e.explain().length > 20, `${e.id}: spiegazione mancante`);
-        if (e.type) assert(!!CLUE_TYPES[e.type].legacy === (e.family === "legacy"), `${e.id}: la famiglia 'legacy' deve coincidere con il flag legacy del tipo`);
+        assert(e.family !== "legacy", `${e.id}: gli indizi obsoleti non esistono più`);
       }
     },
   },

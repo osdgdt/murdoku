@@ -5,6 +5,7 @@ import { isSafeId, isSafeColor } from "../util/safe.js";
 
 import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
 import { t } from "../i18n/i18n.js";
+import { TENSES, DEFAULT_TENSE, isTense } from "../i18n/tense.js";
 
 export const SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
@@ -16,6 +17,19 @@ export const DIFFICULTY_LEVELS = [
   { value: "hard", label: t("Difficile") },
   { value: "expert", label: t("Esperto") },
 ];
+
+// The verb tense every clue of a case is written in (one choice for the whole
+// case, so the wording never mixes "è" and "era"). See i18n/tense.js.
+export const TENSE_OPTIONS = [
+  { value: "present", label: t("Presente (è accanto a…)") },
+  { value: "past", label: t("Passato (era accanto a…)") },
+  { value: "future", label: t("Futuro (sarà accanto a…)") },
+];
+
+export function setTense(puzzle, tense) {
+  puzzle.tense = isTense(tense) ? tense : DEFAULT_TENSE;
+  touch(puzzle);
+}
 
 export function difficultyLabel(value) {
   return DIFFICULTY_LEVELS.find((d) => d.value === value)?.label || DIFFICULTY_LEVELS[0].label;
@@ -72,6 +86,7 @@ export function createPuzzle(title = t("Nuovo caso")) {
     bestTimeSeconds: null,
     briefing: "",
     resolutionNote: "",
+    tense: DEFAULT_TENSE,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     grid: createGrid(6, 6),
@@ -204,6 +219,7 @@ function validateUntrustedStrings(puzzle, errors) {
     if (value !== undefined && value !== null && !isSafeColor(value)) errors.push(t("Colore non valido ({what}).", { what }));
   };
   badId("puzzle", puzzle.id);
+  if (puzzle.tense !== undefined && !TENSES.includes(puzzle.tense)) errors.push(t("Il tempo verbale degli indizi non è valido."));
   for (const field of ["title", "author", "briefing", "resolutionNote"]) {
     if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(t("Il campo \"{field}\" deve essere testo.", { field }));
   }

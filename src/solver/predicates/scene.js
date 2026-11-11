@@ -65,25 +65,6 @@ export const builders = {
       };
   },
 
-  emptyRoomsCount: ({ clue, puzzle, ownerId, params }) => {
-      return (pm, isComplete) => {
-        const totalZones = puzzle.grid.zones.length;
-        const occupiedZones = new Set();
-        for (const c of puzzle.characters) {
-          const pos = posOfCharacter(pm, c.id);
-          if (!pos) continue;
-          const z = zoneAt(puzzle, pos);
-          if (z !== null) occupiedZones.add(z);
-        }
-        // Zones already confirmed occupied only ever grow as more characters
-        // are placed, so this bound can only tighten — a definite "false" here
-        // stays false regardless of how the rest of the search plays out.
-        const guaranteedEmpty = totalZones - occupiedZones.size;
-        if (guaranteedEmpty < params.count) return false;
-        return isComplete ? guaranteedEmpty === params.count : undefined;
-      };
-  },
-
   roomsWithStateCount: ({ clue, puzzle, ownerId, params }) => {
       return (pm, isComplete) => {
         const totalZones = puzzle.grid.zones.length;

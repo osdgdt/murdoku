@@ -114,7 +114,7 @@ export function trueClues(puzzle, ids, solution) {
   const seen = new Set();
   const pool = [];
   for (const [type, def] of Object.entries(CLUE_TYPES)) {
-    if (def.legacy || def.internal || SKIP_TYPES.has(type)) continue;
+    if (def.internal || SKIP_TYPES.has(type)) continue;
     const owners = def.scope === "generic" ? [null] : puzzle.characters.map((c) => c.id);
     for (const owner of owners) {
       for (const params of enumerateParams(def, ctx, owner)) {

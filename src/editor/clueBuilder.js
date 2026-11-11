@@ -19,6 +19,13 @@ function objectTypesPresent(puzzle, { includeEdges = true } = {}) {
   return includeEdges ? types : types.filter((id) => !isEdgeObjectType(id));
 }
 
+// The object types a "stand on…" / "sit on…" control may offer: those present
+// on the map AND allowed by the control itself (a rug can be stood on but not
+// sat on, so "seduto su…" never lists it).
+function presentChoices(puzzle, paramDef) {
+  return objectTypesPresent(puzzle, { includeEdges: false }).filter((id) => paramDef.values.includes(id));
+}
+
 function targetOptions(puzzle, kind, excludeCharacterId) {
   const options = [];
   if (kind === "character" || kind === "characterOrObject") {
@@ -68,7 +75,7 @@ function defaultParams(typeId, puzzle) {
       // first PRESENT type, falling back to the registry's first entry only
       // if the map has no objects at all yet, matching renderParamControl's
       // own fallback below so the shown default always matches what's stored.
-      params[p.name] = p.name === "objectTypeId" ? (objectTypesPresent(puzzle, { includeEdges: false })[0] ?? p.values[0]) : p.values[0];
+      params[p.name] = p.name === "objectTypeId" ? (presentChoices(puzzle, p)[0] ?? p.values[0]) : p.values[0];
     }
     if (p.kind === "number") params[p.name] = p.optional ? null : (p.min ?? 1);
     if (p.kind === "characterOrObjectMulti") params[p.name] = [];
@@ -91,7 +98,7 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
     // write an always-false clue by picking a type that doesn't exist
     // anywhere on the grid. Falls back to the full registry only if the map
     // has no objects at all yet (an empty <select> would be worse).
-    const presentTypes = paramDef.name === "objectTypeId" ? objectTypesPresent(puzzle, { includeEdges: false }) : null;
+    const presentTypes = paramDef.name === "objectTypeId" ? presentChoices(puzzle, paramDef) : null;
     const values = presentTypes && presentTypes.length > 0 ? presentTypes : paramDef.values;
     const select = el(
       "select",

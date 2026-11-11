@@ -1,7 +1,7 @@
 // Clue types about WHERE a character stands relative to cells, objects, rows/columns and other characters.
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
 import { isDiagonal, isDirection, isDirectionDistance, isSameRowOrCol, manhattan } from "../../util/geometry.js";
-import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, isStrictlyBetween, characterHasProperty, isMoreExtreme } from "./helpers.js";
+import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, isStrictlyBetween, characterHasProperty, isMoreExtreme, windowFrontPositions } from "./helpers.js";
 
 export const builders = {
   adjacent: ({ clue, puzzle, ownerId, params }) => {
@@ -12,17 +12,6 @@ export const builders = {
         if (targets === null) return undefined;
         if (targets.length === 0) return false;
         return targets.some((t) => isNextTo(puzzle, a, t));
-      };
-  },
-
-  notAdjacent: ({ clue, puzzle, ownerId, params }) => {
-      return (pm) => {
-        const a = posOfCharacter(pm, ownerId);
-        if (!a) return undefined;
-        const targets = resolveTargetPositions(pm, puzzle, params.targetId);
-        if (targets === null) return undefined;
-        if (targets.length === 0) return true; // vacuous truth: nothing to be adjacent to
-        return targets.every((t) => !isNextTo(puzzle, a, t));
       };
   },
 
@@ -37,27 +26,20 @@ export const builders = {
       };
   },
 
-  eitherAdjacent: ({ clue, puzzle, ownerId, params }) => {
-      // Sound three-way OR: if either side is already known-true, the clue is
-      // satisfied regardless of the other (possibly still-undetermined) side.
-      // Only report a definite violation once BOTH sides are resolved (each
-      // either a real target list or a determined-empty/vacuous one) and
-      // neither holds.
+  onObjectType: ({ clue, puzzle, ownerId, params }) => {
+      return (pm) => characterHasProperty(puzzle, pm, ownerId, { property: "sittingOn", objectTypeId: params.objectTypeId });
+  },
+
+  inFrontOfWindow: ({ clue, puzzle, ownerId, params }) => {
+      // In one of the two cells a window separates, or in the window's own
+      // cell when nothing is on the other side (see windowFrontPositions).
       return (pm) => {
         const a = posOfCharacter(pm, ownerId);
         if (!a) return undefined;
-        const targetsA = resolveTargetPositions(pm, puzzle, params.targetAId);
-        const targetsB = resolveTargetPositions(pm, puzzle, params.targetBId);
-        const nearA = targetsA !== null && targetsA.some((t) => isNextTo(puzzle, a, t));
-        const nearB = targetsB !== null && targetsB.some((t) => isNextTo(puzzle, a, t));
-        if (nearA || nearB) return true;
-        if (targetsA === null || targetsB === null) return undefined;
-        return false;
+        return puzzle.grid.objects.some(
+          (o) => o.typeId === "window" && windowFrontPositions(puzzle, o).some((p) => p.row === a.row && p.col === a.col)
+        );
       };
-  },
-
-  onObjectType: ({ clue, puzzle, ownerId, params }) => {
-      return (pm) => characterHasProperty(puzzle, pm, ownerId, { property: "sittingOn", objectTypeId: params.objectTypeId });
   },
 
   seated: ({ clue, puzzle, ownerId, params }) => {
@@ -78,17 +60,6 @@ export const builders = {
           }
         }
         return false;
-      };
-  },
-
-  direction: ({ clue, puzzle, ownerId, params }) => {
-      return (pm) => {
-        const a = posOfCharacter(pm, ownerId);
-        if (!a) return undefined;
-        const targets = resolveTargetPositions(pm, puzzle, params.targetId);
-        if (targets === null) return undefined;
-        if (targets.length === 0) return false;
-        return targets.some((t) => isDirection(params.direction, a, t));
       };
   },
 
@@ -158,8 +129,8 @@ export const builders = {
   },
 
   directionDistance: ({ clue, puzzle, ownerId, params }) => {
-      // No distance set means "any positive distance" — the legacy `direction`
-      // check — instead of requiring an exact one.
+      // No distance set means "any positive distance" instead of requiring an
+      // exact one.
       return (pm) => {
         const a = posOfCharacter(pm, ownerId);
         if (!a) return undefined;

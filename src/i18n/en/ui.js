@@ -100,7 +100,7 @@ export default {
   "Il caso": "The case",
   "Non sono riuscito a importare il caso dal link: {importError}": "Could not import the case from the link: {importError}",
   "Scegli un caso da giocare": "Choose a case to play",
-  "Aggiornati di recente": "Recently updated", "Titolo": "Title", "Difficoltà": "Difficulty",
+  "Tempo verbale degli indizi": "Verb tense of the clues", "Aggiornati di recente": "Recently updated", "Titolo": "Title", "Difficoltà": "Difficulty",
   "Nessun puzzle salvato. Creane uno nell'Editor prima.": "No saved puzzles. Create one in the Editor first.",
   "Vai all'editor →": "Go to the editor →",
   "Aggiornato il {updated}": "Updated on {updated}",

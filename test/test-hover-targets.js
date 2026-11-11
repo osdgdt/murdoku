@@ -167,13 +167,13 @@ export const tests = [
     },
   },
   {
-    name: "resolveClueHoverCells: aloneWithVictim risolve alla cella della vittima (bersaglio implicito)",
+    name: "resolveClueHoverCells: aloneWithPerson verso la vittima risolve alla cella della vittima",
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
       const victim = addCharacter(puzzle, "Vittima", "person1");
       setVictim(puzzle, victim.id);
-      const clue = addClue(puzzle, a.id, "aloneWithVictim", {});
+      const clue = addClue(puzzle, a.id, "aloneWithPerson", { targetId: victim.id });
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([[victim.id, { row: 1, col: 3 }]]));
       assertEqual(cells.length, 1);
       assertEqual(cells[0].row, 1);

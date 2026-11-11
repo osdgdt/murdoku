@@ -139,7 +139,6 @@ function renderCard(entry) {
   const general = !entry.owner && entry.type;
   const badges = [];
   if (general) badges.push(el("span", { class: "gl-badge general", title: t("Non riguarda un personaggio solo: è un fatto sulla scena.") }, t("Indizio generale")));
-  if (entry.family === "legacy") badges.push(el("span", { class: "gl-badge legacy" }, t("Obsoleto")));
 
   const text = el("div", { class: "gl-text" }, [
     el("p", { class: "gl-explain" }, entry.explain()),

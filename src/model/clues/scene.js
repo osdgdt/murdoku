@@ -29,16 +29,16 @@ export const SCENE_CLUES = {
   },
   noOneNear: {
     scope: "generic",
-    label: t("Nessuno è vicino a"),
+    label: t("Nessuno è accanto a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
-    describe: (params, puzzle) => t("Nessuno è vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
-    negatedDescribe: (params, puzzle) => t("Qualcuno è vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
+    describe: (params, puzzle) => t("Nessuno è accanto a {v}.", { v: targetLabel(puzzle, params.targetId) }),
+    negatedDescribe: (params, puzzle) => t("Qualcuno è accanto a {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   exactlyOneNear: {
     scope: "generic",
-    label: t("Esattamente una persona è vicino a"),
+    label: t("Esattamente una persona è accanto a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
-    describe: (params, puzzle) => t("Esattamente una persona è vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
+    describe: (params, puzzle) => t("Esattamente una persona è accanto a {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   sameRoomTogether: {
     scope: "generic",
@@ -52,17 +52,9 @@ export const SCENE_CLUES = {
     negatedDescribe: (params, puzzle) =>
       t("{v} e {v2} non si trovano nella stessa stanza.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
   },
-  emptyRoomsCount: {
-    legacy: true,
-    scope: "generic",
-    label: t("N stanze sono vuote"),
-    params: [{ name: "count", kind: "number", min: 0, label: t("Numero di stanze vuote") }],
-    describe: (params) =>
-      params.count === 1 ? t(`Esattamente una stanza è vuota.`) : t("Esattamente {count} stanze sono vuote.", { count: params.count }),
-  },
   roomsWithStateCount: {
     scope: "generic",
-    label: t("N stanze erano piene/vuote"),
+    label: t("N stanze sono piene/vuote"),
     params: [
       { name: "count", kind: "number", min: 0, label: t("Numero di stanze") },
       { name: "state", kind: "enum", values: ["empty", "occupied"], labels: { empty: "vuote", occupied: t("piene (almeno una persona)") }, label: t("Stato") },
@@ -77,7 +69,7 @@ export const SCENE_CLUES = {
   },
   emptyRoomsSameSize: {
     scope: "generic",
-    label: t("N stanze erano vuote, con lo stesso numero di caselle"),
+    label: t("N stanze sono vuote, con lo stesso numero di caselle"),
     params: [{ name: "count", kind: "number", min: 0, label: t("Numero di stanze vuote") }],
     describe: (params) => {
       const count = params.count;
@@ -87,7 +79,7 @@ export const SCENE_CLUES = {
   },
   sameRoomSizeAs: {
     scope: "generic",
-    label: t("Le stanze di due bersagli avevano lo stesso numero di caselle"),
+    label: t("Le stanze di due bersagli hanno lo stesso numero di caselle"),
     params: [
       { name: "targetAId", kind: "character", label: t("Personaggio A") },
       { name: "targetBId", kind: "character", label: t("Personaggio B") },
@@ -99,7 +91,7 @@ export const SCENE_CLUES = {
   },
   noOneWithProperty: {
     scope: "generic",
-    label: t("Nessuno era... (ovunque, o in una stanza specifica)"),
+    label: t("Nessuno è... (ovunque, o in una stanza specifica)"),
     params: [
       { name: "zoneId", kind: "zone", optional: true, label: t("Solo in questa stanza (vuoto = ovunque)") },
       {

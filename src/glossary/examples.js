@@ -34,13 +34,12 @@ const CAST = {
 
 export const FAMILIES = [
   { id: "concepts", title: () => t("Per cominciare"), blurb: () => t("Le idee che servono per leggere qualsiasi indizio.") },
-  { id: "near", title: () => t("Vicino, tra, di fronte"), blurb: () => t("Dove sta un personaggio rispetto a oggetti e ad altre persone.") },
+  { id: "near", title: () => t("Accanto, tra, di fronte"), blurb: () => t("Dove sta un personaggio rispetto a oggetti e ad altre persone.") },
   { id: "direction", title: () => t("Direzioni"), blurb: () => t("Nord, sud, est, ovest: a quale distanza e rispetto a chi.") },
   { id: "lines", title: () => t("Righe e colonne"), blurb: () => t("Indizi che parlano delle righe (R1, R2…) e delle colonne (C1, C2…).") },
   { id: "rooms", title: () => t("Stanze"), blurb: () => t("In quale stanza si trova un personaggio e con chi la condivide.") },
   { id: "scene", title: () => t("Fatti sulla scena"), blurb: () => t("Indizi generali: non riguardano un personaggio solo, ma tutta la scena.") },
   { id: "logic", title: () => t("Combinare gli indizi"), blurb: () => t("Come unire due indizi in uno.") },
-  { id: "legacy", title: () => t("Indizi obsoleti"), blurb: () => t("Funzionano ancora nei casi già scritti, ma oggi si ottengono combinando indizi più generali.") },
 ];
 
 // Each entry: { id, type, family, owner, params, negate, explain, tip, world, labels, falseCast }
@@ -75,9 +74,17 @@ export const ENTRIES = [
     world: { map: TWO_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "plant", at: [2, 2] }] },
   },
   {
+    id: "tense", family: "concepts", title: () => t("Il tempo verbale"),
+    owner: "a", type: null, params: {}, board: false,
+    explain: () => t("Tutti gli indizi di un caso sono scritti nello stesso tempo: al presente, al passato o al futuro. Lo sceglie chi crea il caso con un solo menu nell'editor, e cambia le parole ma non il significato. «Vicino» non si usa mai: si dice sempre «accanto»."),
+    sentence: () => t("«È accanto a una pianta» · «Era accanto a una pianta» · «Sarà accanto a una pianta»"),
+    world: { map: OPEN },
+  },
+  {
     id: "room-target", family: "concepts", title: () => t("Una stanza come bersaglio"),
     owner: "a", type: "adjacent", params: { targetId: "@z:A" },
-    explain: () => t("Se il bersaglio è una stanza, «accanto» vuol dire accanto a una qualsiasi delle sue caselle: vale anche dall'altra parte del muro. È l'unico caso in cui «accanto a» supera il confine di una stanza."),
+    explain: () => t("Se il bersaglio è una stanza, «accanto» vuol dire accanto a un suo muro, ma da fuori: si sta in una casella che tocca la stanza senza farne parte. Chi si trova dentro la stanza non vale."),
+    tip: () => t("Qui «accanto alla Cucina» significa le caselle del Salotto e dello Studio che confinano con la Cucina, non quelle della Cucina stessa."),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES },
   },
 
@@ -100,8 +107,14 @@ export const ENTRIES = [
   },
   {
     id: "seated", type: "seated", family: "near", owner: "a", params: {},
-    explain: () => t("Il personaggio era seduto: su una sedia, uno sgabello, o su qualunque altro oggetto occupabile. A differenza di «si trova su un oggetto di un certo tipo», non serve dire quale."),
+    explain: () => t("Il personaggio è seduto: su una sedia, uno sgabello, o su qualunque altra seduta. A differenza di «si trova su un oggetto di un certo tipo», non serve dire quale. Un tappeto non è una seduta: ci si sta sopra in piedi, non ci si siede."),
     world: { map: OPEN, objects: [{ type: "chair", at: [0, 1] }, { type: "stool", at: [2, 3] }, { type: "carpet", at: [4, 0] }, { type: "table", at: [1, 3] }] },
+  },
+  {
+    id: "inFrontOfWindow", type: "inFrontOfWindow", family: "near", owner: "a", params: {},
+    explain: () => t("Una finestra sta sul lato di una casella e separa due caselle: il personaggio è in una delle due. Se dall'altra parte non c'è una stanza (il bordo della mappa, o una casella bloccata), vale solo la casella della finestra."),
+    tip: () => t("La finestra nel muro tra Cucina e Salotto vale per le due caselle ai suoi lati; quella sul bordo in alto vale solo per la sua casella."),
+    world: { map: TWO_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "window", at: [2, 2], side: "E" }, { type: "window", at: [0, 0], side: "N" }] },
   },
   {
     id: "between", type: "between", family: "near", owner: "a", params: { targetAId: "@o:0", targetBId: "@o:1" },
@@ -134,12 +147,12 @@ export const ENTRIES = [
   },
   {
     id: "someoneAtDirectionDistance", type: "someoneAtDirectionDistance", family: "direction", owner: "a", params: { direction: "north", distance: 1 },
-    explain: () => t("Non dice chi: dice che c'è qualcuno, a quella direzione e distanza dal personaggio. Si può restringere a chi aveva una certa caratteristica (un uomo, una donna, chi era accanto a un oggetto…)."),
+    explain: () => t("Non dice chi: dice che c'è qualcuno, a quella direzione e distanza dal personaggio. Si può restringere a chi ha una certa caratteristica (un uomo, una donna, chi è accanto a un oggetto…)."),
     world: { map: OPEN, labels: true, cast: { b: { at: [1, 3] } } },
   },
   {
     id: "extremeInDirection", type: "extremeInDirection", family: "direction", owner: "a", params: { direction: "north", scope: "map" },
-    explain: () => t("Il personaggio è quello più a nord (o sud, est, ovest) di tutti, oppure della sua stanza. Può valere solo tra chi aveva una certa caratteristica. Una persona a pari altezza con lui lo rende falso."),
+    explain: () => t("Il personaggio è quello più a nord (o sud, est, ovest) di tutti, oppure della sua stanza. Può valere solo tra chi ha una certa caratteristica. Una persona a pari altezza con lui lo rende falso."),
     world: { map: OPEN, labels: true, cast: { b: { at: [2, 1] }, c: { at: [3, 3] }, d: { at: [4, 0] } } },
   },
 
@@ -209,7 +222,7 @@ export const ENTRIES = [
   },
   {
     id: "aloneWithPersonProperty", type: "aloneWithPersonProperty", family: "rooms", owner: "a", params: { property: "male" },
-    explain: () => t("Il personaggio è nella stanza con una sola altra persona, e quella persona ha una certa caratteristica (è un uomo, una donna, era seduta, accanto a un oggetto…), senza dire chi sia."),
+    explain: () => t("Il personaggio è nella stanza con una sola altra persona, e quella persona ha una certa caratteristica (è un uomo, una donna, è seduta, accanto a un oggetto…), senza dire chi sia."),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { b: { at: [1, 1], gender: "male" }, c: { at: [3, 4], gender: "female" } } },
   },
   {
@@ -257,7 +270,7 @@ export const ENTRIES = [
   },
   {
     id: "roomsWithStateCount", type: "roomsWithStateCount", family: "scene", owner: null, params: { count: 1, state: "empty" },
-    explain: () => t("Un certo numero di stanze erano vuote (oppure occupate): si contano le stanze, non le persone."),
+    explain: () => t("Un certo numero di stanze sono vuote (oppure occupate): si contano le stanze, non le persone."),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { a: { at: [0, 1] }, b: { at: [2, 0] }, c: { at: [1, 4] } } },
     falseCast: { b: [1, 0], c: [3, 3] },
   },
@@ -278,7 +291,7 @@ export const ENTRIES = [
   {
     id: "noOneWithProperty", type: "noOneWithProperty", family: "scene", owner: null,
     params: { property: "sittingOn", objectTypeId: "chair", onlyGender: "female", zoneId: "@z:A" },
-    explain: () => t("Nessuno, in tutta la mappa o in una stanza precisa, aveva quella caratteristica (era seduto, accanto a un oggetto…). Si può restringere a uomini o a donne."),
+    explain: () => t("Nessuno, in tutta la mappa o in una stanza precisa, ha quella caratteristica (seduto, accanto a un oggetto…). Si può restringere a uomini o a donne."),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "chair", at: [0, 1] }], cast: { a: { at: [2, 0], gender: "female" }, b: { at: [0, 1], gender: "male" }, c: { at: [1, 4], gender: "female" } } },
     falseCast: { a: [0, 1], b: [2, 0] },
   },
@@ -289,48 +302,6 @@ export const ENTRIES = [
     params: { a: { type: "adjacent", params: { targetId: "@o:0" } }, b: { type: "inRoom", params: { zoneId: "@z:C" } } },
     explain: () => t("Due indizi qualsiasi uniti da un «oppure»: basta che sia vero uno dei due (o entrambi). Si sceglie il tipo e i parametri di ciascuno, come per un indizio normale."),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "plant", at: [0, 1] }] },
-  },
-
-  // ===================================================================== legacy (text only)
-  {
-    id: "notAdjacent", type: "notAdjacent", family: "legacy", owner: "a", params: { targetId: "@o:0" }, board: false,
-    explain: () => t("«Non è accanto a». Oggi si scrive «è accanto a» con il riquadro «no»."),
-    world: { map: OPEN, objects: [{ type: "plant", at: [2, 2] }] },
-  },
-  {
-    id: "eitherAdjacent", type: "eitherAdjacent", family: "legacy", owner: "a", params: { targetAId: "@o:0", targetBId: "@o:1" }, board: false,
-    explain: () => t("Accanto a uno di due bersagli. Oggi si ottiene con «o uno o l'altro» tra due indizi «è accanto a»."),
-    world: { map: OPEN, objects: [{ type: "plant", at: [1, 1] }, { type: "lamp", at: [3, 3] }] },
-  },
-  {
-    id: "direction", type: "direction", family: "legacy", owner: "a", params: { direction: "north", targetId: "@o:0" }, board: false,
-    explain: () => t("A nord, sud, est o ovest del bersaglio, a qualunque distanza. Oggi è «a nord/sud/est/ovest di» lasciando vuota la distanza."),
-    world: { map: OPEN, objects: [{ type: "plant", at: [2, 2] }] },
-  },
-  {
-    id: "notInRoom", type: "notInRoom", family: "legacy", owner: "a", params: { zoneId: "@z:C" }, board: false,
-    explain: () => t("«Non si trova nella stanza». Oggi: «si trova nella stanza» con il riquadro «no»."),
-    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES },
-  },
-  {
-    id: "notSameRoomAs", type: "notSameRoomAs", family: "legacy", owner: "a", params: { targetId: "@c:b" }, board: false,
-    explain: () => t("«Non si trova nella stessa stanza di». Oggi: «nella stessa stanza di» con il riquadro «no»."),
-    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { b: { at: [1, 1] } } },
-  },
-  {
-    id: "aloneWithVictim", type: "aloneWithVictim", family: "legacy", owner: "a", params: {}, board: false,
-    explain: () => t("Sola con la vittima nella stanza: l'assassino. Oggi si usa «sola con (un personaggio)» indicando la vittima."),
-    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { b: { victim: true } } },
-  },
-  {
-    id: "onlyPersonInRoom", type: "onlyPersonInRoom", family: "legacy", owner: "a", params: { zoneId: "@z:C" }, board: false,
-    explain: () => t("L'unica persona in una stanza precisa. Oggi: «sola nella stanza» scegliendo la stanza."),
-    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES },
-  },
-  {
-    id: "emptyRoomsCount", type: "emptyRoomsCount", family: "legacy", owner: null, params: { count: 2 }, board: false,
-    explain: () => t("Un certo numero di stanze erano vuote. Oggi: «N stanze erano piene/vuote» scegliendo «vuote»."),
-    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES },
   },
 ];
 

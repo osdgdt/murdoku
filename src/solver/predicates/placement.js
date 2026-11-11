@@ -54,8 +54,14 @@ export const builders = {
         const targetsB = resolveTargetPositions(pm, puzzle, params.targetBId);
         if (targetsA === null || targetsB === null) return undefined;
         if (targetsA.length === 0 || targetsB.length === 0) return false;
+        // A ROOM as a target is crossed, not entered: standing inside it never
+        // counts as "between" it and something else.
+        const ownerZone = zoneAt(puzzle, owner);
+        const inside = (target) => target.room === true && ownerZone === target.zoneId;
         for (const a of targetsA) {
+          if (inside(a)) continue;
           for (const b of targetsB) {
+            if (inside(b)) continue;
             if (isStrictlyBetween(owner, a, b)) return true;
           }
         }

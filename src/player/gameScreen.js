@@ -1,6 +1,6 @@
 import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
 import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll, renderPlayerBoard } from "./board.js";
-import { renderClueCards } from "./clueCards.js";
+import { renderClueCards, renderSelectedClue } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
 import { renderHintStep } from "./hintView.js";
 import { renderWinPanel } from "./winPanel.js";
@@ -29,7 +29,7 @@ import { t } from "../i18n/i18n.js";
 // Queries its own DOM refs by id rather than taking them as a parameter —
 // player.html and campaign.html deliberately use the exact same ids for
 // every element this module touches (#player-toolbar, #board, #clues-panel,
-// #briefing-panel, #result-panel, #undo-btn, #clear-btn, #hint-btn,
+// #selected-clue-panel, #briefing-panel, #result-panel, #undo-btn, #clear-btn, #hint-btn,
 // #hint-panel, #submit-btn, #timer). Keep it that way if either page's
 // markup changes. #notes-hint also exists in both pages but is a static
 // instruction paragraph now (no mode toggle to reflect) — this module never
@@ -38,6 +38,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
   const cluesEl = qs("#clues-panel");
+  const selectedClueEl = qs("#selected-clue-panel");
   const briefingEl = qs("#briefing-panel");
   const resultEl = qs("#result-panel");
   const undoBtn = qs("#undo-btn");
@@ -182,21 +183,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     applyHintHighlight();
     applySelectedCharacterTargets();
     renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);
-    revealSelectedClue();
-  }
-
-  // The side column (briefing + clue cards) stays beside the board as you
-  // scroll; when a different character gets selected, bring their card to its
-  // top so their clues are in view without hunting for them.
-  let revealedFor = null;
-  function revealSelectedClue() {
-    const id = state.selectedTool?.kind === "character" ? state.selectedTool.id : null;
-    if (id === revealedFor) return;
-    revealedFor = id;
-    const column = cluesEl.closest(".side-column");
-    const card = cluesEl.querySelector(".clue-card.active");
-    if (!column || !card) return;
-    column.scrollTop += card.getBoundingClientRect().top - column.getBoundingClientRect().top - 8;
+    renderSelectedClue(selectedClueEl, puzzle, state, showClueHover, clearHover);
   }
 
   function showHintStep() {

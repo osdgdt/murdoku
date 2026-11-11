@@ -483,10 +483,18 @@
     {
       "id": "k2",
       "characterId": "c4",
-      "type": "between",
+      "type": "inRowOrCol",
       "params": {
-        "targetAId": "objtype:plant",
-        "targetBId": "z2"
+        "axis": "row",
+        "index": 2
+      }
+    },
+    {
+      "id": "k11",
+      "characterId": "c4",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:window"
       }
     },
     {

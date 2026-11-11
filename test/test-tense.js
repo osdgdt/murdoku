@@ -263,4 +263,19 @@ export const tests = [
       assertEqual(JSON.stringify(puzzle), once);
     },
   },
+  {
+    name: "targetLabel: un oggetto specifico tra più dello stesso tipo dice quale (riga/colonna), altrimenti resta la frase semplice",
+    fn: () => {
+      const { puzzle, ids } = samplePuzzle(); // una sedia sola in (0,0)
+      const clue = (targetId) => ({ id: "c", type: "closerTo", characterId: ids.owner, params: { targetAId: targetId, targetBId: ids.other } });
+      assertEqual(describeClue(clue(ids.obj), puzzle), "È più vicino a una sedia che a Bruno.", "una sola sedia: nessuna ambiguità");
+      const second = placeObject(puzzle.grid, "chair", 3, 2);
+      assertEqual(describeClue(clue(second.id), puzzle), "È più vicino a una sedia (R4, C3) che a Bruno.");
+      const door = placeObject(puzzle.grid, "door", 1, 1, "S");
+      placeObject(puzzle.grid, "door", 2, 2, "E");
+      assertEqual(describeClue({ id: "c", type: "adjacent", characterId: ids.owner, params: { targetId: door.id } }, puzzle), "È accanto a una porta (R2, C2, lato Sud).");
+      // «qualsiasi sedia» (bersaglio di tipo) resta generico, senza coordinate
+      assertEqual(describeClue(clue("objtype:chair"), puzzle), "È più vicino a una sedia che a Bruno.");
+    },
+  },
 ];

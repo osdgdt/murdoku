@@ -2368,4 +2368,21 @@ export const tests = [
       assertEqual(noOne(mapOf([[a.id, { row: 0, col: 0 }], [b.id, { row: 1, col: 0 }]]), true), false);
     },
   },
+  {
+    name: "predicate between con una stanza come bersaglio: vale fuori dalla stanza, mai dentro",
+    fn: () => {
+      const puzzle = basePuzzle(1, 1);
+      puzzle.grid = resizeGrid(puzzle.grid, 5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      const room = addZone(puzzle.grid, "Stanza", "#eee");
+      for (let c = 1; c <= 2; c++) paintCellZone(puzzle.grid, 2, c, room.id); // R3: C2-C3
+      const lamp = placeObject(puzzle.grid, "lamp", 2, 4);
+      const predicate = buildPredicate(addClue(puzzle, a.id, "between", { targetAId: room.id, targetBId: lamp.id }), puzzle);
+      const at = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
+      assertEqual(at(2, 3), true, "tra la stanza e la lampada, fuori dalla stanza");
+      assertEqual(at(2, 1), false, "dentro la stanza non vale, anche se tra le sue caselle e la lampada");
+      assertEqual(at(2, 2), false, "dentro la stanza non vale");
+      assertEqual(at(2, 0), false, "dall'altra parte della stanza");
+    },
+  },
 ];

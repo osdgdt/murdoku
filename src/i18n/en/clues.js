@@ -167,6 +167,8 @@ export default {
   "chiunque": "anyone",
   "Che è...": "Who is...",
   "è": "is", "che è": "who is",
+  "{phrase} (R{row}, C{col})": "{phrase} (R{row}, C{col})",
+  "{phrase} (R{row}, C{col}, lato {side})": "{phrase} (R{row}, C{col}, {side} side)",
   "È davanti a una finestra": "Is in front of a window",
   "È davanti a una finestra.": "Is in front of a window.",
   "Presente (è accanto a…)": "Present (is next to…)",

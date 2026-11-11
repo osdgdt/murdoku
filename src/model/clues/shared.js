@@ -1,4 +1,4 @@
-import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES, isObjectTypeOccupiable, isObjectTypeSeat } from "../icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES, isObjectTypeOccupiable, isObjectTypeSeat, sideLabel } from "../icons.js";
 import { describeClue } from "../clueTypes.js";
 import { t } from "../../i18n/i18n.js";
 
@@ -11,8 +11,22 @@ export function targetLabel(puzzle, targetId) {
   const zone = puzzle.grid.zones.find((z) => z.id === targetId);
   if (zone) return `"${zone.name}"`;
   const object = puzzle.grid.objects.find((o) => o.id === targetId);
-  if (object) return objectTypePhrase(object.typeId);
+  if (object) return specificObjectPhrase(puzzle, object);
   return "?";
+}
+
+// One SPECIFIC object. "una sedia" alone would read as "any chair", so when the
+// map has several of that type the phrase says which one, with the row/column
+// labels printed around the board: "una sedia (R5, C3)". Doors and windows
+// also say their side. With a single one of its type there is nothing to tell
+// apart and the plain phrase stays.
+function specificObjectPhrase(puzzle, object) {
+  const phrase = objectTypePhrase(object.typeId);
+  if (puzzle.grid.objects.filter((o) => o.typeId === object.typeId).length < 2) return phrase;
+  const where = { phrase, row: object.row + 1, col: object.col + 1 };
+  return object.side
+    ? t("{phrase} (R{row}, C{col}, lato {side})", { ...where, side: sideLabel(object.side) })
+    : t("{phrase} (R{row}, C{col})", where);
 }
 
 // "una porta" / "a door". `article` stays the Italian indefinite article and

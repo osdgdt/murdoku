@@ -118,7 +118,7 @@ export const ENTRIES = [
   },
   {
     id: "between", type: "between", family: "near", owner: "a", params: { targetAId: "@o:0", targetBId: "@o:1" },
-    explain: () => t("Il personaggio sta sulla stessa riga (o colonna) dei due bersagli, in una casella strettamente compresa tra loro. Non basta essere «da qualche parte in mezzo»: serve la linea retta."),
+    explain: () => t("Il personaggio sta sulla stessa riga (o colonna) dei due bersagli, in una casella strettamente compresa tra loro. Non basta essere «da qualche parte in mezzo»: serve la linea retta. Se un bersaglio è una stanza, il personaggio sta tra quella stanza e l'altro bersaglio, mai dentro la stanza."),
     world: { map: OPEN, objects: [{ type: "lamp", at: [2, 0] }, { type: "plant", at: [2, 4] }] },
   },
   {

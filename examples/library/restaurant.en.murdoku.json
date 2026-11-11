@@ -396,15 +396,6 @@
       }
     },
     {
-      "id": "k2",
-      "characterId": "c2",
-      "type": "between",
-      "params": {
-        "targetAId": "objtype:door",
-        "targetBId": "z5"
-      }
-    },
-    {
       "id": "k3",
       "characterId": "c4",
       "type": "closerTo",
@@ -445,6 +436,23 @@
       "characterId": "c3",
       "type": "inRoomCorner",
       "params": {}
+    },
+    {
+      "id": "k20",
+      "characterId": "c2",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 4
+      }
+    },
+    {
+      "id": "k21",
+      "characterId": "c2",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:table"
+      }
     }
   ],
   "solution": {

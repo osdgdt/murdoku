@@ -1,7 +1,7 @@
 // Clue types about WHERE a character stands relative to cells, objects, rows/columns and other characters.
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { isAdjacent, isDiagonal, isDirection, isDirectionDistance, isSameRowOrCol, manhattan } from "../../util/geometry.js";
-import { posOfCharacter, resolveTargetPositions, zoneAt, isStrictlyBetween, characterHasProperty, isMoreExtreme } from "./helpers.js";
+import { isDiagonal, isDirection, isDirectionDistance, isSameRowOrCol, manhattan } from "../../util/geometry.js";
+import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, isStrictlyBetween, characterHasProperty, isMoreExtreme } from "./helpers.js";
 
 export const builders = {
   adjacent: ({ clue, puzzle, ownerId, params }) => {
@@ -11,7 +11,7 @@ export const builders = {
         const targets = resolveTargetPositions(pm, puzzle, params.targetId);
         if (targets === null) return undefined;
         if (targets.length === 0) return false;
-        return targets.some((t) => isAdjacent(a, t));
+        return targets.some((t) => isNextTo(puzzle, a, t));
       };
   },
 
@@ -22,7 +22,7 @@ export const builders = {
         const targets = resolveTargetPositions(pm, puzzle, params.targetId);
         if (targets === null) return undefined;
         if (targets.length === 0) return true; // vacuous truth: nothing to be adjacent to
-        return targets.every((t) => !isAdjacent(a, t));
+        return targets.every((t) => !isNextTo(puzzle, a, t));
       };
   },
 
@@ -48,8 +48,8 @@ export const builders = {
         if (!a) return undefined;
         const targetsA = resolveTargetPositions(pm, puzzle, params.targetAId);
         const targetsB = resolveTargetPositions(pm, puzzle, params.targetBId);
-        const nearA = targetsA !== null && targetsA.some((t) => isAdjacent(a, t));
-        const nearB = targetsB !== null && targetsB.some((t) => isAdjacent(a, t));
+        const nearA = targetsA !== null && targetsA.some((t) => isNextTo(puzzle, a, t));
+        const nearB = targetsB !== null && targetsB.some((t) => isNextTo(puzzle, a, t));
         if (nearA || nearB) return true;
         if (targetsA === null || targetsB === null) return undefined;
         return false;

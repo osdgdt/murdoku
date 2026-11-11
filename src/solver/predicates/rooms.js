@@ -1,7 +1,6 @@
 // Clue types about rooms: which room, who shares it, who is alone in it.
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { isAdjacent } from "../../util/geometry.js";
-import { posOfCharacter, resolveTargetPositions, zoneAt, zonesAreAdjacent, isRoomCorner, victimId, characterHasProperty } from "./helpers.js";
+import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, zonesAreAdjacent, isRoomCorner, victimId, characterHasProperty } from "./helpers.js";
 
 export const builders = {
   inRoom: ({ clue, puzzle, ownerId, params }) => {
@@ -50,13 +49,13 @@ export const builders = {
         const targets = resolveTargetPositions(pm, puzzle, params.targetId);
         if (targets === null) return undefined;
         if (targets.length === 0) return false;
-        const nearTargets = targets.filter((t) => isAdjacent(a, t));
+        const nearTargets = targets.filter((t) => isNextTo(puzzle, a, t));
         if (nearTargets.length === 0) return false;
         if (!isComplete) return undefined;
         for (const c of puzzle.characters) {
           if (c.id === ownerId) continue;
           const pos = posOfCharacter(pm, c.id);
-          if (pos && nearTargets.some((t) => isAdjacent(pos, t))) return false;
+          if (pos && nearTargets.some((t) => isNextTo(puzzle, pos, t))) return false;
         }
         return true;
       };

@@ -2,12 +2,14 @@ import { roomColor } from "../skin/paper/rooms.js";
 import { el, clear } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import { addZone, removeZone, paintCellZone, placeObject, removeObject, resizeGrid, setBlocked, edgeObjectsAt } from "../model/grid.js";
-import { OBJECT_TYPES, isEdgeObjectType } from "../model/icons.js";
+import { OBJECT_TYPES, EDGE_SIDES, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { ZONE_TEXTURES, floorStyle } from "../model/textures.js";
 import { t } from "../i18n/i18n.js";
 
 const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8"];
 
+// Side of the cell the next door/window goes on — picked explicitly in the panel.
+let edgeSide = "N";
 let tool = null; // { kind: 'zone', zoneId } | { kind: 'object', typeId } | { kind: 'block' } | { kind: 'erase' }
 
 // Enter/Space equivalent of a click, for custom (non-<button>) widgets like
@@ -161,7 +163,24 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     objectPalette.appendChild(item);
   }
   panelEl.appendChild(objectPalette);
-  panelEl.appendChild(el("p", { class: "muted" }, t("Porte e finestre stanno su un lato della cella: clicca vicino al bordo dove devono andare (puoi metterne più di una nella stessa cella, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click.")));
+  // Doors and windows sit on ONE side of a cell: the author picks which here,
+  // then clicks the cells (several per cell are fine, on different sides).
+  if (tool?.kind === "object" && isEdgeObjectType(tool.typeId)) {
+    panelEl.appendChild(
+      el("div", { class: "field-row side-picker", role: "group", "aria-label": t("Lato della cella") }, [
+        el("label", {}, t("Lato")),
+        ...EDGE_SIDES.map((side) =>
+          el("button", {
+            type: "button",
+            class: "side-btn" + (side === edgeSide ? " selected" : ""),
+            "aria-pressed": String(side === edgeSide),
+            onClick: () => { edgeSide = side; onChange(); },
+          }, sideLabel(side))
+        ),
+      ])
+    );
+  }
+  panelEl.appendChild(el("p", { class: "muted" }, t("Porte e finestre stanno su un lato della cella: scegli il lato qui sopra e clicca sulle celle (puoi metterne più di una nella stessa cella, su lati diversi, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click.")));
 
   // Shape tool
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Forma della mappa")));
@@ -187,7 +206,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       } else if (tool.kind === "zone") {
         paintCellZone(puzzle.grid, row, col, tool.zoneId);
       } else if (tool.kind === "object") {
-        placeObject(puzzle.grid, tool.typeId, row, col, isEdgeObjectType(tool.typeId) ? nearestSide(e) : undefined);
+        placeObject(puzzle.grid, tool.typeId, row, col, isEdgeObjectType(tool.typeId) ? edgeSide : undefined);
       } else if (tool.kind === "erase") {
         eraseObjectAt(puzzle.grid, row, col, nearestSide(e));
         cell.zoneId = null;

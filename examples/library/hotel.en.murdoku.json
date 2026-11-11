@@ -594,6 +594,15 @@
       "params": {
         "zoneId": "z1"
       }
+    },
+    {
+      "id": "k11",
+      "characterId": "c5",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:table"
+      },
+      "negate": true
     }
   ],
   "solution": {

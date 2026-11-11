@@ -553,6 +553,16 @@
       "params": {
         "zoneId": "z1"
       }
+    },
+    {
+      "id": "k10",
+      "characterId": "c6",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 6
+      },
+      "negate": true
     }
   ],
   "solution": {

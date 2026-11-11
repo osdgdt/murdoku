@@ -1,7 +1,6 @@
 // Puzzle-wide scene facts not owned by any character (clue.characterId === null).
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { isAdjacent } from "../../util/geometry.js";
-import { posOfCharacter, resolveTargetPositions, zoneAt, zoneCellCount, characterHasProperty } from "./helpers.js";
+import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, zoneCellCount, characterHasProperty } from "./helpers.js";
 
 export const builders = {
   noOneInRoom: ({ clue, puzzle, ownerId, params }) => {
@@ -45,7 +44,7 @@ export const builders = {
         if (targets.length === 0) return true; // vacuous truth: nothing to be near
         for (const c of puzzle.characters) {
           const pos = posOfCharacter(pm, c.id);
-          if (pos && targets.some((t) => isAdjacent(pos, t))) return false;
+          if (pos && targets.some((t) => isNextTo(puzzle, pos, t))) return false;
         }
         return isComplete ? true : undefined;
       };
@@ -59,7 +58,7 @@ export const builders = {
         let count = 0;
         for (const c of puzzle.characters) {
           const pos = posOfCharacter(pm, c.id);
-          if (pos && targets.some((t) => isAdjacent(pos, t))) count++;
+          if (pos && targets.some((t) => isNextTo(puzzle, pos, t))) count++;
         }
         if (count > 1) return false;
         return isComplete ? count === 1 : undefined;

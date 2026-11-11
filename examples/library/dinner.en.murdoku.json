@@ -324,8 +324,9 @@
       "characterId": "c2",
       "type": "adjacent",
       "params": {
-        "targetId": "objtype:stool"
-      }
+        "targetId": "objtype:table"
+      },
+      "negate": true
     }
   ],
   "solution": {

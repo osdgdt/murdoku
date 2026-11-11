@@ -569,13 +569,20 @@
     },
     {
       "id": "k9",
-      "characterId": "c7",
-      "type": "extremeInDirection",
+      "characterId": "c6",
+      "type": "inRowOrCol",
       "params": {
-        "direction": "west",
-        "scope": "room",
-        "property": "adjacentTo",
-        "targetId": "o12"
+        "axis": "col",
+        "index": 3
+      }
+    },
+    {
+      "id": "k10",
+      "characterId": "c6",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 6
       }
     }
   ],

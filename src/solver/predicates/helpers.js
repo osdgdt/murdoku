@@ -24,6 +24,16 @@ export function posOfObject(puzzle, objectId) {
   return obj ? objectPosition(obj) : null;
 }
 
+// "Next to" a character or object: orthogonally adjacent AND in the same room
+// as the target — standing across a wall, in the next room, doesn't count.
+// (Two cells outside any room count as the same open area, like on the board.)
+// The exception is a ROOM as the target ("next to the kitchen" means next to
+// its cells, from outside or inside): those positions carry `room: true`.
+export function isNextTo(puzzle, a, target) {
+  if (!isAdjacent(a, target)) return false;
+  return target.room === true || zoneAt(puzzle, a) === zoneAt(puzzle, target);
+}
+
 export function resolveTargetPos(placementMap, puzzle, targetId) {
   const charPos = posOfCharacter(placementMap, targetId);
   if (charPos) return charPos;
@@ -56,7 +66,7 @@ export function resolveTargetPositions(placementMap, puzzle, targetId) {
     return puzzle.grid.objects.filter((o) => o.typeId === typeId).map(objectPosition);
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
-    return positionsInZone(puzzle, targetId);
+    return positionsInZone(puzzle, targetId).map((p) => ({ ...p, room: true }));
   }
   const pos = resolveTargetPos(placementMap, puzzle, targetId);
   return pos ? [pos] : null;
@@ -175,7 +185,7 @@ export function characterHasProperty(puzzle, pm, characterId, params, isComplete
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);
       if (targets === null) return undefined;
       if (targets.length === 0) return false;
-      return targets.some((t) => isAdjacent(pos, t));
+      return targets.some((t) => isNextTo(puzzle, pos, t));
     }
     case "custom": {
       if (!params.customClue?.type) return true; // no condition configured yet

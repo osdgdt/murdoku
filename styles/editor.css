@@ -724,3 +724,7 @@
 }
 
 .tool-toggle { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }
+
+/* Side picker for doors/windows (mapEditor.js). */
+.side-picker { align-items: center; }
+.side-btn.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); font-weight: 700; }

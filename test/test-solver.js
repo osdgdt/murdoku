@@ -44,6 +44,36 @@ export const tests = [
     },
   },
   {
+    name: "predicate adjacent: oltre il muro (in un'altra stanza) non conta come accanto, nella stessa stanza sì",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const zA = addZone(puzzle.grid, "A", "#eee");
+      const zB = addZone(puzzle.grid, "B", "#ddd");
+      for (const [r, c] of [[0, 0], [1, 0], [2, 0]]) paintCellZone(puzzle.grid, r, c, zA.id);
+      for (const [r, c] of [[0, 1], [1, 1], [2, 1]]) paintCellZone(puzzle.grid, r, c, zB.id);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const clue = addClue(puzzle, a.id, "adjacent", { targetId: b.id });
+      const predicate = buildPredicate(clue, puzzle);
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }], [b.id, { row: 0, col: 0 }]]), true), false, "celle vicine ma in stanze diverse");
+      assertEqual(predicate(mapOf([[a.id, { row: 1, col: 0 }], [b.id, { row: 0, col: 0 }]]), true), true, "stessa stanza");
+    },
+  },
+  {
+    name: "predicate adjacent a una stanza: resta vero dall'altra parte del muro (accanto alla stanza stessa)",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const zA = addZone(puzzle.grid, "A", "#eee");
+      const zB = addZone(puzzle.grid, "B", "#ddd");
+      paintCellZone(puzzle.grid, 0, 0, zA.id);
+      paintCellZone(puzzle.grid, 0, 1, zB.id);
+      const a = addCharacter(puzzle, "A", "person1");
+      const clue = addClue(puzzle, a.id, "adjacent", { targetId: zA.id });
+      const predicate = buildPredicate(clue, puzzle);
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }]]), true), true);
+    },
+  },
+  {
     name: "predicate direction: south corretto",
     fn: () => {
       const puzzle = basePuzzle();
@@ -1224,6 +1254,7 @@ export const tests = [
       const zone = addZone(puzzle.grid, "Studio", "#fff");
       paintCellZone(puzzle.grid, 0, 0, zone.id);
       paintCellZone(puzzle.grid, 0, 1, zone.id);
+      paintCellZone(puzzle.grid, 0, 2, zone.id); // la porta è nella stessa stanza: "accanto" vale solo dentro la stanza del bersaglio
       const clue = addClue(puzzle, a.id, "someoneInRoomWithProperty", { property: "adjacentTo", targetId: door.id });
       const predicate = buildPredicate(clue, puzzle);
       assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }]]), false), undefined, "B non ancora piazzato, potrebbe unirsi ed essere accanto alla porta");

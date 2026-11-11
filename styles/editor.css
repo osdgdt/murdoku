@@ -150,6 +150,43 @@
 }
 
 .board-label-row { position: relative; }
+.board-label { flex-direction: column; gap: 2px; padding: 2px; min-width: 24px; min-height: 24px; }
+
+/* Notes on a whole row/column live inside its label, on the board's outer edge. */
+.line-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: calc(var(--cell-size, 56px) * 0.9); }
+.board-label-row .line-notes { max-width: calc(var(--cell-size, 56px) * 0.9); }
+.line-notes .candidate-mark {
+  width: max(10px, calc(var(--cell-size, 56px) * 0.2));
+  height: max(10px, calc(var(--cell-size, 56px) * 0.2));
+  font-size: max(6px, calc(var(--cell-size, 56px) * 0.13));
+  border-width: 1.5px;
+}
+.board-label-tappable { cursor: pointer; }
+.board-label-tappable:hover { background: var(--accent-soft); }
+.board-label-tappable:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+/* The room's name, written on the room itself: a small tab in the top-left of
+   its first free cell (see boardRender.js). Light chip + dark text so it reads
+   on any floor. */
+.board-cell .room-name {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: calc(var(--cell-size, 56px) * var(--span, 1));
+  padding: 1px 5px;
+  font-size: clamp(9px, calc(var(--cell-size, 56px) * 0.18), 14px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #2b1d12;
+  background: rgba(255, 250, 240, 0.86);
+  border-radius: 0 0 8px 0;
+  pointer-events: none;
+}
 
 .room-legend { display: none; }
 

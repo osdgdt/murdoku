@@ -30,6 +30,11 @@ export const UI_ICONS = {
     `<path d="M22 14V28C22 33 26 36 30 37" stroke="#fff6e4" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"/>` +
     L(`<rect x="28" y="42" width="8" height="8"/><rect x="18" y="50" width="28" height="8" rx="3"/>`, "#c2932a", 1.5) +
     L(`<path d="M32 15L34.500 21 41 21.500 36 26 37.500 32.500 32 29 26.500 32.500 28 26 23 21.500 29.500 21Z"/>`, "#fff6e4", 1)),
+  glossary: wrap(
+    L(`<rect x="10" y="6" width="42" height="52" rx="5"/>`, "#3f7f93") + L(`<rect x="10" y="6" width="9" height="52" rx="4"/>`, "#2f6577", 1) +
+    L(`<rect x="24" y="14" width="22" height="14" rx="2"/>`, "#fff6e4", 1) + `<g stroke="#d3b97f" stroke-width="2" stroke-linecap="round"><path d="M28 19H42M28 24H38"/></g>` +
+    `<g fill="#fff6e4" opacity=".9"><rect x="24" y="34" width="22" height="3" rx="1.5"/><rect x="24" y="41" width="16" height="3" rx="1.5"/></g>` +
+    L(`<circle cx="44" cy="44" r="10"/>`, "#e8b84a", 1.5) + L(`<circle cx="44" cy="44" r="6.500"/>`, "#dff1f8", 1) + `<path d="M51 51L58 58" stroke="#8a5a3a" stroke-width="5" stroke-linecap="round"/>`),
   resume: wrap(L(`<circle cx="32" cy="32" r="26"/>`, "#b5493a") + L(`<path d="M25 18L47 32 25 46Z"/>`, "#fff6e4", 1.5)),
 };
 

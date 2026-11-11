@@ -5,7 +5,6 @@ import { roomColor } from "../skin/paper/rooms.js";
 import { t } from "../i18n/i18n.js";
 
 const CELL_SIZE = 56;
-const LABEL_SIZE = 24;
 
 // Shared "is the mouse button currently held while over the board" flag, so a
 // press-and-drag across cells can paint each one it enters (candidates, X
@@ -158,7 +157,7 @@ if (typeof document !== "undefined") {
 // and `onCellEnter` fires again for every new cell the pointer enters while
 // dragging (a drag is what a press becomes the moment it leaves the pressed
 // cell before the hold timer fires — see convertToDrag above).
-export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellTap, onCellHold, onCellEnter, onPressStart, decorateCell, showLabels = true } = {}) {
+export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellTap, onCellHold, onCellEnter, onPressStart, decorateCell, decorateLabel, onLabelTap, showLabels = true } = {}) {
   clear(container);
   container.classList.add("board-grid");
   container.setAttribute("role", "grid");
@@ -222,7 +221,9 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     if (node && node.tabIndex >= 0) node.focus();
   }
 
-  const gutter = showLabels ? `${LABEL_SIZE}px ` : "";
+  // The label gutters size themselves ("auto"): a row/column label can grow
+  // to hold the notes drawn on it (see decorateLabel).
+  const gutter = showLabels ? "max-content " : "";
   // Cell size lives in a CSS variable (default CELL_SIZE) so the stylesheet can
   // shrink the whole board to fit a phone viewport (see `.board-grid` in editor.css).
   container.style.setProperty("--cols", String(grid.size.cols));
@@ -277,16 +278,65 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     }
   }
 
+  // The room's name is written ON the room: a small tab in the top-left of its
+  // first cell, spanning along that row while the cells to the right are free
+  // of objects. The cells under the tab are flagged so notes keep clear of it.
+  // (Anchor: first cell in reading order with no object and no door/window on
+  // its north side, so the tab never covers a drawing.)
+  const roomName = new Map(); // "r,c" -> { zone, span }
+  const roomNameCells = new Set();
+  const freeForName = (r, c) => {
+    const cd = grid.cells[r][c];
+    if (cd.blocked || cd.objectId) return false;
+    return !(edgesByCell.get(`${r},${c}`) || []).some((o) => (o.side || "N") === "N");
+  };
+  for (const zone of grid.zones) {
+    let anchor = null;
+    for (let r = 0; r < grid.size.rows && !anchor; r++) {
+      for (let c = 0; c < grid.size.cols; c++) {
+        if (grid.cells[r][c].zoneId === zone.id && !grid.cells[r][c].blocked && freeForName(r, c)) { anchor = [r, c]; break; }
+      }
+    }
+    if (!anchor) continue;
+    const [ar, ac] = anchor;
+    let span = 1;
+    while (ac + span < grid.size.cols && grid.cells[ar][ac + span].zoneId === zone.id && freeForName(ar, ac + span)) span++;
+    roomName.set(`${ar},${ac}`, { zone, span });
+    for (let i = 0; i < span; i++) roomNameCells.add(`${ar},${ac + i}`);
+  }
+
   // role="grid" requires row -> cell ownership. The rows are `display: contents`
   // wrappers, so they exist only for assistive technology: the visual CSS
   // grid layout still sees the cells as direct grid items.
   const makeRow = () => el("div", { role: "row", style: "display:contents" });
 
+  // A row/column label: its text, plus whatever decorateLabel adds (notes). When
+  // onLabelTap is given the label is a button — tap it to note a whole line.
+  function makeLabel(kind, index, text) {
+    const node = el("div", { class: `board-label board-label-${kind}`, role: kind === "col" ? "columnheader" : "rowheader" }, [
+      el("span", { class: "label-text" }, text),
+    ]);
+    if (onLabelTap) {
+      node.classList.add("board-label-tappable");
+      node.tabIndex = 0;
+      node.setAttribute("aria-label", kind === "col" ? t("Note sulla colonna {n}", { n: index + 1 }) : t("Note sulla riga {n}", { n: index + 1 }));
+      node.addEventListener("click", () => onLabelTap(kind, index));
+      node.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onLabelTap(kind, index);
+        }
+      });
+    }
+    if (decorateLabel) decorateLabel(node, kind, index);
+    return node;
+  }
+
   if (showLabels) {
     const headerRow = makeRow();
     headerRow.appendChild(el("div", { class: "board-label board-label-corner", "aria-hidden": "true" }));
     for (let c = 0; c < grid.size.cols; c++) {
-      headerRow.appendChild(el("div", { class: "board-label board-label-col", role: "columnheader" }, `C${c + 1}`));
+      headerRow.appendChild(makeLabel("col", c, `C${c + 1}`));
     }
     container.appendChild(headerRow);
   }
@@ -296,7 +346,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     container.appendChild(rowNode);
     let rowLabelNode = null;
     if (showLabels) {
-      rowLabelNode = el("div", { class: "board-label board-label-row", role: "rowheader" }, `R${r + 1}`);
+      rowLabelNode = makeLabel("row", r, `R${r + 1}`);
       rowNode.appendChild(rowLabelNode);
     }
     for (let c = 0; c < grid.size.cols; c++) {
@@ -306,6 +356,8 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
       let classes = "board-cell";
       if (cellData.blocked) classes += " blocked";
       if (zone) classes += floorOf(zone).own ? " zoned floored" : " zoned";
+      if (roomNameCells.has(`${r},${c}`)) classes += " has-room-name";
+      for (const edge of edgesByCell.get(`${r},${c}`) || []) classes += ` has-edge-${edge.side || "N"}`;
       if (wallBetween(r, c, r - 1, c)) classes += " wall-t";
       if (wallBetween(r, c, r, c + 1)) classes += " wall-r";
       if (wallBetween(r, c, r + 1, c)) classes += " wall-b";
@@ -441,6 +493,13 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           iconWrap.innerHTML = def.icon;
           cellNode.appendChild(iconWrap);
         }
+      }
+
+      const nameTag = roomName.get(`${r},${c}`);
+      if (nameTag) {
+        cellNode.appendChild(
+          el("span", { class: "room-name", style: `--span:${nameTag.span}`, title: nameTag.zone.name, "aria-hidden": "true" }, nameTag.zone.name)
+        );
       }
 
       for (const edge of edgesByCell.get(`${r},${c}`) || []) {

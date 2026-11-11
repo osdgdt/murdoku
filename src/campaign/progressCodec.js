@@ -18,6 +18,7 @@ export function toFirestoreSafe(serialized) {
     placements: serialized.placements.map(([charId, pos]) => ({ charId, row: pos.row, col: pos.col })),
     xMarks: serialized.xMarks,
     candidates: serialized.candidates.map(([key, ids]) => ({ key, ids })),
+    lineNotes: (serialized.lineNotes || []).map(([key, ids]) => ({ key, ids })),
     autoXByCharacter: serialized.autoXByCharacter.map(([charId, cells]) => ({ charId, cells })),
     hintsUsed: serialized.hintsUsed,
   };
@@ -31,6 +32,7 @@ export function fromFirestoreSafe(saved) {
     placements: (saved.placements || []).map((p) => [p.charId, { row: p.row, col: p.col }]),
     xMarks: saved.xMarks || [],
     candidates: (saved.candidates || []).map((c) => [c.key, c.ids]),
+    lineNotes: (saved.lineNotes || []).map((c) => [c.key, c.ids]),
     autoXByCharacter: (saved.autoXByCharacter || []).map((a) => [a.charId, a.cells]),
     hintsUsed: typeof saved.hintsUsed === "number" ? saved.hintsUsed : 0,
   };

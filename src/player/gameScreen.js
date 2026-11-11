@@ -1,5 +1,5 @@
 import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
-import { handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
+import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll, renderPlayerBoard } from "./board.js";
 import { renderClueCards } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
 import { renderHintStep } from "./hintView.js";
@@ -176,11 +176,27 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         persistProgress();
         renderBoardAndClues();
       },
-      () => { pressStartTool = state.selectedTool; } // onPressStart
+      () => { pressStartTool = state.selectedTool; }, // onPressStart
+      (kind, index) => applyBoardChange(() => handleLineTap(state, kind, index)) // tap su un'etichetta di riga/colonna: nota sull'intera riga/colonna
     );
     applyHintHighlight();
     applySelectedCharacterTargets();
     renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);
+    revealSelectedClue();
+  }
+
+  // The side column (briefing + clue cards) stays beside the board as you
+  // scroll; when a different character gets selected, bring their card to its
+  // top so their clues are in view without hunting for them.
+  let revealedFor = null;
+  function revealSelectedClue() {
+    const id = state.selectedTool?.kind === "character" ? state.selectedTool.id : null;
+    if (id === revealedFor) return;
+    revealedFor = id;
+    const column = cluesEl.closest(".side-column");
+    const card = cluesEl.querySelector(".clue-card.active");
+    if (!column || !card) return;
+    column.scrollTop += card.getBoundingClientRect().top - column.getBoundingClientRect().top - 8;
   }
 
   function showHintStep() {

@@ -275,4 +275,5 @@ export default {
   "Marmo bianco": "White marble", "Marmo nero": "Black marble", "Moquette rossa": "Red carpet", "Moquette blu": "Blue carpet",
   "Moquette verde": "Green carpet", "Ghiaia": "Gravel", "Sabbia": "Sand", "Mosaico": "Mosaic", "Acqua": "Water",
   "Linoleum": "Linoleum", "Mattoni": "Bricks", "Piastrelle bianche": "White tiles", "Cemento": "Concrete",
+  "Note sulla riga {n}": "Notes on row {n}", "Note sulla colonna {n}": "Notes on column {n}",
 };

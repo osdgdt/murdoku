@@ -213,12 +213,16 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
 .board-cell:focus-visible { outline: 3px solid var(--accent-dark); outline-offset: -3px; }
 :root[data-theme="dark"] .board-cell:focus-visible { outline-color: #fff6e4; }
 
-/* Room borders: rooms are separate sheets of paper, so the "wall" between two
-   of them is just the gap showing the board underneath. */
-.board-cell.wall-t { border-top: 5px solid var(--paper-gap); }
-.board-cell.wall-r { border-right: 5px solid var(--paper-gap); }
-.board-cell.wall-b { border-bottom: 5px solid var(--paper-gap); }
-.board-cell.wall-l { border-left: 5px solid var(--paper-gap); }
+/* The grid: a black line between every pair of cells, so each one reads on its
+   own whatever the floor; a thicker one where one room ends and another
+   begins (each side draws half, so 3px + 3px). */
+:root { --grid-ink: #15100c; }
+:root[data-theme="dark"] { --grid-ink: #07050a; }
+.board-cell { border: 1px solid var(--grid-ink); }
+.board-cell.wall-t { border-top: 3px solid var(--grid-ink); }
+.board-cell.wall-r { border-right: 3px solid var(--grid-ink); }
+.board-cell.wall-b { border-bottom: 3px solid var(--grid-ink); }
+.board-cell.wall-l { border-left: 3px solid var(--grid-ink); }
 
 /* Furniture: the paper-cut drawing sits directly on the room, no coaster. */
 .board-cell .obj-icon {
@@ -247,7 +251,6 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
   100% { transform: none; }
 }
 
-.candidate-mark { box-shadow: 0 1px 2px rgba(60, 30, 10, 0.35); }
 .board-cell.x-mark::before, .board-cell.x-mark::after { background: var(--danger); height: 4px; opacity: 0.8; }
 
 .room-label { background: var(--panel); color: var(--ink); font-family: var(--font-ui); font-weight: 800; box-shadow: var(--shadow-md); letter-spacing: 0.03em; }
@@ -372,6 +375,9 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
   flex-wrap: wrap;
   gap: 0.35rem 1rem;
   grid-column: 1 / -1;
+  /* spans every column but must not widen the (max-content) label gutter */
+  width: 0;
+  min-width: 100%;
   margin-top: 10px;
   padding: 0.55rem 0.8rem;
   font-size: 0.8rem;

@@ -1,5 +1,5 @@
 import { createGrid, placeObject } from "../src/model/grid.js";
-import { createBoardState, handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, serializeBoardState, deserializeBoardState } from "../src/player/board.js";
+import { createBoardState, handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll, serializeBoardState, deserializeBoardState } from "../src/player/board.js";
 import { assert, assertEqual } from "./assert.js";
 
 function grid3x3() {
@@ -398,6 +398,68 @@ export const tests = [
       assertEqual(deserializeBoardState({}).hintsUsed, 0, "progresso salvato prima di questa funzionalità");
       assertEqual(deserializeBoardState({ hintsUsed: -1 }).hintsUsed, 0);
       assertEqual(deserializeBoardState({ hintsUsed: "3" }).hintsUsed, 0, "una stringa non è un numero valido");
+    },
+  },
+  {
+    name: "note su righe/colonne: un tap su un'etichetta segna/toglie una nota del personaggio, l'annulla la ripristina",
+    fn: () => {
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      assert(handleLineTap(state, "row", 1).ok);
+      assert(state.lineNotes.get("row:1").has("anna"));
+      handleLineTap(state, "col", 2);
+      assert(state.lineNotes.get("col:2").has("anna"));
+      handleLineTap(state, "row", 1); // secondo tap: la toglie
+      assert(!state.lineNotes.has("row:1"));
+      undo(state);
+      assert(state.lineNotes.get("row:1").has("anna"), "annullare il toggle rimette la nota");
+      undo(state);
+      undo(state);
+      assertEqual(state.lineNotes.size, 0);
+    },
+  },
+  {
+    name: "note su righe/colonne: la gomma cancella le note di una linea (annullabile); X e nessuno strumento non fanno nulla",
+    fn: () => {
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleLineTap(state, "col", 0);
+      state.selectedTool = { kind: "character", id: "bruno" };
+      handleLineTap(state, "col", 0);
+      state.selectedTool = { kind: "x" };
+      assertEqual(handleLineTap(state, "col", 0).ok, false);
+      state.selectedTool = null;
+      assertEqual(handleLineTap(state, "col", 0).ok, false);
+      state.selectedTool = { kind: "erase" };
+      assert(handleLineTap(state, "col", 0).ok);
+      assert(!state.lineNotes.has("col:0"));
+      undo(state);
+      assertEqual(state.lineNotes.get("col:0").size, 2, "annullare la gomma rimette entrambe le note");
+      state.selectedTool = { kind: "erase" };
+      assertEqual(handleLineTap(state, "row", 5).ok, false, "niente da cancellare su una linea vuota");
+    },
+  },
+  {
+    name: "note su righe/colonne: confermare un personaggio cancella le sue note di linea (annullabile); si salvano e si ricaricano; pulisci tutto le toglie",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleLineTap(state, "row", 0);
+      handleLineTap(state, "col", 1);
+      state.selectedTool = { kind: "character", id: "bruno" };
+      handleLineTap(state, "row", 0);
+      const reloaded = deserializeBoardState(JSON.parse(JSON.stringify(serializeBoardState(state))));
+      assert(reloaded.lineNotes.get("row:0").has("anna") && reloaded.lineNotes.get("row:0").has("bruno"));
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellHold(state, grid, 2, 2);
+      assert(!state.lineNotes.get("row:0").has("anna") && state.lineNotes.get("row:0").has("bruno"), "solo le note di anna");
+      assert(!state.lineNotes.has("col:1"));
+      undo(state);
+      assert(state.lineNotes.get("row:0").has("anna") && state.lineNotes.get("col:1").has("anna"), "l'annulla le ripristina");
+      clearAll(state);
+      assertEqual(state.lineNotes.size, 0);
+      assertEqual(deserializeBoardState({}).lineNotes.size, 0, "salvataggi vecchi senza note di linea");
     },
   },
 ];

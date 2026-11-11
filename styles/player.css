@@ -75,27 +75,84 @@
   justify-content: center;
 }
 
+/* A note: a paper-colored disc ringed in the character's color, initial on it —
+   readable on any floor. Sized from the cell so it scales with the board. */
 .candidate-mark {
-  font-size: 0.62rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max(12px, calc(var(--cell-size, 56px) * 0.27));
+  height: max(12px, calc(var(--cell-size, 56px) * 0.27));
+  font-size: max(8px, calc(var(--cell-size, 56px) * 0.165));
   font-weight: 800;
   line-height: 1;
   font-family: var(--font-ui);
+  color: #2b1d12;
+  background: #fffaf0;
+  border: 2px solid var(--mark-color, var(--accent));
   border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(20, 10, 0, 0.4);
   transition: transform 0.12s ease;
 }
 
 /* Every note for the selected character pops, so you can spot at a glance
    every cell you've already suspected them in. */
 .candidate-mark.highlighted {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5em;
-  height: 1.5em;
-  color: #fdf3e6 !important;
+  color: #fffaf0;
   background: var(--mark-color, var(--accent));
-  box-shadow: 0 0 0 2px var(--panel), 0 0 4px 2px rgba(36, 26, 12, 0.35);
-  transform: scale(1.35);
+  border-color: #fffaf0;
+  box-shadow: 0 0 0 2px var(--mark-color, var(--accent)), 0 0 4px 2px rgba(20, 10, 0, 0.35);
+  transform: scale(1.2);
+}
+
+/* Keep notes clear of everything else drawn in the cell: the room's name tab
+   (top), doors/windows on a side, and — in the compact layout below — an object. */
+.board-cell.has-room-name .candidate-grid { padding-top: calc(var(--cell-size, 56px) * 0.27); }
+.board-cell.has-edge-N .candidate-grid { padding-top: calc(var(--cell-size, 56px) * 0.2); }
+.board-cell.has-edge-S .candidate-grid { padding-bottom: calc(var(--cell-size, 56px) * 0.2); }
+.board-cell.has-edge-W .candidate-grid { padding-left: calc(var(--cell-size, 56px) * 0.2); }
+.board-cell.has-edge-E .candidate-grid { padding-right: calc(var(--cell-size, 56px) * 0.2); }
+
+/* A cell with an object (rug, chair, stool): the drawing shrinks to the top and
+   the notes wrap in a band under it — they never sit on the drawing. */
+.board-cell.notes-compact { flex-direction: column; justify-content: flex-start; }
+.board-cell.notes-compact .obj-icon {
+  width: calc(var(--cell-size, 56px) * 0.46);
+  height: calc(var(--cell-size, 56px) * 0.46);
+  flex: none;
+  margin-top: 2px;
+}
+.board-cell.notes-compact.has-edge-N .obj-icon { margin-top: calc(var(--cell-size, 56px) * 0.2); }
+.candidate-grid.compact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 1px;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  padding: 0 2px;
+}
+.candidate-grid.compact .candidate-mark {
+  width: max(8px, calc(var(--cell-size, 56px) * 0.19));
+  height: max(8px, calc(var(--cell-size, 56px) * 0.19));
+  font-size: max(6px, calc(var(--cell-size, 56px) * 0.12));
+  border-width: 1.5px;
+}
+
+/* The side column (briefing + clue cards) follows the board as the page
+   scrolls, and scrolls on its own, so the selected character's clues stay in
+   view beside the grid. (Stacked layout on narrow screens: plain flow.) */
+.side-column {
+  position: sticky;
+  top: 0.75rem;
+  max-height: calc(100vh - 1.5rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+@media (max-width: 860px) {
+  .side-column { position: static; max-height: none; overflow: visible; }
 }
 
 .board-cell.x-mark::before, .board-cell.x-mark::after {

@@ -1,4 +1,4 @@
-import { validatePuzzleShape } from "../model/puzzle.js";
+import { validatePuzzleShape, migratePuzzle } from "../model/puzzle.js";
 
 function slugify(text) {
   return (text || "puzzle")
@@ -27,7 +27,7 @@ export function exportPuzzle(puzzle) {
 export async function importPuzzleFromUrl(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`impossibile scaricare il file (${res.status}).`);
-  const puzzle = await res.json();
+  const puzzle = migratePuzzle(await res.json());
   const { valid, errors } = validatePuzzleShape(puzzle);
   if (!valid) throw new Error("file puzzle non valido: " + errors.join("; "));
   return puzzle;
@@ -38,7 +38,7 @@ export function importPuzzleFromFile(file) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const puzzle = JSON.parse(reader.result);
+        const puzzle = migratePuzzle(JSON.parse(reader.result));
         const { valid, errors } = validatePuzzleShape(puzzle);
         if (!valid) {
           reject(new Error("File puzzle non valido:\n" + errors.join("\n")));

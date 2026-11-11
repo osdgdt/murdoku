@@ -34,7 +34,29 @@ export const tests = [
       for (const [id, def] of Object.entries(CHARACTER_ICONS)) {
         assert(typeof def.label === "string" && def.label.length > 0, `${id} deve avere un'etichetta`);
         assert(def.icon.startsWith("<svg") && def.icon.endsWith("</svg>"), `${id} deve essere un tag <svg> completo`);
-        assert(def.icon.includes('stroke="currentColor"'), `${id} deve poter essere colorato via currentColor`);
+        assert(!def.icon.includes("currentColor"), `${id} è un'illustrazione a colori: non deve dipendere da currentColor`);
+        assert(def.icon.includes('viewBox="0 0 32 32"'), `${id} deve usare il viewBox comune 32x32`);
+      }
+    },
+  },
+  {
+    name: "le professioni sono almeno 45 selezionabili, con id e etichette uniche, e gli id storici (salvati nei casi) esistono ancora",
+    fn: () => {
+      assert(SELECTABLE_CHARACTER_ICON_IDS.length >= 45, `servono almeno 45 professioni, ce ne sono ${SELECTABLE_CHARACTER_ICON_IDS.length}`);
+      const labels = new Set(Object.values(CHARACTER_ICONS).map((d) => d.label));
+      assertEqual(labels.size, Object.keys(CHARACTER_ICONS).length, "ogni professione deve avere un'etichetta diversa");
+      for (const id of ["person1", "person2", "hat", "glasses", "detective", "butler", "chef", "maid", "gardener", "driver", "professor", "artist", "victim"]) {
+        assert(id in CHARACTER_ICONS, `manca l'id storico ${id}`);
+      }
+    },
+  },
+  {
+    name: "ogni avatar è visivamente diverso dagli altri (nessun SVG duplicato)",
+    fn: () => {
+      const seen = new Map();
+      for (const [id, def] of Object.entries(CHARACTER_ICONS)) {
+        assert(!seen.has(def.icon), `${id} ha lo stesso SVG di ${seen.get(def.icon)}`);
+        seen.set(def.icon, id);
       }
     },
   },

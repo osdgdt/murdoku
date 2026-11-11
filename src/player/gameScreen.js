@@ -7,7 +7,7 @@ import { handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, renderPl
 import { renderClueCards } from "./clueCards.js";
 import { validateSolution } from "../solver/validator.js";
 import { computeHintChainAsync, deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
-import { resolveClueHoverCells, resolveCharacterHoverDomain } from "../solver/hoverTargets.js";
+import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTargetCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 
@@ -232,6 +232,18 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     }
   }
 
+  // Stable (re-applied on every render, since renderBoardAndClues rebuilds the
+  // whole board) highlight of everything the SELECTED character's clues refer
+  // to — a whole room, every plant, a row… Derived from state.selectedTool,
+  // never stored. Skipped while a hint is showing so it can't compete with it.
+  function applySelectedCharacterTargets() {
+    if (hintHighlight || state.selectedTool?.kind !== "character") return;
+    for (const { row, col } of resolveCharacterTargetCells(puzzle, state.selectedTool.id, state.placements)) {
+      const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      if (node) node.classList.add("char-target");
+    }
+  }
+
   function clearHint() {
     hintHighlight = null;
     hintChain = [];
@@ -288,6 +300,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       () => { pressStartTool = state.selectedTool; } // onPressStart
     );
     applyHintHighlight();
+    applySelectedCharacterTargets();
     renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);
   }
 

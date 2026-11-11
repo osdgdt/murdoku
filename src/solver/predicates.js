@@ -1,6 +1,6 @@
 import { isAdjacent, isDiagonal, isDirection, isDirectionDistance, isSameRowOrCol, manhattan } from "../util/geometry.js";
 import { cellAt } from "../model/grid.js";
-import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeOccupiable } from "../model/icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeOccupiable, isEdgeObjectType } from "../model/icons.js";
 
 // A predicate is (placementMap, puzzle) -> true | false | undefined.
 // undefined means "not enough information yet to decide" (used by the solver
@@ -10,9 +10,16 @@ function posOfCharacter(placementMap, characterId) {
   return placementMap.get(characterId) || null;
 }
 
+// Position of a placed object. Doors/windows (edge objects) carry `edge: true`
+// so isAdjacent (util/geometry.js) also counts the very cell they're in as
+// "next to" them — they sit on a side of that cell, they don't fill it.
+function posOfObjectInstance(obj) {
+  return isEdgeObjectType(obj.typeId) ? { row: obj.row, col: obj.col, edge: true } : { row: obj.row, col: obj.col };
+}
+
 function posOfObject(puzzle, objectId) {
   const obj = puzzle.grid.objects.find((o) => o.id === objectId);
-  return obj ? { row: obj.row, col: obj.col } : null;
+  return obj ? posOfObjectInstance(obj) : null;
 }
 
 function resolveTargetPos(placementMap, puzzle, targetId) {
@@ -44,7 +51,7 @@ function positionsInZone(puzzle, zoneId) {
 export function resolveTargetPositions(placementMap, puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
     const typeId = parseObjectTypeTarget(targetId);
-    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map((o) => ({ row: o.row, col: o.col }));
+    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map(posOfObjectInstance);
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
     return positionsInZone(puzzle, targetId);

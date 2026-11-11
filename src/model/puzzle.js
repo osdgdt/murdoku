@@ -1,6 +1,6 @@
 import { makeId } from "../util/id.js";
 import { createGrid, isOccupiable } from "./grid.js";
-import { isObjectTypeTarget } from "./icons.js";
+import { isObjectTypeTarget, isEdgeObjectType } from "./icons.js";
 
 export const SCHEMA_VERSION = 1;
 
@@ -234,6 +234,25 @@ export function validatePuzzleShape(puzzle) {
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+// Upgrades a puzzle saved before doors/windows moved onto a SIDE of a cell:
+// each one used to fill a whole cell (cell.objectId set, cell not occupiable);
+// now it gets `side: "N"` and the cell is freed (a person can stand in it).
+// Idempotent, and tolerant of malformed input (runs BEFORE validatePuzzleShape
+// on imports) — a puzzle that's already current is returned untouched.
+// Called wherever a puzzle comes in from outside: puzzleStore.get and the two
+// importExport entry points (file, URL).
+export function migratePuzzle(puzzle) {
+  const grid = puzzle && puzzle.grid;
+  if (!grid || !Array.isArray(grid.objects) || !Array.isArray(grid.cells)) return puzzle;
+  for (const obj of grid.objects) {
+    if (!isEdgeObjectType(obj.typeId) || obj.side) continue;
+    obj.side = "N";
+    const cell = grid.cells[obj.row] && grid.cells[obj.row][obj.col];
+    if (cell && cell.objectId === obj.id) cell.objectId = null;
+  }
+  return puzzle;
 }
 
 export function clonePuzzle(puzzle) {

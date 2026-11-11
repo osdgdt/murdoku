@@ -1,5 +1,5 @@
-import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes, addManualHintStep, updateManualHintStep, removeManualHintStep, reorderManualHintSteps } from "../src/model/puzzle.js";
-import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject } from "../src/model/grid.js";
+import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes, addManualHintStep, updateManualHintStep, removeManualHintStep, reorderManualHintSteps, migratePuzzle } from "../src/model/puzzle.js";
+import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject, edgeObjectsAt } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import * as store from "../src/storage/puzzleStore.js";
 import { assert, assertEqual } from "./assert.js";
@@ -323,7 +323,7 @@ export const tests = [
     },
   },
   {
-    name: "isOccupiable è vero su sedie e tappeti, falso sugli altri oggetti",
+    name: "isOccupiable è vero su sedie, tappeti, porte e finestre (bordo), falso sul resto dei mobili",
     fn: () => {
       const puzzle = buildValidPuzzle();
       placeObject(puzzle.grid, "chair", 1, 0);
@@ -335,9 +335,77 @@ export const tests = [
       assert(isOccupiable(puzzle.grid, 1, 0), "una sedia si può occupare");
       assert(isOccupiable(puzzle.grid, 1, 1), "un tappeto si può occupare");
       assert(!isOccupiable(puzzle.grid, 1, 2), "un tavolo non si può occupare");
-      assert(!isOccupiable(puzzle.grid, 2, 0), "una porta non si può occupare");
-      assert(!isOccupiable(puzzle.grid, 2, 1), "una finestra non si può occupare");
+      assert(isOccupiable(puzzle.grid, 2, 0), "una porta sta sul bordo: la cella resta occupabile");
+      assert(isOccupiable(puzzle.grid, 2, 1), "una finestra sta sul bordo: la cella resta occupabile");
       assert(!isOccupiable(puzzle.grid, 2, 2), "una lampada non si può occupare");
+    },
+  },
+  {
+    name: "placeObject (porta/finestra): sta su un lato, non occupa la cella, più elementi nella stessa cella, un solo elemento per lato",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const g = puzzle.grid;
+      const door = placeObject(g, "door", 1, 1, "N");
+      const win = placeObject(g, "window", 1, 1, "E");
+      assertEqual(door.side, "N");
+      assertEqual(win.side, "E");
+      assertEqual(g.cells[1][1].objectId, null, "un elemento di bordo non imposta cell.objectId");
+      assert(isOccupiable(g, 1, 1), "la cella resta occupabile");
+      assertEqual(edgeObjectsAt(g, 1, 1).length, 2);
+      const replacement = placeObject(g, "door", 1, 1, "N");
+      assertEqual(edgeObjectsAt(g, 1, 1).length, 2, "lo stesso lato viene sostituito, non duplicato");
+      assert(!g.objects.find((o) => o.id === door.id), "la vecchia porta sul lato N non c'è più");
+      assert(g.objects.find((o) => o.id === replacement.id));
+    },
+  },
+  {
+    name: "placeObject (porta) non sostituisce un mobile a tutta cella, e un mobile non sostituisce la porta",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const g = puzzle.grid;
+      placeObject(g, "table", 0, 2);
+      placeObject(g, "door", 0, 2, "S");
+      assert(g.cells[0][2].objectId, "il tavolo resta nella cella");
+      placeObject(g, "shelf", 0, 2);
+      assertEqual(edgeObjectsAt(g, 0, 2).length, 1, "la porta sopravvive alla sostituzione del mobile");
+    },
+  },
+  {
+    name: "setBlocked rimuove anche le porte/finestre di bordo della cella",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      placeObject(puzzle.grid, "window", 2, 2, "W");
+      setBlocked(puzzle.grid, 2, 2, true);
+      assertEqual(puzzle.grid.objects.length, 0);
+    },
+  },
+  {
+    name: "migratePuzzle: una vecchia porta a tutta cella passa sul lato Nord e libera la cella; è idempotente",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const g = puzzle.grid;
+      g.objects.push({ id: "objDoor", typeId: "door", row: 1, col: 2 });
+      g.cells[1][2].objectId = "objDoor";
+      g.objects.push({ id: "objTable", typeId: "table", row: 0, col: 2 });
+      g.cells[0][2].objectId = "objTable";
+      migratePuzzle(puzzle);
+      const door = g.objects.find((o) => o.id === "objDoor");
+      assertEqual(door.side, "N");
+      assertEqual(g.cells[1][2].objectId, null);
+      assert(isOccupiable(g, 1, 2), "la cella della vecchia porta ora è libera");
+      assertEqual(g.objects.find((o) => o.id === "objTable").side, undefined, "i mobili non si toccano");
+      assertEqual(g.cells[0][2].objectId, "objTable");
+      const before = JSON.stringify(puzzle);
+      migratePuzzle(puzzle);
+      assertEqual(JSON.stringify(puzzle), before, "seconda migrazione = nessun cambiamento");
+    },
+  },
+  {
+    name: "migratePuzzle: non lancia su input malformato (gira prima della validazione)",
+    fn: () => {
+      assertEqual(migratePuzzle(null), null);
+      assertEqual(migratePuzzle({}).grid, undefined);
+      migratePuzzle({ grid: { objects: "no", cells: [] } });
     },
   },
   {

@@ -1,5 +1,5 @@
 import { makeId } from "../util/id.js";
-import { isObjectTypeOccupiable } from "./icons.js";
+import { isObjectTypeOccupiable, isEdgeObjectType } from "./icons.js";
 
 export function createGrid(rows = 6, cols = 6) {
   const cells = [];
@@ -70,6 +70,7 @@ export function setBlocked(grid, row, col, blocked) {
   cell.blocked = blocked;
   if (blocked) {
     if (cell.objectId) removeObject(grid, cell.objectId);
+    for (const edge of edgeObjectsAt(grid, row, col)) removeObject(grid, edge.id);
     cell.zoneId = null;
   }
 }
@@ -95,14 +96,31 @@ export function paintCellZone(grid, row, col, zoneId) {
   cell.zoneId = zoneId;
 }
 
-export function placeObject(grid, typeId, row, col) {
+// Whole-cell furniture: one per cell, placing over an existing one replaces it.
+// Edge types (doors, windows — see OBJECT_TYPES' `edge`): sit on ONE side of
+// the cell (`side`, default "N"), never touch cell.objectId (so the cell stays
+// free for a person), several per cell are fine, but only one per (cell,
+// side) — placing on an already-used side replaces what's there.
+export function placeObject(grid, typeId, row, col, side = "N") {
   if (!isUsable(grid, row, col)) return null;
+  if (isEdgeObjectType(typeId)) {
+    const existing = edgeObjectsAt(grid, row, col).find((o) => o.side === side);
+    if (existing) removeObject(grid, existing.id);
+    const edge = { id: makeId("obj"), typeId, row, col, side };
+    grid.objects.push(edge);
+    return edge;
+  }
   const existingId = grid.cells[row][col].objectId;
   if (existingId) removeObject(grid, existingId);
   const obj = { id: makeId("obj"), typeId, row, col };
   grid.objects.push(obj);
   grid.cells[row][col].objectId = obj.id;
   return obj;
+}
+
+// Doors/windows sitting on any side of this cell.
+export function edgeObjectsAt(grid, row, col) {
+  return grid.objects.filter((o) => o.row === row && o.col === col && isEdgeObjectType(o.typeId));
 }
 
 export function removeObject(grid, objectId) {

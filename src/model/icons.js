@@ -1,10 +1,7 @@
-// Small inline SVG icon set. Every icon is a self-contained <svg> string using currentColor,
-// so it can be recolored via CSS `color` on the wrapping element.
-const svg = (inner, viewBox = "0 0 24 24") =>
-  `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+// Small inline SVG icon set: every icon is a self-contained <svg> string.
+import { buildCharacterIcons } from "./avatars.js";
 
-// Object icons carry their own fixed fill colors (unlike the currentColor
-// character silhouettes below) so they read clearly as distinct props on any
+// Object icons carry their own fixed fill colors so they read clearly as distinct props on any
 // zone color or theme — they sit on a fixed light "coaster" backdrop drawn in
 // CSS (.obj-icon), so contrast never depends on the surrounding cell.
 const coloredSvg = (inner, viewBox = "0 0 24 24") =>
@@ -70,15 +67,34 @@ export const OBJECT_TYPES = {
       '<path d="M8 21h8" stroke="#5c3b20" stroke-width="1.6"/>'
     ),
   },
+  // `edge: true` types (doors, windows) are NOT furniture filling a cell: they
+  // sit on ONE side of a cell (object.side: "N"|"E"|"S"|"W"), drawn thin on
+  // that edge from `edgeIcon` (viewBox 36x10, horizontal — rotated by CSS for
+  // E/W), never block the cell (a person can stand in it) and several can
+  // share one cell. `icon` is still used for the palette and labels.
   door: {
-    label: "Porta", article: "una", icon: coloredSvg(
+    label: "Porta", article: "una", edge: true,
+    edgeIcon: coloredSvg(
+      '<rect x="1" y="1" width="34" height="8" rx="1.5" fill="#9a6b3f" stroke="#5c3b20" stroke-width="1"/>' +
+      '<rect x="4" y="3" width="11" height="4" rx="0.8" fill="#c9a06a" opacity="0.7"/>' +
+      '<circle cx="29" cy="5" r="1.6" fill="#e4c179" stroke="#8f651f" stroke-width="0.6"/>',
+      "0 0 36 10"
+    ),
+    icon: coloredSvg(
       '<rect x="6" y="3" width="12" height="18" rx="0.6" fill="#9a6b3f" stroke="#5c3b20" stroke-width="1"/>' +
       '<rect x="8" y="5" width="8" height="7" rx="0.4" fill="#c9a06a" opacity="0.6"/>' +
       '<circle cx="15" cy="12" r="1" fill="#e4c179" stroke="#8f651f" stroke-width="0.5"/>'
     ),
   },
   window: {
-    label: "Finestra", article: "una", icon: coloredSvg(
+    label: "Finestra", article: "una", edge: true,
+    edgeIcon: coloredSvg(
+      '<rect x="1" y="1" width="34" height="8" rx="1" fill="#9ecbe0" stroke="#5c3b20" stroke-width="1.2"/>' +
+      '<path d="M18 1v8" stroke="#5c3b20" stroke-width="1.1"/>' +
+      '<path d="M3 3.2l5 0M20 6.8l5 0" stroke="#ffffff" stroke-width="0.9" opacity="0.7"/>',
+      "0 0 36 10"
+    ),
+    icon: coloredSvg(
       '<rect x="4" y="4" width="16" height="16" rx="0.6" fill="#9ecbe0" stroke="#5c3b20" stroke-width="1.2"/>' +
       '<path d="M12 4v16" stroke="#5c3b20" stroke-width="1.2"/>' +
       '<path d="M4 12h16" stroke="#5c3b20" stroke-width="1.2"/>'
@@ -94,34 +110,11 @@ export const OBJECT_TYPES = {
   },
 };
 
-// Every themed icon reuses this head+shoulders silhouette, topped with a
-// bold, structurally distinct prop (varied overall shape — dome, brim,
-// square, wedge — not just a small detail) so the roster stays readable even
-// at the smallest real render size (16px toolbar chip).
-const PERSON_BASE = '<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/>';
-
-export const CHARACTER_ICONS = {
-  person1: { label: "Persona 1", icon: svg(PERSON_BASE) },
-  person2: { label: "Persona 2", icon: svg('<circle cx="12" cy="7" r="3"/><rect x="7" y="12" width="10" height="8" rx="2"/>') },
-  // Ids stay stable (referenced by saved puzzles' character.iconId) even
-  // though these two used to be bodyless accessory icons — now real people,
-  // for a consistent "always a person" roster.
-  hat: { label: "Cronista", icon: svg(PERSON_BASE + '<path d="M7.5 5C7.5 1.8 9.5 0 12 0s4.5 1.8 4.5 5" fill="none"/><ellipse cx="12" cy="5" rx="7.5" ry="1.6"/>') },
-  glasses: { label: "Studioso/a", icon: svg(PERSON_BASE + '<circle cx="9.8" cy="8" r="1.5"/><circle cx="14.2" cy="8" r="1.5"/><path d="M11.3 8h1.4"/><path d="M8.3 7.6l-1.3-0.4M15.7 7.6l1.3-0.4"/>') },
-  detective: { label: "Detective", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="4.8" rx="5.5" ry="2.2"/><circle cx="19" cy="16" r="2.8"/><path d="M21.2 18.2L23 20"/>') },
-  butler: { label: "Maggiordomo", icon: svg(PERSON_BASE + '<path d="M7.5 13.2L12 15l4.5-1.8v4l-4.5-1.8-4.5 1.8z"/>') },
-  chef: { label: "Cuoco/a", icon: svg(PERSON_BASE + '<rect x="8.3" y="4.6" width="7.4" height="2.6" rx="1.3"/><circle cx="9.6" cy="2.4" r="2.1"/><circle cx="12" cy="1.6" r="2.3"/><circle cx="14.4" cy="2.4" r="2.1"/>') },
-  // A bold bow perched on the crown, not a hat/brim shape — structurally
-  // distinct from hat/gardener/chef/driver (all "something covering the
-  // head"), and filled rather than outlined so it still reads clearly at
-  // the smallest render size.
-  maid: { label: "Cameriera/e", icon: svg(PERSON_BASE + '<path d="M12 3.6L9 2.2v2.8z" fill="currentColor" stroke="none"/><path d="M12 3.6L15 2.2v2.8z" fill="currentColor" stroke="none"/><circle cx="12" cy="3.6" r="0.7" fill="currentColor" stroke="none"/>') },
-  gardener: { label: "Giardiniere/a", icon: svg(PERSON_BASE + '<ellipse cx="12" cy="5.6" rx="8" ry="1.8"/><path d="M9 5.6c0-2.6 1.3-4.2 3-4.2s3 1.6 3 4.2" fill="none"/>') },
-  driver: { label: "Autista", icon: svg(PERSON_BASE + '<path d="M7.8 6.2c0-2.5 1.9-4.2 4.2-4.2s4.2 1.7 4.2 4.2" fill="none"/><path d="M7.3 6.2h7.4"/><path d="M14.7 6.2l3.3 0.7-0.4 1.3-3.3-0.5z" fill="currentColor" stroke="none"/>') },
-  professor: { label: "Professore/essa", icon: svg(PERSON_BASE + '<path d="M6 5L12 2.5L18 5L12 7.5Z"/><path d="M18 5v3"/><path d="M12 7.5v1.6"/><circle cx="12" cy="9.7" r="0.7" fill="currentColor" stroke="none"/>') },
-  artist: { label: "Artista", icon: svg(PERSON_BASE + '<path d="M7.8 5.6c0-2.6 1.8-4.2 4.2-4.2s4.2 1.6 4.2 4.2c0 .6-.3.7-.7.5-1-.6-2.1-.3-3.5-.3s-2.5-.3-3.5.3c-.4.2-.7.1-.7-.5z"/><ellipse cx="19" cy="17" rx="3" ry="2.2" transform="rotate(-20 19 17)"/><circle cx="17.7" cy="16.3" r="0.5" fill="currentColor" stroke="none"/><circle cx="19.3" cy="15.6" r="0.5" fill="currentColor" stroke="none"/><circle cx="20.6" cy="16.8" r="0.5" fill="currentColor" stroke="none"/>') },
-  victim: { label: "Vittima", icon: svg('<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/><path d="M6 6l12 12"/>') },
-};
+// Full-color illustrated avatars, one per profession — composed from small
+// parts in avatars.js (PROFESSIONS is the table: ids are persisted in saved
+// puzzles' character.iconId, never rename/remove one). Same `{label, icon}`
+// shape as before; the icons carry their own colors (no currentColor).
+export const CHARACTER_ICONS = buildCharacterIcons();
 
 // Ordered, stable ids for round-robin auto-assignment (characterEditor.js) —
 // same pattern as CHARACTER_COLORS in puzzle.js. Excludes "victim" (never
@@ -138,6 +131,15 @@ export function objectIcon(typeId) {
 export function isObjectTypeOccupiable(typeId) {
   return !!OBJECT_TYPES[typeId]?.occupiable;
 }
+
+// Doors/windows: an element on one side of a cell instead of a piece of
+// furniture filling it (see OBJECT_TYPES). Such objects live in grid.objects
+// with a `side`, but never set cell.objectId.
+export function isEdgeObjectType(typeId) {
+  return !!OBJECT_TYPES[typeId]?.edge;
+}
+
+export const EDGE_SIDES = ["N", "E", "S", "W"];
 
 // A clue can target "any object of this type" (e.g. "a door") instead of one
 // specific placed instance. These are encoded as synthetic target ids so they

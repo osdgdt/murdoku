@@ -1,6 +1,6 @@
 import { el, clear } from "./dom.js";
-import { objectIcon } from "../model/icons.js";
-import { zoneTextureCss } from "../model/textures.js";
+import { objectIcon, isEdgeObjectType } from "../model/icons.js";
+import { floorStyle } from "../model/textures.js";
 
 const CELL_SIZE = 56;
 const LABEL_SIZE = 24;
@@ -142,6 +142,14 @@ if (typeof document !== "undefined") {
   );
 }
 
+// Inline style of a painted cell: the zone color (kept as the background-color
+// underneath) plus the floor, as custom properties read by `.board-cell.zoned`
+// in editor.css. Callers memoize it per zone (see zoneStyleCache in renderBoard).
+function zoneCellStyle(zone) {
+  const { image, size } = floorStyle(zone.textureId, zone.color);
+  return `background-color:${zone.color};--zone-texture:${image};--zone-texture-size:${size}`;
+}
+
 // Shared board rendering: draws the grid with zone background colors/textures,
 // bold "wall" borders at zone boundaries, one overlaid room-name label per
 // zone, and object icons; wires per-cell click/right-click callbacks. Callers
@@ -225,6 +233,20 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, ${CELL_SIZE}px)`;
 
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
+  // Doors/windows sit on a side of a cell (object.side), not inside it: group
+  // them per cell so each cell can draw its own thin edge pieces.
+  const edgesByCell = new Map();
+  for (const o of grid.objects) {
+    if (!isEdgeObjectType(o.typeId)) continue;
+    const k = `${o.row},${o.col}`;
+    if (!edgesByCell.has(k)) edgesByCell.set(k, []);
+    edgesByCell.get(k).push(o);
+  }
+  const zoneStyleCache = new Map();
+  const styleOfZone = (zone) => {
+    if (!zoneStyleCache.has(zone.id)) zoneStyleCache.set(zone.id, zoneCellStyle(zone));
+    return zoneStyleCache.get(zone.id);
+  };
 
   // A cell only "belongs" to a zone for wall/texture purposes when usable and
   // painted — blocked cells always act as a boundary (solid rock), while two
@@ -298,7 +320,7 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // the paint-by-dragging feature outside of synthetic/automated
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
-        style: zone ? `background-color:${zone.color};--zone-texture:${zoneTextureCss(zone.textureId)}` : "",
+        style: zone ? styleOfZone(zone) : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers
@@ -307,11 +329,11 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         // nothing useful to land keyboard focus on, and skipping it here is
         // simpler than adding tab-order logic that jumps over it.
         tabindex: cellData.blocked ? undefined : "0",
-        onClick: () => onCellClick && onCellClick(r, c),
+        onClick: (e) => onCellClick && onCellClick(r, c, e),
         onContextmenu: (e) => {
           if (onCellRightClick) {
             e.preventDefault();
-            onCellRightClick(r, c);
+            onCellRightClick(r, c, e);
           }
         },
         onMousedown: (e) => {
@@ -408,6 +430,18 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           iconWrap.innerHTML = def.icon;
           cellNode.appendChild(iconWrap);
         }
+      }
+
+      for (const edge of edgesByCell.get(`${r},${c}`) || []) {
+        const def = objectIcon(edge.typeId);
+        if (!def || !def.edgeIcon) continue;
+        const piece = el("span", {
+          class: `edge-obj edge-${edge.side || "N"}`,
+          title: `${def.label} (lato ${edge.side || "N"})`,
+          "aria-hidden": "true",
+        });
+        piece.innerHTML = def.edgeIcon;
+        cellNode.appendChild(piece);
       }
 
       if (decorateCell) decorateCell(cellNode, r, c);

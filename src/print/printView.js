@@ -1,5 +1,5 @@
 import { el, clear } from "../util/dom.js";
-import { objectIcon, characterIcon } from "../model/icons.js";
+import { objectIcon, characterIcon, isEdgeObjectType } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
 import { cluesForCharacter, genericClues, difficultyLabel } from "../model/puzzle.js";
 
@@ -40,6 +40,14 @@ function renderMapGrid(puzzle) {
           wrap.innerHTML = def.icon;
           cellNode.appendChild(wrap);
         }
+      }
+      for (const o of grid.objects) {
+        if (o.row !== r || o.col !== c || !isEdgeObjectType(o.typeId)) continue;
+        const def = objectIcon(o.typeId);
+        if (!def || !def.edgeIcon) continue;
+        const piece = el("span", { class: `print-edge print-edge-${o.side || "N"}` });
+        piece.innerHTML = def.edgeIcon;
+        cellNode.appendChild(piece);
       }
       board.appendChild(cellNode);
     }

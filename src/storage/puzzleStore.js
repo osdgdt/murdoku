@@ -1,3 +1,5 @@
+import { migratePuzzle } from "../model/puzzle.js";
+
 const INDEX_KEY = "murdoku:index";
 const puzzleKey = (id) => `murdoku:puzzle:${id}`;
 // Player progress (placements, X marks, candidates) — separate from the
@@ -24,7 +26,7 @@ export function list() {
 export function get(id) {
   try {
     const raw = localStorage.getItem(puzzleKey(id));
-    return raw ? JSON.parse(raw) : null;
+    return raw ? migratePuzzle(JSON.parse(raw)) : null;
   } catch {
     return null;
   }

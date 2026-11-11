@@ -19,26 +19,49 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
 
   const nameInput = el("input", { type: "text", placeholder: "Nome personaggio" });
   // Auto-assigned round-robin, mirroring CHARACTER_COLORS's own rotation in
-  // addCharacter() — the select simply defaults to whichever icon is next in
-  // rotation; picking a different one from the menu still fully overrides it.
-  const nextIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
-  const iconSelect = el(
-    "select",
-    {},
-    SELECTABLE_CHARACTER_ICON_IDS.map((id) =>
-      el("option", { value: id, selected: id === nextIconId || undefined }, CHARACTER_ICONS[id].label)
-    )
+  // addCharacter() — the picker simply starts on whichever profession is next
+  // in rotation; choosing another from the grid fully overrides it.
+  let selectedIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
+  const currentIcon = el("span", { class: "icon-current" });
+  const currentLabel = el("span", { class: "icon-current-label" });
+  const refreshCurrent = () => {
+    currentIcon.innerHTML = CHARACTER_ICONS[selectedIconId].icon;
+    currentLabel.textContent = CHARACTER_ICONS[selectedIconId].label;
+  };
+  refreshCurrent();
+  const iconPickerDetails = el("details", { class: "icon-details" });
+  const iconGrid = el(
+    "div",
+    { class: "icon-picker" },
+    SELECTABLE_CHARACTER_ICON_IDS.map((id) => {
+      const chip = el("button", {
+        type: "button",
+        class: "icon-chip" + (id === selectedIconId ? " selected" : ""),
+        title: CHARACTER_ICONS[id].label,
+        "aria-label": `Professione: ${CHARACTER_ICONS[id].label}`,
+        onClick: () => {
+          selectedIconId = id;
+          iconGrid.querySelectorAll(".icon-chip").forEach((c) => c.classList.toggle("selected", c === chip));
+          refreshCurrent();
+          iconPickerDetails.removeAttribute("open");
+        },
+      });
+      chip.innerHTML = CHARACTER_ICONS[id].icon;
+      return chip;
+    })
   );
+  iconPickerDetails.appendChild(el("summary", { title: "Scegli la professione" }, [currentIcon, currentLabel]));
+  iconPickerDetails.appendChild(iconGrid);
   const addBtn = el("button", {
     onClick: () => {
       const name = nameInput.value.trim();
       if (!name) return;
-      addCharacter(puzzle, name, iconSelect.value, puzzle.characters.length === 0);
+      addCharacter(puzzle, name, selectedIconId, puzzle.characters.length === 0);
       nameInput.value = "";
       onChange();
     },
   }, "+ Aggiungi");
-  container.appendChild(el("div", { class: "field-row" }, [nameInput, iconSelect, addBtn]));
+  container.appendChild(el("div", { class: "field-row" }, [nameInput, iconPickerDetails, addBtn]));
 
   const list = el("div", { class: "character-list" });
   for (const character of puzzle.characters) {

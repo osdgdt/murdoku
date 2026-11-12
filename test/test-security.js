@@ -13,7 +13,48 @@ function validPuzzle() {
   return puzzle;
 }
 
+const isNode = !!globalThis.process?.versions?.node;
+async function loadText(rel) {
+  if (isNode) {
+    const { readFile } = await import("node:fs/promises");
+    return readFile(new URL(`../${rel}`, import.meta.url), "utf8");
+  }
+  return (await fetch(new URL(`../${rel}`, import.meta.url))).text();
+}
+const PAGES = [
+  "index.html",
+  "player.html",
+  "editor.html",
+  "print.html",
+  "glossary.html",
+  "privacy.html",
+  "achievements.html",
+  "campaign.html",
+  "campaign-editor.html",
+];
+
 export const tests = [
+  {
+    name: "ogni pagina HTML ha la stessa Content-Security-Policy (niente object, base e form esterni)",
+    fn: async () => {
+      if (isNode) {
+        const { readdir } = await import("node:fs/promises");
+        const onDisk = (await readdir(new URL("../", import.meta.url))).filter((f) => f.endsWith(".html")).sort();
+        assertEqual(JSON.stringify(onDisk), JSON.stringify([...PAGES].sort()), "elenco delle pagine: aggiorna PAGES se ne aggiungi una");
+      }
+      const policies = new Set();
+      for (const page of PAGES) {
+        const matches = [...(await loadText(page)).matchAll(/<meta http-equiv="Content-Security-Policy" content="([^"]+)"/g)];
+        assertEqual(matches.length, 1, `${page}: una sola CSP`);
+        policies.add(matches[0][1]);
+      }
+      assertEqual(policies.size, 1, "la CSP è identica in tutte le pagine");
+      const [policy] = policies;
+      for (const rule of ["object-src 'none'", "base-uri 'self'", "form-action 'self'", "default-src 'self'"]) {
+        assert(policy.includes(rule), `la CSP deve contenere ${rule}`);
+      }
+    },
+  },
   {
     name: "isSafeId accetta gli id generati da makeId e rifiuta markup/virgolette/spazi",
     fn: () => {

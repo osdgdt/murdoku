@@ -241,7 +241,10 @@ export function resolveCharacterHoverDomain(puzzle, characterId, currentPlacemen
       tentative.set(characterId, { row: r, col: c });
       let excluded = false;
       for (const { predicate } of ownPredicates) {
-        if (predicate(tentative, isComplete) === false) { excluded = true; break; }
+        if (predicate(tentative, isComplete) === false) {
+          excluded = true;
+          break;
+        }
       }
       if (!excluded) cells.push({ row: r, col: c });
     }

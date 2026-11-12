@@ -14,13 +14,27 @@ function sampleParams(def, ids) {
   const params = {};
   for (const p of def.params || []) {
     switch (p.kind) {
-      case "characterOrObject": case "character": params[p.name] = ids.other; break;
-      case "characterOrObjectMulti": params[p.name] = [ids.other, ids.obj]; break;
-      case "zone": params[p.name] = ids.zone; break;
-      case "number": params[p.name] = 2; break;
-      case "enum": params[p.name] = p.values.find((v) => v !== "") ?? ""; break;
-      case "clueRef": params[p.name] = { type: "inCorner", params: {} }; break;
-      default: break;
+      case "characterOrObject":
+      case "character":
+        params[p.name] = ids.other;
+        break;
+      case "characterOrObjectMulti":
+        params[p.name] = [ids.other, ids.obj];
+        break;
+      case "zone":
+        params[p.name] = ids.zone;
+        break;
+      case "number":
+        params[p.name] = 2;
+        break;
+      case "enum":
+        params[p.name] = p.values.find((v) => v !== "") ?? "";
+        break;
+      case "clueRef":
+        params[p.name] = { type: "inCorner", params: {} };
+        break;
+      default:
+        break;
     }
   }
   return params;
@@ -69,7 +83,11 @@ export const tests = [
       assertEqual(conjugate("Stands on {v}.", "en", "past"), "Stood on {v}.");
       assertEqual(conjugate("Shares the row with {t}.", "en", "future"), "Will share the row with {t}.");
       assertEqual(conjugate("{a} and {b} are not in the same room.", "en", "past"), "{a} and {b} were not in the same room.");
-      assertEqual(conjugate("Has the same size.", "en", "future"), "Will have the same size.", "'has' -> 'will have' non deve diventare 'will will have'");
+      assertEqual(
+        conjugate("Has the same size.", "en", "future"),
+        "Will have the same size.",
+        "'has' -> 'will have' non deve diventare 'will will have'"
+      );
       assertEqual(conjugate("Exactly one person is next to {v}.", "en", "past"), "Exactly one person was next to {v}.");
     },
   },
@@ -175,7 +193,9 @@ export const tests = [
       for (const [type, def] of Object.entries(CLUE_TYPES)) {
         if (def.internal || type === "closerTo") continue; // «più vicino a… che a…» confronta due distanze
         const label = String(def.label);
-        const sentences = everyClue(ids).filter((c) => c.type === type).map((c) => describeClue(c, puzzle));
+        const sentences = everyClue(ids)
+          .filter((c) => c.type === type)
+          .map((c) => describeClue(c, puzzle));
         for (const text of [label, ...sentences]) if (/\bvicin[oaie]\b/i.test(text)) bad.push(`${type}: ${text}`);
       }
       assertEqual(bad.length, 0, "«vicino» nel testo:\n" + bad.join("\n"));
@@ -186,7 +206,10 @@ export const tests = [
     fn: () => {
       const puzzle = createPuzzle("T");
       assertEqual(puzzle.tense, "present");
-      for (const tense of TENSES) { setTense(puzzle, tense); assertEqual(puzzle.tense, tense); }
+      for (const tense of TENSES) {
+        setTense(puzzle, tense);
+        assertEqual(puzzle.tense, tense);
+      }
       setTense(puzzle, "boh");
       assertEqual(puzzle.tense, "present");
       puzzle.tense = "boh";
@@ -267,13 +290,21 @@ export const tests = [
     name: "targetLabel: un oggetto specifico tra più dello stesso tipo dice quale (riga/colonna), altrimenti resta la frase semplice",
     fn: () => {
       const { puzzle, ids } = samplePuzzle(); // una sedia sola in (0,0)
-      const clue = (targetId) => ({ id: "c", type: "closerTo", characterId: ids.owner, params: { targetAId: targetId, targetBId: ids.other } });
+      const clue = (targetId) => ({
+        id: "c",
+        type: "closerTo",
+        characterId: ids.owner,
+        params: { targetAId: targetId, targetBId: ids.other },
+      });
       assertEqual(describeClue(clue(ids.obj), puzzle), "È più vicino a una sedia che a Bruno.", "una sola sedia: nessuna ambiguità");
       const second = placeObject(puzzle.grid, "chair", 3, 2);
       assertEqual(describeClue(clue(second.id), puzzle), "È più vicino a una sedia (R4, C3) che a Bruno.");
       const door = placeObject(puzzle.grid, "door", 1, 1, "S");
       placeObject(puzzle.grid, "door", 2, 2, "E");
-      assertEqual(describeClue({ id: "c", type: "adjacent", characterId: ids.owner, params: { targetId: door.id } }, puzzle), "È accanto a una porta (R2, C2, lato Sud).");
+      assertEqual(
+        describeClue({ id: "c", type: "adjacent", characterId: ids.owner, params: { targetId: door.id } }, puzzle),
+        "È accanto a una porta (R2, C2, lato Sud)."
+      );
       // «qualsiasi sedia» (bersaglio di tipo) resta generico, senza coordinate
       assertEqual(describeClue(clue("objtype:chair"), puzzle), "È più vicino a una sedia che a Bruno.");
     },

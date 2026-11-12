@@ -113,8 +113,14 @@ export function zonesAreAdjacent(grid, zoneIdA, zoneIdB) {
     for (let c = 0; c < grid.size.cols; c++) {
       const cell = grid.cells[r][c];
       if (cell.blocked || cell.zoneId !== zoneIdA) continue;
-      for (const [dr, dc] of [[0, 1], [1, 0], [0, -1], [-1, 0]]) {
-        const nr = r + dr, nc = c + dc;
+      for (const [dr, dc] of [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0],
+      ]) {
+        const nr = r + dr,
+          nc = c + dc;
         if (nr < 0 || nr >= grid.size.rows || nc < 0 || nc >= grid.size.cols) continue;
         const neighbor = grid.cells[nr][nc];
         if (!neighbor.blocked && neighbor.zoneId === zoneIdB) return true;
@@ -150,11 +156,13 @@ export function isRoomCorner(grid, pos, zoneId) {
 // same on the column axis. Used only by the "between" clue type.
 export function isStrictlyBetween(owner, a, b) {
   if (a.row === b.row && owner.row === a.row) {
-    const lo = Math.min(a.col, b.col), hi = Math.max(a.col, b.col);
+    const lo = Math.min(a.col, b.col),
+      hi = Math.max(a.col, b.col);
     return owner.col > lo && owner.col < hi;
   }
   if (a.col === b.col && owner.col === a.col) {
-    const lo = Math.min(a.row, b.row), hi = Math.max(a.row, b.row);
+    const lo = Math.min(a.row, b.row),
+      hi = Math.max(a.row, b.row);
     return owner.row > lo && owner.row < hi;
   }
   return false;
@@ -219,10 +227,15 @@ export function characterHasProperty(puzzle, pm, characterId, params, isComplete
 // True if `a` is strictly more extreme than `b` in the given compass direction.
 export function isMoreExtreme(direction, a, b) {
   switch (direction) {
-    case "north": return a.row < b.row;
-    case "south": return a.row > b.row;
-    case "east": return a.col > b.col;
-    case "west": return a.col < b.col;
-    default: return false;
+    case "north":
+      return a.row < b.row;
+    case "south":
+      return a.row > b.row;
+    case "east":
+      return a.col > b.col;
+    case "west":
+      return a.col < b.col;
+    default:
+      return false;
   }
 }

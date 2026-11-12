@@ -1,5 +1,34 @@
-import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes, addManualHintStep, updateManualHintStep, removeManualHintStep, reorderManualHintSteps } from "../src/model/puzzle.js";
-import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject, edgeObjectsAt } from "../src/model/grid.js";
+import {
+  createPuzzle,
+  addCharacter,
+  addClue,
+  removeCharacter,
+  setSolutionPlacement,
+  validatePuzzleShape,
+  duplicatePuzzle,
+  pruneDanglingClueReferences,
+  pruneDanglingSolutionPlacements,
+  genericClues,
+  cluesForCharacter,
+  difficultyLabel,
+  estimateDifficultyFromNodes,
+  addManualHintStep,
+  updateManualHintStep,
+  removeManualHintStep,
+  reorderManualHintSteps,
+} from "../src/model/puzzle.js";
+import {
+  addZone,
+  removeZone,
+  removeObject,
+  resizeGrid,
+  setBlocked,
+  isUsable,
+  isOccupiable,
+  paintCellZone,
+  placeObject,
+  edgeObjectsAt,
+} from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import * as store from "../src/storage/puzzleStore.js";
 import { assert, assertEqual } from "./assert.js";
@@ -30,7 +59,10 @@ export const tests = [
       puzzle.characters[1].isVictim = true;
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("vittima")), "errore atteso sulla vittima");
+      assert(
+        errors.some((e) => e.includes("vittima")),
+        "errore atteso sulla vittima"
+      );
     },
   },
   {
@@ -40,7 +72,10 @@ export const tests = [
       puzzle.characters.push({ ...puzzle.characters[0] });
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("duplicato")), "errore atteso su id duplicato");
+      assert(
+        errors.some((e) => e.includes("duplicato")),
+        "errore atteso su id duplicato"
+      );
     },
   },
   {
@@ -50,7 +85,10 @@ export const tests = [
       puzzle.grid = resizeGrid(puzzle.grid, 12, 12);
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("dimensioni della griglia")), "errore atteso sulle dimensioni della griglia");
+      assert(
+        errors.some((e) => e.includes("dimensioni della griglia")),
+        "errore atteso sulle dimensioni della griglia"
+      );
     },
   },
   {
@@ -61,7 +99,10 @@ export const tests = [
       addCharacter(puzzle, "Dario", "person2"); // 4 personaggi, griglia 3x3
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("Troppi personaggi")), "errore atteso sul numero di personaggi");
+      assert(
+        errors.some((e) => e.includes("Troppi personaggi")),
+        "errore atteso sul numero di personaggi"
+      );
     },
   },
   {
@@ -71,7 +112,10 @@ export const tests = [
       puzzle.solution.placements[0].row = 99;
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("fuori griglia")), "errore atteso su fuori griglia");
+      assert(
+        errors.some((e) => e.includes("fuori griglia")),
+        "errore atteso su fuori griglia"
+      );
     },
   },
   {
@@ -115,7 +159,10 @@ export const tests = [
       setBlocked(puzzle.grid, 1, 1, true);
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("bloccata")), "errore atteso su cella bloccata");
+      assert(
+        errors.some((e) => e.includes("bloccata")),
+        "errore atteso su cella bloccata"
+      );
     },
   },
   {
@@ -125,7 +172,10 @@ export const tests = [
       placeObject(puzzle.grid, "shelf", 1, 1);
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("oggetto")), "errore atteso su cella con oggetto");
+      assert(
+        errors.some((e) => e.includes("oggetto")),
+        "errore atteso su cella con oggetto"
+      );
     },
   },
   {

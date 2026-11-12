@@ -26,8 +26,14 @@ function deps(overrides = {}) {
     calls,
     deps: {
       validateSolution: () => ({ valid: true }),
-      checkUniquenessAsync: async () => { calls.unique++; return { solutionCount: 1, truncated: false }; },
-      deriveSolutionAsync: async () => { calls.derive++; return { status: "unique", placements: [] }; },
+      checkUniquenessAsync: async () => {
+        calls.unique++;
+        return { solutionCount: 1, truncated: false };
+      },
+      deriveSolutionAsync: async () => {
+        calls.derive++;
+        return { status: "unique", placements: [] };
+      },
       ...overrides,
     },
   };
@@ -87,10 +93,19 @@ export const tests = [
     fn: async () => {
       const { p } = build();
       let fail = true;
-      const { deps: d } = deps({ checkUniquenessAsync: async () => { if (fail) throw new Error("worker"); return { solutionCount: 1, truncated: false }; } });
+      const { deps: d } = deps({
+        checkUniquenessAsync: async () => {
+          if (fail) throw new Error("worker");
+          return { solutionCount: 1, truncated: false };
+        },
+      });
       const eff = createEffectiveSolution(p, d);
       let threw = false;
-      try { await eff.get(); } catch { threw = true; }
+      try {
+        await eff.get();
+      } catch {
+        threw = true;
+      }
       assert(threw, "il primo tentativo deve fallire");
       fail = false;
       assertEqual((await eff.get()).status, "unique");
@@ -104,7 +119,10 @@ export const tests = [
       assertEqual(murdererName(p, unique), "Kil");
       assertEqual(murdererName(p, { status: "ambiguous", placements: null }), null);
       // Bystander moved into the victim's room too -> two companions -> no single murderer.
-      const crowded = { status: "unique", placements: p.solution.placements.map((pl) => (pl.characterId === killer.id ? pl : { ...pl, col: 1 })) };
+      const crowded = {
+        status: "unique",
+        placements: p.solution.placements.map((pl) => (pl.characterId === killer.id ? pl : { ...pl, col: 1 })),
+      };
       assertEqual(murdererName(p, crowded), null);
     },
   },
@@ -137,7 +155,11 @@ export const tests = [
       assert(!p.characters.find((c) => c.id === chain[1].characterId).isVictim, "la vittima si rivela per ultima");
 
       const ambiguous = [{ type: "tooComplex", variant: "warning", message: "x" }];
-      await extendChainWithOracleStep(ambiguous, { puzzle: p, placements: new Map(), getEffectiveSolution: async () => ({ status: "ambiguous", placements: null }) });
+      await extendChainWithOracleStep(ambiguous, {
+        puzzle: p,
+        placements: new Map(),
+        getEffectiveSolution: async () => ({ status: "ambiguous", placements: null }),
+      });
       assertEqual(ambiguous.length, 1, "nessuna rivelazione senza una risposta provata");
 
       const notStuck = [{ type: "forcedPlacement", variant: "success", characterId: "x", row: 0, col: 0, message: "" }];

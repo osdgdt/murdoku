@@ -82,16 +82,25 @@ export const SUPERLATIVE_DIRECTION_LABELS = { north: t("a nord"), south: t("a su
 
 export function describeProperty(params, puzzle) {
   switch (params.property) {
-    case "adjacentTo": return t("accanto a {target}", { target: targetLabel(puzzle, params.targetId) });
-    case "male": return t("un uomo");
-    case "female": return t("una donna");
+    case "adjacentTo":
+      return t("accanto a {target}", { target: targetLabel(puzzle, params.targetId) });
+    case "male":
+      return t("un uomo");
+    case "female":
+      return t("una donna");
     // Agrees with `onlyGender` when the clue sets it (currently only
     // noOneWithProperty) — e.g. "nessuna donna... seduta su uno sgabello"
     // instead of the ungrammatical "...seduto...". Every other caller of
     // describeProperty simply never sets onlyGender, so this stays "seduto".
-    case "sittingOn": return t("{seated} su {object}", { seated: params.onlyGender === "female" ? t("seduta") : t("seduto"), object: objectTypePhrase(params.objectTypeId) });
-    case "seated": return params.onlyGender === "female" ? t("seduta") : t("seduto");
-    default: return t("presente");
+    case "sittingOn":
+      return t("{seated} su {object}", {
+        seated: params.onlyGender === "female" ? t("seduta") : t("seduto"),
+        object: objectTypePhrase(params.objectTypeId),
+      });
+    case "seated":
+      return params.onlyGender === "female" ? t("seduta") : t("seduto");
+    default:
+      return t("presente");
   }
 }
 
@@ -128,6 +137,12 @@ export const propertyParams = [
 // Same, but the property filter itself is optional ("chiunque") — for clue
 // types where a plain, unfiltered "someone" is the natural default.
 export const optionalPropertyParams = [
-  { name: "property", kind: "enum", values: ["", ...PERSON_PROPERTIES], labels: { "": t("chiunque"), ...PERSON_PROPERTY_LABELS }, label: t("Che è...") },
+  {
+    name: "property",
+    kind: "enum",
+    values: ["", ...PERSON_PROPERTIES],
+    labels: { "": t("chiunque"), ...PERSON_PROPERTY_LABELS },
+    label: t("Che è..."),
+  },
   ...propertyParams.slice(1),
 ];

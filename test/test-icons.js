@@ -41,10 +41,27 @@ export const tests = [
   {
     name: "le professioni sono almeno 45 selezionabili, con id e etichette uniche, e gli id storici (salvati nei casi) esistono ancora",
     fn: () => {
-      assert(SELECTABLE_CHARACTER_ICON_IDS.length >= 45, `servono almeno 45 professioni, ce ne sono ${SELECTABLE_CHARACTER_ICON_IDS.length}`);
+      assert(
+        SELECTABLE_CHARACTER_ICON_IDS.length >= 45,
+        `servono almeno 45 professioni, ce ne sono ${SELECTABLE_CHARACTER_ICON_IDS.length}`
+      );
       const labels = new Set(Object.values(CHARACTER_ICONS).map((d) => d.label));
       assertEqual(labels.size, Object.keys(CHARACTER_ICONS).length, "ogni professione deve avere un'etichetta diversa");
-      for (const id of ["person1", "person2", "hat", "glasses", "detective", "butler", "chef", "maid", "gardener", "driver", "professor", "artist", "victim"]) {
+      for (const id of [
+        "person1",
+        "person2",
+        "hat",
+        "glasses",
+        "detective",
+        "butler",
+        "chef",
+        "maid",
+        "gardener",
+        "driver",
+        "professor",
+        "artist",
+        "victim",
+      ]) {
         assert(id in CHARACTER_ICONS, `manca l'id storico ${id}`);
       }
     },

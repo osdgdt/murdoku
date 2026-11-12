@@ -5,7 +5,7 @@ export default {
   "Sbloccato il {dateLabel}": "Unlocked on {dateLabel}",
   "Non ancora sbloccato": "Not unlocked yet",
   "Impossibile salvare il progresso della campagna:": "Could not save campaign progress:",
-  "Esci": "Sign out",
+  Esci: "Sign out",
   "Modalità campagna": "Campaign mode",
   "Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo.":
     "Sign in with Google to play episodic campaigns and keep your progress on any device.",
@@ -15,20 +15,22 @@ export default {
   "Nessuna campagna disponibile ancora.": "No campaigns available yet.",
   "1 caso": "1 case",
   "{count} casi": "{count} cases",
-  "Gioca": "Play",
-  "Completato": "Completed",
+  Gioca: "Play",
+  Completato: "Completed",
   "campagna non trovata.": "campaign not found.",
   "Impossibile caricare la campagna: ": "Could not load the campaign: ",
   "Questa campagna non ha ancora nessun caso.": "This campaign has no cases yet.",
   "Miglior tempo": "Best time",
   "Da sbloccare": "Locked",
   "Questo caso non fa parte della campagna.": "This case is not part of the campaign.",
-  "Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo.": "This case is still locked: complete the previous cases to unlock it.",
+  "Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo.":
+    "This case is still locked: complete the previous cases to unlock it.",
   "Non riesco a caricare questo caso: {message}": "Could not load this case: {message}",
   "Impossibile registrare il completamento del caso:": "Could not record the case completion:",
   "Questo caso non ha alcuna soluzione compatibile con i suoi indizi: i giocatori non potranno mai completarlo.":
     "This case has no solution compatible with its clues: players will never be able to complete it.",
-  "Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta.": "This case has several different solutions: it is unclear which one is correct.",
+  "Questo caso ammette più soluzioni diverse: non è chiaro quale sia quella corretta.":
+    "This case has several different solutions: it is unclear which one is correct.",
   "Non riesco a stabilire con certezza se questo caso ha una soluzione univoca (troppo complesso da analizzare).":
     "Could not determine for sure whether this case has a unique solution (too complex to analyse).",
   "Editor campagne": "Campaign editor",
@@ -36,7 +38,7 @@ export default {
   "Accesso negato": "Access denied",
   "Questo account non è autorizzato a gestire le campagne.": "This account is not allowed to manage campaigns.",
   "Nessuna campagna ancora. Creane una.": "No campaigns yet. Create one.",
-  "Modifica": "Edit",
+  Modifica: "Edit",
   "Salvato.": "Saved.",
   "Errore nel salvataggio: ": "Error while saving: ",
   "Nessun caso ancora.": "No cases yet.",
@@ -68,10 +70,13 @@ export default {
   "Hai risolto un caso in meno di 2 minuti.": "You solved a case in under 2 minutes.",
   "Sincronizzazione in corso…": "Syncing…",
   "Sincronizzato con il tuo account Google.": "Synced with your Google account.",
-  "Sincronizzato con il tuo account Google. {found} da un altro dispositivo: {titles}.": "Synced with your Google account. {found} from another device: {titles}.",
+  "Sincronizzato con il tuo account Google. {found} da un altro dispositivo: {titles}.":
+    "Synced with your Google account. {found} from another device: {titles}.",
   "Nuovo traguardo trovato": "New achievement found",
   "{count} nuovi traguardi trovati": "{count} new achievements found",
-  "Impossibile sincronizzare: {message} (i traguardi restano salvati su questo dispositivo).": "Could not sync: {message} (your achievements stay saved on this device).",
-  "Salvati solo su questo dispositivo. Accedi con Google per sincronizzarli tra più dispositivi.": "Saved on this device only. Sign in with Google to sync them across devices.",
+  "Impossibile sincronizzare: {message} (i traguardi restano salvati su questo dispositivo).":
+    "Could not sync: {message} (your achievements stay saved on this device).",
+  "Salvati solo su questo dispositivo. Accedi con Google per sincronizzarli tra più dispositivi.":
+    "Saved on this device only. Sign in with Google to sync them across devices.",
   "Puzzle non trovato.": "Puzzle not found.",
 };

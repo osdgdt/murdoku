@@ -9,7 +9,14 @@ export const tests = [
   {
     name: "migratePuzzle porta un documento senza schemaVersion alla versione corrente riempiendo i campi mancanti",
     fn: () => {
-      const legacy = { id: "p1", title: "Vecchio", grid: { size: { rows: 3, cols: 3 }, cells: [], zones: [{ id: "z1", name: "A", color: "#fff" }], objects: [] }, characters: [{ id: "c1", name: "X", isVictim: true }], clues: [], solution: { placements: [] } };
+      const legacy = {
+        id: "p1",
+        title: "Vecchio",
+        grid: { size: { rows: 3, cols: 3 }, cells: [], zones: [{ id: "z1", name: "A", color: "#fff" }], objects: [] },
+        characters: [{ id: "c1", name: "X", isVictim: true }],
+        clues: [],
+        solution: { placements: [] },
+      };
       migratePuzzle(legacy);
       assertEqual(legacy.schemaVersion, CURRENT_SCHEMA_VERSION);
       assertEqual(legacy.difficulty, "");
@@ -93,10 +100,22 @@ export const tests = [
   {
     name: "writeRaw lancia StorageFullError quando lo storage rifiuta la scrittura",
     fn: () => {
-      useBackendForTests({ setItem() { throw new Error("QuotaExceededError"); }, getItem() { return null; }, removeItem() {} });
+      useBackendForTests({
+        setItem() {
+          throw new Error("QuotaExceededError");
+        },
+        getItem() {
+          return null;
+        },
+        removeItem() {},
+      });
       try {
         let thrown = null;
-        try { writeRaw("k", "v"); } catch (e) { thrown = e; }
+        try {
+          writeRaw("k", "v");
+        } catch (e) {
+          thrown = e;
+        }
         assert(thrown instanceof StorageFullError, "atteso StorageFullError");
       } finally {
         useBackendForTests(null);

@@ -4,7 +4,9 @@ import { CHARACTER_ART } from "../src/skin/paper/characters.js";
 import { OBJECT_TYPES, CHARACTER_ICONS } from "../src/model/icons.js";
 import { assert, assertEqual } from "./assert.js";
 
-const balanced = (svg) => (svg.match(/<svg\b/g) || []).length === (svg.match(/<\/svg>/g) || []).length && (svg.match(/<g\b/g) || []).length === (svg.match(/<\/g>/g) || []).length;
+const balanced = (svg) =>
+  (svg.match(/<svg\b/g) || []).length === (svg.match(/<\/svg>/g) || []).length &&
+  (svg.match(/<g\b/g) || []).length === (svg.match(/<\/g>/g) || []).length;
 
 export const tests = [
   {
@@ -40,7 +42,8 @@ export const tests = [
   {
     name: "skin: nessun avatar usa id propri (gli id duplicati nella pagina romperebbero i riferimenti)",
     fn: () => {
-      for (const [id, def] of Object.entries(CHARACTER_ICONS)) assert(!/\sid=/.test(def.icon.replace(/xmlns/g, "")), `${id}: contiene un id`);
+      for (const [id, def] of Object.entries(CHARACTER_ICONS))
+        assert(!/\sid=/.test(def.icon.replace(/xmlns/g, "")), `${id}: contiene un id`);
     },
   },
   {

@@ -73,7 +73,10 @@ export const tests = [
       assert(isDirectionDistance("south", 2, { row: 7, col: 5 }, target), "2 righe a sud");
       assert(isDirectionDistance("east", 4, { row: 5, col: 9 }, target), "4 colonne a est");
       assert(isDirectionDistance("west", 4, { row: 5, col: 1 }, target), "4 colonne a ovest");
-      assert(!isDirectionDistance("east", 4, { row: 5, col: 9 + 1 }, target), "colonna diversa da quella attesa non deve combaciare per caso");
+      assert(
+        !isDirectionDistance("east", 4, { row: 5, col: 9 + 1 }, target),
+        "colonna diversa da quella attesa non deve combaciare per caso"
+      );
     },
   },
   {

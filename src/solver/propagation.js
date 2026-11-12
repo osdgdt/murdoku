@@ -68,8 +68,7 @@ function pairwiseRowColDistinct(cells) {
 function hasPerfectMatching(subsetChars, unionCells, domains) {
   const m = unionCells.length;
   const matchOfCell = new Array(m).fill(-1);
-  const domainHas = (character, cell) =>
-    domains.get(character.id).some((d) => d.row === cell.row && d.col === cell.col);
+  const domainHas = (character, cell) => domains.get(character.id).some((d) => d.row === cell.row && d.col === cell.col);
 
   function tryAugment(ci, visited) {
     for (let j = 0; j < m; j++) {
@@ -125,7 +124,10 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
     const size = popcount(mask);
     if (size < 2) continue;
     let list = masksBySize.get(size);
-    if (!list) { list = []; masksBySize.set(size, list); }
+    if (!list) {
+      list = [];
+      masksBySize.set(size, list);
+    }
     list.push(mask);
   }
 
@@ -162,7 +164,10 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
           const before = domains.get(other.id);
           const toRemove = unionCells.filter((cell) => before.some((d) => d.row === cell.row && d.col === cell.col));
           if (toRemove.length === 0) continue;
-          domains.set(other.id, before.filter((d) => !toRemove.some((t) => t.row === d.row && t.col === d.col)));
+          domains.set(
+            other.id,
+            before.filter((d) => !toRemove.some((t) => t.row === d.row && t.col === d.col))
+          );
           for (const cell of toRemove) {
             const k = key(other.id, cell.row, cell.col);
             // First-wins attribution: once a cell is gone from a domain, a
@@ -172,7 +177,9 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
             // already used for hints.js's leave-one-out "involved clues".
             if (!witnessOf.has(k)) {
               witnessOf.set(k, {
-                characterId: other.id, row: cell.row, col: cell.col,
+                characterId: other.id,
+                row: cell.row,
+                col: cell.col,
                 witnessClueIds: [],
                 nakedSubset: { characterIds: subsetChars.map((c) => c.id), cells: unionCells },
               });
@@ -196,13 +203,22 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
 
 function popcount(x) {
   let c = 0;
-  while (x) { c += x & 1; x >>= 1; }
+  while (x) {
+    c += x & 1;
+    x >>= 1;
+  }
   return c;
 }
 
 function createOpsBudget(max) {
   let spent = 0;
-  return { max, spend(n) { spent += n; return spent; } };
+  return {
+    max,
+    spend(n) {
+      spent += n;
+      return spent;
+    },
+  };
 }
 
 // propagate(puzzle, currentPlacements) ->
@@ -225,17 +241,21 @@ function createOpsBudget(max) {
 // buildPredicates has id `null`) — exactly which predicates returned `false`
 // for that cell, recorded as they're found so callers never need to re-derive
 // "why" for a propagation-sourced fact.
-export function propagate(puzzle, currentPlacements, {
-  maxEvaluations = PROPAGATION_MAX_EVALUATIONS,
-  maxRounds = PROPAGATION_MAX_ROUNDS,
-  maxSubsetOps = PROPAGATION_MAX_SUBSET_OPS,
-  // Lets a hot caller (solvePuzzle's forward-checking) build the predicate
-  // list once and reuse it across many propagate() calls instead of paying
-  // buildPredicates(puzzle) again at every search node. Every other caller
-  // (including every existing standalone use of propagate()) leaves this
-  // unset and gets the exact same behavior as before.
-  predicates: predicatesOverride = null,
-} = {}) {
+export function propagate(
+  puzzle,
+  currentPlacements,
+  {
+    maxEvaluations = PROPAGATION_MAX_EVALUATIONS,
+    maxRounds = PROPAGATION_MAX_ROUNDS,
+    maxSubsetOps = PROPAGATION_MAX_SUBSET_OPS,
+    // Lets a hot caller (solvePuzzle's forward-checking) build the predicate
+    // list once and reuse it across many propagate() calls instead of paying
+    // buildPredicates(puzzle) again at every search node. Every other caller
+    // (including every existing standalone use of propagate()) leaves this
+    // unset and gets the exact same behavior as before.
+    predicates: predicatesOverride = null,
+  } = {}
+) {
   const { rows, cols } = puzzle.grid.size;
   const predicates = predicatesOverride || buildPredicates(puzzle);
   const opsBudget = createOpsBudget(maxSubsetOps);
@@ -289,7 +309,8 @@ export function propagate(puzzle, currentPlacements, {
             }
             if (predicate(tentative, isCompleteIfPlaced) === false) witnesses.push(clue.id);
           }
-          if (witnesses.length > 0) witnessOf.set(key(character.id, r, c), { characterId: character.id, row: r, col: c, witnessClueIds: witnesses });
+          if (witnesses.length > 0)
+            witnessOf.set(key(character.id, r, c), { characterId: character.id, row: r, col: c, witnessClueIds: witnesses });
           else survivors.push({ row: r, col: c });
         }
       }
@@ -306,7 +327,14 @@ export function propagate(puzzle, currentPlacements, {
 
     for (const character of unplaced) {
       if (domains.get(character.id).length === 0) {
-        return { confirmed, forced, eliminated: [], domains: new Map(domains), contradiction: { characterId: character.id }, evaluationsUsed: evaluations };
+        return {
+          confirmed,
+          forced,
+          eliminated: [],
+          domains: new Map(domains),
+          contradiction: { characterId: character.id },
+          evaluationsUsed: evaluations,
+        };
       }
     }
 
@@ -319,7 +347,14 @@ export function propagate(puzzle, currentPlacements, {
     // `witnessOf` map, captured above).
     const subset = applyNakedSubsets(unplaced, domains, witnessOf, opsBudget);
     if (subset.contradiction) {
-      return { confirmed, forced, eliminated: [], domains: new Map(domains), contradiction: subset.contradiction, evaluationsUsed: evaluations };
+      return {
+        confirmed,
+        forced,
+        eliminated: [],
+        domains: new Map(domains),
+        contradiction: subset.contradiction,
+        evaluationsUsed: evaluations,
+      };
     }
     // subset.capped: no special handling needed — domains/witnessOf simply
     // reflect whatever partial progress the subset scan made before running
@@ -353,7 +388,9 @@ export function propagate(puzzle, currentPlacements, {
         }
       }
       forced.push({
-        characterId: character.id, row: cell.row, col: cell.col,
+        characterId: character.id,
+        row: cell.row,
+        col: cell.col,
         witnessClueIds: [...allWitnesses],
         nakedSubsets: [...nakedSubsetsByKey.values()],
       });

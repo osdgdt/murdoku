@@ -28,7 +28,7 @@ function uniquelySolvablePuzzle() {
 
 export const tests = [
   {
-    name: "deriveSolution: status \"unique\" quando esiste esattamente una soluzione, dimostrata in modo esaustivo",
+    name: 'deriveSolution: status "unique" quando esiste esattamente una soluzione, dimostrata in modo esaustivo',
     fn: () => {
       const { puzzle, a, b } = uniquelySolvablePuzzle();
       const result = deriveSolution(puzzle);
@@ -42,7 +42,7 @@ export const tests = [
     },
   },
   {
-    name: "deriveSolution: status \"unsatisfiable\" quando gli indizi sono contraddittori",
+    name: 'deriveSolution: status "unsatisfiable" quando gli indizi sono contraddittori',
     fn: () => {
       const puzzle = basePuzzle(2, 2);
       const a = addCharacter(puzzle, "A", "person1");
@@ -60,7 +60,7 @@ export const tests = [
     },
   },
   {
-    name: "deriveSolution: status \"ambiguous\" quando vengono trovate 2 o più soluzioni",
+    name: 'deriveSolution: status "ambiguous" quando vengono trovate 2 o più soluzioni',
     fn: () => {
       // 2x2, 2 personaggi, nessun indizio: esattamente 4 soluzioni possibili
       // (stesso fixture già provato in test-solver.js's "checkUniqueness con
@@ -74,7 +74,7 @@ export const tests = [
     },
   },
   {
-    name: "deriveSolution: status \"inconclusive\" quando il budget di nodi si esaurisce prima di poter dimostrare 0 o esattamente 1 soluzione",
+    name: 'deriveSolution: status "inconclusive" quando il budget di nodi si esaurisce prima di poter dimostrare 0 o esattamente 1 soluzione',
     fn: () => {
       const puzzle = basePuzzle(3, 3);
       addCharacter(puzzle, "A", "person1");
@@ -98,7 +98,7 @@ export const tests = [
     },
   },
   {
-    name: "deriveSolution: \"unsatisfiable\" dimostrata dalla sola propagazione upfront, zero nodi di ricerca",
+    name: 'deriveSolution: "unsatisfiable" dimostrata dalla sola propagazione upfront, zero nodi di ricerca',
     fn: () => {
       // Stesso fixture del test "unsatisfiable" sopra: dimostrabile da
       // propagate() da solo (nessun ragionamento incrociato tra personaggi
@@ -121,7 +121,7 @@ export const tests = [
     },
   },
   {
-    name: "deriveSolution: \"unique\" determinata dalla sola propagazione upfront, ricerca residua nulla",
+    name: 'deriveSolution: "unique" determinata dalla sola propagazione upfront, ricerca residua nulla',
     fn: () => {
       // uniquelySolvablePuzzle: A e B sono entrambi fissati da propagate()
       // stesso (zone a una sola cella), quindi finiscono entrambi in

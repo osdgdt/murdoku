@@ -51,7 +51,14 @@ export const tests = [
       const b = addCharacter(puzzle, "B", "person2");
       const c = addCharacter(puzzle, "C", "person1");
       const clue = addClue(puzzle, a.id, "inRowOrColWithAny", { axis: "row", targetIds: [b.id, c.id] });
-      const cells = resolveClueHoverCells(clue, puzzle, mapOf([[b.id, { row: 0, col: 0 }], [c.id, { row: 2, col: 3 }]]));
+      const cells = resolveClueHoverCells(
+        clue,
+        puzzle,
+        mapOf([
+          [b.id, { row: 0, col: 0 }],
+          [c.id, { row: 2, col: 3 }],
+        ])
+      );
       assertEqual(cellSet(cells).size, 2, "entrambi i bersagli devono essere evidenziati");
       assert(cellSet(cells).has("0,0"));
       assert(cellSet(cells).has("2,3"));
@@ -123,7 +130,7 @@ export const tests = [
     },
   },
   {
-    name: 'resolveClueHoverCells: proprietà "seated" (l\'esempio dell\'utente) evidenzia OGNI oggetto occupabile, non solo un tipo specifico',
+    name: "resolveClueHoverCells: proprietà \"seated\" (l'esempio dell'utente) evidenzia OGNI oggetto occupabile, non solo un tipo specifico",
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
@@ -301,7 +308,11 @@ export const tests = [
       // famiglia "proprietà", risolto dal cammino generico) + property
       // "adjacentTo" (risolto da resolvePropertyTargets) nello stesso
       // indizio — l'unico tipo che combina le due cose.
-      const clue = addClue(puzzle, null, "noOneWithProperty", { zoneId: zone.id, property: "adjacentTo", targetId: puzzle.grid.objects[0].id });
+      const clue = addClue(puzzle, null, "noOneWithProperty", {
+        zoneId: zone.id,
+        property: "adjacentTo",
+        targetId: puzzle.grid.objects[0].id,
+      });
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
       const set = cellSet(cells);
       assertEqual(set.size, 3, "le 2 celle della stanza più la cella della finestra");

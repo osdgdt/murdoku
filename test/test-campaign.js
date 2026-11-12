@@ -78,7 +78,10 @@ export const tests = [
       campaign.title = "";
       const { valid, errors } = validateCampaignShape(campaign);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("titolo")), "errore atteso sul titolo mancante");
+      assert(
+        errors.some((e) => e.includes("titolo")),
+        "errore atteso sul titolo mancante"
+      );
     },
   },
   {
@@ -88,7 +91,10 @@ export const tests = [
       campaign.cases.push({ id: "case_1", puzzleId: "p1", puzzleUrl: "", label: "Rotto" });
       const { valid, errors } = validateCampaignShape(campaign);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("URL")), "errore atteso sull'URL mancante");
+      assert(
+        errors.some((e) => e.includes("URL")),
+        "errore atteso sull'URL mancante"
+      );
     },
   },
   {
@@ -98,7 +104,10 @@ export const tests = [
       campaign.cases.push({ ...campaign.cases[0] });
       const { valid, errors } = validateCampaignShape(campaign);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("duplicato")), "errore atteso sull'id duplicato");
+      assert(
+        errors.some((e) => e.includes("duplicato")),
+        "errore atteso sull'id duplicato"
+      );
     },
   },
   {

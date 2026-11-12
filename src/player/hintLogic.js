@@ -45,7 +45,15 @@ export function buildManualHintChain(puzzle) {
   if (steps.length === 0) return null;
   return steps.map((step) =>
     step.characterId != null && step.row != null && step.col != null
-      ? { type: "forcedPlacement", variant: "success", manual: true, characterId: step.characterId, row: step.row, col: step.col, message: step.message || "" }
+      ? {
+          type: "forcedPlacement",
+          variant: "success",
+          manual: true,
+          characterId: step.characterId,
+          row: step.row,
+          col: step.col,
+          message: step.message || "",
+        }
       : { type: "manualNote", variant: "info", message: step.message || "" }
   );
 }
@@ -79,7 +87,7 @@ export async function extendChainWithOracleStep(chain, { puzzle, placements, get
 
   const zoneId = zoneOfCell(puzzle.grid, target.row, target.col);
   const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
-  const where = zone ? t(" (nella zona \"{name}\")", { name: zone.name }) : "";
+  const where = zone ? t(' (nella zona "{name}")', { name: zone.name }) : "";
   chain.push({
     type: "forcedPlacement",
     variant: "success",
@@ -87,6 +95,9 @@ export async function extendChainWithOracleStep(chain, { puzzle, placements, get
     row: target.row,
     col: target.col,
     viaDerivedSolution: true,
-    message: t("{name} deve trovarsi nella cella evidenziata{where}: lo rivela un'analisi completa del caso, non uno specifico indizio.", { name: next.name, where }),
+    message: t("{name} deve trovarsi nella cella evidenziata{where}: lo rivela un'analisi completa del caso, non uno specifico indizio.", {
+      name: next.name,
+      where,
+    }),
   });
 }

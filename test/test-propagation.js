@@ -10,7 +10,6 @@ function addNegated(puzzle, ownerId, type, params) {
   return clue;
 }
 
-
 function basePuzzle(rows = 3, cols = 3) {
   const puzzle = createPuzzle("Test propagation");
   puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
@@ -267,8 +266,15 @@ export const tests = [
       assert(!result.domains.has(a.id), "A è già forzata al round 0: nessuna voce di dominio per lei");
       assert(!result.domains.has(c.id), "C è già forzata al round 0: nessuna voce di dominio per lei");
       const bDomain = result.domains.get(b.id);
-      assertEqual(bDomain.length, 3, "il dominio di B esposto deve essere quello del round 0 (prima che il round 1, mai eseguito, la forzi)");
-      const cells = bDomain.map((cell) => `${cell.row},${cell.col}`).sort().join("|");
+      assertEqual(
+        bDomain.length,
+        3,
+        "il dominio di B esposto deve essere quello del round 0 (prima che il round 1, mai eseguito, la forzi)"
+      );
+      const cells = bDomain
+        .map((cell) => `${cell.row},${cell.col}`)
+        .sort()
+        .join("|");
       assertEqual(cells, "1,0|1,1|1,2");
     },
   },

@@ -43,7 +43,10 @@ async function pipeThrough(bytes, transform, maxBytes = Infinity) {
   }
   const out = new Uint8Array(total);
   let offset = 0;
-  for (const c of chunks) { out.set(c, offset); offset += c.length; }
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.length;
+  }
   return out;
 }
 

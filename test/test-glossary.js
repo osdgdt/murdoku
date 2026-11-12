@@ -36,7 +36,10 @@ export const tests = [
         const built = buildExample(e);
         if (!built.clue) continue;
         const sentence = exampleSentence(built);
-        assert(sentence && !/incompleto|sconosciuto|incomplete|unknown/i.test(sentence) && !sentence.includes("?"), `${e.id}: frase non valida: ${sentence}`);
+        assert(
+          sentence && !/incompleto|sconosciuto|incomplete|unknown/i.test(sentence) && !sentence.includes("?"),
+          `${e.id}: frase non valida: ${sentence}`
+        );
       }
     },
   },

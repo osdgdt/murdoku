@@ -90,7 +90,9 @@ function showPicker() {
   gameEl.classList.add("hidden");
   clear(pickerEl);
   if (importError) {
-    pickerEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a importare il caso dal link: {importError}", { importError })));
+    pickerEl.appendChild(
+      el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a importare il caso dal link: {importError}", { importError }))
+    );
   }
   // Library cases that were already opened are saved like any other puzzle,
   // but are listed in the library section instead of being duplicated here.
@@ -109,7 +111,10 @@ function showPicker() {
         ? el(
             "select",
             {
-              onChange: (e) => { pickerSortMode = e.target.value; showPicker(); },
+              onChange: (e) => {
+                pickerSortMode = e.target.value;
+                showPicker();
+              },
             },
             [
               el("option", { value: "updated", selected: pickerSortMode === "updated" || undefined }, t("Aggiornati di recente")),
@@ -130,34 +135,46 @@ function showPicker() {
             entry.completed ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null,
             entry.title,
           ]),
-          entry.difficulty ? el("span", { class: `difficulty-badge difficulty-${entry.difficulty}` }, difficultyLabel(entry.difficulty)) : null,
-          typeof entry.bestTimeSeconds === "number" ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`) : null,
+          entry.difficulty
+            ? el("span", { class: `difficulty-badge difficulty-${entry.difficulty}` }, difficultyLabel(entry.difficulty))
+            : null,
+          typeof entry.bestTimeSeconds === "number"
+            ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`)
+            : null,
           el("span", { class: "meta" }, t("Aggiornato il {updated}", { updated })),
         ]),
         el("div", { class: "actions" }, [
           el("a", { class: "play", href: `player.html?id=${entry.id}` }, t("Gioca")),
-          el("button", {
-            type: "button",
-            class: "duplicate",
-            title: t("Duplica"),
-            onClick: () => {
-              const original = store.get(entry.id);
-              if (!original) return;
-              store.save(duplicatePuzzle(original));
-              showPicker();
+          el(
+            "button",
+            {
+              type: "button",
+              class: "duplicate",
+              title: t("Duplica"),
+              onClick: () => {
+                const original = store.get(entry.id);
+                if (!original) return;
+                store.save(duplicatePuzzle(original));
+                showPicker();
+              },
             },
-          }, "📋"),
-          el("button", {
-            type: "button",
-            class: "delete",
-            title: t("Elimina"),
-            onClick: () => {
-              const ok = confirm(t("Eliminare definitivamente il caso \"{title}\"? L'azione non è reversibile.", { title: entry.title }));
-              if (!ok) return;
-              store.remove(entry.id);
-              showPicker();
+            "📋"
+          ),
+          el(
+            "button",
+            {
+              type: "button",
+              class: "delete",
+              title: t("Elimina"),
+              onClick: () => {
+                const ok = confirm(t('Eliminare definitivamente il caso "{title}"? L\'azione non è reversibile.', { title: entry.title }));
+                if (!ok) return;
+                store.remove(entry.id);
+                showPicker();
+              },
             },
-          }, "🗑"),
+            "🗑"
+          ),
         ]),
       ])
     );

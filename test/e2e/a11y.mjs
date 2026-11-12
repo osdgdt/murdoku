@@ -8,12 +8,23 @@ import { chromium } from "playwright";
 
 const root = path.resolve(import.meta.dirname, "../..");
 const axeSource = await readFile(path.join(root, "node_modules/axe-core/axe.min.js"), "utf8");
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json" };
+const TYPES = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".json": "application/json",
+  ".css": "text/css",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webmanifest": "application/manifest+json",
+};
 
 const server = createServer(async (req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, "http://x").pathname);
   const file = path.join(root, pathname === "/" ? "index.html" : pathname);
-  if (!file.startsWith(root)) { res.writeHead(403).end(); return; }
+  if (!file.startsWith(root)) {
+    res.writeHead(403).end();
+    return;
+  }
   try {
     const body = await readFile(file);
     res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream" }).end(body);
@@ -41,26 +52,26 @@ try {
   const tutorialId = new URL(page.url()).searchParams.get("id");
 
   for (const theme of ["light", "dark"]) {
-  await page.evaluate((t) => localStorage.setItem("murdoku:theme", t), theme);
-  for (const [pageName, url] of PAGES) {
-    const name = `${pageName} [${theme}]`;
-    const target = url ?? `editor.html?id=${tutorialId}`;
-    await page.goto(`${base}/${target}`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(400);
-    await page.evaluate(axeSource);
-    const result = await page.evaluate(() => globalThis.axe.run(document, { resultTypes: ["violations"] }));
-    if (result.violations.length) {
-      failed = true;
-      console.error(`✗ ${name}`);
-      for (const v of result.violations) {
-        console.error(`   [${v.impact}] ${v.id}: ${v.help}`);
-        for (const n of v.nodes.slice(0, 3)) console.error(`      ${n.target.join(" ")}`);
+    await page.evaluate((t) => localStorage.setItem("murdoku:theme", t), theme);
+    for (const [pageName, url] of PAGES) {
+      const name = `${pageName} [${theme}]`;
+      const target = url ?? `editor.html?id=${tutorialId}`;
+      await page.goto(`${base}/${target}`);
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(400);
+      await page.evaluate(axeSource);
+      const result = await page.evaluate(() => globalThis.axe.run(document, { resultTypes: ["violations"] }));
+      if (result.violations.length) {
+        failed = true;
+        console.error(`✗ ${name}`);
+        for (const v of result.violations) {
+          console.error(`   [${v.impact}] ${v.id}: ${v.help}`);
+          for (const n of v.nodes.slice(0, 3)) console.error(`      ${n.target.join(" ")}`);
+        }
+      } else {
+        console.log(`✓ ${name}: no axe violations`);
       }
-    } else {
-      console.log(`✓ ${name}: no axe violations`);
     }
-  }
   }
   await context.close();
 } finally {

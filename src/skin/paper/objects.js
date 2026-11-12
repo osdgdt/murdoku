@@ -12,7 +12,11 @@ const L = (shape, fill, dy = 2) =>
 export const OBJECT_ART = {
   shelf:
     L(`<rect x="12" y="8" width="40" height="46" rx="4"/>`, "#8a5a3a") +
-    L(`<rect x="16" y="12" width="32" height="12" rx="2"/><rect x="16" y="28" width="32" height="10" rx="2"/><rect x="16" y="42" width="32" height="9" rx="2"/>`, "#f1dcb8", 1) +
+    L(
+      `<rect x="16" y="12" width="32" height="12" rx="2"/><rect x="16" y="28" width="32" height="10" rx="2"/><rect x="16" y="42" width="32" height="9" rx="2"/>`,
+      "#f1dcb8",
+      1
+    ) +
     `<g fill="#d9715e"><rect x="19" y="14" width="5" height="8"/><rect x="31" y="14" width="5" height="8"/></g><g fill="#5a9788"><rect x="25" y="14" width="5" height="8"/><rect x="38" y="30" width="6" height="6"/></g><g fill="#e8b84a"><rect x="19" y="30" width="6" height="6"/><rect x="26" y="44" width="8" height="5"/></g>`,
   lamp:
     L(`<circle cx="32" cy="22" r="20"/>`, "#fbe9a6", 3) +

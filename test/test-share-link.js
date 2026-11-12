@@ -14,7 +14,11 @@ function puzzle() {
 }
 
 async function rejects(promise) {
-  try { await promise; } catch (e) { return e; }
+  try {
+    await promise;
+  } catch (e) {
+    return e;
+  }
   return null;
 }
 

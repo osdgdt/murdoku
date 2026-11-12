@@ -1,0 +1,45 @@
+# Publishes the site to GitHub Pages only after the whole CI (lint, format,
+# tests, size check, e2e) has passed on main.
+#
+# One-time switch (Settings → Pages → Build and deployment → Source):
+# choose "GitHub Actions". Until then Pages keeps publishing straight from the
+# branch, without waiting for any check, and this workflow's deploy job fails.
+name: Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      # Only what the site needs at runtime: not design/, test/, tools/, node_modules/.
+      - name: Collect site files
+        run: |
+          mkdir _site
+          cp *.html manifest.webmanifest sw.js robots.txt sitemap.xml _site/
+          cp -r fonts icons src styles examples _site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

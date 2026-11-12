@@ -50,9 +50,18 @@ function negateText(text) {
 // negating is a plain substitution of the opening word. Anything unexpected
 // falls back to an explicit (if wordier) wrapper instead of a wrong sentence.
 const EN_NEGATIONS = {
-  Is: "Is not", Was: "Was not", Shares: "Does not share", Stands: "Does not stand", Sits: "Does not sit",
-  Has: "Does not have", Faces: "Does not face", Lies: "Does not lie", Stood: "Did not stand", Sat: "Did not sit",
-  Shared: "Did not share", Had: "Did not have",
+  Is: "Is not",
+  Was: "Was not",
+  Shares: "Does not share",
+  Stands: "Does not stand",
+  Sits: "Does not sit",
+  Has: "Does not have",
+  Faces: "Does not face",
+  Lies: "Does not lie",
+  Stood: "Did not stand",
+  Sat: "Did not sit",
+  Shared: "Did not share",
+  Had: "Did not have",
 };
 function negateEnglish(text) {
   const [first, ...rest] = text.split(" ");

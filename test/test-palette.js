@@ -53,7 +53,12 @@ export const tests = [
     fn: () => {
       const legacy = {
         schemaVersion: 1,
-        characters: [{ id: "a", name: "A", color: LEGACY_CHARACTER_COLORS[3] }, { id: "b", name: "B", color: "#123456" }, { id: "c", name: "C", color: LEGACY_CHARACTER_COLORS[0].toUpperCase() }, { id: "d", name: "D" }],
+        characters: [
+          { id: "a", name: "A", color: LEGACY_CHARACTER_COLORS[3] },
+          { id: "b", name: "B", color: "#123456" },
+          { id: "c", name: "C", color: LEGACY_CHARACTER_COLORS[0].toUpperCase() },
+          { id: "d", name: "D" },
+        ],
         grid: { zones: [] },
       };
       migratePuzzle(legacy);

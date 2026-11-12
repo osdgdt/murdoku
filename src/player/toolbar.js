@@ -12,7 +12,10 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
     const placed = state.placements.has(character.id);
     const selectThis = () => selectTool({ kind: "character", id: character.id });
     const chip = el("div", {
-      class: "char-chip" + (state.selectedTool?.kind === "character" && state.selectedTool.id === character.id ? " selected" : "") + (placed ? " used" : ""),
+      class:
+        "char-chip" +
+        (state.selectedTool?.kind === "character" && state.selectedTool.id === character.id ? " selected" : "") +
+        (placed ? " used" : ""),
       tabindex: "0",
       role: "button",
       "aria-label": character.name + (character.isVictim ? t(" (vittima)") : ""),
@@ -34,14 +37,32 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
   }
   const selectX = () => selectTool({ kind: "x" });
   const selectErase = () => selectTool({ kind: "erase" });
-  toolbarEl.appendChild(el("div", {
-    class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""),
-    tabindex: "0", role: "button", "aria-label": t("Segna X"),
-    onClick: selectX, onKeydown: onActivateKey(selectX),
-  }, t("✕ Segna")));
-  toolbarEl.appendChild(el("div", {
-    class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""),
-    tabindex: "0", role: "button", "aria-label": t("Gomma"),
-    onClick: selectErase, onKeydown: onActivateKey(selectErase),
-  }, t("🧹 Gomma")));
+  toolbarEl.appendChild(
+    el(
+      "div",
+      {
+        class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""),
+        tabindex: "0",
+        role: "button",
+        "aria-label": t("Segna X"),
+        onClick: selectX,
+        onKeydown: onActivateKey(selectX),
+      },
+      t("✕ Segna")
+    )
+  );
+  toolbarEl.appendChild(
+    el(
+      "div",
+      {
+        class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""),
+        tabindex: "0",
+        role: "button",
+        "aria-label": t("Gomma"),
+        onClick: selectErase,
+        onKeydown: onActivateKey(selectErase),
+      },
+      t("🧹 Gomma")
+    )
+  );
 }

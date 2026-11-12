@@ -54,37 +54,55 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Mappa")));
 
   // Grid size controls
-  const rowsInput = el("input", { type: "number", "aria-label": t("Righe"), min: "3", max: "9", value: String(puzzle.grid.size.rows), style: "width:4em" });
-  const colsInput = el("input", { type: "number", "aria-label": t("Colonne"), min: "3", max: "9", value: String(puzzle.grid.size.cols), style: "width:4em" });
-  const applySize = el("button", {
-    onClick: () => {
-      const rows = Math.max(3, Math.min(9, parseInt(rowsInput.value, 10) || 6));
-      const cols = Math.max(3, Math.min(9, parseInt(colsInput.value, 10) || 6));
-      puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
-      onChange();
+  const rowsInput = el("input", {
+    type: "number",
+    "aria-label": t("Righe"),
+    min: "3",
+    max: "9",
+    value: String(puzzle.grid.size.rows),
+    style: "width:4em",
+  });
+  const colsInput = el("input", {
+    type: "number",
+    "aria-label": t("Colonne"),
+    min: "3",
+    max: "9",
+    value: String(puzzle.grid.size.cols),
+    style: "width:4em",
+  });
+  const applySize = el(
+    "button",
+    {
+      onClick: () => {
+        const rows = Math.max(3, Math.min(9, parseInt(rowsInput.value, 10) || 6));
+        const cols = Math.max(3, Math.min(9, parseInt(colsInput.value, 10) || 6));
+        puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
+        onChange();
+      },
     },
-  }, t("Applica"));
+    t("Applica")
+  );
   panelEl.appendChild(
-    el("div", { class: "field-row" }, [
-      el("label", {}, t("Righe")), rowsInput,
-      el("label", {}, t("Colonne")), colsInput,
-      applySize,
-    ])
+    el("div", { class: "field-row" }, [el("label", {}, t("Righe")), rowsInput, el("label", {}, t("Colonne")), colsInput, applySize])
   );
 
   // Zones
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Stanze / Zone")));
   const zoneNameInput = el("input", { type: "text", placeholder: t("Nome stanza") });
-  const addZoneBtn = el("button", {
-    onClick: () => {
-      const name = zoneNameInput.value.trim() || t("Stanza {v}", { v: puzzle.grid.zones.length + 1 });
-      const color = ZONE_COLORS[puzzle.grid.zones.length % ZONE_COLORS.length];
-      const zone = addZone(puzzle.grid, name, color);
-      tool = { kind: "zone", zoneId: zone.id };
-      zoneNameInput.value = "";
-      onChange();
+  const addZoneBtn = el(
+    "button",
+    {
+      onClick: () => {
+        const name = zoneNameInput.value.trim() || t("Stanza {v}", { v: puzzle.grid.zones.length + 1 });
+        const color = ZONE_COLORS[puzzle.grid.zones.length % ZONE_COLORS.length];
+        const zone = addZone(puzzle.grid, name, color);
+        tool = { kind: "zone", zoneId: zone.id };
+        zoneNameInput.value = "";
+        onChange();
+      },
     },
-  }, t("+ Aggiungi stanza"));
+    t("+ Aggiungi stanza")
+  );
   panelEl.appendChild(el("div", { class: "field-row" }, [zoneNameInput, addZoneBtn]));
 
   const zoneList = el("div", { class: "zone-swatch-list" });
@@ -127,7 +145,10 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
           title: def.label,
           "aria-label": t("Pavimento: {label}", { label: def.label }),
           style: chipStyle(id),
-          onClick: () => { zone.textureId = id; onChange(); },
+          onClick: () => {
+            zone.textureId = id;
+            onChange();
+          },
         })
       )
     );
@@ -140,7 +161,13 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     zoneList.appendChild(el("div", { class: "zone-swatch-item" }, [swatch, textureSelect]));
   }
   panelEl.appendChild(zoneList);
-  panelEl.appendChild(el("p", { class: "muted" }, t("Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza.")));
+  panelEl.appendChild(
+    el(
+      "p",
+      { class: "muted" },
+      t("Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza.")
+    )
+  );
 
   // Objects
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Oggetti / Mobili")));
@@ -170,29 +197,64 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       el("div", { class: "field-row side-picker", role: "group", "aria-label": t("Lato della cella") }, [
         el("label", {}, t("Lato")),
         ...EDGE_SIDES.map((side) =>
-          el("button", {
-            type: "button",
-            class: "side-btn" + (side === edgeSide ? " selected" : ""),
-            "aria-pressed": String(side === edgeSide),
-            onClick: () => { edgeSide = side; onChange(); },
-          }, sideLabel(side))
+          el(
+            "button",
+            {
+              type: "button",
+              class: "side-btn" + (side === edgeSide ? " selected" : ""),
+              "aria-pressed": String(side === edgeSide),
+              onClick: () => {
+                edgeSide = side;
+                onChange();
+              },
+            },
+            sideLabel(side)
+          )
         ),
       ])
     );
   }
-  panelEl.appendChild(el("p", { class: "muted" }, t("Porte e finestre stanno su un lato della cella: scegli il lato qui sopra e clicca sulle celle (puoi metterne più di una nella stessa cella, su lati diversi, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click.")));
+  panelEl.appendChild(
+    el(
+      "p",
+      { class: "muted" },
+      t(
+        "Porte e finestre stanno su un lato della cella: scegli il lato qui sopra e clicca sulle celle (puoi metterne più di una nella stessa cella, su lati diversi, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click."
+      )
+    )
+  );
 
   // Shape tool
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Forma della mappa")));
-  const blockBtn = el("button", {
-    onClick: () => { tool = { kind: "block" }; onChange(); },
-  }, tool?.kind === "block" ? t("🚫 Blocca/sblocca cella (attivo)") : t("🚫 Blocca/sblocca cella"));
+  const blockBtn = el(
+    "button",
+    {
+      onClick: () => {
+        tool = { kind: "block" };
+        onChange();
+      },
+    },
+    tool?.kind === "block" ? t("🚫 Blocca/sblocca cella (attivo)") : t("🚫 Blocca/sblocca cella")
+  );
   panelEl.appendChild(el("div", { class: "field-row" }, [blockBtn]));
-  panelEl.appendChild(el("p", { class: "muted" }, t("Clicca sulle celle per escluderle dalla mappa (es. per creare forme a L o irregolari). Clicca di nuovo per riattivarle.")));
+  panelEl.appendChild(
+    el(
+      "p",
+      { class: "muted" },
+      t("Clicca sulle celle per escluderle dalla mappa (es. per creare forme a L o irregolari). Clicca di nuovo per riattivarle.")
+    )
+  );
 
-  const eraseBtn = el("button", {
-    onClick: () => { tool = { kind: "erase" }; onChange(); },
-  }, tool?.kind === "erase" ? t("Gomma (attiva)") : t("Gomma"));
+  const eraseBtn = el(
+    "button",
+    {
+      onClick: () => {
+        tool = { kind: "erase" };
+        onChange();
+      },
+    },
+    tool?.kind === "erase" ? t("Gomma (attiva)") : t("Gomma")
+  );
   panelEl.appendChild(el("div", { class: "field-row" }, [eraseBtn]));
 
   renderBoard(boardEl, puzzle.grid, {

@@ -16,7 +16,8 @@
     "e2e:a11y": "node test/e2e/a11y.mjs",
     "build": "node tools/build-sw.mjs",
     "e2e:editor": "node test/e2e/editor.mjs",
-    "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor",
+    "e2e:gameplay": "node test/e2e/gameplay.mjs",
+    "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor && npm run e2e:gameplay",
     "make:library": "node tools/make-library.mjs"
   },
   "engines": {

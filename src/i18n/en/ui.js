@@ -193,7 +193,7 @@ export default {
   "Editor campagne — Murdoku": "Campaign editor — Murdoku", "Le tue campagne": "Your campaigns", "+ Nuova campagna": "+ New campaign",
   "← Tutte le campagne": "← All campaigns", "Descrizione": "Description", "Casi (in ordine)": "Cases (in order)", "Aggiungi": "Add",
   "Titolo della campagna": "Campaign title", "Di cosa parla questa campagna": "What this campaign is about",
-  "URL del file .murdoku.json (es. examples/tutorial.it.murdoku.json)": "URL of the .murdoku.json file (e.g. examples/tutorial.it.murdoku.json)",
+  "URL del file .murdoku.json (es. https://example.com/caso.murdoku.json)": "URL of the .murdoku.json file (e.g. https://example.com/case.murdoku.json)",
   "Modalità campagna — Murdoku": "Campaign mode — Murdoku", "Scegli una campagna": "Choose a campaign", "← Torna all'elenco dei casi": "← Back to the list of cases",
   "↶ Annulla": "↶ Undo", "↷ Ripeti": "↷ Redo", "🧹 Pulisci tutto (tieni premuto)": "🧹 Clear all (hold)", "💡 Suggerimento": "💡 Hint", "✓ Verifica soluzione": "✓ Check solution",
   "Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo su una casella per piazzarci il personaggio selezionato: le sue note esistenti verranno cancellate.":
@@ -238,9 +238,6 @@ export default {
   "📤 Condividi risultato": "📤 Share result",
   "✓ Copiato negli appunti": "✓ Copied to clipboard",
   "Impossibile condividere": "Could not share",
-  "🎓 Prova il caso tutorial": "🎓 Try the tutorial case",
-  "Tutorial": "Tutorial",
-  "Impara le regole risolvendo un piccolo caso guidato.": "Learn the rules by solving a small guided case.",
   " vittima": " victim",
   " (vittima)": " (victim)",
   " (V)": " (V)",

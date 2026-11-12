@@ -54,6 +54,7 @@ export async function renderLibrarySection(parent) {
   } catch {
     return; // offline before first visit, or hosted without examples/: just skip the section
   }
+  if (entries.length === 0) return; // empty library: no section
   const lang = getLanguage();
   const solves = achievementsStore.getRawData().solves;
   const savedIds = new Set(store.list().map((p) => p.id));

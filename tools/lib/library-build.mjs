@@ -169,13 +169,6 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
   }
   await io.writeSeeds(seeds);
   if (ids) return log(`partial build: ${ids.join(", ")}`); // the index is only written by a full build
-  // The hand-written tutorial (tools/make-tutorial.mjs) leads the library.
-  index.unshift({
-    id: "tutorial", order: 0, difficulty: "very-easy", size: [4, 4], characters: 4, clues: 7,
-    title: { it: "Tutorial: il primo caso", en: "Tutorial: your first case" },
-    files: { it: "examples/tutorial.it.murdoku.json", en: "examples/tutorial.en.murdoku.json" },
-    puzzleId: { it: "tutorial_it", en: "tutorial_en" },
-  });
   await io.writeSeeds(seeds);
   await io.writeIndex({ version: 1, cases: index });
   log(`library: ${index.length} cases`);

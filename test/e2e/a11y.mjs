@@ -25,9 +25,9 @@ const base = `http://localhost:${server.address().port}`;
 
 const PAGES = [
   ["home", "index.html"],
-  ["player (tutorial)", "player.html?import=examples/tutorial.en.murdoku.json"],
+  ["player (fixture case)", "player.html?import=test/fixtures/tutorial.en.murdoku.json"],
   ["player picker", "player.html"],
-  ["editor (tutorial)", null], // opened via the saved tutorial's id, below
+  ["editor (fixture case)", null], // opened via the saved case's id, below
   ["privacy", "privacy.html"],
 ];
 
@@ -36,7 +36,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 try {
   const context = await browser.newContext({ locale: "en-US", viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
   const page = await context.newPage();
-  await page.goto(`${base}/player.html?import=examples/tutorial.en.murdoku.json`);
+  await page.goto(`${base}/player.html?import=test/fixtures/tutorial.en.murdoku.json`);
   await page.waitForSelector("#board [role=gridcell]");
   const tutorialId = new URL(page.url()).searchParams.get("id");
 

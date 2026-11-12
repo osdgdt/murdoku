@@ -1,5 +1,5 @@
 // Browser smoke test (`npm run e2e`): serves the repo statically, then plays
-// the bundled tutorial end to end in both languages — which exercises the i18n
+// a small fixture case (test/fixtures) end to end in both languages — which exercises the i18n
 // bootstrap, the solver Web Worker, the gesture model and the win flow, none
 // of which the Node unit tests can see (they use in-process shims).
 import { createServer } from "node:http";
@@ -36,8 +36,7 @@ try {
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
-    await page.goto(`${base}/index.html`);
-    await page.click("#tutorial-link");
+    await page.goto(`${base}/player.html?import=test/fixtures/tutorial.${lang}.murdoku.json`);
     await page.waitForSelector("#hint-btn");
     // The worker-backed hint path.
     await page.click("#hint-btn");
@@ -54,7 +53,7 @@ try {
     await page.waitForFunction((re) => new RegExp(re).test(document.querySelector("#result-panel")?.innerText || ""), spec.win.source, { timeout: 15000 });
     const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
     if (!fits) errors.push("page scrolls horizontally on a 390px viewport");
-    if (errors.length) { failed = true; console.error(`✗ ${lang}:`, errors); } else console.log(`✓ ${lang}: tutorial solved end to end`);
+    if (errors.length) { failed = true; console.error(`✗ ${lang}:`, errors); } else console.log(`✓ ${lang}: fixture case solved end to end`);
     await context.close();
   }
 } catch (err) {

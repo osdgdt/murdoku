@@ -32,7 +32,7 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
 
-  await page.goto(`${base}/player.html?import=examples/library/faro.en.murdoku.json`);
+  await page.goto(`${base}/player.html?import=test/fixtures/faro.en.murdoku.json`);
   await page.waitForSelector("#board [role=gridcell]");
   const id = new URL(page.url()).searchParams.get("id");
   await page.goto(`${base}/editor.html?id=${id}`);

@@ -32,13 +32,12 @@ Poi apri `http://localhost:8000` nel browser.
 
 - **Installabile e offline (PWA):** da telefono o desktop si può "Aggiungere alla schermata Home"; dopo la prima visita l'app funziona anche senza rete (campagne e login Google a parte).
 - **Condividi con un link:** in editor, **🔗 Condividi** copia un link `player.html#case=…` che contiene l'intero caso (compresso, nel frammento dell'URL: non passa da nessun server). Chi lo apre gioca subito, senza file da ospitare. Il vecchio `?import=<url>` continua a funzionare.
-- **Libreria di casi:** 8 casi inclusi (+ il tutorial), in italiano e inglese, di difficoltà crescente, con **📅 Caso del giorno**. Ogni caso ha soluzione unica verificata dal solver. I casi generati seguono regole fisse: **nessun indizio sulla vittima**, che si piazza per **ultima** nell'unica casella rimasta (griglia N×N con N personaggi); mai l'indizio «è più vicino a X che a Y»; la descrizione non dice dove si trova la vittima; i sospettati hanno i nomi in ordine alfabetico e il nome della vittima inizia con la V.
+- **Libreria di casi:** al momento vuota (la sezione «Casi inclusi» e il **📅 Caso del giorno** compaiono appena ci sono casi in `examples/library.json`). I casi si aggiungono come specifiche in `tools/cases/library.mjs`; ognuno ha soluzione unica verificata dal solver. I casi generati seguono regole fisse: **nessun indizio sulla vittima**, che si piazza per **ultima** nell'unica casella rimasta (griglia N×N con N personaggi); mai l'indizio «è più vicino a X che a Y»; la descrizione non dice dove si trova la vittima; i sospettati hanno i nomi in ordine alfabetico e il nome della vittima inizia con la V.
 - **Scorciatoie da tastiera** nel gioco: 1-9 scelgono un personaggio, X segna, E gomma, U annulla, H suggerimento.
-- **Suggerimenti graduali:** ogni deduzione si rivela in tre passi con «Mostra di più»: prima solo il personaggio su cui ragionare, poi gli indizi che servono, infine la casella. I suggerimenti scritti a mano (come nel tutorial) restano completi.
+- **Suggerimenti graduali:** ogni deduzione si rivela in tre passi con «Mostra di più»: prima solo il personaggio su cui ragionare, poi gli indizi che servono, infine la casella. I suggerimenti scritti a mano restano completi.
 - **Indizio fissato:** un clic su una riga d'indizio tiene evidenziate sulla griglia le sue caselle, finché non lo riclicchi o cambi personaggio (il passaggio del mouse resta temporaneo).
 - **Privacy:** pagina dedicata (`privacy.html`) con i pulsanti per cancellare i dati locali e quelli nel cloud; font ospitati dal sito (nessuna richiesta a Google Fonts).
 - **Segnalazione errori:** se qualcosa si rompe compare un avviso con un link che apre una issue GitHub precompilata (nulla viene inviato in automatico).
-- **Tutorial incluso:** dalla home, **🎓 Tutorial** apre un piccolo caso guidato (`examples/`), con suggerimenti passo-passo scritti a mano.
 - **✂ Indizi superflui** (editor): trova gli indizi che si possono togliere senza perdere l'unicità della soluzione; segna quelli che servono comunque a determinare i sospettati senza la vittima (di solito è voluto).
 - **📜 Storico** (pagina Traguardi): ogni risoluzione (data, tempo, suggerimenti), riepilogo per caso, tempo medio, serie di giorni consecutivi (attuale e record) e casi dell'ultima settimana; resta solo sul dispositivo.
 - **Colori accessibili:** la palette dei personaggi è scelta per restare distinguibile con protanopia, deuteranopia e tritanopia (e token/note hanno comunque icona e iniziale); i casi esistenti vengono ricolorati da una migrazione.
@@ -59,7 +58,7 @@ Poi apri `http://localhost:8000` nel browser.
 - `src/storage/` — salvataggio su localStorage, export/import JSON
 - `src/print/` — rendering della vista stampabile
 - `src/i18n/` — traduzioni: `t("testo italiano")` + dizionario inglese in `src/i18n/en/`
-- `examples/` — casi inclusi: il tutorial (`tools/make-tutorial.mjs`) e la libreria (`tools/make-library.mjs`, specifiche in `tools/cases/library.mjs`); ogni caso è verificato dal solver. I seed in `tools/cases/seeds.json` portano un'impronta della specifica e del generatore: se cambi una specifica o le regole del generatore, un seed scade e va rigenerato (un test lo segnala)
+- `examples/` — la libreria di casi inclusi (oggi vuota; `tools/make-library.mjs`, specifiche in `tools/cases/library.mjs`); ogni caso è verificato dal solver. `test/fixtures/` contiene i pochi casi che usano test ed e2e. I seed in `tools/cases/seeds.json` portano un'impronta della specifica e del generatore: se cambi una specifica o le regole del generatore, un seed scade e va rigenerato (un test lo segnala)
 - `sw.js`, `manifest.webmanifest`, `icons/` — PWA (la lista dei file in cache di `sw.js` si rigenera con `npm run build:sw`)
 - `test/` — test senza framework: apri `test/test-runner.html` nel browser, oppure `npm test` da terminale
 
@@ -131,7 +130,7 @@ npm install
 npm test          # ~320 test sotto Node + controllo che sw.js sia aggiornato
 npm run lint      # ESLint
 npm run i18n      # elenca le stringhe senza traduzione inglese (--strict per far fallire)
-npm run e2e:all   # test nel browser (Playwright): gioca il tutorial in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor
+npm run e2e:all   # test nel browser (Playwright): gioca un caso di prova (`test/fixtures`) in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor
 npm run make:library  # rigenera examples/library/ (casi proposti dallo strumento in tools/, tutti verificati dal solver)
 npm run build:sw  # rigenera la lista di file in cache del service worker
 ```

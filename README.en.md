@@ -8,7 +8,7 @@ The app is available in **Italian and English** (IT/EN button, top right; it fol
 
 ## How to play
 
-1. Open **Tutorial** on the home page for a tiny guided case.
+1. Pick a case from the player (or import a `.murdoku.json` file) and start from the toolbar.
 2. Pick a character from the toolbar. **Tap a cell** to jot a note (a candidate); **press and hold** a cell to place the character there; **press, hold and drag** to mark several cells at once. Placing someone crosses out the rest of their row and column.
 3. **Click a character** in the toolbar to light up, in gold, every cell their clues point at (a whole room, every plant…); hovering shows only the cells that fit all their clues together.
 4. Stuck? **💡 Hint** explains a certain deduction from the clues (never from a stored answer) and highlights the cell; use ‹ › to move through the chain.
@@ -36,7 +36,7 @@ npm install
 npm test        # unit tests under Node (+ checks that sw.js is up to date)
 npm run lint
 npm run i18n    # strings still missing an English translation
-npm run e2e     # Playwright: plays the tutorial in IT and EN
+npm run e2e     # Playwright: plays a fixture case (`test/fixtures`) in IT and EN
 ```
 
 Layout: `src/model` (data, clue types, migrations) · `src/solver` (predicates, propagation, hints, validator — runs in a Web Worker) · `src/editor`, `src/player`, `src/campaign` (UI) · `src/storage` (localStorage, import/export, share links) · `src/i18n` (translations) · `examples/` (bundled cases) · `sw.js` + `manifest.webmanifest` (PWA).

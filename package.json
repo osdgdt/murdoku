@@ -17,8 +17,7 @@
     "build": "node tools/build-sw.mjs",
     "e2e:editor": "node test/e2e/editor.mjs",
     "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor",
-    "make:library": "node tools/make-library.mjs",
-    "make:tutorial": "node tools/make-tutorial.mjs"
+    "make:library": "node tools/make-library.mjs"
   },
   "engines": {
     "node": ">=20"

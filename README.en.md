@@ -35,6 +35,7 @@ python3 -m http.server 8000   # then open http://localhost:8000
 npm install
 npm test        # unit tests under Node (+ checks that sw.js is up to date)
 npm run lint
+npm run format  # Prettier check (use `npx prettier --write` to fix)
 npm run i18n    # strings still missing an English translation
 npm run e2e     # Playwright: plays a fixture case (`test/fixtures`) in IT and EN
 ```

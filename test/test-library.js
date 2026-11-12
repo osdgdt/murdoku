@@ -176,4 +176,14 @@ export const tests = [
       assertEqual(caseOfTheDay([{ id: "tutorial" }]), null);
     },
   },
+  {
+    name: "libreria vuota: l'indice è valido, senza casi non c'è un caso del giorno",
+    fn: async () => {
+      const index = await loadJson("examples/library.json");
+      assertEqual(index.version, 1, "versione dell'indice");
+      assert(Array.isArray(index.cases), "l'indice ha sempre un elenco di casi");
+      assertEqual(caseOfTheDay([]), null, "nessun caso, nessun caso del giorno");
+      assertEqual(caseOfTheDay(index.cases.slice(0, 0)), null);
+    },
+  },
 ];

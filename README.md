@@ -127,11 +127,12 @@ Il sito **non ha build**: `package.json` serve solo agli strumenti di sviluppo.
 
 ```bash
 npm install
-npm test          # ~320 test sotto Node + controllo che sw.js sia aggiornato
+npm test          # 400+ test sotto Node + controllo che sw.js sia aggiornato
 npm run lint      # ESLint
+npm run format    # Prettier (solo controllo; `npx prettier --write` per correggere)
 npm run i18n      # elenca le stringhe senza traduzione inglese (--strict per far fallire)
 npm run e2e:all   # test nel browser (Playwright): gioca un caso di prova (`test/fixtures`) in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor
-npm run make:library  # rigenera examples/library/ (casi proposti dallo strumento in tools/, tutti verificati dal solver)
+npm run make:library  # rigenera i casi in examples/library/ e l'indice examples/library.json (oggi vuoti; ogni caso è verificato dal solver)
 npm run build:sw  # rigenera la lista di file in cache del service worker
 ```
 

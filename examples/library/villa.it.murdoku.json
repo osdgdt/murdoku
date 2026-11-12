@@ -6,8 +6,8 @@
   "difficulty": "hard",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Il giorno della lettura del testamento, la contessa Lavinia fu trovata senza vita nella stanza «Sala da pranzo». Sei persone, dieci stanze, un solo testimone muto: la villa.",
-  "resolutionNote": "Edmondo era l'unica persona con la contessa. Il testamento ora è tutto da riscrivere.",
+  "briefing": "Il giorno della lettura del testamento, la contessa Violante fu trovata senza vita. Sette persone, dieci stanze, un solo testimone muto: la villa.",
+  "resolutionNote": "Augusto era l'unica persona con la contessa. Il testamento ora è tutto da riscrivere.",
   "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -477,181 +477,210 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Contessa Lavinia",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "La padrona della villa sul lago.",
-      "color": "#608aea",
-      "gender": "female"
-    },
-    {
-      "id": "c2",
-      "name": "Edmondo",
+      "name": "Augusto",
       "iconId": "butler",
       "isVictim": false,
       "bio": "Il maggiordomo di sempre.",
-      "color": "#ea558a",
+      "color": "#608aea",
       "gender": "male"
     },
     {
-      "id": "c3",
-      "name": "Giacinta",
+      "id": "c2",
+      "name": "Brigida",
       "iconId": "maid",
       "isVictim": false,
       "bio": "La cameriera che origliava alle porte.",
-      "color": "#158060",
+      "color": "#ea558a",
       "gender": "female"
     },
     {
-      "id": "c4",
-      "name": "Rodolfo",
+      "id": "c3",
+      "name": "Cirillo",
       "iconId": "gardener",
       "isVictim": false,
       "bio": "Il giardiniere, licenziato il giorno prima.",
-      "color": "#9f5595",
+      "color": "#158060",
       "gender": "male"
     },
     {
-      "id": "c5",
-      "name": "Caterina",
+      "id": "c4",
+      "name": "Delia",
       "iconId": "artist",
       "isVictim": false,
       "bio": "La pittrice ospite della villa.",
-      "color": "#bf8020",
+      "color": "#9f5595",
       "gender": "female"
     },
     {
-      "id": "c6",
-      "name": "Leopoldo",
+      "id": "c5",
+      "name": "Ernesto",
       "iconId": "lawyer",
       "isVictim": false,
       "bio": "L'avvocato di famiglia, con il testamento.",
-      "color": "#4a6aca",
+      "color": "#bf8020",
       "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Fiorenza",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "La cuoca, in servizio da trent'anni.",
+      "color": "#4a6aca",
+      "gender": "female"
+    },
+    {
+      "id": "c7",
+      "name": "Violante",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "La padrona della villa sul lago.",
+      "color": "#9f80b5",
+      "gender": "female"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c2",
-      "type": "between",
+      "characterId": "c6",
+      "type": "diagonal",
       "params": {
-        "targetAId": "o2",
-        "targetBId": "z6"
+        "targetId": "o11"
       }
     },
     {
       "id": "k2",
-      "characterId": "c1",
+      "characterId": "c2",
       "type": "directionDistance",
       "params": {
         "direction": "north",
-        "distance": 2,
-        "targetId": "objtype:table"
+        "distance": 4,
+        "targetId": "z6"
       }
     },
     {
       "id": "k3",
-      "characterId": "c4",
-      "type": "extremeInDirection",
+      "characterId": "c3",
+      "type": "rowOrColAdjacentTo",
       "params": {
-        "direction": "north",
-        "scope": "map",
-        "property": "adjacentTo",
-        "targetId": "z5"
+        "axis": "col",
+        "targetId": "o18"
       }
     },
     {
       "id": "k4",
-      "characterId": "c6",
-      "type": "extremeInDirection",
+      "characterId": "c1",
+      "type": "rowOrColAdjacentTo",
       "params": {
-        "direction": "south",
-        "scope": "room",
-        "property": "adjacentTo",
-        "targetId": "objtype:shelf"
-      }
+        "axis": "col",
+        "targetId": "objtype:window"
+      },
+      "negate": true
     },
     {
       "id": "k5",
-      "characterId": "c2",
-      "type": "closerTo",
+      "characterId": "c4",
+      "type": "directionDistance",
       "params": {
-        "targetAId": "o5",
-        "targetBId": "o21"
-      },
-      "negate": true
+        "direction": "north",
+        "distance": 2,
+        "targetId": "o18"
+      }
     },
     {
       "id": "k6",
       "characterId": "c5",
-      "type": "closerTo",
+      "type": "between",
       "params": {
-        "targetAId": "o8",
-        "targetBId": "o7"
+        "targetAId": "objtype:shelf",
+        "targetBId": "z10"
       }
     },
     {
       "id": "k7",
-      "characterId": "c3",
-      "type": "closerTo",
+      "characterId": null,
+      "type": "noOneNear",
       "params": {
-        "targetAId": "o3",
-        "targetBId": "c4"
-      },
-      "negate": true
+        "targetId": "objtype:lamp"
+      }
     },
     {
       "id": "k8",
-      "characterId": "c5",
+      "characterId": "c6",
       "type": "directionDistance",
       "params": {
-        "direction": "west",
-        "distance": 4,
-        "targetId": "o10"
+        "direction": "east",
+        "targetId": "c1"
       },
       "negate": true
     },
     {
       "id": "k9",
-      "characterId": null,
-      "type": "noOneNear",
+      "characterId": "c1",
+      "type": "adjacent",
       "params": {
-        "targetId": "o16"
+        "targetId": "o9"
       }
+    },
+    {
+      "id": "k10",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 1,
+        "targetId": "z2"
+      },
+      "negate": true
+    },
+    {
+      "id": "k11",
+      "characterId": "c5",
+      "type": "someoneAtDirectionDistance",
+      "params": {
+        "direction": "north",
+        "property": "adjacentTo",
+        "targetId": "o18"
+      },
+      "negate": true
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c7",
         "row": 4,
         "col": 3
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 3,
         "col": 4
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 0,
         "col": 0
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 1,
         "col": 5
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 2,
         "col": 1
       },
       {
-        "characterId": "c6",
+        "characterId": "c5",
         "row": 5,
         "col": 6
+      },
+      {
+        "characterId": "c6",
+        "row": 6,
+        "col": 2
       }
     ]
   },

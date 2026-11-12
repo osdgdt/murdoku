@@ -13,6 +13,7 @@ const { resizeGrid, addZone, paintCellZone, placeObject, setBlocked } = await im
 const { CLUE_TYPES } = await import("../../src/model/clueTypes.js");
 const { buildPredicate } = await import("../../src/solver/predicates/index.js");
 const { checkUniqueness, validateSolution } = await import("../../src/solver/validator.js");
+const { solvePuzzle } = await import("../../src/solver/solver.js");
 const { findRedundantClues } = await import("../../src/solver/redundancy.js");
 const { propagate } = await import("../../src/solver/propagation.js");
 const { objectTypeTargetId } = await import("../../src/model/icons.js");
@@ -51,7 +52,10 @@ export function buildBase(spec, lang) {
   });
   for (const o of spec.objects || []) placeObject(puzzle.grid, o.type, o.row, o.col, o.side);
   const ids = {};
-  spec.cast.forEach((member) => {
+  // House rule: the victim is always the LAST character (placed last, in the
+  // last cell that remains), whatever order the spec lists the cast in.
+  const cast = [...spec.cast.filter((m) => !m.victim), ...spec.cast.filter((m) => m.victim)];
+  cast.forEach((member) => {
     const c = addCharacter(puzzle, member.names[lang], member.icon, !!member.victim);
     c.gender = member.gender ?? null;
     c.bio = member.bio?.[lang] ?? "";
@@ -132,6 +136,28 @@ export function trueClues(puzzle, ids, solution) {
     }
   }
   return pool;
+}
+
+// --- victim-free view ---------------------------------------------------------
+// Generated cases never put a clue on the victim and solve the suspects WITHOUT
+// her: she is placed last, in the one cell that is left. So the clue search runs
+// on a copy of the puzzle in which the victim does not exist.
+export function withoutVictim(puzzle) {
+  const victim = puzzle.characters.find((c) => c.isVictim);
+  const copy = JSON.parse(JSON.stringify(puzzle));
+  copy.characters = copy.characters.filter((c) => !c.isVictim);
+  copy.solution = { ...copy.solution, placements: copy.solution.placements.filter((p) => p.characterId !== victim.id) };
+  return copy;
+}
+
+// Does this clue hold for `placements` (Map characterId -> {row,col}) on `puzzle`?
+export function holdsIn(clue, puzzle, placements) {
+  try { return buildPredicate({ id: "x", ...clue }, puzzle)(placements, true) === true; } catch { return false; }
+}
+
+// How many cells can the victim take once every suspect sits in its true cell?
+export function victimCellOptions(puzzle, suspectPlacements) {
+  return solvePuzzle(puzzle, { maxSolutions: 5, fixedPlacements: suspectPlacements }).length;
 }
 
 // --- search -------------------------------------------------------------------

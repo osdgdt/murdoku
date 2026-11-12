@@ -6,8 +6,8 @@
   "difficulty": "very-easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "On a stormy night, Captain Morgan is found dead in the room \"Lantern room\". The lighthouse is cut off by the raging sea: who was with him?",
-  "resolutionNote": "Hector was the only person with the captain. The lighthouse beam turns again.",
+  "briefing": "On a stormy night, Captain Victor Morgan is found dead. The lighthouse is cut off by the raging sea: who was with him?",
+  "resolutionNote": "Arthur was the only person with the captain. The lighthouse beam turns again.",
   "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -236,120 +236,134 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Captain Morgan",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "The old lighthouse keeper.",
+      "name": "Arthur",
+      "iconId": "sailor",
+      "isVictim": false,
+      "bio": "The sailor who brings the supplies.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Hector",
-      "iconId": "sailor",
-      "isVictim": false,
-      "bio": "The sailor who brings the supplies.",
-      "color": "#ea558a",
-      "gender": "male"
-    },
-    {
-      "id": "c3",
-      "name": "Lucy",
+      "name": "Beatrice",
       "iconId": "photographer",
       "isVictim": false,
       "bio": "A photographer who came for the storms.",
-      "color": "#158060",
+      "color": "#ea558a",
       "gender": "female"
     },
     {
-      "id": "c4",
-      "name": "Nick",
+      "id": "c3",
+      "name": "Charles",
       "iconId": "mechanic",
       "isVictim": false,
       "bio": "The generator mechanic.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "c4",
+      "name": "Diana",
+      "iconId": "tourist",
+      "isVictim": false,
+      "bio": "A tourist stranded by the storm.",
       "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "c5",
+      "name": "Victor Morgan",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "The old lighthouse keeper.",
+      "color": "#bf8020",
       "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c2",
+      "characterId": "c1",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
       "id": "k2",
-      "characterId": "c2",
-      "type": "diagonal",
+      "characterId": "c1",
+      "type": "inRowOrCol",
       "params": {
-        "targetId": "o3"
+        "axis": "col",
+        "index": 3
       }
     },
     {
       "id": "k3",
-      "characterId": "c1",
+      "characterId": "c4",
       "type": "adjacent",
       "params": {
-        "targetId": "o2"
+        "targetId": "z2"
       }
     },
     {
       "id": "k4",
-      "characterId": "c1",
-      "type": "diagonal",
+      "characterId": "c4",
+      "type": "rowOrColWith",
       "params": {
-        "targetId": "objtype:window"
+        "axis": "col",
+        "targetId": "objtype:table"
       }
     },
     {
       "id": "k5",
-      "characterId": "c3",
-      "type": "inRowOrCol",
+      "characterId": "c2",
+      "type": "diagonal",
       "params": {
-        "axis": "row",
-        "index": 4
+        "targetId": "c4"
       }
     },
     {
       "id": "k6",
       "characterId": "c3",
-      "type": "aloneInRoom",
+      "type": "facing",
       "params": {
-        "zoneId": "z4"
+        "targetId": "z4"
       }
     },
     {
       "id": "k7",
-      "characterId": "c4",
-      "type": "rowOrColWith",
+      "characterId": "c3",
+      "type": "facing",
       "params": {
-        "axis": "row",
-        "targetId": "o5"
+        "targetId": "o8"
       }
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c5",
         "row": 0,
         "col": 1
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 1,
         "col": 2
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 3,
         "col": 4
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 4,
         "col": 0
+      },
+      {
+        "characterId": "c4",
+        "row": 2,
+        "col": 3
       }
     ]
   },

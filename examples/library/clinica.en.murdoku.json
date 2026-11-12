@@ -6,8 +6,8 @@
   "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "During the night shift, Dr. Bellandi is found dead in the room \"Waiting room\". The doors were locked from the inside: who was with him?",
-  "resolutionNote": "Sabrina was the only person with the doctor. The diagnosis was wrong, the culprit was not.",
+  "briefing": "During the night shift, Dr. Vincent Bellandi is found dead. The doors were locked from the inside: who was with him?",
+  "resolutionNote": "Alice was the only person with the doctor. The diagnosis was wrong, the culprit was not.",
   "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -348,130 +348,144 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Dr. Bellandi",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "The chief physician, respected and feared.",
-      "color": "#608aea",
-      "gender": "male"
-    },
-    {
-      "id": "c2",
-      "name": "Sabrina",
+      "name": "Alice",
       "iconId": "nurse",
       "isVictim": false,
       "bio": "The head nurse, always at his side.",
-      "color": "#ea558a",
+      "color": "#608aea",
       "gender": "female"
     },
     {
-      "id": "c3",
-      "name": "Octavius",
+      "id": "c2",
+      "name": "Benedict",
       "iconId": "pharmacist",
       "isVictim": false,
       "bio": "The pharmacist, who knew too much about drugs.",
-      "color": "#158060",
+      "color": "#ea558a",
       "gender": "male"
     },
     {
-      "id": "c4",
-      "name": "Greta",
+      "id": "c3",
+      "name": "Christine",
       "iconId": "lawyer",
       "isVictim": false,
       "bio": "The lawyer of a disgruntled patient.",
-      "color": "#9f5595",
+      "color": "#158060",
       "gender": "female"
     },
     {
-      "id": "c5",
-      "name": "Frank",
+      "id": "c4",
+      "name": "Daryl",
       "iconId": "construction",
       "isVictim": false,
       "bio": "The workman renovating the ward.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Edward",
+      "iconId": "police",
+      "isVictim": false,
+      "bio": "The inspector, there for an internal inquiry.",
       "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Vincent Bellandi",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "The chief physician, respected and feared.",
+      "color": "#4a6aca",
       "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c1",
+      "characterId": "c3",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
+        "direction": "west",
         "distance": 1,
         "targetId": "o3"
       }
     },
     {
       "id": "k2",
-      "characterId": "c3",
-      "type": "between",
-      "params": {
-        "targetAId": "z7",
-        "targetBId": "objtype:table"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c4",
-      "type": "adjacent",
-      "params": {
-        "targetId": "o13"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c2",
+      "characterId": "c1",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
-      "id": "k5",
+      "id": "k3",
       "characterId": "c3",
       "type": "directionDistance",
       "params": {
         "direction": "south",
-        "distance": 1,
-        "targetId": "objtype:tv"
+        "targetId": "z6"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c5",
+      "type": "between",
+      "params": {
+        "targetAId": "o4",
+        "targetBId": "o5"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "east",
+        "distance": 5,
+        "targetId": "z1"
       }
     },
     {
       "id": "k6",
-      "characterId": "c5",
-      "type": "closerTo",
+      "characterId": "c2",
+      "type": "diagonal",
       "params": {
-        "targetAId": "z3",
-        "targetBId": "c3"
+        "targetId": "z4"
       }
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c6",
         "row": 0,
         "col": 4
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 1,
         "col": 3
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 3,
         "col": 0
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 4,
         "col": 2
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 5,
         "col": 5
+      },
+      {
+        "characterId": "c5",
+        "row": 2,
+        "col": 1
       }
     ]
   },

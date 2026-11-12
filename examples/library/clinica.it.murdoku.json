@@ -6,8 +6,8 @@
   "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Durante il turno di notte, il dottor Bellandi viene trovato senza vita nella stanza «Sala d'attesa». Le porte erano chiuse dall'interno: chi era con lui?",
-  "resolutionNote": "Sabrina era l'unica persona con il dottore. La diagnosi era sbagliata, il colpevole no.",
+  "briefing": "Durante il turno di notte, il dottor Vincenzo Bellandi viene trovato senza vita. Le porte erano chiuse dall'interno: chi era con lui?",
+  "resolutionNote": "Alessia era l'unica persona con il dottore. La diagnosi era sbagliata, il colpevole no.",
   "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -348,130 +348,144 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Dottor Bellandi",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "Il primario, stimato e temuto.",
-      "color": "#608aea",
-      "gender": "male"
-    },
-    {
-      "id": "c2",
-      "name": "Sabrina",
+      "name": "Alessia",
       "iconId": "nurse",
       "isVictim": false,
       "bio": "L'infermiera capo, sempre al suo fianco.",
-      "color": "#ea558a",
+      "color": "#608aea",
       "gender": "female"
     },
     {
-      "id": "c3",
-      "name": "Ottavio",
+      "id": "c2",
+      "name": "Benedetto",
       "iconId": "pharmacist",
       "isVictim": false,
       "bio": "Il farmacista, che sapeva troppo sui farmaci.",
-      "color": "#158060",
+      "color": "#ea558a",
       "gender": "male"
     },
     {
-      "id": "c4",
-      "name": "Greta",
+      "id": "c3",
+      "name": "Cristina",
       "iconId": "lawyer",
       "isVictim": false,
       "bio": "L'avvocata di un paziente scontento.",
-      "color": "#9f5595",
+      "color": "#158060",
       "gender": "female"
     },
     {
-      "id": "c5",
-      "name": "Franco",
+      "id": "c4",
+      "name": "Dario",
       "iconId": "construction",
       "isVictim": false,
       "bio": "L'operaio dei lavori nel reparto.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "c5",
+      "name": "Ettore",
+      "iconId": "police",
+      "isVictim": false,
+      "bio": "Il commissario, venuto per un'indagine interna.",
       "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Vincenzo Bellandi",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "Il primario, stimato e temuto.",
+      "color": "#4a6aca",
       "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c1",
+      "characterId": "c3",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
+        "direction": "west",
         "distance": 1,
         "targetId": "o3"
       }
     },
     {
       "id": "k2",
-      "characterId": "c3",
-      "type": "between",
-      "params": {
-        "targetAId": "z7",
-        "targetBId": "objtype:table"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c4",
-      "type": "adjacent",
-      "params": {
-        "targetId": "o13"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c2",
+      "characterId": "c1",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
-      "id": "k5",
+      "id": "k3",
       "characterId": "c3",
       "type": "directionDistance",
       "params": {
         "direction": "south",
-        "distance": 1,
-        "targetId": "objtype:tv"
+        "targetId": "z6"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c5",
+      "type": "between",
+      "params": {
+        "targetAId": "o4",
+        "targetBId": "o5"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "east",
+        "distance": 5,
+        "targetId": "z1"
       }
     },
     {
       "id": "k6",
-      "characterId": "c5",
-      "type": "closerTo",
+      "characterId": "c2",
+      "type": "diagonal",
       "params": {
-        "targetAId": "z3",
-        "targetBId": "c3"
+        "targetId": "z4"
       }
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c6",
         "row": 0,
         "col": 4
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 1,
         "col": 3
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 3,
         "col": 0
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 4,
         "col": 2
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 5,
         "col": 5
+      },
+      {
+        "characterId": "c5",
+        "row": 2,
+        "col": 1
       }
     ]
   },

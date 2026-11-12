@@ -6,8 +6,8 @@
   "difficulty": "hard",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "At the hour of vespers, Abbot Benedict was found dead in the room \"Church\". The monastery was snowed in: who was with him?",
-  "resolutionNote": "Thomas was the only person with the abbot. The secret is safe now... perhaps.",
+  "briefing": "At the hour of vespers, Abbot Venantius was found dead. The monastery was snowed in: who was with him?",
+  "resolutionNote": "Ambrose was the only person with the abbot. The secret is safe now... perhaps.",
   "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -230,12 +230,12 @@
         },
         {
           "zoneId": "z9",
-          "objectId": "o16",
+          "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z9",
-          "objectId": null,
+          "objectId": "o16",
           "blocked": false
         }
       ],
@@ -438,7 +438,7 @@
         "id": "o16",
         "typeId": "tv",
         "row": 5,
-        "col": 5
+        "col": 6
       },
       {
         "id": "o17",
@@ -457,182 +457,191 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Abbot Benedict",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "The abbot, keeper of a great secret.",
+      "name": "Ambrose",
+      "iconId": "monk",
+      "isVictim": false,
+      "bio": "The scribe monk.",
       "color": "#608aea",
       "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Thomas",
-      "iconId": "monk",
-      "isVictim": false,
-      "bio": "The scribe monk.",
-      "color": "#ea558a",
-      "gender": "male"
-    },
-    {
-      "id": "c3",
-      "name": "Clare",
+      "name": "Benedetta",
       "iconId": "nun",
       "isVictim": false,
       "bio": "The infirmary nun.",
-      "color": "#158060",
+      "color": "#ea558a",
       "gender": "female"
     },
     {
-      "id": "c4",
-      "name": "Roger",
+      "id": "c3",
+      "name": "Clement",
       "iconId": "farmer",
       "isVictim": false,
       "bio": "The farmer who tends the garden.",
-      "color": "#9f5595",
+      "color": "#158060",
       "gender": "male"
     },
     {
-      "id": "c5",
-      "name": "Hilary",
+      "id": "c4",
+      "name": "Delphine",
       "iconId": "librarian",
       "isVictim": false,
       "bio": "The scholar who came to consult the codices.",
-      "color": "#bf8020",
+      "color": "#9f5595",
       "gender": "female"
     },
     {
-      "id": "c6",
-      "name": "Alan",
+      "id": "c5",
+      "name": "Eusebius",
       "iconId": "tourist",
       "isVictim": false,
       "bio": "A pilgrim who arrived the evening before.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Felix",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "The refectory cook.",
       "color": "#4a6aca",
+      "gender": "male"
+    },
+    {
+      "id": "c7",
+      "name": "Venantius",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "The abbot, keeper of a great secret.",
+      "color": "#9f80b5",
       "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": null,
-      "type": "noOneInRowOrCol",
+      "characterId": "c6",
+      "type": "between",
       "params": {
-        "axis": "col",
-        "index": 6
+        "targetAId": "z7",
+        "targetBId": "o16"
       }
     },
     {
       "id": "k2",
-      "characterId": "c6",
+      "characterId": "c2",
       "type": "directionDistance",
       "params": {
-        "direction": "south",
-        "distance": 6,
-        "targetId": "objtype:shelf"
+        "direction": "north",
+        "distance": 3,
+        "targetId": "objtype:door"
       }
     },
     {
       "id": "k3",
-      "characterId": "c1",
+      "characterId": "c3",
       "type": "extremeInDirection",
       "params": {
-        "direction": "west",
+        "direction": "east",
         "scope": "room",
         "property": "adjacentTo",
-        "targetId": "objtype:chair"
+        "targetId": "o17"
       }
     },
     {
       "id": "k4",
-      "characterId": "c3",
-      "type": "extremeInDirection",
-      "params": {
-        "direction": "south",
-        "scope": "room",
-        "property": "adjacentTo",
-        "targetId": "objtype:lamp"
-      }
-    },
-    {
-      "id": "k5",
       "characterId": "c2",
-      "type": "extremeInDirection",
+      "type": "between",
       "params": {
-        "direction": "south",
-        "scope": "map",
-        "property": "adjacentTo",
-        "targetId": "o8"
-      }
-    },
-    {
-      "id": "k6",
-      "characterId": "c4",
-      "type": "closerTo",
-      "params": {
-        "targetAId": "objtype:stool",
+        "targetAId": "objtype:lamp",
         "targetBId": "o11"
       },
       "negate": true
     },
     {
-      "id": "k7",
+      "id": "k5",
       "characterId": "c5",
-      "type": "between",
+      "type": "directionDistance",
       "params": {
-        "targetAId": "o4",
-        "targetBId": "z10"
+        "direction": "north",
+        "distance": 2,
+        "targetId": "z8"
+      },
+      "negate": true
+    },
+    {
+      "id": "k6",
+      "characterId": "c5",
+      "type": "rowOrColAdjacentTo",
+      "params": {
+        "axis": "col",
+        "targetId": "objtype:door"
+      }
+    },
+    {
+      "id": "k7",
+      "characterId": "c1",
+      "type": "onlyPersonNear",
+      "params": {
+        "targetId": "o8"
       }
     },
     {
       "id": "k8",
-      "characterId": "c1",
-      "type": "closerTo",
+      "characterId": "c4",
+      "type": "between",
       "params": {
-        "targetAId": "objtype:stool",
-        "targetBId": "o17"
+        "targetAId": "z4",
+        "targetBId": "o14"
       }
     },
     {
       "id": "k9",
-      "characterId": "c5",
-      "type": "closerTo",
+      "characterId": null,
+      "type": "noOneNear",
       "params": {
-        "targetAId": "z9",
-        "targetBId": "o13"
-      },
-      "negate": true
+        "targetId": "z7"
+      }
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c7",
         "row": 2,
         "col": 2
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 3,
         "col": 4
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 0,
         "col": 0
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 1,
         "col": 6
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 4,
         "col": 1
       },
       {
-        "characterId": "c6",
+        "characterId": "c5",
         "row": 6,
         "col": 3
+      },
+      {
+        "characterId": "c6",
+        "row": 5,
+        "col": 5
       }
     ]
   },

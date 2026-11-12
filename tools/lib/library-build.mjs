@@ -6,14 +6,21 @@
 //   io.readCase(lang, id)     -> the stored puzzle JSON, or null
 //   io.writeCase(lang, id, puzzle)
 //   io.writeIndex(index)      -> examples/library.json content
-import { buildBase, trueClues, composeClues, measure, verify, rng, addClue } from "./author.mjs";
+import { buildBase, trueClues, composeClues, measure, verify, rng, addClue, withoutVictim, holdsIn, victimCellOptions } from "./author.mjs";
 import { LIBRARY } from "../cases/library.mjs";
 const { estimateDifficultyFromNodes, setTense } = await import("../../src/model/puzzle.js");
 const { checkUniqueness } = await import("../../src/solver/validator.js");
 const { zoneOfCell } = await import("../../src/model/grid.js");
 
+// House rules for generated cases (see also the header of tools/cases/library.mjs):
+//  - no clue ever concerns the victim (she is not even present while the clues are searched);
+//  - she is placed LAST, in the one cell that remains, which is how the murderer is found;
+//  - "is closer to X than to Y" is never used;
+//  - the briefing never says where the victim is found.
+const BANNED_TYPES = new Set(["closerTo"]);
+
 const SIMPLE = new Set(["inRoom", "inRowOrCol", "adjacent", "diagonal", "sameRoomAs", "onObjectType", "rowOrColWith", "inCorner", "aloneInRoom", "facing", "seated", "inFrontOfWindow"]);
-const RELATIONAL = new Set([...SIMPLE, "between", "closerTo", "zoneAdjacentTo", "rowOrColAdjacentTo", "directionDistance", "onlyPersonNear", "inRoomCorner", "aloneWithPerson", "rowOrColParity", "someoneInRoomWithProperty"]);
+const RELATIONAL = new Set([...SIMPLE, "between", "zoneAdjacentTo", "rowOrColAdjacentTo", "directionDistance", "onlyPersonNear", "inRoomCorner", "aloneWithPerson", "rowOrColParity", "someoneInRoomWithProperty"]);
 
 const MODES = {
   easy: { allowType: (c) => SIMPLE.has(c.type) && !c.negate && !c.generic, negateChance: 0, pruneChance: 0.5, gate: (m) => m.forcedByPropagation === m.nChars && m.types >= 3 && m.nClues >= m.nChars + 1 },
@@ -21,6 +28,19 @@ const MODES = {
   hard: { allowType: () => true, negateChance: 0.4, pruneChance: 1, gate: (m) => m.forcedByPropagation <= 1 && m.generic >= 1 && m.types >= 5 },
   expert: { allowType: () => true, negateChance: 0.5, pruneChance: 1, gate: (m) => m.forcedByPropagation === 0 && m.generic >= 1 && m.types >= 5 },
 };
+
+// House rule: the suspects are listed in alphabetical order (in every language)
+// and the victim's name starts with V.
+function checkNames(spec) {
+  for (const lang of ["it", "en"]) {
+    const suspects = spec.cast.filter((m) => !m.victim).map((m) => m.names[lang]);
+    suspects.forEach((name, i) => {
+      if (i > 0 && suspects[i - 1].localeCompare(name, lang) >= 0) throw new Error(`${spec.id} (${lang}): "${suspects[i - 1]}" must come before "${name}" (suspects go in alphabetical order)`);
+    });
+    const victimName = spec.cast.find((m) => m.victim).names[lang];
+    if (!/^V/i.test(victimName)) throw new Error(`${spec.id} (${lang}): the victim's name "${victimName}" must start with V`);
+  }
+}
 
 // Rename random ids to stable, language-independent ones.
 function canonicalize(puzzle, ids) {
@@ -69,27 +89,43 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
     // A case with a remembered seed is rebuilt deterministically (fast); one without is searched.
     const rebuild = only.length === 0 ? true : only.includes(spec.id);
     const mode = MODES[spec.mode];
+    checkNames(spec);
     const en = buildBase(spec, "en");
     const baseEn = canonicalize(en.puzzle, en.ids);
     const it = buildBase(spec, "it");
     const baseIt = canonicalize(it.puzzle, it.ids);
 
     let chosen = null;
+    const victimKey = spec.cast.find((m) => m.victim).key;
+    const withoutKey = (obj) => Object.fromEntries(Object.entries(obj).filter(([k]) => k !== victimKey));
+    const vless = withoutVictim(baseEn.puzzle); // the clue search never sees the victim
+    const idsNoV = withoutKey(baseEn.ids);
     const existing = !rebuild ? await io.readCase("en", spec.id) : null;
     if (existing) {
       chosen = { clues: existing.clues.map(({ characterId, type, params, negate }) => ({ characterId, type, params, negate: !!negate })), seed: seeds[spec.id] };
     } else {
-      const pool = trueClues(baseEn.puzzle, baseEn.ids, spec.solution);
+      const fullPlacements = new Map(Object.entries(spec.solution).map(([key, [row, col]]) => [baseEn.ids[key], { row, col }]));
+      const suspectPlacements = new Map([...fullPlacements].filter(([id]) => id !== baseEn.ids[victimKey]));
+      const options = victimCellOptions(baseEn.puzzle, suspectPlacements);
+      if (options !== 1) throw new Error(`${spec.id}: with the suspects placed the victim has ${options} possible cells, it must be exactly 1 (move her or someone else in the spec)`);
+      // Clues true for the suspects alone AND for the full solution (a clue such as
+      // "alone in a room" must not change meaning once the victim is on the board).
+      const pool = trueClues(vless, idsNoV, withoutKey(spec.solution)).filter((c) => !BANNED_TYPES.has(c.type) && holdsIn(c, baseEn.puzzle, fullPlacements));
       const startSeed = seeds[spec.id] ?? spec.seed;
       const tryOrder = seeds[spec.id] ? [seeds[spec.id]] : Array.from({ length: spec.tries ?? 2000 }, (_, i) => startSeed + i);
       for (const seed of tryOrder) {
-        const clues = await composeClues(baseEn.puzzle, pool, { random: rng(seed), ...mode });
+        const clues = await composeClues(vless, pool, { random: rng(seed), ...mode });
         if (!clues) continue;
-        const m = measure(baseEn.puzzle, clues, baseEn.ids);
-        const nonVictimsCovered = Object.entries(m.perChar).every(([key, n]) => key === "v" || n >= 1);
+        const m = measure(vless, clues, idsNoV);
+        const everyoneHasAClue = Object.values(m.perChar).every((n) => n >= 1);
         const used = new Set(clues.map((c) => c.type));
         const hasRequired = (spec.require ?? []).every((type) => used.has(type));
-        if (mode.gate(m) && nonVictimsCovered && hasRequired && m.nClues <= 3 * m.nChars + 3) { chosen = { clues, seed, m }; break; }
+        if (!(mode.gate(m) && everyoneHasAClue && hasRequired && m.nClues <= 3 * m.nChars + 3)) continue;
+        // With the victim on the board the case must still have exactly one solution.
+        const trial = finish(spec, "en", baseEn.puzzle, clues);
+        if (checkUniqueness(trial, { maxSolutions: 2, forwardCheck: true }).solutionCount !== 1) continue;
+        chosen = { clues, seed, m };
+        break;
       }
       if (!chosen) throw new Error(`${spec.id}: no seed satisfied the ${spec.mode} gate`);
       seeds[spec.id] = chosen.seed;
@@ -107,7 +143,7 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
       await io.writeCase(lang, spec.id, puzzle);
       files[lang] = `examples/library/${spec.id}.${lang}.murdoku.json`;
     }
-    const m = measure(baseEn.puzzle, chosen.clues, baseEn.ids);
+    const m = measure(vless, chosen.clues, idsNoV);
     log(`${spec.id.padEnd(12)} ${spec.mode.padEnd(7)} seed=${chosen.seed} clues=${m.nClues} types=${m.types} generic=${m.generic} propagation-forced=${m.forcedByPropagation}/${m.nChars} redundant=${info.redundant} nodes=${info.nodes}`);
     index.push({
       id: spec.id, order: spec.order, difficulty: spec.difficulty, size: [spec.map.length, spec.map[0].length], characters: spec.cast.length, clues: chosen.clues.length,

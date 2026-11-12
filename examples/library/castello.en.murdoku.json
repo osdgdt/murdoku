@@ -6,8 +6,8 @@
   "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "During the winter banquet, King Aldovrand was found dead in the room \"Great hall\". The castle gates were barred: who was with him?",
-  "resolutionNote": "Isolde was the only person with the king. The realm needs a new ruler.",
+  "briefing": "During the winter banquet, King Vortigern was found dead. The castle gates were barred: who was with him?",
+  "resolutionNote": "Adelaide was the only person with the king. The realm needs a new ruler.",
   "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -360,55 +360,55 @@
   "characters": [
     {
       "id": "c1",
-      "name": "King Aldovrand",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "The king, who loved feasts and debts.",
-      "color": "#608aea",
-      "gender": "male"
-    },
-    {
-      "id": "c2",
-      "name": "Isolde",
+      "name": "Adelaide",
       "iconId": "queen",
       "isVictim": false,
       "bio": "The queen, weary of the court.",
-      "color": "#ea558a",
+      "color": "#608aea",
       "gender": "female"
     },
     {
-      "id": "c3",
-      "name": "Gawain",
+      "id": "c2",
+      "name": "Bertram",
       "iconId": "knight",
       "isVictim": false,
       "bio": "The king's knight, loyal up to a point.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "c3",
+      "name": "Conrad",
+      "iconId": "wizard",
+      "isVictim": false,
+      "bio": "The court wizard, with his book of spells.",
       "color": "#158060",
       "gender": "male"
     },
     {
       "id": "c4",
-      "name": "Ambrose",
-      "iconId": "wizard",
-      "isVictim": false,
-      "bio": "The court wizard, with his book of spells.",
-      "color": "#9f5595",
-      "gender": "male"
-    },
-    {
-      "id": "c5",
-      "name": "Brunhild",
+      "name": "Dorothea",
       "iconId": "chef",
       "isVictim": false,
       "bio": "The royal cook, who knew every poison.",
-      "color": "#bf8020",
+      "color": "#9f5595",
       "gender": "female"
     },
     {
-      "id": "c6",
-      "name": "Toby",
+      "id": "c5",
+      "name": "Edmund",
       "iconId": "clown",
       "isVictim": false,
       "bio": "The jester, the only one allowed to tell the truth.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Vortigern",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "The king, who loved feasts and debts.",
       "color": "#4a6aca",
       "gender": "male"
     }
@@ -416,86 +416,97 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c1",
+      "characterId": "c4",
       "type": "directionDistance",
       "params": {
-        "direction": "south",
-        "distance": 2,
-        "targetId": "o9"
+        "direction": "north",
+        "distance": 1,
+        "targetId": "o14"
       }
     },
     {
       "id": "k2",
-      "characterId": "c3",
+      "characterId": "c5",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
-        "distance": 3,
-        "targetId": "objtype:stool"
+        "direction": "east",
+        "distance": 2,
+        "targetId": "o10"
       }
     },
     {
       "id": "k3",
       "characterId": "c2",
-      "type": "onlyPersonNear",
+      "type": "directionDistance",
       "params": {
-        "targetId": "z9"
+        "direction": "west",
+        "distance": 1,
+        "targetId": "o9"
       }
     },
     {
       "id": "k4",
-      "characterId": "c5",
-      "type": "directionDistance",
+      "characterId": "c3",
+      "type": "diagonal",
       "params": {
-        "direction": "south",
-        "distance": 1,
-        "targetId": "z5"
+        "targetId": "o8"
       }
     },
     {
       "id": "k5",
-      "characterId": "c4",
-      "type": "inFrontOfWindow",
-      "params": {}
+      "characterId": "c1",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "col",
+        "targetId": "o8"
+      }
     },
     {
       "id": "k6",
-      "characterId": "c6",
-      "type": "facing",
+      "characterId": "c1",
+      "type": "directionDistance",
       "params": {
-        "targetId": "o5"
+        "direction": "south",
+        "distance": 3,
+        "targetId": "c2"
       }
+    },
+    {
+      "id": "k7",
+      "characterId": "c3",
+      "type": "inFrontOfWindow",
+      "params": {}
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c6",
         "row": 2,
         "col": 3
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 3,
         "col": 4
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 0,
         "col": 0
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 1,
         "col": 5
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 4,
         "col": 1
       },
       {
-        "characterId": "c6",
+        "characterId": "c5",
         "row": 5,
         "col": 2
       }

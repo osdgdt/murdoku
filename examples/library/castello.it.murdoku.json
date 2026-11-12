@@ -6,8 +6,8 @@
   "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Durante il banchetto d'inverno, re Aldovrando fu trovato senza vita nella stanza «Salone». Le porte del castello erano sprangate: chi era con lui?",
-  "resolutionNote": "Isolda era l'unica persona con il re. Il regno ha bisogno di un nuovo sovrano.",
+  "briefing": "Durante il banchetto d'inverno, re Vortigerno fu trovato senza vita. Le porte del castello erano sprangate: chi era con lui?",
+  "resolutionNote": "Adelaide era l'unica persona con il re. Il regno ha bisogno di un nuovo sovrano.",
   "tense": "past",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
@@ -360,55 +360,55 @@
   "characters": [
     {
       "id": "c1",
-      "name": "Re Aldovrando",
-      "iconId": "victim",
-      "isVictim": true,
-      "bio": "Il re, che amava le feste e i debiti.",
-      "color": "#608aea",
-      "gender": "male"
-    },
-    {
-      "id": "c2",
-      "name": "Isolda",
+      "name": "Adelaide",
       "iconId": "queen",
       "isVictim": false,
       "bio": "La regina, stanca della corte.",
-      "color": "#ea558a",
+      "color": "#608aea",
       "gender": "female"
     },
     {
-      "id": "c3",
-      "name": "Gawen",
+      "id": "c2",
+      "name": "Bertoldo",
       "iconId": "knight",
       "isVictim": false,
       "bio": "Il cavaliere del re, fedele fino a un certo punto.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "c3",
+      "name": "Corrado",
+      "iconId": "wizard",
+      "isVictim": false,
+      "bio": "Il mago di corte, con il suo libro di incantesimi.",
       "color": "#158060",
       "gender": "male"
     },
     {
       "id": "c4",
-      "name": "Ambrogio",
-      "iconId": "wizard",
-      "isVictim": false,
-      "bio": "Il mago di corte, con il suo libro di incantesimi.",
-      "color": "#9f5595",
-      "gender": "male"
-    },
-    {
-      "id": "c5",
-      "name": "Brunilde",
+      "name": "Dorotea",
       "iconId": "chef",
       "isVictim": false,
       "bio": "La cuoca reale, che conosceva ogni veleno.",
-      "color": "#bf8020",
+      "color": "#9f5595",
       "gender": "female"
     },
     {
-      "id": "c6",
-      "name": "Tobia",
+      "id": "c5",
+      "name": "Edmondo",
       "iconId": "clown",
       "isVictim": false,
       "bio": "Il giullare, l'unico che poteva dire la verità.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "c6",
+      "name": "Vortigerno",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "Il re, che amava le feste e i debiti.",
       "color": "#4a6aca",
       "gender": "male"
     }
@@ -416,86 +416,97 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c1",
+      "characterId": "c4",
       "type": "directionDistance",
       "params": {
-        "direction": "south",
-        "distance": 2,
-        "targetId": "o9"
+        "direction": "north",
+        "distance": 1,
+        "targetId": "o14"
       }
     },
     {
       "id": "k2",
-      "characterId": "c3",
+      "characterId": "c5",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
-        "distance": 3,
-        "targetId": "objtype:stool"
+        "direction": "east",
+        "distance": 2,
+        "targetId": "o10"
       }
     },
     {
       "id": "k3",
       "characterId": "c2",
-      "type": "onlyPersonNear",
+      "type": "directionDistance",
       "params": {
-        "targetId": "z9"
+        "direction": "west",
+        "distance": 1,
+        "targetId": "o9"
       }
     },
     {
       "id": "k4",
-      "characterId": "c5",
-      "type": "directionDistance",
+      "characterId": "c3",
+      "type": "diagonal",
       "params": {
-        "direction": "south",
-        "distance": 1,
-        "targetId": "z5"
+        "targetId": "o8"
       }
     },
     {
       "id": "k5",
-      "characterId": "c4",
-      "type": "inFrontOfWindow",
-      "params": {}
+      "characterId": "c1",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "col",
+        "targetId": "o8"
+      }
     },
     {
       "id": "k6",
-      "characterId": "c6",
-      "type": "facing",
+      "characterId": "c1",
+      "type": "directionDistance",
       "params": {
-        "targetId": "o5"
+        "direction": "south",
+        "distance": 3,
+        "targetId": "c2"
       }
+    },
+    {
+      "id": "k7",
+      "characterId": "c3",
+      "type": "inFrontOfWindow",
+      "params": {}
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c6",
         "row": 2,
         "col": 3
       },
       {
-        "characterId": "c2",
+        "characterId": "c1",
         "row": 3,
         "col": 4
       },
       {
-        "characterId": "c3",
+        "characterId": "c2",
         "row": 0,
         "col": 0
       },
       {
-        "characterId": "c4",
+        "characterId": "c3",
         "row": 1,
         "col": 5
       },
       {
-        "characterId": "c5",
+        "characterId": "c4",
         "row": 4,
         "col": 1
       },
       {
-        "characterId": "c6",
+        "characterId": "c5",
         "row": 5,
         "col": 2
       }

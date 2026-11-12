@@ -61,18 +61,18 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
 function clueLine(clue, puzzle, onClueHover, onClueHoverEnd, pin) {
   const pinned = !!pin && pin.clueId === clue.id;
   const props = { onMouseenter: onClueHover ? () => onClueHover(clue) : undefined, onMouseleave: onClueHoverEnd };
-  if (pin) {
-    Object.assign(props, {
-      class: "clue-line" + (pinned ? " pinned" : ""),
-      role: "button",
-      tabindex: "0",
-      "aria-pressed": String(pinned),
-      title: pinned ? t("Clic per togliere l'evidenziazione") : t("Clic per tenere evidenziate le caselle di questo indizio"),
-      onClick: () => pin.onToggle(clue),
-      onKeydown: onActivateKey(() => pin.onToggle(clue)),
-    });
-  }
-  return el("li", props, describeClue(clue, puzzle));
+  const text = describeClue(clue, puzzle);
+  if (!pin) return el("li", props, text);
+  // The button lives INSIDE the <li>: a role on the <li> itself would break the list semantics.
+  return el("li", props, el("span", {
+    class: "clue-line" + (pinned ? " pinned" : ""),
+    role: "button",
+    tabindex: "0",
+    "aria-pressed": String(pinned),
+    title: pinned ? t("Clic per togliere l'evidenziazione") : t("Clic per tenere evidenziate le caselle di questo indizio"),
+    onClick: () => pin.onToggle(clue),
+    onKeydown: onActivateKey(() => pin.onToggle(clue)),
+  }, text));
 }
 
 // A box of its own, always beside the board (it sticks while the page scrolls):

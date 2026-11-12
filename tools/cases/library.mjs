@@ -17,8 +17,8 @@
 //   require  clue types that must appear (so each case shows off something new)
 //   objects  { type, row, col } — doors and windows also take a `side` (N/E/S/W),
 //            they sit on the edge of the cell and never block it
-const person = (key, it, en, icon, gender, bioIt, bioEn, extra = {}) => ({ key, names: { it, en }, icon, gender, bio: { it: bioIt, en: bioEn }, ...extra });
-const victim = (it, en, gender, bioIt, bioEn) => person("v", it, en, "victim", gender, bioIt, bioEn, { victim: true });
+export const person = (key, it, en, icon, gender, bioIt, bioEn, extra = {}) => ({ key, names: { it, en }, icon, gender, bio: { it: bioIt, en: bioEn }, ...extra });
+export const victim = (it, en, gender, bioIt, bioEn) => person("v", it, en, "victim", gender, bioIt, bioEn, { victim: true });
 
 // The library is empty: add specs here (id, order, difficulty, seed, mode, map, zones, objects, cast, solution, text).
 // The former specs are in git history (see the commit that emptied the library).

@@ -1,7 +1,9 @@
 name: CI
 on:
   push:
+    branches-ignore: [main] # main is checked by pages.yml, which calls this workflow before publishing
   pull_request:
+  workflow_call:
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -15,6 +17,7 @@ jobs:
       - run: npm run lint
       - run: npm run format
       - run: npm test
+      - run: npm run check:size
   e2e:
     runs-on: ubuntu-latest
     steps:

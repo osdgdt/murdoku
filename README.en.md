@@ -31,13 +31,15 @@ Everything except campaigns works without an account, and your cases/progress li
 A static site with ES modules and **no build step**; `package.json` only holds dev tooling.
 
 ```bash
-python3 -m http.server 8000   # then open http://localhost:8000
+python3 -m http.server 8000   # then open http://localhost:8000 (on Windows, double-click `Avvia Murdoku.bat`: same server on port 8123, opens the browser)
 npm install
 npm test        # unit tests under Node (+ checks that sw.js is up to date)
 npm run lint
 npm run format  # Prettier check (use `npx prettier --write` to fix)
 npm run i18n    # strings still missing an English translation
 npm run e2e     # Playwright: plays a fixture case (`test/fixtures`) in IT and EN
+npm run e2e:all # + accessibility (axe), editor and gameplay gestures
+npm run check:size  # no tracked file over 1 MB (5 MB under design/)
 ```
 
 Layout: `src/model` (data, clue types, migrations) · `src/solver` (predicates, propagation, hints, validator — runs in a Web Worker) · `src/editor`, `src/player`, `src/campaign` (UI) · `src/storage` (localStorage, import/export, share links) · `src/i18n` (translations) · `examples/` (bundled cases) · `sw.js` + `manifest.webmanifest` (PWA).

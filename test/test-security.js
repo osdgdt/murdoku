@@ -75,7 +75,7 @@ export const tests = [
     name: "un puzzle valido con un titolo pieno di markup resta valido (il titolo è solo testo, non è un problema di forma)",
     fn: () => {
       const puzzle = validPuzzle();
-      puzzle.title = "<b>Caso</b> & \"altro\"";
+      puzzle.title = '<b>Caso</b> & "altro"';
       assert(validatePuzzleShape(puzzle).valid);
     },
   },

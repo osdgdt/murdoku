@@ -36,22 +36,22 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
     iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
 
     const clues = cluesForCharacter(puzzle, character.id);
-    const list = el(
-      "ul",
-      {},
-      clues.length ? clues.map(clueLi) : [el("li", { class: "muted" }, t("Nessun indizio."))]
-    );
+    const list = el("ul", {}, clues.length ? clues.map(clueLi) : [el("li", { class: "muted" }, t("Nessun indizio."))]);
 
     const placed = state?.placements.has(character.id);
     const active = state?.selectedTool?.kind === "character" && state.selectedTool.id === character.id;
-    const card = el("div", {
-      class: "clue-card" + (character.isVictim ? " victim" : "") + (placed ? " placed" : "") + (active ? " active" : ""),
-      style: character.isVictim ? "" : `--clue-accent: ${characterColor(character)}`,
-    }, [
-      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name + (character.isVictim ? t(" (Vittima)") : ""))]),
-      character.bio ? el("p", { class: "bio-text" }, character.bio) : null,
-      list,
-    ]);
+    const card = el(
+      "div",
+      {
+        class: "clue-card" + (character.isVictim ? " victim" : "") + (placed ? " placed" : "") + (active ? " active" : ""),
+        style: character.isVictim ? "" : `--clue-accent: ${characterColor(character)}`,
+      },
+      [
+        el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name + (character.isVictim ? t(" (Vittima)") : ""))]),
+        character.bio ? el("p", { class: "bio-text" }, character.bio) : null,
+        list,
+      ]
+    );
     container.appendChild(card);
   }
 }
@@ -64,15 +64,23 @@ function clueLine(clue, puzzle, onClueHover, onClueHoverEnd, pin) {
   const text = describeClue(clue, puzzle);
   if (!pin) return el("li", props, text);
   // The button lives INSIDE the <li>: a role on the <li> itself would break the list semantics.
-  return el("li", props, el("span", {
-    class: "clue-line" + (pinned ? " pinned" : ""),
-    role: "button",
-    tabindex: "0",
-    "aria-pressed": String(pinned),
-    title: pinned ? t("Clic per togliere l'evidenziazione") : t("Clic per tenere evidenziate le caselle di questo indizio"),
-    onClick: () => pin.onToggle(clue),
-    onKeydown: onActivateKey(() => pin.onToggle(clue)),
-  }, text));
+  return el(
+    "li",
+    props,
+    el(
+      "span",
+      {
+        class: "clue-line" + (pinned ? " pinned" : ""),
+        role: "button",
+        tabindex: "0",
+        "aria-pressed": String(pinned),
+        title: pinned ? t("Clic per togliere l'evidenziazione") : t("Clic per tenere evidenziate le caselle di questo indizio"),
+        onClick: () => pin.onToggle(clue),
+        onKeydown: onActivateKey(() => pin.onToggle(clue)),
+      },
+      text
+    )
+  );
 }
 
 // A box of its own, always beside the board (it sticks while the page scrolls):
@@ -84,7 +92,9 @@ export function renderSelectedClue(container, puzzle, state, onClueHover, onClue
   const character = tool?.kind === "character" ? puzzle.characters.find((c) => c.id === tool.id) : null;
   container.classList.toggle("empty", !character);
   if (!character) {
-    container.appendChild(el("p", { class: "selected-clue-empty" }, t("Scegli un personaggio (clic sul suo nome, o tasti 1-9) per vedere qui il suo indizio.")));
+    container.appendChild(
+      el("p", { class: "selected-clue-empty" }, t("Scegli un personaggio (clic sul suo nome, o tasti 1-9) per vedere qui il suo indizio."))
+    );
     return;
   }
   const color = character.isVictim ? "var(--danger)" : characterColor(character);

@@ -2,7 +2,6 @@ import { t } from "../../i18n/i18n.js";
 import { targetLabel, axisNoun, describeProperty, describeNestedClue, propertyParams } from "./shared.js";
 
 export const SCENE_CLUES = {
-
   // --- Generic clues: puzzle-wide scene facts, not owned by a character ---
   noOneInRoom: {
     scope: "generic",
@@ -48,16 +47,28 @@ export const SCENE_CLUES = {
       { name: "targetBId", kind: "character", label: t("Personaggio B") },
     ],
     describe: (params, puzzle) =>
-      t("{v} e {v2} si trovano nella stessa stanza.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
+      t("{v} e {v2} si trovano nella stessa stanza.", {
+        v: targetLabel(puzzle, params.targetAId),
+        v2: targetLabel(puzzle, params.targetBId),
+      }),
     negatedDescribe: (params, puzzle) =>
-      t("{v} e {v2} non si trovano nella stessa stanza.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
+      t("{v} e {v2} non si trovano nella stessa stanza.", {
+        v: targetLabel(puzzle, params.targetAId),
+        v2: targetLabel(puzzle, params.targetBId),
+      }),
   },
   roomsWithStateCount: {
     scope: "generic",
     label: t("N stanze sono piene/vuote"),
     params: [
       { name: "count", kind: "number", min: 0, label: t("Numero di stanze") },
-      { name: "state", kind: "enum", values: ["empty", "occupied"], labels: { empty: "vuote", occupied: t("piene (almeno una persona)") }, label: t("Stato") },
+      {
+        name: "state",
+        kind: "enum",
+        values: ["empty", "occupied"],
+        labels: { empty: "vuote", occupied: t("piene (almeno una persona)") },
+        label: t("Stato"),
+      },
     ],
     describe: (params) => {
       const count = params.count;
@@ -85,9 +96,15 @@ export const SCENE_CLUES = {
       { name: "targetBId", kind: "character", label: t("Personaggio B") },
     ],
     describe: (params, puzzle) =>
-      t("Le stanze di {v} e {v2} hanno lo stesso numero di caselle.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
+      t("Le stanze di {v} e {v2} hanno lo stesso numero di caselle.", {
+        v: targetLabel(puzzle, params.targetAId),
+        v2: targetLabel(puzzle, params.targetBId),
+      }),
     negatedDescribe: (params, puzzle) =>
-      t("Le stanze di {v} e {v2} non hanno lo stesso numero di caselle.", { v: targetLabel(puzzle, params.targetAId), v2: targetLabel(puzzle, params.targetBId) }),
+      t("Le stanze di {v} e {v2} non hanno lo stesso numero di caselle.", {
+        v: targetLabel(puzzle, params.targetAId),
+        v2: targetLabel(puzzle, params.targetBId),
+      }),
   },
   noOneWithProperty: {
     scope: "generic",

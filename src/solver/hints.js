@@ -53,20 +53,24 @@ const HINT_MAX_ELIMINATIONS_PER_WAVE = 8;
 // a chain naturally terminates.
 const HINT_CHAIN_MAX_STEPS = 120;
 
-const CLUES_CONTRADICTORY_MSG =
-  t("Gli indizi di questo caso non ammettono nessuna soluzione: controlla il puzzle nell'editor.");
+const CLUES_CONTRADICTORY_MSG = t("Gli indizi di questo caso non ammettono nessuna soluzione: controlla il puzzle nell'editor.");
 const INCONCLUSIVE_MSG = t("Non riesco a determinare un suggerimento affidabile in questo momento.");
 const MULTI_CULPRIT_MSG = t("Uno dei piazzamenti attuali è in conflitto con gli indizi, ma non riesco a isolarlo con certezza.");
-const TOO_COMPLEX_MSG = t("Ci sono troppe possibilità da esaminare per dare un suggerimento sicuro: aggiungi qualche piazzamento o indizio in più.");
+const TOO_COMPLEX_MSG = t(
+  "Ci sono troppe possibilità da esaminare per dare un suggerimento sicuro: aggiungi qualche piazzamento o indizio in più."
+);
 const ALREADY_COMPLETE_MSG = t("Hai già piazzato tutti i personaggi compatibili con gli indizi attuali.");
-const NO_DEDUCTION_MSG = t("Con le informazioni attuali non c'è ancora nessuna deduzione certa: prova a piazzare qualcosa o rileggi gli indizi.");
-const NO_FURTHER_DEDUCTION_MSG =
-  t("Ho verificato a fondo: da qui in poi esistono più soluzioni diverse, tutte valide secondo gli indizi attuali, quindi non c'è nient'altro da dedurre con certezza. Prova a piazzare qualcosa per ipotesi, o rileggi gli indizi.");
+const NO_DEDUCTION_MSG = t(
+  "Con le informazioni attuali non c'è ancora nessuna deduzione certa: prova a piazzare qualcosa o rileggi gli indizi."
+);
+const NO_FURTHER_DEDUCTION_MSG = t(
+  "Ho verificato a fondo: da qui in poi esistono più soluzioni diverse, tutte valide secondo gli indizi attuali, quindi non c'è nient'altro da dedurre con certezza. Prova a piazzare qualcosa per ipotesi, o rileggi gli indizi."
+);
 
 function buildForcedMessage(puzzle, character, row, col) {
   const zoneId = zoneOfCell(puzzle.grid, row, col);
   const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
-  const where = zone ? t(" (nella zona \"{name}\")", { name: zone.name }) : "";
+  const where = zone ? t(' (nella zona "{name}")', { name: zone.name }) : "";
   // The victim rarely has clues of her own (she doesn't act) — by the time
   // her placement is forced, it's almost always because every other
   // row/column is already spoken for, not because of a specific clue about
@@ -75,7 +79,10 @@ function buildForcedMessage(puzzle, character, row, col) {
   if (character.isVictim) {
     return t("{name} deve trovarsi nell'unica casella rimasta libera{where}.", { name: character.name, where });
   }
-  return t("{name} deve trovarsi nella cella evidenziata{where}: è l'unica posizione compatibile con gli indizi attuali.", { name: character.name, where });
+  return t("{name} deve trovarsi nella cella evidenziata{where}: è l'unica posizione compatibile con gli indizi attuali.", {
+    name: character.name,
+    where,
+  });
 }
 
 function buildEliminatedMessage(character) {
@@ -152,7 +159,14 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
 
   if (currentPlacements.size === 0) {
     return direct
-      ? { type: "contradiction", variant: "error", cause: "clue", clueIds: direct.map((c) => c.id), culprits: [], message: buildDirectViolationMessage(puzzle, direct) }
+      ? {
+          type: "contradiction",
+          variant: "error",
+          cause: "clue",
+          clueIds: direct.map((c) => c.id),
+          culprits: [],
+          message: buildDirectViolationMessage(puzzle, direct),
+        }
       : { type: "contradiction", variant: "error", cause: "clues", culprits: [], message: CLUES_CONTRADICTORY_MSG };
   }
 
@@ -183,7 +197,14 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
   }
 
   if (direct) {
-    return { type: "contradiction", variant: "error", cause: "clue", clueIds: direct.map((c) => c.id), culprits, message: buildDirectViolationMessage(puzzle, direct) };
+    return {
+      type: "contradiction",
+      variant: "error",
+      cause: "clue",
+      clueIds: direct.map((c) => c.id),
+      culprits,
+      message: buildDirectViolationMessage(puzzle, direct),
+    };
   }
 
   return culprits.length > 0
@@ -236,12 +257,24 @@ function computeWave(puzzle, confirmed, budget, candidates) {
   // wave's budget happens to always be fresh (synchronous, no `await`
   // between creating it and this first call). Costs nothing either way.
   if (checkDirectClueViolation(puzzle, confirmed)) {
-    return { steps: [], confirmedAfter: confirmed, contradiction: diagnoseContradiction(puzzle, confirmed, budget), exhaustiveUsable: false, tooComplexReason: null };
+    return {
+      steps: [],
+      confirmedAfter: confirmed,
+      contradiction: diagnoseContradiction(puzzle, confirmed, budget),
+      exhaustiveUsable: false,
+      tooComplexReason: null,
+    };
   }
 
   const prop = propagate(puzzle, confirmed);
   if (prop.contradiction) {
-    return { steps: [], confirmedAfter: confirmed, contradiction: diagnoseContradiction(puzzle, confirmed, budget), exhaustiveUsable: false, tooComplexReason: null };
+    return {
+      steps: [],
+      confirmedAfter: confirmed,
+      contradiction: diagnoseContradiction(puzzle, confirmed, budget),
+      exhaustiveUsable: false,
+      tooComplexReason: null,
+    };
   }
 
   if (budget.expired()) {
@@ -250,7 +283,14 @@ function computeWave(puzzle, confirmed, budget, candidates) {
 
   const stats = {};
   const solveNodes = Math.max(0, Math.min(HINT_MAX_NODES, budget.waveNodesRemaining));
-  const solutions = solvePuzzle(puzzle, { maxSolutions: HINT_MAX_SOLUTIONS, fixedPlacements: prop.confirmed, domains: prop.domains, maxNodes: solveNodes, stats, forwardCheck: true });
+  const solutions = solvePuzzle(puzzle, {
+    maxSolutions: HINT_MAX_SOLUTIONS,
+    fixedPlacements: prop.confirmed,
+    domains: prop.domains,
+    maxNodes: solveNodes,
+    stats,
+    forwardCheck: true,
+  });
   budget.spendWaveNodes(stats.nodesVisited);
 
   // A capped search only explored an arbitrary, biased slice of the true
@@ -260,7 +300,13 @@ function computeWave(puzzle, confirmed, budget, candidates) {
   const exhaustiveUsable = !stats.nodeCapHit && solutions.length < HINT_MAX_SOLUTIONS;
 
   if (exhaustiveUsable && solutions.length === 0) {
-    return { steps: [], confirmedAfter: confirmed, contradiction: diagnoseContradiction(puzzle, confirmed, budget), exhaustiveUsable: false, tooComplexReason: null };
+    return {
+      steps: [],
+      confirmedAfter: confirmed,
+      contradiction: diagnoseContradiction(puzzle, confirmed, budget),
+      exhaustiveUsable: false,
+      tooComplexReason: null,
+    };
   }
 
   const { rows, cols } = puzzle.grid.size;
@@ -347,7 +393,7 @@ function computeWave(puzzle, confirmed, budget, candidates) {
     confirmedAfter,
     contradiction: null,
     exhaustiveUsable,
-    tooComplexReason: exhaustiveUsable ? null : (budget.expired() ? "budgetExhausted" : stats.nodeCapHit ? "nodeCap" : "solutionCap"),
+    tooComplexReason: exhaustiveUsable ? null : budget.expired() ? "budgetExhausted" : stats.nodeCapHit ? "nodeCap" : "solutionCap",
   };
 }
 
@@ -425,7 +471,13 @@ function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budget) {
   }
 
   if (involved.length > 0) {
-    return { involvedClues: resolveWitnessClues(puzzle, involved.map((c) => c.id)), jointlyDetermined: false };
+    return {
+      involvedClues: resolveWitnessClues(
+        puzzle,
+        involved.map((c) => c.id)
+      ),
+      jointlyDetermined: false,
+    };
   }
 
   // No single user clue is individually necessary — check whether the
@@ -434,7 +486,10 @@ function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budget) {
   if (!budget.expired() && budget.involvedClueNodesRemaining > 0) {
     const bareStats = {};
     const maxNodes = Math.max(0, Math.min(INVOLVED_CLUE_TEST_MAX_NODES, budget.involvedClueNodesRemaining));
-    const bareSolutions = solvePuzzle({ ...puzzle, clues: [] }, { maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS, fixedPlacements, maxNodes, stats: bareStats });
+    const bareSolutions = solvePuzzle(
+      { ...puzzle, clues: [] },
+      { maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS, fixedPlacements, maxNodes, stats: bareStats }
+    );
     budget.spendInvolvedClueNodes(bareStats.nodesVisited);
     const bareInconclusive = bareStats.nodeCapHit || bareSolutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
     if (!bareInconclusive && factStillHolds(bareSolutions, step)) {
@@ -462,9 +517,15 @@ function attachInvolvedClues(puzzle, steps, currentPlacements, budget) {
       delete step._witnessClueIds;
       delete step._witnessNakedSubsets;
       delete step.source;
-      step.message = step.type === "forcedPlacement"
-        ? buildForcedMessage(puzzle, puzzle.characters.find((c) => c.id === step.characterId), step.row, step.col)
-        : buildEliminatedMessage(puzzle.characters.find((c) => c.id === step.characterId));
+      step.message =
+        step.type === "forcedPlacement"
+          ? buildForcedMessage(
+              puzzle,
+              puzzle.characters.find((c) => c.id === step.characterId),
+              step.row,
+              step.col
+            )
+          : buildEliminatedMessage(puzzle.characters.find((c) => c.id === step.characterId));
     }
     if (step.type === "forcedPlacement") confirmed.set(step.characterId, { row: step.row, col: step.col });
   }

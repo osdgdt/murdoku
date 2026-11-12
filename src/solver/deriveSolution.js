@@ -73,11 +73,7 @@ export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES } 
     return { status: "ambiguous", placements: null };
   }
   if (report.solutionCount === 1) {
-    return report.truncated
-      ? { status: "inconclusive", placements: null }
-      : { status: "unique", placements: report.solutions[0] };
+    return report.truncated ? { status: "inconclusive", placements: null } : { status: "unique", placements: report.solutions[0] };
   }
-  return report.truncated
-    ? { status: "inconclusive", placements: null }
-    : { status: "unsatisfiable", placements: null };
+  return report.truncated ? { status: "inconclusive", placements: null } : { status: "unsatisfiable", placements: null };
 }

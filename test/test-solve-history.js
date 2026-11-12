@@ -50,7 +50,8 @@ export const tests = [
     fn: () => {
       fresh();
       const day = (d) => new Date(2026, 5, d, 12, 0).getTime(); // local noon of June d
-      for (const d of [5, 6, 10, 11, 12]) history.recordSolveEntry({ key: `k${d}`, title: "t", elapsedSeconds: 1, hintsUsed: 0, at: day(d) });
+      for (const d of [5, 6, 10, 11, 12])
+        history.recordSolveEntry({ key: `k${d}`, title: "t", elapsedSeconds: 1, hintsUsed: 0, at: day(d) });
       history.recordSolveEntry({ key: "again", title: "t", elapsedSeconds: 1, hintsUsed: 0, at: day(12) + 1000 }); // same day: counts once
       assertEqual(JSON.stringify(history.solveStreak(day(12) + 3_600_000)), JSON.stringify({ current: 3, best: 3 }), "10, 11 e 12 di fila");
       assertEqual(history.solveStreak(day(13)).current, 3, "ieri conta ancora: la serie è viva fino a fine giornata");
@@ -65,7 +66,8 @@ export const tests = [
     name: "solveHistory: il log è limitato alle ultime MAX_HISTORY_ENTRIES voci",
     fn: () => {
       fresh();
-      for (let i = 0; i < history.MAX_HISTORY_ENTRIES + 25; i++) history.recordSolveEntry({ key: `k${i}`, title: "t", elapsedSeconds: 1, hintsUsed: 0, at: i });
+      for (let i = 0; i < history.MAX_HISTORY_ENTRIES + 25; i++)
+        history.recordSolveEntry({ key: `k${i}`, title: "t", elapsedSeconds: 1, hintsUsed: 0, at: i });
       const all = history.recentSolves(10_000);
       assertEqual(all.length, history.MAX_HISTORY_ENTRIES);
       assertEqual(all[0].at, history.MAX_HISTORY_ENTRIES + 24);
@@ -77,7 +79,10 @@ export const tests = [
       fresh();
       writeRaw("murdoku:solve-history", "{non json");
       assertEqual(history.recentSolves().length, 0);
-      writeRaw("murdoku:solve-history", JSON.stringify([null, { key: 1 }, { key: "ok", at: 5, title: "x", elapsedSeconds: 3, hintsUsed: 0 }]));
+      writeRaw(
+        "murdoku:solve-history",
+        JSON.stringify([null, { key: 1 }, { key: "ok", at: 5, title: "x", elapsedSeconds: 3, hintsUsed: 0 }])
+      );
       assertEqual(history.recentSolves().length, 1);
       assert(history.summaryByCase()[0].key === "ok");
     },

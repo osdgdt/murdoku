@@ -84,7 +84,11 @@ export const tests = [
           assert(victim.isVictim && p.characters.filter((x) => x.isVictim).length === 1, `${id}: la vittima è l'ultima della lista`);
           assert(/^V/i.test(victim.name), `${id}: il nome della vittima (${victim.name}) inizia con la V`);
           const suspects = p.characters.slice(0, -1).map((x) => x.name);
-          for (let i = 1; i < suspects.length; i++) assert(suspects[i - 1].localeCompare(suspects[i], lang) < 0, `${id}: ${suspects[i - 1]} prima di ${suspects[i]} (ordine alfabetico)`);
+          for (let i = 1; i < suspects.length; i++)
+            assert(
+              suspects[i - 1].localeCompare(suspects[i], lang) < 0,
+              `${id}: ${suspects[i - 1]} prima di ${suspects[i]} (ordine alfabetico)`
+            );
           assertEqual(p.grid.size.rows, p.characters.length, `${id}: un personaggio per riga, così alla vittima resta una sola casella`);
           const zones = new Set(p.grid.zones.map((z) => z.id));
           for (const k of p.clues) {
@@ -112,7 +116,9 @@ export const tests = [
           readSeeds: () => JSON.parse(JSON.stringify(seeds)),
           writeSeeds: () => {},
           readCase: () => null, // force the stored-seed path
-          writeCase: (lang, id, puzzle) => { built[`${id}.${lang}`] = puzzle; },
+          writeCase: (lang, id, puzzle) => {
+            built[`${id}.${lang}`] = puzzle;
+          },
           writeIndex: () => {},
         },
       });
@@ -121,7 +127,11 @@ export const tests = [
       for (const spec of LIBRARY) {
         for (const lang of ["it", "en"]) {
           const file = await loadJson(`examples/library/${spec.id}.${lang}.murdoku.json`);
-          assertEqual(JSON.stringify(built[`${spec.id}.${lang}`]), JSON.stringify(file), `${spec.id}/${lang}: il file non coincide con quanto generato dal seed`);
+          assertEqual(
+            JSON.stringify(built[`${spec.id}.${lang}`]),
+            JSON.stringify(file),
+            `${spec.id}/${lang}: il file non coincide con quanto generato dal seed`
+          );
         }
       }
     },
@@ -150,7 +160,15 @@ export const tests = [
   {
     name: "libreria: describeLibraryEntry usa la lingua, riconosce i casi risolti e punta a ?id= se già salvato",
     fn: () => {
-      const entry = { id: "x", difficulty: "easy", size: [5, 5], characters: 4, title: { it: "Titolo", en: "Title" }, files: { it: "examples/library/x.it.json", en: "examples/library/x.en.json" }, puzzleId: { it: "lib_x_it", en: "lib_x_en" } };
+      const entry = {
+        id: "x",
+        difficulty: "easy",
+        size: [5, 5],
+        characters: 4,
+        title: { it: "Titolo", en: "Title" },
+        files: { it: "examples/library/x.it.json", en: "examples/library/x.en.json" },
+        puzzleId: { it: "lib_x_it", en: "lib_x_en" },
+      };
       const fresh = describeLibraryEntry(entry, "en", {}, new Set());
       assertEqual(fresh.title, "Title");
       assertEqual(fresh.size, "5×5");
@@ -166,7 +184,12 @@ export const tests = [
   {
     name: "libreria: il caso del giorno è uno solo per giornata (UTC), cambia il giorno dopo e salta il tutorial",
     fn: () => {
-      const entries = [{ id: "tutorial", order: 0 }, { id: "a", order: 1 }, { id: "b", order: 2 }, { id: "c", order: 3 }];
+      const entries = [
+        { id: "tutorial", order: 0 },
+        { id: "a", order: 1 },
+        { id: "b", order: 2 },
+        { id: "c", order: 3 },
+      ];
       const d1 = new Date(Date.UTC(2026, 5, 10, 1, 0, 0));
       const d1late = new Date(Date.UTC(2026, 5, 10, 23, 59, 0));
       const d2 = new Date(Date.UTC(2026, 5, 11, 0, 1, 0));

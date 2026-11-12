@@ -57,15 +57,19 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
   );
   iconPickerDetails.appendChild(el("summary", { title: t("Scegli la professione") }, [currentIcon, currentLabel]));
   iconPickerDetails.appendChild(iconGrid);
-  const addBtn = el("button", {
-    onClick: () => {
-      const name = nameInput.value.trim();
-      if (!name) return;
-      addCharacter(puzzle, name, selectedIconId, puzzle.characters.length === 0);
-      nameInput.value = "";
-      onChange();
+  const addBtn = el(
+    "button",
+    {
+      onClick: () => {
+        const name = nameInput.value.trim();
+        if (!name) return;
+        addCharacter(puzzle, name, selectedIconId, puzzle.characters.length === 0);
+        nameInput.value = "";
+        onChange();
+      },
     },
-  }, t("+ Aggiungi"));
+    t("+ Aggiungi")
+  );
   container.appendChild(el("div", { class: "field-row" }, [nameInput, iconPickerDetails, addBtn]));
 
   const list = el("div", { class: "character-list" });
@@ -79,17 +83,22 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     const colorList = character.isVictim ? null : el("div", { class: "zone-swatch-list" });
     if (colorList) {
       for (const color of CHARACTER_COLORS) {
-        const selectColor = () => { character.color = color; onChange(); };
-        colorList.appendChild(el("div", {
-          class: "swatch" + (characterColor(character) === color ? " selected" : ""),
-          style: `background:${color}`,
-          title: t("Colore del personaggio"),
-          tabindex: "0",
-          role: "button",
-          "aria-label": t("Colore {color} per {name}", { color, name: character.name }),
-          onClick: selectColor,
-          onKeydown: onActivateKey(selectColor),
-        }));
+        const selectColor = () => {
+          character.color = color;
+          onChange();
+        };
+        colorList.appendChild(
+          el("div", {
+            class: "swatch" + (characterColor(character) === color ? " selected" : ""),
+            style: `background:${color}`,
+            title: t("Colore del personaggio"),
+            tabindex: "0",
+            role: "button",
+            "aria-label": t("Colore {color} per {name}", { color, name: character.name }),
+            onClick: selectColor,
+            onKeydown: onActivateKey(selectColor),
+          })
+        );
       }
     }
 
@@ -112,7 +121,10 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
       "select",
       {
         "aria-label": t("Genere"),
-        onChange: (e) => { character.gender = e.target.value || null; onChange(); },
+        onChange: (e) => {
+          character.gender = e.target.value || null;
+          onChange();
+        },
       },
       [
         el("option", { value: "", selected: !character.gender || undefined }, t("Genere non specificato")),
@@ -121,29 +133,44 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
       ]
     );
 
-    const removeBtn = el("button", {
-      onClick: () => {
-        removeCharacter(puzzle, character.id);
-        onChange();
+    const removeBtn = el(
+      "button",
+      {
+        onClick: () => {
+          removeCharacter(puzzle, character.id);
+          onChange();
+        },
       },
-    }, t("Rimuovi"));
+      t("Rimuovi")
+    );
 
-    const bioInput = el("textarea", {
-      class: "bio-input",
-      rows: "2",
-      placeholder: t("Bio / nota narrativa (facoltativa)"),
-      onInput: (e) => { character.bio = e.target.value; onPersistOnly(); },
-    }, character.bio || "");
+    const bioInput = el(
+      "textarea",
+      {
+        class: "bio-input",
+        rows: "2",
+        placeholder: t("Bio / nota narrativa (facoltativa)"),
+        onInput: (e) => {
+          character.bio = e.target.value;
+          onPersistOnly();
+        },
+      },
+      character.bio || ""
+    );
 
-    const card = el("div", {
-      class: "character-card" + (character.isVictim ? " victim" : ""),
-      style: character.isVictim ? "" : `border-left: 3px solid ${characterColor(character)}`,
-    }, [
-      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]),
-      colorList,
-      el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]),
-      bioInput,
-    ]);
+    const card = el(
+      "div",
+      {
+        class: "character-card" + (character.isVictim ? " victim" : ""),
+        style: character.isVictim ? "" : `border-left: 3px solid ${characterColor(character)}`,
+      },
+      [
+        el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]),
+        colorList,
+        el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]),
+        bioInput,
+      ]
+    );
     list.appendChild(card);
   }
   container.appendChild(list);

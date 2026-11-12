@@ -41,11 +41,16 @@ export function isDirection(direction, pos, target) {
 // north/south, columns for east/west) instead of just "some" distance.
 export function isDirectionDistance(direction, distance, pos, target) {
   switch (direction) {
-    case "north": return target.row - pos.row === distance;
-    case "south": return pos.row - target.row === distance;
-    case "east": return pos.col - target.col === distance;
-    case "west": return target.col - pos.col === distance;
-    default: throw new Error(`Unknown direction: ${direction}`);
+    case "north":
+      return target.row - pos.row === distance;
+    case "south":
+      return pos.row - target.row === distance;
+    case "east":
+      return pos.col - target.col === distance;
+    case "west":
+      return target.col - pos.col === distance;
+    default:
+      throw new Error(`Unknown direction: ${direction}`);
   }
 }
 

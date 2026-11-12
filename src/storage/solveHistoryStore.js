@@ -29,17 +29,30 @@ export function recordSolveEntry({ key, title, elapsedSeconds, hintsUsed, at = D
 
 // Newest first.
 export function recentSolves(limit = 15) {
-  return read().sort((a, b) => b.at - a.at).slice(0, limit);
+  return read()
+    .sort((a, b) => b.at - a.at)
+    .slice(0, limit);
 }
 
 // One row per case, most recently solved first: how often, best time, fewest hints.
 export function summaryByCase() {
   const byKey = new Map();
   for (const e of read()) {
-    const s = byKey.get(e.key) ?? { key: e.key, title: e.title, solves: 0, bestElapsedSeconds: null, bestHintsUsed: Infinity, lastSolvedAt: 0 };
+    const s = byKey.get(e.key) ?? {
+      key: e.key,
+      title: e.title,
+      solves: 0,
+      bestElapsedSeconds: null,
+      bestHintsUsed: Infinity,
+      lastSolvedAt: 0,
+    };
     s.solves++;
-    if (e.at >= s.lastSolvedAt) { s.lastSolvedAt = e.at; s.title = e.title || s.title; }
-    if (typeof e.elapsedSeconds === "number") s.bestElapsedSeconds = s.bestElapsedSeconds == null ? e.elapsedSeconds : Math.min(s.bestElapsedSeconds, e.elapsedSeconds);
+    if (e.at >= s.lastSolvedAt) {
+      s.lastSolvedAt = e.at;
+      s.title = e.title || s.title;
+    }
+    if (typeof e.elapsedSeconds === "number")
+      s.bestElapsedSeconds = s.bestElapsedSeconds == null ? e.elapsedSeconds : Math.min(s.bestElapsedSeconds, e.elapsedSeconds);
     s.bestHintsUsed = Math.min(s.bestHintsUsed, e.hintsUsed);
     byKey.set(e.key, s);
   }
@@ -80,6 +93,8 @@ export function solvesInLastDays(days, now = Date.now()) {
 
 // Average over the solves that recorded a time, or null.
 export function averageSolveSeconds() {
-  const times = read().map((e) => e.elapsedSeconds).filter((v) => typeof v === "number");
+  const times = read()
+    .map((e) => e.elapsedSeconds)
+    .filter((v) => typeof v === "number");
   return times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
 }

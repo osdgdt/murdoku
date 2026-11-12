@@ -361,12 +361,18 @@ export function undo(state) {
     // cell-by-cell restoration, mirroring the autoX undo above.
     for (const k of action.clearedCandidates || []) {
       let set = state.candidates.get(k);
-      if (!set) { set = new Set(); state.candidates.set(k, set); }
+      if (!set) {
+        set = new Set();
+        state.candidates.set(k, set);
+      }
       set.add(action.characterId);
     }
     for (const k of action.clearedLineNotes || []) {
       let set = state.lineNotes.get(k);
-      if (!set) { set = new Set(); state.lineNotes.set(k, set); }
+      if (!set) {
+        set = new Set();
+        state.lineNotes.set(k, set);
+      }
       set.add(action.characterId);
     }
   } else if (action.type === "remove") {
@@ -402,7 +408,10 @@ export function undo(state) {
         if (set.size === 0) state.lineNotes.delete(action.key);
       }
     } else {
-      if (!set) { set = new Set(); state.lineNotes.set(action.key, set); }
+      if (!set) {
+        set = new Set();
+        state.lineNotes.set(action.key, set);
+      }
       set.add(action.characterId);
     }
   } else if (action.type === "lineNotes-clear") {

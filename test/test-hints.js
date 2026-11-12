@@ -11,7 +11,6 @@ function addNegated(puzzle, ownerId, type, params) {
   return clue;
 }
 
-
 function basePuzzle(rows = 3, cols = 3) {
   const puzzle = createPuzzle("Test hints");
   puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
@@ -86,7 +85,11 @@ export const tests = [
       // che restano più soluzioni valide, quindi il tipo corretto è
       // "noFurtherDeduction", non il generico "noHint".
       const result = computeHint(puzzle, new Map(), new Map());
-      assertEqual(result.type, "noFurtherDeduction", "senza note candidato non deve suggerire esclusioni, ma la ricerca esaustiva ha comunque qualcosa da dire");
+      assertEqual(
+        result.type,
+        "noFurtherDeduction",
+        "senza note candidato non deve suggerire esclusioni, ma la ricerca esaustiva ha comunque qualcosa da dire"
+      );
     },
   },
   {
@@ -143,7 +146,13 @@ export const tests = [
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
       const b = addCharacter(puzzle, "B", "person2");
-      const result = computeHint(puzzle, new Map([[a.id, { row: 0, col: 0 }], [b.id, { row: 1, col: 1 }]]));
+      const result = computeHint(
+        puzzle,
+        new Map([
+          [a.id, { row: 0, col: 0 }],
+          [b.id, { row: 1, col: 1 }],
+        ])
+      );
       assertEqual(result.type, "noHint");
       assertEqual(result.reason, "complete");
     },
@@ -311,7 +320,11 @@ export const tests = [
       assertEqual(chain[0].characterId, a.id);
       const ids = chain[0].involvedClues.map((c) => c.id);
       assert(ids.includes(inRoomClue.id), "l'indizio inRoom deve comparire: è la vera causa della deduzione");
-      assertEqual(chain[0].involvedClues.length, 1, "l'indizio sulla finestra (vero per verità vacua) non deve comparire, non esclude nulla");
+      assertEqual(
+        chain[0].involvedClues.length,
+        1,
+        "l'indizio sulla finestra (vero per verità vacua) non deve comparire, non esclude nulla"
+      );
     },
   },
   {
@@ -433,11 +446,18 @@ export const tests = [
       assertEqual(zStep.type, "forcedPlacement");
       assertEqual(zStep.row, 2);
       assertEqual(zStep.col, 2);
-      assert(zStep.involvedGroups && zStep.involvedGroups.length > 0, "il passo deve spiegare l'interazione tra personaggi (coppia nuda), non solo indizi singoli");
+      assert(
+        zStep.involvedGroups && zStep.involvedGroups.length > 0,
+        "il passo deve spiegare l'interazione tra personaggi (coppia nuda), non solo indizi singoli"
+      );
       const group = zStep.involvedGroups[0];
       assertEqual([...group.characterNames].sort().join(","), [x.name, y.name].sort().join(","));
       const last = chain[chain.length - 1];
-      assertEqual(last.type, "tooComplex", "il resto (i 5 personaggi liberi) deve restare onestamente 'troppo complesso' invece di inventare altro");
+      assertEqual(
+        last.type,
+        "tooComplex",
+        "il resto (i 5 personaggi liberi) deve restare onestamente 'troppo complesso' invece di inventare altro"
+      );
     },
   },
 ];

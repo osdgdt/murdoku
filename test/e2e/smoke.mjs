@@ -8,12 +8,23 @@ import path from "node:path";
 import { chromium } from "playwright";
 
 const root = path.resolve(import.meta.dirname, "../..");
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".json": "application/json", ".css": "text/css", ".png": "image/png", ".svg": "image/svg+xml", ".webmanifest": "application/manifest+json" };
+const TYPES = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".json": "application/json",
+  ".css": "text/css",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".webmanifest": "application/manifest+json",
+};
 
 const server = createServer(async (req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, "http://x").pathname);
   const file = path.join(root, pathname === "/" ? "index.html" : pathname);
-  if (!file.startsWith(root)) { res.writeHead(403).end(); return; }
+  if (!file.startsWith(root)) {
+    res.writeHead(403).end();
+    return;
+  }
   try {
     const body = await readFile(file);
     res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream" }).end(body);
@@ -32,7 +43,11 @@ let failed = false;
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 try {
   for (const [lang, spec] of Object.entries(SOLUTIONS)) {
-    const context = await browser.newContext({ locale: lang === "en" ? "en-US" : "it-IT", viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
+    const context = await browser.newContext({
+      locale: lang === "en" ? "en-US" : "it-IT",
+      viewport: { width: 390, height: 844 },
+      serviceWorkers: "block",
+    });
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (e) => errors.push(String(e)));
@@ -50,10 +65,15 @@ try {
       await page.mouse.up();
     }
     await page.click("#submit-btn"); // worker-backed solution check
-    await page.waitForFunction((re) => new RegExp(re).test(document.querySelector("#result-panel")?.innerText || ""), spec.win.source, { timeout: 15000 });
+    await page.waitForFunction((re) => new RegExp(re).test(document.querySelector("#result-panel")?.innerText || ""), spec.win.source, {
+      timeout: 15000,
+    });
     const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
     if (!fits) errors.push("page scrolls horizontally on a 390px viewport");
-    if (errors.length) { failed = true; console.error(`✗ ${lang}:`, errors); } else console.log(`✓ ${lang}: fixture case solved end to end`);
+    if (errors.length) {
+      failed = true;
+      console.error(`✗ ${lang}:`, errors);
+    } else console.log(`✓ ${lang}: fixture case solved end to end`);
     await context.close();
   }
 } catch (err) {

@@ -1,5 +1,17 @@
 import { t } from "../../i18n/i18n.js";
-import { targetLabel, axisNoun, distancePhrase, objectTypePhrase, STANDABLE_TYPE_IDS, OBJECT_TYPE_LABELS, SHORT_DIRECTION_LABELS, SUPERLATIVE_DIRECTION_LABELS, describeProperty, describeNestedClue, optionalPropertyParams } from "./shared.js";
+import {
+  targetLabel,
+  axisNoun,
+  distancePhrase,
+  objectTypePhrase,
+  STANDABLE_TYPE_IDS,
+  OBJECT_TYPE_LABELS,
+  SHORT_DIRECTION_LABELS,
+  SUPERLATIVE_DIRECTION_LABELS,
+  describeProperty,
+  describeNestedClue,
+  optionalPropertyParams,
+} from "./shared.js";
 import { DIRECTIONS, DIRECTION_LABELS } from "../../util/geometry.js";
 
 export const PLACEMENT_CLUES = {
@@ -76,7 +88,11 @@ export const PLACEMENT_CLUES = {
       { name: "parity", kind: "enum", values: ["odd", "even"], labels: { odd: t("Dispari"), even: t("Pari") }, label: t("Parità") },
     ],
     describe: (params) =>
-      t("Si trova in una {axis} {parity} (contando da 1, come le etichette {labels}).", { axis: axisNoun(params.axis), parity: params.parity === "odd" ? t("dispari") : t("pari"), labels: params.axis === "row" ? "R1, R2..." : "C1, C2..." }),
+      t("Si trova in una {axis} {parity} (contando da 1, come le etichette {labels}).", {
+        axis: axisNoun(params.axis),
+        parity: params.parity === "odd" ? t("dispari") : t("pari"),
+        labels: params.axis === "row" ? "R1, R2..." : "C1, C2...",
+      }),
   },
   rowOrColWith: {
     label: t("Condivide riga/colonna con"),
@@ -105,7 +121,10 @@ export const PLACEMENT_CLUES = {
       { name: "targetId", kind: "characterOrObject", label: t("Bersaglio") },
     ],
     describe: (params, puzzle) =>
-      t("Si trova nella {axis} subito accanto a quella di {target}.", { axis: axisNoun(params.axis), target: targetLabel(puzzle, params.targetId) }),
+      t("Si trova nella {axis} subito accanto a quella di {target}.", {
+        axis: axisNoun(params.axis),
+        target: targetLabel(puzzle, params.targetId),
+      }),
   },
   inCorner: {
     label: t("Si trova in un angolo"),
@@ -138,9 +157,17 @@ export const PLACEMENT_CLUES = {
       const where = params.distance ? distancePhrase(params.direction, params.distance, dirLabel) : dirLabel;
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);
-        return nested ? t("C'è qualcuno {where} lui/lei che verifica: {nested}.", { where, nested }) : t("C'è qualcuno {where} lui/lei.", { where });
+        return nested
+          ? t("C'è qualcuno {where} lui/lei che verifica: {nested}.", { where, nested })
+          : t("C'è qualcuno {where} lui/lei.", { where });
       }
-      const who = params.property ? (params.property === "male" ? t("un uomo") : params.property === "female" ? t("una donna") : t("qualcuno {property}", { property: describeProperty(params, puzzle) })) : t("qualcuno");
+      const who = params.property
+        ? params.property === "male"
+          ? t("un uomo")
+          : params.property === "female"
+            ? t("una donna")
+            : t("qualcuno {property}", { property: describeProperty(params, puzzle) })
+        : t("qualcuno");
       return t("C'è {who} {where} lui/lei.", { who, where });
     },
     negatedDescribe: (params, puzzle) => {
@@ -148,7 +175,9 @@ export const PLACEMENT_CLUES = {
       const where = params.distance ? distancePhrase(params.direction, params.distance, dirLabel) : dirLabel;
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);
-        return nested ? t("Nessuno {where} lui/lei verifica: {nested}.", { where, nested }) : t("Nessuno si trova {where} lui/lei.", { where });
+        return nested
+          ? t("Nessuno {where} lui/lei verifica: {nested}.", { where, nested })
+          : t("Nessuno si trova {where} lui/lei.", { where });
       }
       if (params.property === "male") return t("Nessun uomo si trova {where} lui/lei.", { where });
       if (params.property === "female") return t("Nessuna donna si trova {where} lui/lei.", { where });
@@ -160,7 +189,13 @@ export const PLACEMENT_CLUES = {
     label: t("È la persona più a nord/sud/est/ovest"),
     params: [
       { name: "direction", kind: "enum", values: DIRECTIONS, labels: SHORT_DIRECTION_LABELS, label: t("Direzione") },
-      { name: "scope", kind: "enum", values: ["map", "room"], labels: { map: t("su tutta la mappa"), room: t("nella sua stanza") }, label: t("Tra chi") },
+      {
+        name: "scope",
+        kind: "enum",
+        values: ["map", "room"],
+        labels: { map: t("su tutta la mappa"), room: t("nella sua stanza") },
+        label: t("Tra chi"),
+      },
       ...optionalPropertyParams,
     ],
     describe: (params, puzzle) => {

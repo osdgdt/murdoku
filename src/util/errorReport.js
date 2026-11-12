@@ -11,7 +11,9 @@ const MAX_BANNERS_PER_PAGE = 3;
 
 // Pure: builds the pre-filled "new issue" URL.
 export function buildIssueUrl({ message, stack, page, lang, userAgent }) {
-  const title = `[auto] ${String(message || "Error").split("\n")[0].slice(0, 100)}`;
+  const title = `[auto] ${String(message || "Error")
+    .split("\n")[0]
+    .slice(0, 100)}`;
   const body = (stackText) =>
     [
       "**What happened?** (please describe what you were doing)",
@@ -53,7 +55,12 @@ function showBanner(details) {
   const text = document.createElement("span");
   text.textContent = t("Qualcosa non ha funzionato. Se il problema si ripete, puoi segnalarlo.");
   const report = document.createElement("a");
-  report.href = buildIssueUrl({ ...details, page: location.pathname + location.search, lang: getLanguage(), userAgent: navigator.userAgent });
+  report.href = buildIssueUrl({
+    ...details,
+    page: location.pathname + location.search,
+    lang: getLanguage(),
+    userAgent: navigator.userAgent,
+  });
   report.target = "_blank";
   report.rel = "noopener";
   report.textContent = t("Segnala il problema");

@@ -23,20 +23,23 @@ export function renderWinPanel({ puzzle, murderer, elapsed, previousBest, hintsU
   const hintLine = el(
     "div",
     { class: "hint-result" },
-    hintsUsed === 0 ? t("🎉 Risolto senza alcun suggerimento!") : t("💡 Suggerimenti usati: {hintsUsedForThisSolve}", { hintsUsedForThisSolve: hintsUsed })
+    hintsUsed === 0
+      ? t("🎉 Risolto senza alcun suggerimento!")
+      : t("💡 Suggerimenti usati: {hintsUsedForThisSolve}", { hintsUsedForThisSolve: hintsUsed })
   );
-  const achievementBanner = newlyUnlocked.length > 0
-    ? el(
-        "div",
-        { class: "achievement-banner" },
-        newlyUnlocked.map((a) =>
-          el("div", { class: "achievement-unlocked" }, [
-            el("div", { class: "achievement-unlocked-title" }, t("🏆 Nuovo traguardo: {title}", { title: a.title })),
-            el("p", { class: "achievement-unlocked-desc" }, a.description),
-          ])
+  const achievementBanner =
+    newlyUnlocked.length > 0
+      ? el(
+          "div",
+          { class: "achievement-banner" },
+          newlyUnlocked.map((a) =>
+            el("div", { class: "achievement-unlocked" }, [
+              el("div", { class: "achievement-unlocked-title" }, t("🏆 Nuovo traguardo: {title}", { title: a.title })),
+              el("p", { class: "achievement-unlocked-desc" }, a.description),
+            ])
+          )
         )
-      )
-    : null;
+      : null;
 
   const shareBtnLabel = t("📤 Condividi risultato");
   const shareBtn = el("button", { type: "button", class: "share-result-btn" }, shareBtnLabel);
@@ -49,7 +52,9 @@ export function renderWinPanel({ puzzle, murderer, elapsed, previousBest, hintsU
     } catch {
       shareBtn.textContent = t("Impossibile condividere");
     }
-    setTimeout(() => { shareBtn.textContent = shareBtnLabel; }, 2500);
+    setTimeout(() => {
+      shareBtn.textContent = shareBtnLabel;
+    }, 2500);
   });
 
   return el("div", { class: "win-panel result-banner success" }, [

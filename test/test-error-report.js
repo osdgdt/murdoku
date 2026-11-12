@@ -5,7 +5,13 @@ export const tests = [
   {
     name: "errorReport: l'URL della segnalazione è una issue precompilata con titolo, pagina e dettagli tecnici",
     fn: () => {
-      const url = buildIssueUrl({ message: "TypeError: x is undefined\nat foo", stack: "TypeError: x\n at a.js:1", page: "/player.html?id=a", lang: "en", userAgent: "UA/1.0" });
+      const url = buildIssueUrl({
+        message: "TypeError: x is undefined\nat foo",
+        stack: "TypeError: x\n at a.js:1",
+        page: "/player.html?id=a",
+        lang: "en",
+        userAgent: "UA/1.0",
+      });
       assert(url.startsWith(ISSUES_URL + "?title="));
       const params = new URL(url).searchParams;
       assert(params.get("title").startsWith("[auto] TypeError: x is undefined"));

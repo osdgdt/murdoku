@@ -66,11 +66,20 @@ let holdingCellNode = null;
 let holdWheelNode = null;
 
 function clearHoldTimer() {
-  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+  if (holdTimer) {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }
 }
 function clearHoldingVisual() {
-  if (holdingCellNode) { holdingCellNode.classList.remove("holding"); holdingCellNode = null; }
-  if (holdWheelNode) { holdWheelNode.remove(); holdWheelNode = null; }
+  if (holdingCellNode) {
+    holdingCellNode.classList.remove("holding");
+    holdingCellNode = null;
+  }
+  if (holdWheelNode) {
+    holdWheelNode.remove();
+    holdWheelNode = null;
+  }
 }
 // Reinterprets the current press as a drag: cancels the pending hold, and —
 // since the down-cell itself never got a tap or a hold — feeds it through
@@ -86,8 +95,14 @@ function convertToDrag() {
 
 if (typeof document !== "undefined") {
   const resetPressState = () => {
-    dragActive = false; dragDownCell = null; lastTouchCell = null; activeTouchId = null;
-    clearHoldTimer(); holdFired = false; dragConverted = false; clearHoldingVisual();
+    dragActive = false;
+    dragDownCell = null;
+    lastTouchCell = null;
+    activeTouchId = null;
+    clearHoldTimer();
+    holdFired = false;
+    dragConverted = false;
+    clearHoldingVisual();
   };
   // A genuine release (mouseup/touchend) that never moved off the down-cell
   // and never held long enough to trigger onCellHold is a completed tap.
@@ -106,9 +121,13 @@ if (typeof document !== "undefined") {
   // practice; if it ever does, treat it as an aborted gesture, not a
   // completed tap.
   document.addEventListener("dragend", resetPressState);
-  document.addEventListener("touchend", (e) => { if (isOwnTouch(e)) releasePress(); });
+  document.addEventListener("touchend", (e) => {
+    if (isOwnTouch(e)) releasePress();
+  });
   // System-aborted gesture (e.g. an incoming call) — never a completed tap.
-  document.addEventListener("touchcancel", (e) => { if (isOwnTouch(e)) resetPressState(); });
+  document.addEventListener("touchcancel", (e) => {
+    if (isOwnTouch(e)) resetPressState();
+  });
   // A press abandoned by leaving the window/tab entirely (alt-tab, the mouse
   // moving off-screen, switching apps mid-touch) must be cancelled outright,
   // not left armed to fire onCellHold later out of context, once focus
@@ -157,7 +176,22 @@ if (typeof document !== "undefined") {
 // and `onCellEnter` fires again for every new cell the pointer enters while
 // dragging (a drag is what a press becomes the moment it leaves the pressed
 // cell before the hold timer fires — see convertToDrag above).
-export function renderBoard(container, grid, { onCellClick, onCellRightClick, onCellTap, onCellHold, onCellEnter, onPressStart, decorateCell, decorateLabel, onLabelTap, showLabels = true } = {}) {
+export function renderBoard(
+  container,
+  grid,
+  {
+    onCellClick,
+    onCellRightClick,
+    onCellTap,
+    onCellHold,
+    onCellEnter,
+    onPressStart,
+    decorateCell,
+    decorateLabel,
+    onLabelTap,
+    showLabels = true,
+  } = {}
+) {
   clear(container);
   container.classList.add("board-grid");
   container.setAttribute("role", "grid");
@@ -175,7 +209,10 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   // gesture; see activeTouchId for the touch-identity side of this.
   function startPress(r, c, node) {
     if (dragActive) return;
-    dragActive = true; dragDownCell = { row: r, col: c }; holdFired = false; dragConverted = false;
+    dragActive = true;
+    dragDownCell = { row: r, col: c };
+    holdFired = false;
+    dragConverted = false;
     // Fires once, synchronously, right as the press begins — lets a caller
     // (gameScreen.js) snapshot anything that could otherwise change out from
     // under a pending hold before its timer fires (e.g. the selected tool,
@@ -190,7 +227,9 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
         '<svg viewBox="0 0 40 40"><circle class="hold-wheel-track" cx="20" cy="20" r="16"/><circle class="hold-wheel-fill" cx="20" cy="20" r="16"/></svg>';
       node.appendChild(holdWheelNode);
       holdTimer = setTimeout(() => {
-        holdTimer = null; holdFired = true; clearHoldingVisual();
+        holdTimer = null;
+        holdFired = true;
+        clearHoldingVisual();
         onCellHold(r, c);
       }, HOLD_THRESHOLD_MS);
     }
@@ -294,7 +333,10 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     let anchor = null;
     for (let r = 0; r < grid.size.rows && !anchor; r++) {
       for (let c = 0; c < grid.size.cols; c++) {
-        if (grid.cells[r][c].zoneId === zone.id && !grid.cells[r][c].blocked && freeForName(r, c)) { anchor = [r, c]; break; }
+        if (grid.cells[r][c].zoneId === zone.id && !grid.cells[r][c].blocked && freeForName(r, c)) {
+          anchor = [r, c];
+          break;
+        }
       }
     }
     if (!anchor) continue;
@@ -319,7 +361,10 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
     if (onLabelTap) {
       node.classList.add("board-label-tappable");
       node.tabIndex = 0;
-      node.setAttribute("aria-label", kind === "col" ? t("Note sulla colonna {n}", { n: index + 1 }) : t("Note sulla riga {n}", { n: index + 1 }));
+      node.setAttribute(
+        "aria-label",
+        kind === "col" ? t("Note sulla colonna {n}", { n: index + 1 }) : t("Note sulla riga {n}", { n: index + 1 })
+      );
       node.addEventListener("click", () => onLabelTap(kind, index));
       node.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -404,23 +449,37 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
           e.preventDefault();
           startPress(r, c, cellNode);
         },
-        onKeydown: cellData.blocked ? undefined : (e) => {
-          switch (e.key) {
-            case "ArrowUp": e.preventDefault(); focusCell(r - 1, c); break;
-            case "ArrowDown": e.preventDefault(); focusCell(r + 1, c); break;
-            case "ArrowLeft": e.preventDefault(); focusCell(r, c - 1); break;
-            case "ArrowRight": e.preventDefault(); focusCell(r, c + 1); break;
-            case "Enter":
-              e.preventDefault();
-              if (e.shiftKey) activateCellHold(r, c);
-              else activateCell(r, c);
-              break;
-            case " ":
-              e.preventDefault();
-              activateCell(r, c);
-              break;
-          }
-        },
+        onKeydown: cellData.blocked
+          ? undefined
+          : (e) => {
+              switch (e.key) {
+                case "ArrowUp":
+                  e.preventDefault();
+                  focusCell(r - 1, c);
+                  break;
+                case "ArrowDown":
+                  e.preventDefault();
+                  focusCell(r + 1, c);
+                  break;
+                case "ArrowLeft":
+                  e.preventDefault();
+                  focusCell(r, c - 1);
+                  break;
+                case "ArrowRight":
+                  e.preventDefault();
+                  focusCell(r, c + 1);
+                  break;
+                case "Enter":
+                  e.preventDefault();
+                  if (e.shiftKey) activateCellHold(r, c);
+                  else activateCell(r, c);
+                  break;
+                case " ":
+                  e.preventDefault();
+                  activateCell(r, c);
+                  break;
+              }
+            },
         onMouseenter: () => {
           if (!dragActive || holdFired) return;
           if (dragDownCell && dragDownCell.row === r && dragDownCell.col === c) return;
@@ -498,7 +557,11 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
       const nameTag = roomName.get(`${r},${c}`);
       if (nameTag) {
         cellNode.appendChild(
-          el("span", { class: "room-name", style: `--span:${nameTag.span}`, title: nameTag.zone.name, "aria-hidden": "true" }, nameTag.zone.name)
+          el(
+            "span",
+            { class: "room-name", style: `--span:${nameTag.span}`, title: nameTag.zone.name, "aria-hidden": "true" },
+            nameTag.zone.name
+          )
         );
       }
 
@@ -524,11 +587,18 @@ export function renderBoard(container, grid, { onCellClick, onCellRightClick, on
   // longer fit, so the same information is repeated as a compact legend
   // under the board (hidden on wide screens by CSS; purely visual — each
   // cell's aria-label already names its room).
-  const usedZoneIds = new Set(grid.cells.flat().map((cell) => cell.zoneId).filter(Boolean));
+  const usedZoneIds = new Set(
+    grid.cells
+      .flat()
+      .map((cell) => cell.zoneId)
+      .filter(Boolean)
+  );
   const legendZones = grid.zones.filter((z) => usedZoneIds.has(z.id));
   if (showLabels && legendZones.length > 0) {
     container.appendChild(
-      el("div", { class: "room-legend", "aria-hidden": "true" },
+      el(
+        "div",
+        { class: "room-legend", "aria-hidden": "true" },
         legendZones.map((zone) =>
           el("span", { class: "room-legend-item" }, [
             el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),

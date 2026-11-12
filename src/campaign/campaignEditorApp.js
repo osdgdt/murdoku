@@ -123,10 +123,16 @@ async function persistCampaign(statusEl) {
   touchCampaign(campaign);
   try {
     await campaignStore.saveCampaign(campaign);
-    if (statusEl) { statusEl.textContent = t("Salvato."); statusEl.className = "muted"; }
+    if (statusEl) {
+      statusEl.textContent = t("Salvato.");
+      statusEl.className = "muted";
+    }
     return true;
   } catch (err) {
-    if (statusEl) { statusEl.textContent = t("Errore nel salvataggio: ") + err.message; statusEl.className = "violation"; }
+    if (statusEl) {
+      statusEl.textContent = t("Errore nel salvataggio: ") + err.message;
+      statusEl.className = "violation";
+    }
     return false;
   }
 }
@@ -140,14 +146,44 @@ function renderCaseList() {
   campaign.cases.forEach((c, i) => {
     caseListEl.appendChild(
       el("div", { class: "saved-row" }, [
-        el("div", {}, [
-          el("span", { class: "title" }, `${i + 1}. ${c.label || c.puzzleId}`),
-          el("span", { class: "meta" }, c.puzzleUrl),
-        ]),
+        el("div", {}, [el("span", { class: "title" }, `${i + 1}. ${c.label || c.puzzleId}`), el("span", { class: "meta" }, c.puzzleUrl)]),
         el("div", { class: "actions" }, [
-          el("button", { disabled: i === 0 || undefined, onClick: () => { reorderCases(campaign, i, i - 1); renderCaseList(); persistCampaign(detailStatus); } }, "↑"),
-          el("button", { disabled: i === campaign.cases.length - 1 || undefined, onClick: () => { reorderCases(campaign, i, i + 1); renderCaseList(); persistCampaign(detailStatus); } }, "↓"),
-          el("button", { class: "danger", onClick: () => { removeCase(campaign, c.id); renderCaseList(); persistCampaign(detailStatus); } }, "🗑"),
+          el(
+            "button",
+            {
+              disabled: i === 0 || undefined,
+              onClick: () => {
+                reorderCases(campaign, i, i - 1);
+                renderCaseList();
+                persistCampaign(detailStatus);
+              },
+            },
+            "↑"
+          ),
+          el(
+            "button",
+            {
+              disabled: i === campaign.cases.length - 1 || undefined,
+              onClick: () => {
+                reorderCases(campaign, i, i + 1);
+                renderCaseList();
+                persistCampaign(detailStatus);
+              },
+            },
+            "↓"
+          ),
+          el(
+            "button",
+            {
+              class: "danger",
+              onClick: () => {
+                removeCase(campaign, c.id);
+                renderCaseList();
+                persistCampaign(detailStatus);
+              },
+            },
+            "🗑"
+          ),
         ]),
       ])
     );

@@ -2,7 +2,11 @@ import { writeRaw } from "../storage/storage.js";
 import { t } from "../i18n/i18n.js";
 
 function tryWriteRaw(key, value) {
-  try { writeRaw(key, value); } catch { /* theme just won't persist */ }
+  try {
+    writeRaw(key, value);
+  } catch {
+    /* theme just won't persist */
+  }
 }
 
 // The dark/light attribute is applied synchronously by a tiny inline script
@@ -33,8 +37,10 @@ function applyTheme(dark) {
 
 // Paper-cut icons (currentColor): a sun to switch to the light theme, a moon
 // to switch to the dark one.
-const SUN = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor"/><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></g></svg>';
-const MOON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>';
+const SUN =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor"/><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></g></svg>';
+const MOON =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>';
 
 function updateToggleLabels() {
   for (const btn of document.querySelectorAll("[data-theme-toggle]")) {

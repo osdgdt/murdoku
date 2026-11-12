@@ -56,7 +56,10 @@ function createDebouncedSaver(fn, delayMs) {
   let timer = null;
   let pendingArgs = null;
   function flush() {
-    if (timer) { clearTimeout(timer); timer = null; }
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
     if (pendingArgs) {
       const args = pendingArgs;
       pendingArgs = null;
@@ -107,7 +110,13 @@ function renderGate() {
   clear(gateEl);
   if (currentUserState) return;
   gateEl.appendChild(el("h1", {}, t("Modalità campagna")));
-  gateEl.appendChild(el("p", { class: "lede" }, t("Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo.")));
+  gateEl.appendChild(
+    el(
+      "p",
+      { class: "lede" },
+      t("Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo.")
+    )
+  );
   gateEl.appendChild(
     el("button", { class: "primary", onClick: () => signIn().catch((err) => showGateError(err.message)) }, t("Accedi con Google"))
   );
@@ -191,7 +200,9 @@ async function showCaseListView(campaignId) {
           el("span", { class: "title" }, [
             caseStatusBadge(index, c, progress),
             ` ${index + 1}. ${c.label || c.puzzleId}`,
-            typeof bestTime === "number" ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(bestTime)}`) : null,
+            typeof bestTime === "number"
+              ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(bestTime)}`)
+              : null,
           ]),
         ]),
         el("div", { class: "actions" }, [
@@ -233,7 +244,9 @@ async function showGameView(campaignId, caseId) {
   }
   if (index > progress.unlockedCaseIndex) {
     clear(caseErrorPanel);
-    caseErrorPanel.appendChild(el("p", { class: "violation" }, t("Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo.")));
+    caseErrorPanel.appendChild(
+      el("p", { class: "violation" }, t("Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo."))
+    );
     return;
   }
   currentCase = campaign.cases[index];
@@ -248,7 +261,9 @@ async function showGameView(campaignId, caseId) {
     fetchedPuzzle = await importPuzzleFromUrl(currentCase.puzzleUrl);
   } catch (err) {
     clear(caseErrorPanel);
-    caseErrorPanel.appendChild(el("p", { class: "violation" }, t("Non riesco a caricare questo caso: {message}", { message: err.message })));
+    caseErrorPanel.appendChild(
+      el("p", { class: "violation" }, t("Non riesco a caricare questo caso: {message}", { message: err.message }))
+    );
     return;
   }
 

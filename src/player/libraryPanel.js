@@ -34,7 +34,10 @@ export function describeLibraryEntry(entry, lang, solves, savedIds) {
     characters: entry.characters,
     solved: !!solve,
     bestElapsedSeconds: solve?.bestElapsedSeconds ?? null,
-    href: puzzleId && savedIds.has(puzzleId) ? `player.html?id=${encodeURIComponent(puzzleId)}` : `player.html?import=${encodeURIComponent(entry.files[lang])}`,
+    href:
+      puzzleId && savedIds.has(puzzleId)
+        ? `player.html?id=${encodeURIComponent(puzzleId)}`
+        : `player.html?import=${encodeURIComponent(entry.files[lang])}`,
   };
 }
 
@@ -64,9 +67,14 @@ export async function renderLibrarySection(parent) {
     panel.appendChild(
       el("div", { class: "saved-row" }, [
         el("div", {}, [
-          el("span", { class: "title" }, [d.solved ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null, d.title]),
+          el("span", { class: "title" }, [
+            d.solved ? el("span", { class: "completed-badge", title: t("Completato") }, "✓") : null,
+            d.title,
+          ]),
           d.difficulty ? el("span", { class: `difficulty-badge difficulty-${d.difficulty}` }, difficultyLabel(d.difficulty)) : null,
-          d.bestElapsedSeconds != null ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(d.bestElapsedSeconds)}`) : null,
+          d.bestElapsedSeconds != null
+            ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(d.bestElapsedSeconds)}`)
+            : null,
           el("span", { class: "meta" }, t("Griglia {size} · {count} personaggi", { size: d.size, count: d.characters })),
         ]),
         el("div", { class: "actions" }, [el("a", { class: "play", href: d.href }, d.solved ? t("Rigioca") : t("Gioca"))]),

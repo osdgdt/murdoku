@@ -104,9 +104,7 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
     const select = el(
       "select",
       { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) },
-      values.map((v) =>
-        el("option", { value: v, selected: currentParams[paramDef.name] === v || undefined }, labels[v] ?? v)
-      )
+      values.map((v) => el("option", { value: v, selected: currentParams[paramDef.name] === v || undefined }, labels[v] ?? v))
     );
     return labeledControl(paramDef.label, select);
   }
@@ -142,7 +140,11 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
       {
         multiple: true,
         title: paramDef.label,
-        onChange: (e) => onSet(paramDef.name, [...e.target.selectedOptions].map((o) => o.value)),
+        onChange: (e) =>
+          onSet(
+            paramDef.name,
+            [...e.target.selectedOptions].map((o) => o.value)
+          ),
       },
       options.map((o) => el("option", { value: o.value, selected: selected.has(o.value) || undefined }, o.label))
     );
@@ -153,13 +155,10 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
     return labeledControl(paramDef.label, picker);
   }
   const options = targetOptions(puzzle, paramDef.kind, ownerId, { noZone: !!paramDef.noZone });
-  const select = el(
-    "select",
-    { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) },
-    [el("option", { value: "" }, t("-- scegli --")), ...options.map((o) =>
-      el("option", { value: o.value, selected: currentParams[paramDef.name] === o.value || undefined }, o.label)
-    )]
-  );
+  const select = el("select", { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) }, [
+    el("option", { value: "" }, t("-- scegli --")),
+    ...options.map((o) => el("option", { value: o.value, selected: currentParams[paramDef.name] === o.value || undefined }, o.label)),
+  ]);
   return labeledControl(paramDef.label, select);
 }
 
@@ -187,9 +186,10 @@ function renderNestedClue(spec, puzzle, ownerId, onSetSpec) {
       "aria-label": t("Tipo di indizio"),
       onChange: (e) => onSetSpec({ type: e.target.value, params: defaultParams(e.target.value, puzzle) }),
     },
-    [el("option", { value: "" }, t("-- scegli indizio --")), ...subTypeIds.map((id) =>
-      el("option", { value: id, selected: current.type === id || undefined }, CLUE_TYPES[id].label)
-    )]
+    [
+      el("option", { value: "" }, t("-- scegli indizio --")),
+      ...subTypeIds.map((id) => el("option", { value: id, selected: current.type === id || undefined }, CLUE_TYPES[id].label)),
+    ]
   );
   const subDef = CLUE_TYPES[current.type];
   const subControls = (subDef?.params || []).map((p) =>
@@ -207,12 +207,18 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
     ? el("div", { class: "clue-branches" }, [
         el("div", { class: "clue-branch" }, [
           el("span", { class: "clue-branch-label" }, t("Ramo A")),
-          renderNestedClue(clue.params.a, puzzle, ownerId, (spec) => { updateClue(puzzle, clue.id, { a: spec }); onChange(); }),
+          renderNestedClue(clue.params.a, puzzle, ownerId, (spec) => {
+            updateClue(puzzle, clue.id, { a: spec });
+            onChange();
+          }),
         ]),
         el("div", { class: "clue-branch-joiner" }, t("oppure")),
         el("div", { class: "clue-branch" }, [
           el("span", { class: "clue-branch-label" }, t("Ramo B")),
-          renderNestedClue(clue.params.b, puzzle, ownerId, (spec) => { updateClue(puzzle, clue.id, { b: spec }); onChange(); }),
+          renderNestedClue(clue.params.b, puzzle, ownerId, (spec) => {
+            updateClue(puzzle, clue.id, { b: spec });
+            onChange();
+          }),
         ]),
       ])
     : el(
@@ -232,15 +238,25 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
     el("input", {
       type: "checkbox",
       checked: clue.negate || undefined,
-      onChange: (e) => { setClueNegate(puzzle, clue.id, e.target.checked); onChange(); },
+      onChange: (e) => {
+        setClueNegate(puzzle, clue.id, e.target.checked);
+        onChange();
+      },
     }),
     " no",
   ]);
-  const removeBtn = el("button", {
-    class: "clue-remove",
-    title: t("Rimuovi indizio"),
-    onClick: () => { removeClue(puzzle, clue.id); onChange(); },
-  }, t("×"));
+  const removeBtn = el(
+    "button",
+    {
+      class: "clue-remove",
+      title: t("Rimuovi indizio"),
+      onClick: () => {
+        removeClue(puzzle, clue.id);
+        onChange();
+      },
+    },
+    t("×")
+  );
 
   const header = el("div", { class: "clue-card-header" }, [
     el("span", { class: "clue-text" }, describeClue(clue, puzzle)),
@@ -269,12 +285,16 @@ function renderGenericCluesSection(puzzle, onChange) {
     { "aria-label": t("Tipo di indizio") },
     genericTypeIds.map((id) => el("option", { value: id }, CLUE_TYPES[id].label))
   );
-  const addClueBtn = el("button", {
-    onClick: () => {
-      addClue(puzzle, null, typeSelect.value, defaultParams(typeSelect.value, puzzle));
-      onChange();
+  const addClueBtn = el(
+    "button",
+    {
+      onClick: () => {
+        addClue(puzzle, null, typeSelect.value, defaultParams(typeSelect.value, puzzle));
+        onChange();
+      },
     },
-  }, t("+ Indizio generale"));
+    t("+ Indizio generale")
+  );
   wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
 
   return wrap;
@@ -308,12 +328,16 @@ export function renderClueBuilder(container, puzzle, onChange) {
       { "aria-label": t("Tipo di indizio") },
       characterTypeIds.map((id) => el("option", { value: id }, CLUE_TYPES[id].label))
     );
-    const addClueBtn = el("button", {
-      onClick: () => {
-        addClue(puzzle, character.id, typeSelect.value, defaultParams(typeSelect.value, puzzle));
-        onChange();
+    const addClueBtn = el(
+      "button",
+      {
+        onClick: () => {
+          addClue(puzzle, character.id, typeSelect.value, defaultParams(typeSelect.value, puzzle));
+          onChange();
+        },
       },
-    }, t("+ Indizio"));
+      t("+ Indizio")
+    );
     wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
 
     container.appendChild(wrap);

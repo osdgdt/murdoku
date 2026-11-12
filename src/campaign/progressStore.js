@@ -1,10 +1,4 @@
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  runTransaction,
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { firebaseApp } from "../firebaseConfig.js";
 import { toFirestoreSafe, fromFirestoreSafe } from "./progressCodec.js";
 

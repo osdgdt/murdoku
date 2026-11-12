@@ -6,19 +6,41 @@ export const tests = [
     name: "toFirestoreSafe/fromFirestoreSafe fanno un round-trip fedele di uno stato tavola serializzato",
     fn: () => {
       const serialized = {
-        placements: [["char_1", { row: 0, col: 1 }], ["char_2", { row: 2, col: 0 }]],
+        placements: [
+          ["char_1", { row: 0, col: 1 }],
+          ["char_2", { row: 2, col: 0 }],
+        ],
         xMarks: ["0,0", "1,1"],
         candidates: [["1,2", ["char_1", "char_2"]]],
-        lineNotes: [["row:1", ["char_1"]], ["col:0", ["char_1", "char_2"]]],
+        lineNotes: [
+          ["row:1", ["char_1"]],
+          ["col:0", ["char_1", "char_2"]],
+        ],
         autoXByCharacter: [["char_1", [{ row: 0, col: 2 }]]],
         hintsUsed: 3,
       };
       const safe = toFirestoreSafe(serialized);
-      assert(safe.placements.every((p) => !Array.isArray(p)), "placements non deve contenere array annidati");
-      assert(safe.candidates.every((c) => !Array.isArray(c)), "candidates non deve contenere array annidati");
-      assert(safe.lineNotes.every((c) => !Array.isArray(c)), "lineNotes non deve contenere array annidati");
-      assert(safe.autoXByCharacter.every((a) => !Array.isArray(a)), "autoXByCharacter non deve contenere array annidati");
-      assertEqual(JSON.stringify(fromFirestoreSafe(safe)), JSON.stringify(serialized), "il round-trip deve riprodurre esattamente lo stato di partenza");
+      assert(
+        safe.placements.every((p) => !Array.isArray(p)),
+        "placements non deve contenere array annidati"
+      );
+      assert(
+        safe.candidates.every((c) => !Array.isArray(c)),
+        "candidates non deve contenere array annidati"
+      );
+      assert(
+        safe.lineNotes.every((c) => !Array.isArray(c)),
+        "lineNotes non deve contenere array annidati"
+      );
+      assert(
+        safe.autoXByCharacter.every((a) => !Array.isArray(a)),
+        "autoXByCharacter non deve contenere array annidati"
+      );
+      assertEqual(
+        JSON.stringify(fromFirestoreSafe(safe)),
+        JSON.stringify(serialized),
+        "il round-trip deve riprodurre esattamente lo stato di partenza"
+      );
     },
   },
   {

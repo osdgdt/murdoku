@@ -102,7 +102,7 @@ export function withTense(tense, fn) {
 }
 
 export function t(key, params) {
-  let text = lang === "it" ? key : dictionary[key] ?? key;
+  let text = lang === "it" ? key : (dictionary[key] ?? key);
   if (activeTense !== DEFAULT_TENSE) text = conjugate(text, lang, activeTense);
   return interpolate(text, params);
 }

@@ -57,12 +57,16 @@ function visibleTargets(built, placements) {
 
 // Who is who: a small sticker and the name of everyone in the example.
 function castRow(built) {
-  return el("ul", { class: "gl-cast", "aria-hidden": "true" }, built.puzzle.characters.map((character) => {
-    const tag = el("span", { class: "gl-cast-token" });
-    tag.style.color = characterColor(character);
-    tag.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
-    return el("li", {}, [tag, el("span", {}, character.name)]);
-  }));
+  return el(
+    "ul",
+    { class: "gl-cast", "aria-hidden": "true" },
+    built.puzzle.characters.map((character) => {
+      const tag = el("span", { class: "gl-cast-token" });
+      tag.style.color = characterColor(character);
+      tag.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
+      return el("li", {}, [tag, el("span", {}, character.name)]);
+    })
+  );
 }
 
 function legendItem(swatchClass, text, swatchContent = "") {
@@ -74,7 +78,8 @@ function ownerLegend(built, cells, hasTargets) {
   const items = [];
   if (built.clue) items.push(legendItem("ok", t("Qui {name} può stare: l'indizio è vero.", { name: owner.name }), "✓"));
   else items.push(legendItem("ok", t("Qui {name} può ancora stare.", { name: owner.name }), "✓"));
-  if (cells.some((c) => c.status === "rule")) items.push(legendItem("rule", t("Esclusa: riga o colonna di una persona già collocata."), "×"));
+  if (cells.some((c) => c.status === "rule"))
+    items.push(legendItem("rule", t("Esclusa: riga o colonna di una persona già collocata."), "×"));
   if (hasTargets) items.push(legendItem("target", t("Il bersaglio dell'indizio.")));
   return el("ul", { class: "gl-legend" }, items);
 }
@@ -93,11 +98,14 @@ function lazyFigure(entry, built) {
   }
   figure.style.minHeight = `${entry.world.map.length * 40 + 24}px`;
   figure.style.minWidth = `${entry.world.map[0].length * 40 + 24}px`;
-  new IntersectionObserver((hits, observer) => {
-    if (!hits.some((h) => h.isIntersecting)) return;
-    observer.disconnect();
-    fill();
-  }, { rootMargin: "700px 0px" }).observe(figure);
+  new IntersectionObserver(
+    (hits, observer) => {
+      if (!hits.some((h) => h.isIntersecting)) return;
+      observer.disconnect();
+      fill();
+    },
+    { rootMargin: "700px 0px" }
+  ).observe(figure);
   return figure;
 }
 
@@ -113,7 +121,10 @@ function renderFigure(figure, entry, built) {
     // A general clue: the same scene twice, once where it holds and once where it doesn't.
     const verdict = evaluateGeneral(built);
     const pair = el("div", { class: "gl-pair" });
-    for (const [fixed, holds] of [[built.trueFixed, verdict.trueHolds], [built.falseFixed, verdict.falseHolds]]) {
+    for (const [fixed, holds] of [
+      [built.trueFixed, verdict.trueHolds],
+      [built.falseFixed, verdict.falseHolds],
+    ]) {
       pair.appendChild(
         el("div", { class: "gl-case " + (holds ? "is-true" : "is-false") }, [
           el("div", { class: "gl-verdict" }, holds ? t("✓ Vero") : t("✗ Falso")),
@@ -122,7 +133,9 @@ function renderFigure(figure, entry, built) {
       );
     }
     figure.appendChild(pair);
-    figure.appendChild(el("figcaption", { class: "gl-caption" }, t("La stessa scena in due disposizioni: nella prima l'indizio è vero, nella seconda no.")));
+    figure.appendChild(
+      el("figcaption", { class: "gl-caption" }, t("La stessa scena in due disposizioni: nella prima l'indizio è vero, nella seconda no."))
+    );
   }
   figure.style.minHeight = "";
   figure.style.minWidth = "";
@@ -138,11 +151,23 @@ function renderCard(entry) {
   const sentence = entry.sentence ? entry.sentence() : exampleSentence(built);
   const general = !entry.owner && entry.type;
   const badges = [];
-  if (general) badges.push(el("span", { class: "gl-badge general", title: t("Non riguarda un personaggio solo: è un fatto sulla scena.") }, t("Indizio generale")));
+  if (general)
+    badges.push(
+      el(
+        "span",
+        { class: "gl-badge general", title: t("Non riguarda un personaggio solo: è un fatto sulla scena.") },
+        t("Indizio generale")
+      )
+    );
 
   const text = el("div", { class: "gl-text" }, [
     el("p", { class: "gl-explain" }, entry.explain()),
-    sentence ? el("blockquote", { class: "gl-sentence" }, [entry.type ? el("span", { class: "gl-sentence-label" }, t("Come compare nel gioco")) : null, el("p", {}, sentence)]) : null,
+    sentence
+      ? el("blockquote", { class: "gl-sentence" }, [
+          entry.type ? el("span", { class: "gl-sentence-label" }, t("Come compare nel gioco")) : null,
+          el("p", {}, sentence),
+        ])
+      : null,
     entry.tip ? el("p", { class: "gl-tip" }, [el("strong", {}, t("Attenzione: ")), entry.tip()]) : null,
   ]);
 
@@ -162,7 +187,13 @@ function howToRead() {
   ];
   return el("section", { class: "gl-howto" }, [
     el("h2", {}, t("Come leggere gli esempi")),
-    el("p", {}, t("Ogni esempio è un piccolo caso vero, con mappa, stanze, oggetti e personaggi. Per gli indizi su un personaggio, le caselle verdi sono tutte quelle in cui Anna potrebbe trovarsi: sono calcolate dal gioco stesso, con le stesse regole che usa per controllare le soluzioni. Gli indizi generali, invece, sono mostrati in due scene: una in cui sono veri e una in cui no.")),
+    el(
+      "p",
+      {},
+      t(
+        "Ogni esempio è un piccolo caso vero, con mappa, stanze, oggetti e personaggi. Per gli indizi su un personaggio, le caselle verdi sono tutte quelle in cui Anna potrebbe trovarsi: sono calcolate dal gioco stesso, con le stesse regole che usa per controllare le soluzioni. Gli indizi generali, invece, sono mostrati in due scene: una in cui sono veri e una in cui no."
+      )
+    ),
     el("ul", { class: "gl-legend" }, items),
   ]);
 }
@@ -173,11 +204,22 @@ function build() {
     el("section", { class: "gl-hero" }, [
       el("span", { class: "eyebrow" }, t("Guida")),
       el("h1", {}, t("Glossario degli indizi")),
-      el("p", { class: "lede" }, t("Ogni tipo di indizio, spiegato in parole semplici e con un piccolo esempio da guardare. Cerca un termine, o scorri per famiglia.")),
+      el(
+        "p",
+        { class: "lede" },
+        t(
+          "Ogni tipo di indizio, spiegato in parole semplici e con un piccolo esempio da guardare. Cerca un termine, o scorri per famiglia."
+        )
+      ),
     ])
   );
 
-  const search = el("input", { type: "search", class: "gl-search", placeholder: t("Cerca un indizio (es. «accanto», «stanza», «riga»…)"), "aria-label": t("Cerca un indizio") });
+  const search = el("input", {
+    type: "search",
+    class: "gl-search",
+    placeholder: t("Cerca un indizio (es. «accanto», «stanza», «riga»…)"),
+    "aria-label": t("Cerca un indizio"),
+  });
   const count = el("span", { class: "gl-count", "aria-live": "polite" });
   root.appendChild(el("div", { class: "gl-tools" }, [search, count]));
   root.appendChild(howToRead());
@@ -211,7 +253,10 @@ function build() {
       for (const card of cards) {
         const hit = !q || card.dataset.search.includes(q);
         card.classList.toggle("hidden", !hit);
-        if (hit) { any = true; shown++; }
+        if (hit) {
+          any = true;
+          shown++;
+        }
       }
       section.classList.toggle("hidden", !any);
     }

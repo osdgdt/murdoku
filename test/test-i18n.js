@@ -5,22 +5,41 @@ import { createPuzzle, addCharacter } from "../src/model/puzzle.js";
 import { addZone, resizeGrid, placeObject } from "../src/model/grid.js";
 import { assertEqual } from "./assert.js";
 
-const placeholders = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",");
+const placeholders = (s) =>
+  [...s.matchAll(/\{(\w+)\}/g)]
+    .map((m) => m[1])
+    .sort()
+    .join(",");
 
 // Words that betray an untranslated Italian fragment inside an English sentence.
-const ITALIAN_LEAK = /\b(che|nella|nello|della|delle|con|una|uno|il|lo|la|le|gli|è|si trova|stanza|stanze|persona|nessuno|qualcuno|accanto|oppure|riga|colonna|sola|vittima|esattamente)\b|[àèéìòù]/i;
+const ITALIAN_LEAK =
+  /\b(che|nella|nello|della|delle|con|una|uno|il|lo|la|le|gli|è|si trova|stanza|stanze|persona|nessuno|qualcuno|accanto|oppure|riga|colonna|sola|vittima|esattamente)\b|[àèéìòù]/i;
 
 function sampleParams(def, ids) {
   const params = {};
   for (const p of def.params || []) {
     switch (p.kind) {
-      case "characterOrObject": case "character": params[p.name] = ids.other; break;
-      case "characterOrObjectMulti": params[p.name] = [ids.other, ids.obj]; break;
-      case "zone": params[p.name] = ids.zone; break;
-      case "number": params[p.name] = 2; break;
-      case "enum": params[p.name] = p.values.find((v) => v !== "") ?? ""; break;
-      case "clueRef": params[p.name] = { type: "inCorner", params: {} }; break;
-      default: break;
+      case "characterOrObject":
+      case "character":
+        params[p.name] = ids.other;
+        break;
+      case "characterOrObjectMulti":
+        params[p.name] = [ids.other, ids.obj];
+        break;
+      case "zone":
+        params[p.name] = ids.zone;
+        break;
+      case "number":
+        params[p.name] = 2;
+        break;
+      case "enum":
+        params[p.name] = p.values.find((v) => v !== "") ?? "";
+        break;
+      case "clueRef":
+        params[p.name] = { type: "inCorner", params: {} };
+        break;
+      default:
+        break;
     }
   }
   return params;
@@ -41,7 +60,15 @@ export const tests = [
     name: "i18n: ogni voce inglese ha gli stessi segnaposto della chiave italiana",
     fn: () => {
       const bad = Object.entries(en).filter(([k, v]) => placeholders(k) !== placeholders(v));
-      assertEqual(bad.length, 0, "segnaposto incoerenti: " + bad.map(([k]) => k).slice(0, 5).join(" | "));
+      assertEqual(
+        bad.length,
+        0,
+        "segnaposto incoerenti: " +
+          bad
+            .map(([k]) => k)
+            .slice(0, 5)
+            .join(" | ")
+      );
     },
   },
   {
@@ -68,8 +95,15 @@ export const tests = [
       try {
         const leaks = [];
         for (const [type, def] of Object.entries(CLUE_TYPES)) {
-          const clue = { id: "c", type, characterId: def.scope === "generic" ? null : ids.owner, params: sampleParams(def, ids), negate: false };
-          if (type === "orClue") clue.params = { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: ids.other } } };
+          const clue = {
+            id: "c",
+            type,
+            characterId: def.scope === "generic" ? null : ids.owner,
+            params: sampleParams(def, ids),
+            negate: false,
+          };
+          if (type === "orClue")
+            clue.params = { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: ids.other } } };
           // Static labels are built once at module load (so can't follow a mid-session
           // language switch); their dictionary coverage is enforced by `npm run i18n -- --strict`.
           const texts = [describeClue(clue, puzzle), describeClue({ ...clue, negate: true }, puzzle)];
@@ -89,7 +123,13 @@ export const tests = [
       try {
         const clue = { id: "c", type: "adjacent", characterId: ids.owner, params: { targetId: ids.other }, negate: true };
         assertEqual(describeClue(clue, puzzle), "Is not next to Bruno.");
-        const shares = { id: "c", type: "rowOrColWith", characterId: ids.owner, params: { axis: "row", targetId: ids.other }, negate: true };
+        const shares = {
+          id: "c",
+          type: "rowOrColWith",
+          characterId: ids.owner,
+          params: { axis: "row", targetId: ids.other },
+          negate: true,
+        };
         assertEqual(describeClue(shares, puzzle), "Does not share the row with Bruno.");
       } finally {
         await setLanguageForSession("it");

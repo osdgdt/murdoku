@@ -1,5 +1,15 @@
 import { createGrid, placeObject } from "../src/model/grid.js";
-import { createBoardState, handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll, serializeBoardState, deserializeBoardState } from "../src/player/board.js";
+import {
+  createBoardState,
+  handleCellTap,
+  handleCellHold,
+  handleCellDrag,
+  handleLineTap,
+  undo,
+  clearAll,
+  serializeBoardState,
+  deserializeBoardState,
+} from "../src/player/board.js";
 import { assert, assertEqual } from "./assert.js";
 
 function grid3x3() {
@@ -380,7 +390,11 @@ export const tests = [
     fn: () => {
       assertEqual(deserializeBoardState(null).placements.size, 0);
       assertEqual(deserializeBoardState(undefined).placements.size, 0);
-      assertEqual(deserializeBoardState({ placements: 42 }).placements.size, 0, "un valore non iterabile deve ricadere su uno stato vuoto, non lanciare");
+      assertEqual(
+        deserializeBoardState({ placements: 42 }).placements.size,
+        0,
+        "un valore non iterabile deve ricadere su uno stato vuoto, non lanciare"
+      );
     },
   },
   {

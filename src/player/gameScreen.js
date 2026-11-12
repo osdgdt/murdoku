@@ -4,7 +4,13 @@ import { renderClueCards, renderSelectedClue } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
 import { renderHintStep } from "./hintView.js";
 import { renderWinPanel } from "./winPanel.js";
-import { createEffectiveSolution, murdererName, SOLUTION_UNSATISFIABLE_MSG, SOLUTION_AMBIGUOUS_MSG, SOLUTION_INCONCLUSIVE_MSG } from "./effectiveSolution.js";
+import {
+  createEffectiveSolution,
+  murdererName,
+  SOLUTION_UNSATISFIABLE_MSG,
+  SOLUTION_AMBIGUOUS_MSG,
+  SOLUTION_INCONCLUSIVE_MSG,
+} from "./effectiveSolution.js";
 import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleStep, isGradedStep, HINT_LEVELS } from "./hintLogic.js";
 import { computeHintChainAsync } from "../solver/solverClient.js";
 import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTargetCells } from "../solver/hoverTargets.js";
@@ -189,16 +195,21 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     // handleCellHold's own `tool` override meaningful.
     let pressStartTool = null;
     renderPlayerBoard(
-      boardEl, puzzle, state,
+      boardEl,
+      puzzle,
+      state,
       (row, col) => applyBoardChange(() => handleCellTap(state, puzzle.grid, row, col)), // tap: nota (o X/gomma)
       (row, col) => applyBoardChange(() => handleCellHold(state, puzzle.grid, row, col, pressStartTool)), // hold: conferma il personaggio selezionato all'inizio della pressione
-      (row, col) => { // drag: note su più caselle (non azzera l'eventuale suggerimento)
+      (row, col) => {
+        // drag: note su più caselle (non azzera l'eventuale suggerimento)
         handleCellDrag(state, puzzle.grid, row, col);
         markUnsolved();
         persistProgress();
         renderBoardAndClues();
       },
-      () => { pressStartTool = state.selectedTool; }, // onPressStart
+      () => {
+        pressStartTool = state.selectedTool;
+      }, // onPressStart
       (kind, index) => applyBoardChange(() => handleLineTap(state, kind, index)) // tap su un'etichetta di riga/colonna: nota sull'intera riga/colonna
     );
     applyHintHighlight();
@@ -225,18 +236,31 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-info" }] };
     } else if (result.type === "contradiction" && result.culprits.length > 0) {
       hintHighlight = {
-        cells: result.culprits.map((id) => state.placements.get(id)).filter(Boolean).map((pos) => ({ row: pos.row, col: pos.col, cls: "hint-culprit" })),
+        cells: result.culprits
+          .map((id) => state.placements.get(id))
+          .filter(Boolean)
+          .map((pos) => ({ row: pos.row, col: pos.col, cls: "hint-culprit" })),
       };
       if (result.culprits.length === 1) state.selectedTool = { kind: "erase" };
     }
 
     clear(hintPanel);
     for (const node of renderHintStep(puzzle, hintChain, hintChainIndex, {
-      onPrev: () => { hintChainIndex--; showHintStep(); },
-      onNext: () => { hintChainIndex++; showHintStep(); },
+      onPrev: () => {
+        hintChainIndex--;
+        showHintStep();
+      },
+      onNext: () => {
+        hintChainIndex++;
+        showHintStep();
+      },
       level,
-      onMore: () => { hintLevels[hintChainIndex] = Math.min(HINT_LEVELS, level + 1); showHintStep(); },
-    })) hintPanel.appendChild(node);
+      onMore: () => {
+        hintLevels[hintChainIndex] = Math.min(HINT_LEVELS, level + 1);
+        showHintStep();
+      },
+    }))
+      hintPanel.appendChild(node);
     renderToolbar();
     renderBoardAndClues();
   }
@@ -277,7 +301,13 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       showHintStep(); // already clears and re-renders hintPanel
     } catch (err) {
       clear(hintPanel);
-      hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message })));
+      hintPanel.appendChild(
+        el(
+          "div",
+          { class: "result-banner hint-error" },
+          t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message })
+        )
+      );
     } finally {
       hintBtn.disabled = false;
     }
@@ -292,9 +322,11 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       clear(resultEl);
       if (effective.status !== "unique") {
         const message =
-          effective.status === "unsatisfiable" ? SOLUTION_UNSATISFIABLE_MSG :
-          effective.status === "ambiguous" ? SOLUTION_AMBIGUOUS_MSG :
-          SOLUTION_INCONCLUSIVE_MSG;
+          effective.status === "unsatisfiable"
+            ? SOLUTION_UNSATISFIABLE_MSG
+            : effective.status === "ambiguous"
+              ? SOLUTION_AMBIGUOUS_MSG
+              : SOLUTION_INCONCLUSIVE_MSG;
         const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
         resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
         return;
@@ -316,15 +348,25 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         const hintsUsed = state.hintsUsed;
         const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed });
         solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed });
-        resultEl.appendChild(renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked }));
+        resultEl.appendChild(
+          renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked })
+        );
       } else {
         // Deliberately doesn't say how many are right — that would let you brute
         // force it by trial and error instead of reasoning from the clues.
-        resultEl.appendChild(el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi.")));
+        resultEl.appendChild(
+          el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi."))
+        );
       }
     } catch (err) {
       clear(resultEl);
-      resultEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message })));
+      resultEl.appendChild(
+        el(
+          "div",
+          { class: "result-banner hint-error" },
+          t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message })
+        )
+      );
     } finally {
       submitBtn.disabled = solved;
     }
@@ -358,15 +400,27 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
     if (e.altKey) return;
     const key = e.key.toLowerCase();
-    if ((e.ctrlKey || e.metaKey) && key === "z") { e.preventDefault(); undoBtn.click(); return; }
+    if ((e.ctrlKey || e.metaKey) && key === "z") {
+      e.preventDefault();
+      undoBtn.click();
+      return;
+    }
     if (e.ctrlKey || e.metaKey) return;
     if (/^[1-9]$/.test(key)) {
       const character = puzzle.characters[Number(key) - 1];
-      if (character) { e.preventDefault(); selectTool({ kind: "character", id: character.id }); }
-    } else if (key === "x") { selectTool({ kind: "x" }); }
-    else if (key === "e") { selectTool({ kind: "erase" }); }
-    else if (key === "u") { undoBtn.click(); }
-    else if (key === "h" && !hintBtn.disabled) { hintBtn.click(); }
+      if (character) {
+        e.preventDefault();
+        selectTool({ kind: "character", id: character.id });
+      }
+    } else if (key === "x") {
+      selectTool({ kind: "x" });
+    } else if (key === "e") {
+      selectTool({ kind: "erase" });
+    } else if (key === "u") {
+      undoBtn.click();
+    } else if (key === "h" && !hintBtn.disabled) {
+      hintBtn.click();
+    }
   }
 
   // Full initial setup — render, briefing, timer, and every control's event

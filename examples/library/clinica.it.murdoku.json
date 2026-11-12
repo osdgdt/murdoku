@@ -404,55 +404,64 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c3",
-      "type": "directionDistance",
+      "characterId": "c2",
+      "type": "rowOrColAdjacentTo",
       "params": {
-        "direction": "west",
-        "distance": 1,
-        "targetId": "o3"
-      }
+        "axis": "col",
+        "targetId": "z5"
+      },
+      "negate": true
     },
     {
       "id": "k2",
-      "characterId": "c1",
-      "type": "inFrontOfWindow",
-      "params": {}
+      "characterId": "c4",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "col",
+        "targetId": "objtype:plant"
+      }
     },
     {
       "id": "k3",
       "characterId": "c3",
-      "type": "directionDistance",
+      "type": "diagonal",
       "params": {
-        "direction": "south",
-        "targetId": "z6"
+        "targetId": "objtype:shelf"
       }
     },
     {
       "id": "k4",
-      "characterId": "c5",
-      "type": "between",
+      "characterId": "c2",
+      "type": "directionDistance",
       "params": {
-        "targetAId": "o4",
-        "targetBId": "o5"
+        "direction": "south",
+        "targetId": "objtype:tv"
       }
     },
     {
       "id": "k5",
-      "characterId": "c4",
-      "type": "directionDistance",
+      "characterId": "c5",
+      "type": "between",
       "params": {
-        "direction": "east",
-        "distance": 5,
-        "targetId": "z1"
+        "targetAId": "objtype:chair",
+        "targetBId": "o10"
       }
     },
     {
       "id": "k6",
-      "characterId": "c2",
-      "type": "diagonal",
+      "characterId": "c4",
+      "type": "directionDistance",
       "params": {
-        "targetId": "z4"
+        "direction": "south",
+        "distance": 3,
+        "targetId": "objtype:lamp"
       }
+    },
+    {
+      "id": "k7",
+      "characterId": "c1",
+      "type": "inFrontOfWindow",
+      "params": {}
     }
   ],
   "solution": {

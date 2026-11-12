@@ -26,7 +26,7 @@ function presentChoices(puzzle, paramDef) {
   return objectTypesPresent(puzzle, { includeEdges: false }).filter((id) => paramDef.values.includes(id));
 }
 
-function targetOptions(puzzle, kind, excludeCharacterId) {
+function targetOptions(puzzle, kind, excludeCharacterId, { noZone = false } = {}) {
   const options = [];
   if (kind === "character" || kind === "characterOrObject") {
     for (const c of puzzle.characters) {
@@ -40,7 +40,8 @@ function targetOptions(puzzle, kind, excludeCharacterId) {
   if (kind === "characterOrObject") {
     // A room counts as a target too — e.g. "è accanto a" a whole zone means
     // adjacent to any one of its cells (see resolveTargetPositions).
-    for (const z of puzzle.grid.zones) options.push({ value: z.id, label: t("{name} (stanza)", { name: z.name }) });
+    // (not for clues flagged `noZone`, e.g. "è in diagonale rispetto a")
+    if (!noZone) for (const z of puzzle.grid.zones) options.push({ value: z.id, label: t("{name} (stanza)", { name: z.name }) });
     for (const o of puzzle.grid.objects) {
       const def = objectIcon(o.typeId);
       const label = def?.label || t("Oggetto");
@@ -151,7 +152,7 @@ function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
     const picker = renderNestedClue(currentParams[paramDef.name], puzzle, ownerId, (spec) => onSet(paramDef.name, spec));
     return labeledControl(paramDef.label, picker);
   }
-  const options = targetOptions(puzzle, paramDef.kind, ownerId);
+  const options = targetOptions(puzzle, paramDef.kind, ownerId, { noZone: !!paramDef.noZone });
   const select = el(
     "select",
     { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) },

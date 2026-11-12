@@ -87,7 +87,7 @@ function enumerateParams(def, ctx, owner) {
       if (p.name === "objectTypeId") return chosen.property === "sittingOn" ? presentObjectTypes : [undefined];
     }
     switch (p.kind) {
-      case "characterOrObject": return targetsAny;
+      case "characterOrObject": return p.noZone ? targetsAny.filter((id) => !puzzle.grid.zones.some((z) => z.id === id)) : targetsAny;
       case "character": return targetsChar;
       case "zone": return puzzle.grid.zones.map((z) => z.id);
       case "number": return [...Array.from({ length: maxIndex }, (_, i) => i + (p.min ?? 1)), ...(p.optional ? [undefined] : [])];

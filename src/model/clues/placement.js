@@ -10,7 +10,9 @@ export const PLACEMENT_CLUES = {
   },
   diagonal: {
     label: t("È in diagonale rispetto a"),
-    params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
+    // `noZone`: una stanza non è un bersaglio valido (non ha una "diagonale"
+    // sensata): né l'editor né il generatore la propongono.
+    params: [{ name: "targetId", kind: "characterOrObject", noZone: true, label: t("Bersaglio") }],
     describe: (params, puzzle) => t("È in diagonale rispetto a {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   onObjectType: {

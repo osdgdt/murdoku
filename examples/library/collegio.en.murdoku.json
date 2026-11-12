@@ -410,50 +410,52 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c3",
-      "type": "onlyPersonNear",
+      "characterId": "c2",
+      "type": "between",
       "params": {
-        "targetId": "o5"
+        "targetAId": "z6",
+        "targetBId": "o8"
       }
     },
     {
       "id": "k2",
+      "characterId": "c3",
+      "type": "between",
+      "params": {
+        "targetAId": "z5",
+        "targetBId": "objtype:table"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c4",
+      "type": "aloneInRoom",
+      "params": {
+        "zoneId": "z6"
+      }
+    },
+    {
+      "id": "k4",
       "characterId": "c1",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
-      "id": "k3",
-      "characterId": "c5",
-      "type": "facing",
-      "params": {
-        "targetId": "objtype:chair"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c2",
-      "type": "between",
-      "params": {
-        "targetAId": "z6",
-        "targetBId": "objtype:lamp"
-      }
-    },
-    {
       "id": "k5",
-      "characterId": "c4",
-      "type": "between",
+      "characterId": "c5",
+      "type": "rowOrColWith",
       "params": {
-        "targetAId": "objtype:door",
-        "targetBId": "z8"
+        "axis": "col",
+        "targetId": "o7"
       }
     },
     {
       "id": "k6",
       "characterId": "c5",
-      "type": "zoneAdjacentTo",
+      "type": "directionDistance",
       "params": {
-        "zoneId": "objtype:tv"
+        "direction": "south",
+        "targetId": "c1"
       }
     }
   ],

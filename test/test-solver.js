@@ -364,6 +364,22 @@ export const tests = [
     },
   },
   {
+    name: "predicate onlyPersonNear con una stanza come bersaglio: nessun altro deve essere accanto a NESSUNA casella della stanza",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const garden = addZone(puzzle.grid, "Garden", "#cfc");
+      for (let r = 0; r < 3; r++) paintCellZone(puzzle.grid, r, 2, garden.id);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const clue = addClue(puzzle, a.id, "onlyPersonNear", { targetId: garden.id });
+      const predicate = buildPredicate(clue, puzzle);
+      // A is beside (0,2); B is beside ANOTHER cell of the garden, (2,2): the clue is false.
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }], [b.id, { row: 2, col: 1 }]]), true), false, "B è accanto a un'altra casella dell'orto");
+      // B nowhere near the garden: the clue holds.
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }], [b.id, { row: 1, col: 0 }]]), true), true, "nessun altro è accanto all'orto");
+    },
+  },
+  {
     name: "predicate rowOrColWith su un oggetto: vero se condivide l'asse, falso altrimenti",
     fn: () => {
       const puzzle = basePuzzle();

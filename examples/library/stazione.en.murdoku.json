@@ -519,64 +519,61 @@
       "characterId": "c3",
       "type": "between",
       "params": {
-        "targetAId": "o9",
-        "targetBId": "o7"
+        "targetAId": "objtype:plant",
+        "targetBId": "o13"
       }
     },
     {
       "id": "k2",
-      "characterId": "c2",
-      "type": "directionDistance",
-      "params": {
-        "direction": "north",
-        "distance": 5,
-        "targetId": "z8"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c4",
-      "type": "inFrontOfWindow",
-      "params": {}
-    },
-    {
-      "id": "k4",
-      "characterId": "c4",
-      "type": "between",
-      "params": {
-        "targetAId": "objtype:lamp",
-        "targetBId": "o4"
-      }
-    },
-    {
-      "id": "k5",
-      "characterId": "c1",
-      "type": "directionDistance",
-      "params": {
-        "direction": "south",
-        "distance": 2,
-        "targetId": "o6"
-      }
-    },
-    {
-      "id": "k6",
       "characterId": "c1",
       "type": "directionDistance",
       "params": {
         "direction": "east",
-        "targetId": "o12"
+        "distance": 1,
+        "targetId": "o8"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c6",
+      "type": "between",
+      "params": {
+        "targetAId": "z10",
+        "targetBId": "o15"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c3",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 2
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "south",
+        "targetId": "z3"
       },
       "negate": true
     },
     {
-      "id": "k7",
-      "characterId": "c2",
-      "type": "directionDistance",
+      "id": "k6",
+      "characterId": "c1",
+      "type": "facing",
       "params": {
-        "direction": "west",
-        "distance": 5,
-        "targetId": "objtype:stool"
+        "targetId": "objtype:carpet"
       }
+    },
+    {
+      "id": "k7",
+      "characterId": "c4",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k8",
@@ -584,17 +581,8 @@
       "type": "directionDistance",
       "params": {
         "direction": "east",
-        "distance": 1,
-        "targetId": "z2"
-      }
-    },
-    {
-      "id": "k9",
-      "characterId": "c6",
-      "type": "rowOrColWith",
-      "params": {
-        "axis": "row",
-        "targetId": "z11"
+        "distance": 6,
+        "targetId": "objtype:shelf"
       }
     }
   ],

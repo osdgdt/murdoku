@@ -5,30 +5,30 @@
   },
   "pasticceria": {
     "seed": 1,
-    "key": "a95b53e6"
+    "key": "4c017608"
   },
   "clinica": {
-    "seed": 193,
-    "key": "937e427a"
+    "seed": 111,
+    "key": "e95adfba"
   },
   "collegio": {
-    "seed": 62,
-    "key": "fa164cfb"
+    "seed": 13,
+    "key": "236a0555"
   },
   "castello": {
-    "seed": 6,
-    "key": "04a2a8b4"
+    "seed": 50,
+    "key": "90284a1a"
   },
   "stazione": {
-    "seed": 135,
-    "key": "8f9a3629"
+    "seed": 6,
+    "key": "fd186ccf"
   },
   "monastero": {
-    "seed": 35,
-    "key": "c4462504"
+    "seed": 16,
+    "key": "927e0dfd"
   },
   "villa": {
     "seed": 74,
-    "key": "5224dc2a"
+    "key": "e3ff89cd"
   }
 }

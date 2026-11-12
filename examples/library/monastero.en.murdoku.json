@@ -522,106 +522,94 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c1",
-      "type": "onlyPersonNear",
+      "characterId": "c6",
+      "type": "directionDistance",
       "params": {
-        "targetId": "z6"
-      }
-    },
-    {
-      "id": "k2",
-      "characterId": "c1",
-      "type": "extremeInDirection",
-      "params": {
-        "direction": "north",
-        "scope": "map",
-        "property": "adjacentTo",
-        "targetId": "o6"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c2",
-      "type": "extremeInDirection",
-      "params": {
-        "direction": "north",
-        "scope": "map",
-        "property": "adjacentTo",
-        "targetId": "objtype:lamp"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c3",
-      "type": "inRowOrCol",
-      "params": {
-        "axis": "row",
-        "index": 2
-      }
-    },
-    {
-      "id": "k5",
-      "characterId": null,
-      "type": "noOneWithProperty",
-      "params": {
-        "zoneId": "z1",
-        "onlyGender": "female",
-        "property": "adjacentTo",
+        "direction": "east",
         "targetId": "o1"
       }
     },
     {
-      "id": "k6",
-      "characterId": "c1",
-      "type": "someoneAtDirectionDistance",
+      "id": "k2",
+      "characterId": "c3",
+      "type": "rowOrColWith",
       "params": {
-        "direction": "west",
-        "distance": 2,
-        "property": "adjacentTo",
-        "targetId": "z7"
-      },
-      "negate": true
-    },
-    {
-      "id": "k7",
-      "characterId": "c6",
-      "type": "extremeInDirection",
-      "params": {
-        "direction": "north",
-        "scope": "map",
-        "property": "adjacentTo",
-        "targetId": "objtype:tv"
+        "axis": "col",
+        "targetId": "o2"
       }
     },
     {
-      "id": "k8",
-      "characterId": "c4",
+      "id": "k3",
+      "characterId": "c1",
+      "type": "between",
+      "params": {
+        "targetAId": "o6",
+        "targetBId": "z10"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c2",
       "type": "directionDistance",
       "params": {
-        "direction": "south",
+        "direction": "west",
+        "distance": 6,
+        "targetId": "o2"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c3",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 2,
         "targetId": "o4"
       }
     },
     {
-      "id": "k9",
-      "characterId": "c5",
-      "type": "directionDistance",
+      "id": "k6",
+      "characterId": "c4",
+      "type": "between",
       "params": {
-        "direction": "south",
-        "distance": 2,
-        "targetId": "c4"
+        "targetAId": "o14",
+        "targetBId": "z4"
+      }
+    },
+    {
+      "id": "k7",
+      "characterId": "c6",
+      "type": "between",
+      "params": {
+        "targetAId": "objtype:shelf",
+        "targetBId": "o16"
+      }
+    },
+    {
+      "id": "k8",
+      "characterId": "c5",
+      "type": "facing",
+      "params": {
+        "targetId": "o8"
+      }
+    },
+    {
+      "id": "k9",
+      "characterId": null,
+      "type": "noOneInRoom",
+      "params": {
+        "zoneId": "z4"
       }
     },
     {
       "id": "k10",
-      "characterId": "c4",
-      "type": "someoneAtDirectionDistance",
+      "characterId": "c5",
+      "type": "rowOrColAdjacentTo",
       "params": {
-        "direction": "east",
-        "distance": 5,
-        "property": "adjacentTo",
-        "targetId": "z6"
-      }
+        "axis": "row",
+        "targetId": "objtype:table"
+      },
+      "negate": true
     }
   ],
   "solution": {

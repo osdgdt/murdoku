@@ -24,7 +24,10 @@ export const builders = {
   onlyPersonNear: ({ clue, puzzle, ownerId, params }) => {
       // Needs every character placed to be certain "no one else" holds.
       // With a generic type target (e.g. "a door"), it's enough for the owner
-      // to be alone next to at least one instance of that type.
+      // to be alone next to at least one instance of that type. With a ROOM as
+      // target the whole room counts: nobody else may be next to ANY of its cells
+      // (otherwise "the only person next to the garden" could be true while
+      // someone else stands beside another corner of it).
       return (pm, isComplete) => {
         const a = posOfCharacter(pm, ownerId);
         if (!a) return undefined;
@@ -34,10 +37,11 @@ export const builders = {
         const nearTargets = targets.filter((t) => isNextTo(puzzle, a, t));
         if (nearTargets.length === 0) return false;
         if (!isComplete) return undefined;
+        const others = targets.some((t) => t.room === true) ? targets : nearTargets;
         for (const c of puzzle.characters) {
           if (c.id === ownerId) continue;
           const pos = posOfCharacter(pm, c.id);
-          if (pos && nearTargets.some((t) => isNextTo(puzzle, pos, t))) return false;
+          if (pos && others.some((t) => isNextTo(puzzle, pos, t))) return false;
         }
         return true;
       };

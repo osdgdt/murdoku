@@ -408,51 +408,58 @@
       "type": "rowOrColWith",
       "params": {
         "axis": "col",
-        "targetId": "o13"
+        "targetId": "o2"
       }
     },
     {
       "id": "k2",
-      "characterId": "c3",
-      "type": "directionDistance",
-      "params": {
-        "direction": "south",
-        "distance": 2,
-        "targetId": "o9"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c5",
-      "type": "between",
-      "params": {
-        "targetAId": "z7",
-        "targetBId": "o5"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c2",
-      "type": "between",
-      "params": {
-        "targetAId": "o6",
-        "targetBId": "o12"
-      }
-    },
-    {
-      "id": "k5",
       "characterId": "c1",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
-      "id": "k6",
-      "characterId": "c4",
+      "id": "k3",
+      "characterId": "c3",
       "type": "directionDistance",
       "params": {
-        "direction": "east",
-        "distance": 4,
-        "targetId": "o5"
+        "direction": "south",
+        "distance": 2,
+        "targetId": "objtype:lamp"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c5",
+      "type": "between",
+      "params": {
+        "targetAId": "o4",
+        "targetBId": "o5"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c2",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:shelf"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c4",
+      "type": "between",
+      "params": {
+        "targetAId": "z3",
+        "targetBId": "objtype:window"
+      },
+      "negate": true
+    },
+    {
+      "id": "k7",
+      "characterId": "c4",
+      "type": "facing",
+      "params": {
+        "targetId": "z3"
       }
     }
   ],

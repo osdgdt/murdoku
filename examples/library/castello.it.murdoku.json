@@ -416,63 +416,64 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c3",
-      "type": "inFrontOfWindow",
-      "params": {}
+      "characterId": "c5",
+      "type": "adjacent",
+      "params": {
+        "targetId": "o14"
+      }
     },
     {
       "id": "k2",
       "characterId": "c4",
-      "type": "inRoom",
+      "type": "directionDistance",
       "params": {
-        "zoneId": "z7"
+        "direction": "south",
+        "targetId": "o7"
       }
     },
     {
       "id": "k3",
-      "characterId": "c1",
-      "type": "onlyPersonNear",
+      "characterId": "c2",
+      "type": "directionDistance",
       "params": {
-        "targetId": "z9"
+        "direction": "north",
+        "distance": 1,
+        "targetId": "z1"
       }
     },
     {
       "id": "k4",
       "characterId": "c3",
-      "type": "rowOrColParity",
-      "params": {
-        "axis": "row",
-        "parity": "odd"
-      },
-      "negate": true
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k5",
-      "characterId": "c5",
+      "characterId": "c1",
       "type": "directionDistance",
       "params": {
-        "direction": "south",
-        "distance": 5,
-        "targetId": "objtype:door"
-      }
-    },
-    {
-      "id": "k6",
-      "characterId": "c5",
-      "type": "directionDistance",
-      "params": {
-        "direction": "west",
+        "direction": "east",
         "distance": 1,
         "targetId": "o11"
       }
     },
     {
+      "id": "k6",
+      "characterId": "c1",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 2,
+        "targetId": "o14"
+      }
+    },
+    {
       "id": "k7",
-      "characterId": "c2",
+      "characterId": "c3",
       "type": "between",
       "params": {
-        "targetAId": "o12",
-        "targetBId": "z6"
+        "targetAId": "o13",
+        "targetBId": "o3"
       },
       "negate": true
     }

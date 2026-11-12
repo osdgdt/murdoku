@@ -54,6 +54,8 @@ function renderHistory(root) {
   if (summary.length === 0) return;
   const dateOf = (ms) => new Date(ms).toLocaleDateString(intlLocale(), { day: "numeric", month: "short", year: "numeric" });
   const average = solveHistory.averageSolveSeconds();
+  const streak = solveHistory.solveStreak();
+  const days = (n) => (n === 1 ? t("1 giorno") : t("{count} giorni", { count: n }));
 
   const caseRows = summary.slice(0, 10).map((s) =>
     el("li", {}, [
@@ -77,6 +79,11 @@ function renderHistory(root) {
     el("div", { class: "panel solve-history" }, [
       el("h3", {}, t("📜 Il tuo storico")),
       average != null ? el("p", { class: "muted" }, t("Tempo medio di risoluzione: {time}", { time: formatElapsed(average) })) : null,
+      el("p", { class: "muted" }, [
+        t("🔥 Serie attuale: {current} (record: {best})", { current: days(streak.current), best: days(streak.best) }),
+        " · ",
+        t("Ultimi 7 giorni: {count} risolti", { count: solveHistory.solvesInLastDays(7) }),
+      ].join("")),
       el("h4", {}, t("Per caso")),
       el("ul", { class: "history-list" }, caseRows),
       el("h4", {}, t("Ultime risoluzioni")),

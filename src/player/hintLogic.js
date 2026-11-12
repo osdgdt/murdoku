@@ -13,6 +13,29 @@ export function chainDisclosesSomething(chain) {
   return chain.some((step) => REAL_HINT_STEP_TYPES.has(step.type));
 }
 
+// Graded hints: a computed deduction is revealed in three levels, one click of
+// "Mostra di più" each — 1 only says WHICH character to look at, 2 adds the clues
+// that matter, 3 gives the cell. Author-written steps (`manual`) and the other
+// step types (contradictions, "too complex"...) are shown in full right away.
+export const HINT_LEVELS = 3;
+
+export function isGradedStep(step) {
+  return (step.type === "forcedPlacement" || step.type === "eliminatedCell") && !step.manual && step.characterId != null;
+}
+
+// The banner text of a graded step before the last level; null at the last one
+// (the step's own message is shown then).
+export function gradedHintMessage(puzzle, step, level) {
+  if (level >= HINT_LEVELS) return null;
+  const name = puzzle.characters.find((c) => c.id === step.characterId)?.name ?? "";
+  if (level <= 1) {
+    return step.type === "forcedPlacement"
+      ? t("Concentrati su {name}: con gli indizi e le regole, la sua posizione si può dedurre.", { name })
+      : t("Concentrati su {name}: ci sono caselle che puoi escludere per questo personaggio.", { name });
+  }
+  return t("Questi sono gli indizi su cui ragionare per {name}. Prova a trovare la casella da solo, poi chiedi di più.", { name });
+}
+
 // A case with at least one author-written step REPLACES the automatic engine
 // entirely — never a hybrid fallback. A highlighted step reuses the literal
 // "forcedPlacement" type so the rest of the UI handles it unchanged (and it
@@ -22,7 +45,7 @@ export function buildManualHintChain(puzzle) {
   if (steps.length === 0) return null;
   return steps.map((step) =>
     step.characterId != null && step.row != null && step.col != null
-      ? { type: "forcedPlacement", variant: "success", characterId: step.characterId, row: step.row, col: step.col, message: step.message || "" }
+      ? { type: "forcedPlacement", variant: "success", manual: true, characterId: step.characterId, row: step.row, col: step.col, message: step.message || "" }
       : { type: "manualNote", variant: "info", message: step.message || "" }
   );
 }

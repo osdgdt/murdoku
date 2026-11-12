@@ -19,6 +19,19 @@ const { zoneOfCell } = await import("../../src/model/grid.js");
 //  - the briefing never says where the victim is found.
 const BANNED_TYPES = new Set(["closerTo"]);
 
+// A stored seed only means something for the exact spec + generator it was found
+// with (the pool of candidate clues decides what each seed produces). seeds.json
+// keeps { seed, key } and the key is a fingerprint of that pool; when it no longer
+// matches (a spec edit, a new clue rule...) the seed is stale and is searched again.
+// Bump GENERATOR_VERSION whenever composeClues, MODES or the gates change.
+export const GENERATOR_VERSION = 2;
+function fingerprint(spec, pool) {
+  const text = JSON.stringify([GENERATOR_VERSION, spec.mode, spec.require ?? [], spec.seed, spec.tries ?? 2000, pool.map((c) => [c.characterId, c.type, c.params, !!c.negate])]);
+  let h = 0x811c9dc5; // FNV-1a, 32 bit
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193) >>> 0;
+  return h.toString(16).padStart(8, "0");
+}
+
 const SIMPLE = new Set(["inRoom", "inRowOrCol", "adjacent", "diagonal", "sameRoomAs", "onObjectType", "rowOrColWith", "inCorner", "aloneInRoom", "facing", "seated", "inFrontOfWindow"]);
 const RELATIONAL = new Set([...SIMPLE, "between", "zoneAdjacentTo", "rowOrColAdjacentTo", "directionDistance", "onlyPersonNear", "inRoomCorner", "aloneWithPerson", "rowOrColParity", "someoneInRoomWithProperty"]);
 
@@ -102,7 +115,7 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
     const idsNoV = withoutKey(baseEn.ids);
     const existing = !rebuild ? await io.readCase("en", spec.id) : null;
     if (existing) {
-      chosen = { clues: existing.clues.map(({ characterId, type, params, negate }) => ({ characterId, type, params, negate: !!negate })), seed: seeds[spec.id] };
+      chosen = { clues: existing.clues.map(({ characterId, type, params, negate }) => ({ characterId, type, params, negate: !!negate })), seed: seeds[spec.id]?.seed };
     } else {
       const fullPlacements = new Map(Object.entries(spec.solution).map(([key, [row, col]]) => [baseEn.ids[key], { row, col }]));
       const suspectPlacements = new Map([...fullPlacements].filter(([id]) => id !== baseEn.ids[victimKey]));
@@ -111,8 +124,11 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
       // Clues true for the suspects alone AND for the full solution (a clue such as
       // "alone in a room" must not change meaning once the victim is on the board).
       const pool = trueClues(vless, idsNoV, withoutKey(spec.solution)).filter((c) => !BANNED_TYPES.has(c.type) && holdsIn(c, baseEn.puzzle, fullPlacements));
-      const startSeed = seeds[spec.id] ?? spec.seed;
-      const tryOrder = seeds[spec.id] ? [seeds[spec.id]] : Array.from({ length: spec.tries ?? 2000 }, (_, i) => startSeed + i);
+      const key = fingerprint(spec, pool);
+      const stored = seeds[spec.id] && typeof seeds[spec.id] === "object" ? seeds[spec.id] : null;
+      const reusable = !!stored && stored.key === key;
+      if (seeds[spec.id] && !reusable) log(`${spec.id}: the stored seed is stale (the spec or the generator changed): searching again`);
+      const tryOrder = reusable ? [stored.seed] : Array.from({ length: spec.tries ?? 2000 }, (_, i) => spec.seed + i);
       for (const seed of tryOrder) {
         const clues = await composeClues(vless, pool, { random: rng(seed), ...mode });
         if (!clues) continue;
@@ -127,8 +143,8 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
         chosen = { clues, seed, m };
         break;
       }
-      if (!chosen) throw new Error(`${spec.id}: no seed satisfied the ${spec.mode} gate`);
-      seeds[spec.id] = chosen.seed;
+      if (!chosen) throw new Error(reusable ? `${spec.id}: the stored seed ${stored.seed} no longer passes the ${spec.mode} gate` : `${spec.id}: no seed satisfied the ${spec.mode} gate`);
+      seeds[spec.id] = { seed: chosen.seed, key };
       await io.writeSeeds(seeds); // keep progress if the run is interrupted
     }
 
@@ -155,7 +171,7 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
   if (ids) return log(`partial build: ${ids.join(", ")}`); // the index is only written by a full build
   // The hand-written tutorial (tools/make-tutorial.mjs) leads the library.
   index.unshift({
-    id: "tutorial", order: 0, difficulty: "very-easy", size: [4, 4], characters: 3, clues: 7,
+    id: "tutorial", order: 0, difficulty: "very-easy", size: [4, 4], characters: 4, clues: 7,
     title: { it: "Tutorial: il primo caso", en: "Tutorial: your first case" },
     files: { it: "examples/tutorial.it.murdoku.json", en: "examples/tutorial.en.murdoku.json" },
     puzzleId: { it: "tutorial_it", en: "tutorial_en" },

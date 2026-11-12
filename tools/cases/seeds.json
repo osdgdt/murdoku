@@ -1,10 +1,34 @@
 {
-  "faro": 12,
-  "pasticceria": 1,
-  "clinica": 372,
-  "collegio": 129,
-  "castello": 134,
-  "stazione": 38,
-  "monastero": 77,
-  "villa": 33
+  "faro": {
+    "seed": 7,
+    "key": "8e06c2e7"
+  },
+  "pasticceria": {
+    "seed": 1,
+    "key": "a95b53e6"
+  },
+  "clinica": {
+    "seed": 193,
+    "key": "937e427a"
+  },
+  "collegio": {
+    "seed": 62,
+    "key": "fa164cfb"
+  },
+  "castello": {
+    "seed": 6,
+    "key": "04a2a8b4"
+  },
+  "stazione": {
+    "seed": 135,
+    "key": "8f9a3629"
+  },
+  "monastero": {
+    "seed": 35,
+    "key": "c4462504"
+  },
+  "villa": {
+    "seed": 74,
+    "key": "5224dc2a"
+  }
 }

@@ -287,6 +287,22 @@
 .board-cell.char-target {
   box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 5px var(--gold-soft);
 }
+/* Indizio fissato con un clic sulla sua riga: anello interno nel colore d'accento,
+   sovrapponibile all'evidenziazione del personaggio (oro) e al passaggio del mouse. */
+.board-cell.clue-pin {
+  box-shadow: inset 0 0 0 4px var(--accent);
+}
+.board-cell.clue-pin.char-target {
+  box-shadow: inset 0 0 0 4px var(--accent), inset 0 0 0 6px var(--gold);
+}
+.board-cell.clue-pin.hover-target {
+  box-shadow: inset 0 0 0 4px var(--accent), 0 0 0 3px var(--success), 0 0 12px 3px var(--success-soft);
+}
+.clue-line { cursor: pointer; }
+.clue-line:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.clue-line.pinned { background: var(--accent-soft); border-radius: 4px; font-weight: 600; }
+.hint-more { margin-top: 0.5em; }
+
 .board-cell.char-target.hover-target {
   box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 5px var(--gold-soft), 0 0 0 3px var(--success), 0 0 12px 3px var(--success-soft);
 }

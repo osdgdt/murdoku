@@ -198,7 +198,13 @@ export async function composeClues(puzzle, pool, { random, allowType, negateChan
   }
   // Prune clues that aren't needed (in random order; `pruneChance` < 1 keeps some
   // redundancy on purpose, for easier cases).
-  const order = clues.map((_, i) => i).sort(() => random() - 0.5);
+  // Fisher-Yates, not sort(() => random() - 0.5): an inconsistent comparator has an
+  // engine-dependent result, and a seed must give the same case under Node and in a browser.
+  const order = clues.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
   let current = clues.slice();
   for (const idx of order) {
     const target = clues[idx];

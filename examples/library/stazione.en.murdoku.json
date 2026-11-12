@@ -516,76 +516,85 @@
   "clues": [
     {
       "id": "k1",
+      "characterId": "c3",
+      "type": "between",
+      "params": {
+        "targetAId": "o9",
+        "targetBId": "o7"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 5,
+        "targetId": "z8"
+      }
+    },
+    {
+      "id": "k3",
       "characterId": "c4",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
-      "id": "k2",
-      "characterId": "c3",
+      "id": "k4",
+      "characterId": "c4",
       "type": "between",
       "params": {
-        "targetAId": "o7",
-        "targetBId": "o9"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c2",
-      "type": "directionDistance",
-      "params": {
-        "direction": "west",
-        "distance": 4,
-        "targetId": "objtype:table"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c5",
-      "type": "directionDistance",
-      "params": {
-        "direction": "east",
-        "distance": 2,
-        "targetId": "z2"
+        "targetAId": "objtype:lamp",
+        "targetBId": "o4"
       }
     },
     {
       "id": "k5",
-      "characterId": "c6",
+      "characterId": "c1",
       "type": "directionDistance",
       "params": {
         "direction": "south",
-        "distance": 3,
-        "targetId": "objtype:shelf"
+        "distance": 2,
+        "targetId": "o6"
       }
     },
     {
       "id": "k6",
-      "characterId": "c2",
+      "characterId": "c1",
       "type": "directionDistance",
       "params": {
-        "direction": "north",
-        "distance": 2,
-        "targetId": "o5"
-      }
-    },
-    {
-      "id": "k7",
-      "characterId": "c1",
-      "type": "between",
-      "params": {
-        "targetAId": "objtype:door",
-        "targetBId": "z6"
+        "direction": "east",
+        "targetId": "o12"
       },
       "negate": true
     },
     {
-      "id": "k8",
-      "characterId": "c1",
-      "type": "rowOrColAdjacentTo",
+      "id": "k7",
+      "characterId": "c2",
+      "type": "directionDistance",
       "params": {
-        "axis": "col",
-        "targetId": "objtype:door"
+        "direction": "west",
+        "distance": 5,
+        "targetId": "objtype:stool"
+      }
+    },
+    {
+      "id": "k8",
+      "characterId": "c5",
+      "type": "directionDistance",
+      "params": {
+        "direction": "east",
+        "distance": 1,
+        "targetId": "z2"
+      }
+    },
+    {
+      "id": "k9",
+      "characterId": "c6",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "row",
+        "targetId": "z11"
       }
     }
   ],

@@ -6,6 +6,8 @@ import { migratePuzzle } from "../src/model/migrations.js";
 import { checkUniqueness, validateSolution } from "../src/solver/validator.js";
 import { describeLibraryEntry, isLibraryPuzzleId, caseOfTheDay } from "../src/player/libraryPanel.js";
 import { CLUE_TYPES } from "../src/model/clueTypes.js";
+import { findRedundantClues, findCluesNeededWithoutVictim } from "../src/solver/redundancy.js";
+import { addClue } from "../src/model/puzzle.js";
 import { assert, assertEqual } from "./assert.js";
 
 const isNode = !!globalThis.process?.versions?.node;
@@ -94,6 +96,49 @@ export const tests = [
           for (const z of p.grid.zones) assert(!p.briefing.includes(z.name), `${id}: il briefing nomina la stanza «${z.name}»`);
         }
       }
+    },
+  },
+  {
+    name: "libreria: i seed memorizzati (tools/cases/seeds.json) riproducono esattamente i file dei casi — se fallisce, rigenera con tools/make-library.mjs",
+    fn: async () => {
+      const { buildLibrary } = await import("../tools/lib/library-build.mjs");
+      const { LIBRARY } = await import("../tools/cases/library.mjs");
+      const seeds = await loadJson("tools/cases/seeds.json");
+      const built = {};
+      const logs = [];
+      await buildLibrary({
+        ids: LIBRARY.map((s) => s.id),
+        log: (m) => logs.push(m),
+        io: {
+          readSeeds: () => JSON.parse(JSON.stringify(seeds)),
+          writeSeeds: () => {},
+          readCase: () => null, // force the stored-seed path
+          writeCase: (lang, id, puzzle) => { built[`${id}.${lang}`] = puzzle; },
+          writeIndex: () => {},
+        },
+      });
+      const stale = logs.filter((m) => /stale/.test(m));
+      assertEqual(stale.length, 0, `seed scaduti: ${stale.join(" | ")}`);
+      for (const spec of LIBRARY) {
+        for (const lang of ["it", "en"]) {
+          const file = await loadJson(`examples/library/${spec.id}.${lang}.murdoku.json`);
+          assertEqual(JSON.stringify(built[`${spec.id}.${lang}`]), JSON.stringify(file), `${spec.id}/${lang}: il file non coincide con quanto generato dal seed`);
+        }
+      }
+    },
+  },
+  {
+    name: "editor: gli indizi «superflui» che servono ai sospettati (senza la vittima) vengono riconosciuti; con un indizio sulla vittima non si dice nulla",
+    fn: async () => {
+      const check = async (candidate) => checkUniqueness(candidate, { maxSolutions: 3, forwardCheck: true });
+      const puzzle = await loadJson("examples/library/monastero.en.murdoku.json");
+      const { ok, redundant } = await findRedundantClues(puzzle, check);
+      assert(ok && redundant.length > 0, "monastero ha indizi superflui solo grazie alla regola della stanza della vittima");
+      const needed = await findCluesNeededWithoutVictim(puzzle, redundant, check);
+      assertEqual(needed.join(), redundant.join(), "ognuno serve a determinare i sospettati");
+      const victim = puzzle.characters.find((c) => c.isVictim);
+      addClue(puzzle, victim.id, "inRowOrCol", { axis: "row", index: 1 });
+      assertEqual((await findCluesNeededWithoutVictim(puzzle, redundant, check)).length, 0, "un indizio sulla vittima: nessuna nota");
     },
   },
   {

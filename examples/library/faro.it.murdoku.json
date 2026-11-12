@@ -289,52 +289,43 @@
     },
     {
       "id": "k2",
-      "characterId": "c1",
-      "type": "inRowOrCol",
+      "characterId": "c3",
+      "type": "adjacent",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetId": "o6"
       }
     },
     {
       "id": "k3",
-      "characterId": "c4",
-      "type": "adjacent",
-      "params": {
-        "targetId": "z2"
-      }
+      "characterId": "c3",
+      "type": "inCorner",
+      "params": {}
     },
     {
       "id": "k4",
       "characterId": "c4",
-      "type": "rowOrColWith",
+      "type": "inRowOrCol",
       "params": {
         "axis": "col",
-        "targetId": "objtype:table"
+        "index": 4
       }
     },
     {
       "id": "k5",
-      "characterId": "c2",
-      "type": "diagonal",
+      "characterId": "c4",
+      "type": "rowOrColWith",
       "params": {
-        "targetId": "c4"
-      }
-    },
-    {
-      "id": "k6",
-      "characterId": "c3",
-      "type": "facing",
-      "params": {
+        "axis": "row",
         "targetId": "z4"
       }
     },
     {
-      "id": "k7",
-      "characterId": "c3",
-      "type": "facing",
+      "id": "k6",
+      "characterId": "c2",
+      "type": "inRowOrCol",
       "params": {
-        "targetId": "o8"
+        "axis": "col",
+        "index": 5
       }
     }
   ],

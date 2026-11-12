@@ -32,12 +32,12 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
 
-  await page.goto(`${base}/player.html?import=examples/library/library.en.murdoku.json`);
+  await page.goto(`${base}/player.html?import=examples/library/faro.en.murdoku.json`);
   await page.waitForSelector("#board [role=gridcell]");
   const id = new URL(page.url()).searchParams.get("id");
   await page.goto(`${base}/editor.html?id=${id}`);
   await page.waitForSelector("#board [role=gridcell]");
-  check("editor opens the case", (await page.inputValue("#puzzle-title")) === "Murder in the Study");
+  check("editor opens the case", (await page.inputValue("#puzzle-title")) === "The Lighthouse in the Storm");
 
   await page.click("#unique-btn");
   await page.waitForSelector("#validation-panel .ok-message", { timeout: 20000 });
@@ -59,7 +59,7 @@ try {
   player.on("pageerror", (e) => errors.push(String(e)));
   await player.goto(link);
   await player.waitForSelector("#board [role=gridcell]", { timeout: 20000 });
-  check("opening the share link loads the case in the player", (await player.innerText("#player-title")) === "Murder in the Study");
+  check("opening the share link loads the case in the player", (await player.innerText("#player-title")) === "The Lighthouse in the Storm");
 
   // The map editor's own tools: add a room, paint a cell, place a prop, resize the grid.
   await page.fill('input[placeholder="Room name"]', "Test room");

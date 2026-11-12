@@ -66,7 +66,7 @@ const NO_FURTHER_DEDUCTION_MSG =
 function buildForcedMessage(puzzle, character, row, col) {
   const zoneId = zoneOfCell(puzzle.grid, row, col);
   const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
-  const where = zone ? ` (nella zona "${zone.name}")` : "";
+  const where = zone ? t(" (nella zona \"{name}\")", { name: zone.name }) : "";
   // The victim rarely has clues of her own (she doesn't act) — by the time
   // her placement is forced, it's almost always because every other
   // row/column is already spoken for, not because of a specific clue about

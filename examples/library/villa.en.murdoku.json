@@ -543,104 +543,97 @@
     {
       "id": "k1",
       "characterId": "c6",
-      "type": "diagonal",
-      "params": {
-        "targetId": "o11"
-      }
-    },
-    {
-      "id": "k2",
-      "characterId": "c2",
-      "type": "directionDistance",
-      "params": {
-        "direction": "north",
-        "distance": 4,
-        "targetId": "z6"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c3",
-      "type": "rowOrColAdjacentTo",
-      "params": {
-        "axis": "col",
-        "targetId": "o18"
-      }
-    },
-    {
-      "id": "k4",
-      "characterId": "c1",
-      "type": "rowOrColAdjacentTo",
-      "params": {
-        "axis": "col",
-        "targetId": "objtype:window"
-      },
-      "negate": true
-    },
-    {
-      "id": "k5",
-      "characterId": "c4",
-      "type": "directionDistance",
-      "params": {
-        "direction": "north",
-        "distance": 2,
-        "targetId": "o18"
-      }
-    },
-    {
-      "id": "k6",
-      "characterId": "c5",
-      "type": "between",
-      "params": {
-        "targetAId": "objtype:shelf",
-        "targetBId": "z10"
-      }
-    },
-    {
-      "id": "k7",
-      "characterId": null,
-      "type": "noOneNear",
-      "params": {
-        "targetId": "objtype:lamp"
-      }
-    },
-    {
-      "id": "k8",
-      "characterId": "c6",
-      "type": "directionDistance",
-      "params": {
-        "direction": "east",
-        "targetId": "c1"
-      },
-      "negate": true
-    },
-    {
-      "id": "k9",
-      "characterId": "c1",
-      "type": "adjacent",
-      "params": {
-        "targetId": "o9"
-      }
-    },
-    {
-      "id": "k10",
-      "characterId": "c4",
       "type": "directionDistance",
       "params": {
         "direction": "west",
         "distance": 1,
-        "targetId": "z2"
+        "targetId": "o9"
+      }
+    },
+    {
+      "id": "k2",
+      "characterId": "c4",
+      "type": "directionDistance",
+      "params": {
+        "direction": "north",
+        "distance": 1,
+        "targetId": "objtype:shelf"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": null,
+      "type": "noOneInRoom",
+      "params": {
+        "zoneId": "z4"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c5",
+      "type": "between",
+      "params": {
+        "targetAId": "z10",
+        "targetBId": "objtype:window"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c1",
+      "type": "rowOrColWith",
+      "params": {
+        "axis": "row",
+        "targetId": "objtype:door"
+      }
+    },
+    {
+      "id": "k6",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "south",
+        "distance": 1,
+        "targetId": "z5"
       },
       "negate": true
     },
     {
-      "id": "k11",
-      "characterId": "c5",
-      "type": "someoneAtDirectionDistance",
+      "id": "k7",
+      "characterId": "c1",
+      "type": "directionDistance",
+      "params": {
+        "direction": "east",
+        "distance": 4,
+        "targetId": "o13"
+      }
+    },
+    {
+      "id": "k8",
+      "characterId": "c2",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 2,
+        "targetId": "c6"
+      }
+    },
+    {
+      "id": "k9",
+      "characterId": null,
+      "type": "sameRoomSizeAs",
+      "params": {
+        "targetAId": "c6",
+        "targetBId": "c3"
+      }
+    },
+    {
+      "id": "k10",
+      "characterId": "c3",
+      "type": "directionDistance",
       "params": {
         "direction": "north",
-        "property": "adjacentTo",
-        "targetId": "o18"
+        "distance": 4,
+        "targetId": "objtype:shelf"
       },
       "negate": true
     }

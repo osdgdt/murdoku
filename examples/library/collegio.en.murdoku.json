@@ -410,66 +410,50 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c2",
-      "type": "inRowOrCol",
+      "characterId": "c3",
+      "type": "onlyPersonNear",
       "params": {
-        "axis": "col",
-        "index": 1
+        "targetId": "o5"
       }
     },
     {
       "id": "k2",
-      "characterId": "c3",
-      "type": "directionDistance",
-      "params": {
-        "direction": "south",
-        "distance": 3,
-        "targetId": "z1"
-      }
-    },
-    {
-      "id": "k3",
-      "characterId": "c3",
-      "type": "directionDistance",
-      "params": {
-        "direction": "west",
-        "distance": 2,
-        "targetId": "objtype:tv"
-      }
-    },
-    {
-      "id": "k4",
       "characterId": "c1",
       "type": "inFrontOfWindow",
       "params": {}
     },
     {
-      "id": "k5",
+      "id": "k3",
       "characterId": "c5",
-      "type": "rowOrColAdjacentTo",
+      "type": "facing",
       "params": {
-        "axis": "row",
-        "targetId": "objtype:table"
-      },
-      "negate": true
+        "targetId": "objtype:chair"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c2",
+      "type": "between",
+      "params": {
+        "targetAId": "z6",
+        "targetBId": "objtype:lamp"
+      }
+    },
+    {
+      "id": "k5",
+      "characterId": "c4",
+      "type": "between",
+      "params": {
+        "targetAId": "objtype:door",
+        "targetBId": "z8"
+      }
     },
     {
       "id": "k6",
       "characterId": "c5",
-      "type": "rowOrColWith",
+      "type": "zoneAdjacentTo",
       "params": {
-        "axis": "col",
-        "targetId": "objtype:table"
-      }
-    },
-    {
-      "id": "k7",
-      "characterId": "c4",
-      "type": "directionDistance",
-      "params": {
-        "direction": "south",
-        "distance": 3,
-        "targetId": "z2"
+        "zoneId": "objtype:tv"
       }
     }
   ],

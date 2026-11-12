@@ -24,8 +24,8 @@ const server = createServer(async (req, res) => {
 const base = `http://localhost:${server.address().port}`;
 
 const SOLUTIONS = {
-  en: { names: { Alice: [0, 0], Ben: [1, 1], Clara: [2, 3] }, win: /Case solved/ },
-  it: { names: { Anna: [0, 0], Bruno: [1, 1], Carla: [2, 3] }, win: /Caso risolto/ },
+  en: { names: { Alice: [0, 2], Ben: [1, 1], Clara: [2, 3], Victor: [3, 0] }, win: /Case solved/ },
+  it: { names: { Anna: [0, 2], Bruno: [1, 1], Carla: [2, 3], Valerio: [3, 0] }, win: /Caso risolto/ },
 };
 
 let failed = false;

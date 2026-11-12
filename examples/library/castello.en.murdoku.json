@@ -416,66 +416,65 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c4",
-      "type": "directionDistance",
-      "params": {
-        "direction": "north",
-        "distance": 1,
-        "targetId": "o14"
-      }
+      "characterId": "c3",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k2",
-      "characterId": "c5",
-      "type": "directionDistance",
+      "characterId": "c4",
+      "type": "inRoom",
       "params": {
-        "direction": "east",
-        "distance": 2,
-        "targetId": "o10"
+        "zoneId": "z7"
       }
     },
     {
       "id": "k3",
-      "characterId": "c2",
-      "type": "directionDistance",
+      "characterId": "c1",
+      "type": "onlyPersonNear",
       "params": {
-        "direction": "west",
-        "distance": 1,
-        "targetId": "o9"
+        "targetId": "z9"
       }
     },
     {
       "id": "k4",
       "characterId": "c3",
-      "type": "diagonal",
+      "type": "rowOrColParity",
       "params": {
-        "targetId": "o8"
-      }
+        "axis": "row",
+        "parity": "odd"
+      },
+      "negate": true
     },
     {
       "id": "k5",
-      "characterId": "c1",
-      "type": "rowOrColWith",
+      "characterId": "c5",
+      "type": "directionDistance",
       "params": {
-        "axis": "col",
-        "targetId": "o8"
+        "direction": "south",
+        "distance": 5,
+        "targetId": "objtype:door"
       }
     },
     {
       "id": "k6",
-      "characterId": "c1",
+      "characterId": "c5",
       "type": "directionDistance",
       "params": {
-        "direction": "south",
-        "distance": 3,
-        "targetId": "c2"
+        "direction": "west",
+        "distance": 1,
+        "targetId": "o11"
       }
     },
     {
       "id": "k7",
-      "characterId": "c3",
-      "type": "inFrontOfWindow",
-      "params": {}
+      "characterId": "c2",
+      "type": "between",
+      "params": {
+        "targetAId": "o12",
+        "targetBId": "z6"
+      },
+      "negate": true
     }
   ],
   "solution": {

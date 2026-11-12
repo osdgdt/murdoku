@@ -6,7 +6,7 @@ import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
-import { findRedundantClues } from "../solver/redundancy.js";
+import { findRedundantClues, findCluesNeededWithoutVictim } from "../solver/redundancy.js";
 import { describeClue } from "../model/clueTypes.js";
 import { roomColor } from "../skin/paper/rooms.js";
 import { renderMapEditor } from "./mapEditor.js";
@@ -380,7 +380,8 @@ redundantBtn.addEventListener("click", async () => {
   const progress = el("p", { class: "info-message" }, t("Analisi degli indizi in corso…"));
   validationPanel.appendChild(progress);
   try {
-    const result = await findRedundantClues(puzzle, (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES }), {
+    const check = (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES });
+    const result = await findRedundantClues(puzzle, check, {
       onProgress: (done, total) => { progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total }); },
     });
     clear(validationPanel);
@@ -393,6 +394,8 @@ redundantBtn.addEventListener("click", async () => {
     } else if (result.redundant.length === 0) {
       validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Nessun indizio superfluo: ognuno è necessario all'unicità.")));
     } else {
+      progress.textContent = t("Analisi degli indizi in corso…");
+      const neededForSuspects = new Set(await findCluesNeededWithoutVictim(puzzle, result.redundant, check));
       validationPanel.appendChild(
         el("p", { class: "info-message" }, t("{count} indizi si possono togliere senza perdere l'unicità. Toglierne uno alla volta: dopo ogni rimozione conviene rifare l'analisi, perché alcuni sono superflui solo in coppia.", { count: result.redundant.length }))
       );
@@ -404,6 +407,7 @@ redundantBtn.addEventListener("click", async () => {
         list.appendChild(
           el("li", {}, [
             el("span", {}, `${owner ? owner.name + ": " : ""}${describeClue(clue, puzzle)}`),
+            neededForSuspects.has(clueId) ? el("em", { class: "muted", title: t("Senza la vittima i sospettati non sarebbero più determinati: di solito è voluto.") }, ` ${t("(serve a determinare i sospettati: di solito è voluto)")}`) : null,
             " ",
             el("button", { type: "button", onClick: () => { removeClue(puzzle, clueId); handleChange(); clear(validationPanel); setStatus(t("Indizio rimosso. Rifai l'analisi per controllare gli altri.")); } }, t("Rimuovi")),
           ])

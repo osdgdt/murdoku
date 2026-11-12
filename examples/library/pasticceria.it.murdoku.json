@@ -301,40 +301,41 @@
   "clues": [
     {
       "id": "k1",
-      "characterId": "c1",
-      "type": "diagonal",
-      "params": {
-        "targetId": "o3"
-      }
-    },
-    {
-      "id": "k2",
-      "characterId": "c4",
-      "type": "inRoom",
-      "params": {
-        "zoneId": "z5"
-      }
-    },
-    {
-      "id": "k3",
       "characterId": "c4",
       "type": "inCorner",
       "params": {}
     },
     {
-      "id": "k4",
-      "characterId": "c2",
-      "type": "diagonal",
+      "id": "k2",
+      "characterId": "c4",
+      "type": "rowOrColWith",
       "params": {
-        "targetId": "o7"
+        "axis": "row",
+        "targetId": "objtype:lamp"
+      }
+    },
+    {
+      "id": "k3",
+      "characterId": "c2",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:chair"
+      }
+    },
+    {
+      "id": "k4",
+      "characterId": "c3",
+      "type": "adjacent",
+      "params": {
+        "targetId": "z5"
       }
     },
     {
       "id": "k5",
-      "characterId": "c3",
-      "type": "inRoom",
+      "characterId": "c1",
+      "type": "facing",
       "params": {
-        "zoneId": "z3"
+        "targetId": "objtype:plant"
       }
     }
   ],

@@ -9,7 +9,7 @@
         4,
         4
       ],
-      "characters": 3,
+      "characters": 4,
       "clues": 7,
       "title": {
         "it": "Tutorial: il primo caso",
@@ -33,7 +33,7 @@
         5
       ],
       "characters": 5,
-      "clues": 7,
+      "clues": 6,
       "title": {
         "it": "Il faro nella tempesta",
         "en": "The Lighthouse in the Storm"
@@ -79,7 +79,7 @@
         6
       ],
       "characters": 6,
-      "clues": 7,
+      "clues": 6,
       "title": {
         "it": "Turno di notte in clinica",
         "en": "Night Shift at the Clinic"
@@ -102,7 +102,7 @@
         6
       ],
       "characters": 6,
-      "clues": 7,
+      "clues": 6,
       "title": {
         "it": "Esame finale al collegio",
         "en": "Final Exam at the College"
@@ -148,7 +148,7 @@
         7
       ],
       "characters": 7,
-      "clues": 8,
+      "clues": 9,
       "title": {
         "it": "Delitto in orbita",
         "en": "Murder in Orbit"
@@ -171,7 +171,7 @@
         7
       ],
       "characters": 7,
-      "clues": 9,
+      "clues": 10,
       "title": {
         "it": "Il segreto del monastero",
         "en": "The Secret of the Monastery"
@@ -194,7 +194,7 @@
         7
       ],
       "characters": 7,
-      "clues": 11,
+      "clues": 10,
       "title": {
         "it": "La villa sul lago",
         "en": "The Villa on the Lake"

@@ -5,7 +5,7 @@ import { renderToolbar as renderToolbarChips } from "./toolbar.js";
 import { renderHintStep } from "./hintView.js";
 import { renderWinPanel } from "./winPanel.js";
 import { createEffectiveSolution, murdererName, SOLUTION_UNSATISFIABLE_MSG, SOLUTION_AMBIGUOUS_MSG, SOLUTION_INCONCLUSIVE_MSG } from "./effectiveSolution.js";
-import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleStep } from "./hintLogic.js";
+import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleStep, isGradedStep, HINT_LEVELS } from "./hintLogic.js";
 import { computeHintChainAsync } from "../solver/solverClient.js";
 import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTargetCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
@@ -51,6 +51,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   let hintHighlight = null; // { cells: [{row,col,cls}] } | null — ephemeral, not part of board.js state
   let hintChain = [];
   let hintChainIndex = 0;
+  let pinnedClueId = null; // a clue whose cells stay highlighted until it is clicked again
+  let hintLevels = []; // per chain step: how much of a graded hint is revealed (hintLogic.js)
   let timerInterval = null;
   let startedAt = null; // read by onSubmit too, for the elapsed time passed to onSolved
   let solved = false; // true once onSubmit's win branch has fired — keeps "Verifica soluzione" disabled until a placement/note actually changes again
@@ -77,6 +79,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   // re-render both whenever the active tool changes.
   function selectTool(tool) {
     state.selectedTool = tool;
+    const pinned = puzzle.clues.find((c) => c.id === pinnedClueId);
+    if (pinned && pinned.characterId && !(tool?.kind === "character" && tool.id === pinned.characterId)) pinnedClueId = null; // the pin follows its character
     renderToolbar();
     renderBoardAndClues();
   }
@@ -132,7 +136,24 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     }
   }
 
+  // Stable highlight of the clue the player pinned (clicking its line), derived
+  // from `pinnedClueId` on every render; skipped while a hint is showing.
+  function applyPinnedClue() {
+    const clue = puzzle.clues.find((c) => c.id === pinnedClueId);
+    if (!clue || hintHighlight) return;
+    for (const { row, col } of resolveClueHoverCells(clue, puzzle, state.placements)) {
+      const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      if (node) node.classList.add("clue-pin");
+    }
+  }
+  function togglePinnedClue(clue) {
+    pinnedClueId = pinnedClueId === clue.id ? null : clue.id;
+    clearHover();
+    renderBoardAndClues();
+  }
+
   function clearHint() {
+    hintLevels = [];
     hintHighlight = null;
     hintChain = [];
     hintChainIndex = 0;
@@ -182,15 +203,22 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     );
     applyHintHighlight();
     applySelectedCharacterTargets();
-    renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);
-    renderSelectedClue(selectedClueEl, puzzle, state, showClueHover, clearHover);
+    applyPinnedClue();
+    const pin = { clueId: pinnedClueId, onToggle: togglePinnedClue };
+    renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover, pin);
+    renderSelectedClue(selectedClueEl, puzzle, state, showClueHover, clearHover, pin);
   }
 
   function showHintStep() {
     const result = hintChain[hintChainIndex];
     hintHighlight = null;
+    // Computed deductions come in levels (see hintLogic.js): before the last one
+    // only the character is selected, no cell is highlighted.
+    const level = isGradedStep(result) ? (hintLevels[hintChainIndex] ?? 1) : HINT_LEVELS;
 
-    if (result.type === "forcedPlacement") {
+    if (level < HINT_LEVELS) {
+      state.selectedTool = { kind: "character", id: result.characterId };
+    } else if (result.type === "forcedPlacement") {
       hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-target" }] };
       state.selectedTool = { kind: "character", id: result.characterId };
     } else if (result.type === "eliminatedCell") {
@@ -206,6 +234,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     for (const node of renderHintStep(puzzle, hintChain, hintChainIndex, {
       onPrev: () => { hintChainIndex--; showHintStep(); },
       onNext: () => { hintChainIndex++; showHintStep(); },
+      level,
+      onMore: () => { hintLevels[hintChainIndex] = Math.min(HINT_LEVELS, level + 1); showHintStep(); },
     })) hintPanel.appendChild(node);
     renderToolbar();
     renderBoardAndClues();
@@ -224,6 +254,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   async function onHint() {
     hintBtn.disabled = true;
     clear(hintPanel);
+    hintLevels = [];
 
     // No Web Worker round-trip for author-written hints: the content is
     // already fully known synchronously.

@@ -3,6 +3,7 @@
 import { el } from "../util/dom.js";
 import { describeClue } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
+import { HINT_LEVELS, isGradedStep, gradedHintMessage } from "./hintLogic.js";
 
 // Which specific clues (by name, prefixed with the owning character when it's
 // not the step's own subject) make the deduction certain. Returns null when
@@ -46,11 +47,18 @@ export function renderHintExplanation(puzzle, result) {
   return el("div", { class: "hint-explain" }, blocks);
 }
 
-export function renderHintStep(puzzle, chain, index, { onPrev, onNext }) {
+// `level` (graded steps only, see hintLogic.js): 1 = just the character,
+// 2 = plus the clues involved, 3 (or omitted) = everything. `onMore` reveals the
+// next level.
+export function renderHintStep(puzzle, chain, index, { onPrev, onNext, level = HINT_LEVELS, onMore }) {
   const result = chain[index];
-  const nodes = [el("div", { class: `result-banner hint-${result.variant}` }, result.message)];
-  const explanation = renderHintExplanation(puzzle, result);
+  const graded = isGradedStep(result) && level < HINT_LEVELS;
+  const nodes = [el("div", { class: `result-banner hint-${graded ? "info" : result.variant}` }, graded ? gradedHintMessage(puzzle, result, level) : result.message)];
+  const explanation = !graded || level >= 2 ? renderHintExplanation(puzzle, result) : null;
   if (explanation) nodes.push(explanation);
+  if (graded) {
+    nodes.push(el("button", { id: "hint-more-btn", class: "hint-more", onClick: onMore }, level >= 2 ? t("Mostra la casella") : t("Mostra di più")));
+  }
   if (chain.length > 1) {
     nodes.push(
       el("div", { class: "hint-nav" }, [

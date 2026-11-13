@@ -250,8 +250,8 @@ export default {
   " (click per dipingere, doppio click per rimuovere)": " (click to paint, double-click to remove)",
   "Stanza {name}: seleziona per dipingere": "Room {name}: select to paint",
   "Texture della stanza": "Room texture",
-  "Seleziona una stanza e clicca sulle celle per dipingerle; il campo «Rinomina stanza» ne cambia il nome. Doppio click su uno swatch per eliminare la stanza.":
-    "Select a room and click cells to paint them; the “Rename room” field changes its name. Double-click a swatch to delete the room.",
+  "Seleziona una stanza e clicca sulle celle per dipingerle; sotto trovi il suo nome e il suo colore, che puoi cambiare (la legenda si aggiorna da sola). Doppio click su uno swatch per eliminare la stanza.":
+    "Select a room and click cells to paint them; below you will find its name and colour, which you can change (the legend updates by itself). Double-click a swatch to delete the room.",
   "Rinomina stanza": "Rename room",
   "Oggetti / Mobili": "Objects / Furniture",
   "Oggetto: {label}": "Object: {label}",

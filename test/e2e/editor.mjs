@@ -121,10 +121,50 @@ try {
     (await page.inputValue("#zone-rename-input")) === "Throne room" && /Throne room/.test(await legend()),
     await page.inputValue("#zone-rename-input")
   );
+  // Colour of the room: pick a chip; the room list, the board and the legend follow by themselves.
+  const legendSwatch = () =>
+    page.evaluate(() => {
+      const item = [...document.querySelectorAll(".room-legend-item")].find((n) => /Throne room/.test(n.textContent));
+      return item?.querySelector(".room-label-swatch")?.style.background || "";
+    });
+  const before = await legendSwatch();
+  await page.locator('.swatch[aria-label*="Throne room"]').click();
+  await page.locator('.room-color-chip[aria-label="Room colour: Lime"]').click();
+  await page.waitForFunction((was) => {
+    const item = [...document.querySelectorAll(".room-legend-item")].find((n) => /Throne room/.test(n.textContent));
+    const now = item?.querySelector(".room-label-swatch")?.style.background;
+    return now && now !== was;
+  }, before);
+  const afterLime = await legendSwatch();
+  check(
+    "a colour chip changes the room's colour in the legend by itself",
+    afterLime !== before && afterLime !== "",
+    `${before} -> ${afterLime}`
+  );
+  check(
+    "the chip is marked as selected",
+    (await page.locator('.room-color-chip[aria-label="Room colour: Lime"]').getAttribute("aria-pressed")) === "true"
+  );
+  await page.fill("#zone-color-input", "#3366cc");
+  // (fill on a colour input already fires input + change, like the native picker does on close)
+  await page.waitForFunction((was) => {
+    const item = [...document.querySelectorAll(".room-legend-item")].find((n) => /Throne room/.test(n.textContent));
+    const now = item?.querySelector(".room-label-swatch")?.style.background;
+    return now && now !== was;
+  }, afterLime);
+  const afterCustom = await legendSwatch();
+  check("the free colour picker changes it too", afterCustom !== afterLime, `${afterLime} -> ${afterCustom}`);
+  await page.click("#editor-undo-btn");
+  await page.waitForFunction((was) => {
+    const item = [...document.querySelectorAll(".room-legend-item")].find((n) => /Throne room/.test(n.textContent));
+    return item?.querySelector(".room-label-swatch")?.style.background === was;
+  }, afterLime);
+  check("undo brings the previous colour back (legend included)", (await legendSwatch()) === afterLime);
   const renamedId = new URL(page.url()).searchParams.get("id");
   await page.goto(`${base}/editor.html?id=${renamedId}`);
   await page.waitForSelector("#board [role=gridcell]");
   check("the new room name is saved with the case", /Throne room/.test(await legend()), await legend());
+  check("the new room colour is saved with the case", (await legendSwatch()) === afterLime, `${await legendSwatch()} vs ${afterLime}`);
   const propsBefore = await page.locator(".obj-icon").count();
   await page.locator(".palette-item").first().click();
   await page.click('[data-row="4"][data-col="1"]');

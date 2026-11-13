@@ -1,10 +1,12 @@
 import { roomColor } from "../skin/paper/rooms.js";
+import { ROOM_PALETTE } from "../model/roomColors.js";
 import { el, clear } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import {
   addZone,
   removeZone,
   renameZone,
+  setZoneColor,
   MAX_ZONE_NAME,
   paintCellZone,
   placeObject,
@@ -193,6 +195,35 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       }
     });
     panelEl.appendChild(el("div", { class: "field-row" }, [el("label", { for: "zone-rename-input" }, t("Rinomina stanza")), renameInput]));
+
+    // Colour of the room: a palette of named chips and a free colour picker. The chips are
+    // drawn with the colour the board really shows (roomColor), so what you pick is what you see;
+    // the legend, the room list and the board all read zone.color and follow on the next draw.
+    const currentColor = String(selectedZone.color || "").toLowerCase();
+    const pickColor = (color) => {
+      if (color !== currentColor && setZoneColor(puzzle.grid, selectedZone.id, color)) onChange();
+    };
+    const chips = ROOM_PALETTE.map(({ color, name }) =>
+      el("button", {
+        type: "button",
+        class: "room-color-chip" + (color === currentColor ? " selected" : ""),
+        style: `background:${roomColor(color)}`,
+        title: name,
+        "aria-label": t("Colore stanza: {name}", { name }),
+        "aria-pressed": String(color === currentColor),
+        onClick: () => pickColor(color),
+      })
+    );
+    const customInput = el("input", { id: "zone-color-input", type: "color" });
+    customInput.value = roomColor(selectedZone.color);
+    customInput.addEventListener("change", () => pickColor(customInput.value.toLowerCase()));
+    panelEl.appendChild(
+      el("div", { class: "room-color-row", role: "group", "aria-label": t("Colore della stanza") }, [
+        el("span", { class: "room-color-title" }, t("Colore")),
+        el("div", { class: "room-color-palette" }, chips),
+        el("label", { class: "room-color-custom", for: "zone-color-input" }, [t("Personalizzato"), customInput]),
+      ])
+    );
   }
 
   panelEl.appendChild(
@@ -200,7 +231,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       "p",
       { class: "muted" },
       t(
-        "Seleziona una stanza e clicca sulle celle per dipingerle; il campo «Rinomina stanza» ne cambia il nome. Doppio click su uno swatch per eliminare la stanza."
+        "Seleziona una stanza e clicca sulle celle per dipingerle; sotto trovi il suo nome e il suo colore, che puoi cambiare (la legenda si aggiorna da sola). Doppio click su uno swatch per eliminare la stanza."
       )
     )
   );

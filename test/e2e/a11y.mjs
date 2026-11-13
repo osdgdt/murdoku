@@ -39,6 +39,8 @@ const PAGES = [
   ["player (fixture case)", "player.html?import=test/fixtures/tutorial.en.murdoku.json"],
   ["player picker", "player.html"],
   ["editor (fixture case)", null], // opened via the saved case's id, below
+  // the room's name and colour controls only exist while a room is selected
+  ["editor (a room selected)", null, (page) => page.locator(".swatch").first().click()],
   ["privacy", "privacy.html"],
   ["tutorial", "tutorial.html"],
 ];
@@ -54,12 +56,16 @@ try {
 
   for (const theme of ["light", "dark"]) {
     await page.evaluate((t) => localStorage.setItem("murdoku:theme", t), theme);
-    for (const [pageName, url] of PAGES) {
+    for (const [pageName, url, prepare] of PAGES) {
       const name = `${pageName} [${theme}]`;
       const target = url ?? `editor.html?id=${tutorialId}`;
       await page.goto(`${base}/${target}`);
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(400);
+      if (prepare) {
+        await prepare(page);
+        await page.waitForSelector("#zone-rename-input");
+      }
       await page.evaluate(axeSource);
       const result = await page.evaluate(() => globalThis.axe.run(document, { resultTypes: ["violations"] }));
       if (result.violations.length) {

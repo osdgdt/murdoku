@@ -8,6 +8,8 @@ A **medieval / dark-fantasy pack** adds 17 floors (dark flagstones, runed stone,
 
 After a site update, a "A new version of the site is available" banner offers a reload: the service worker (`sw.js`) installs the new files bypassing the browser's HTTP cache (GitHub Pages keeps it for 10 minutes), and `npm run e2e:update` simulates a deploy to check it.
 
+A room's **colour** can be changed too: pick the room and use the "Colour" row below its name: 16 named colours (terracotta, dusty blue, sage, mustard… plus red, lime, pink, cyan, blue, sand, brown, slate) and a "Custom" picker. The chip shows the colour the map will really show; the legend, the room list and the map follow by themselves, one undo step per change. Custom colours are softened by the paper skin to match the rest (same hue, the palette's saturation and lightness).
+
 Rooms can be **renamed** in the editor: pick a room (click its coloured circle) and change its name in the "Rename room" field (Enter or click away to confirm; up to 40 characters; a blank name is refused). The new name shows at once on the map, legend, clues and print view; the id, colour, floor and cells are unchanged, so clues are untouched; one undo step per change.
 
 The app is available in **Italian and English** (IT/EN button, top right; it follows your browser language by default). Puzzle text written by an author (title, briefing, names, room names) stays as authored.

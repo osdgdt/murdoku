@@ -45,8 +45,30 @@ async function hold(page, r, c) {
   await page.mouse.up();
 }
 
-async function open(browser, { stripManualHints = false } = {}) {
-  const context = await browser.newContext({ locale: "en-US", viewport: { width: 900, height: 900 }, serviceWorkers: "block" });
+// Real touch events (Playwright's own touchscreen only does taps): tap, hold,
+// drag and system cancel go through the Chrome DevTools protocol.
+async function touchOn(page) {
+  const client = await page.context().newCDPSession(page);
+  const send = (type, points) => client.send("Input.dispatchTouchEvent", { type, touchPoints: points });
+  const centre = async (r, c) => {
+    const box = await cell(page, r, c).boundingBox();
+    return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2), id: 1 };
+  };
+  return {
+    down: async (r, c) => send("touchStart", [await centre(r, c)]),
+    move: async (r, c) => send("touchMove", [await centre(r, c)]),
+    up: () => send("touchEnd", []),
+    cancel: () => send("touchCancel", []),
+  };
+}
+
+async function open(browser, { stripManualHints = false, touch = false } = {}) {
+  const context = await browser.newContext({
+    locale: "en-US",
+    viewport: touch ? { width: 390, height: 844 } : { width: 900, height: 900 },
+    hasTouch: touch,
+    serviceWorkers: "block",
+  });
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
@@ -128,6 +150,68 @@ const scenarios = [
       if (!/cell/i.test(label)) throw new Error(`level 2 button should offer the cell, got "${label}"`);
       await page.click("#hint-more-btn"); // level 3: everything
       await page.waitForFunction(() => !document.querySelector("#hint-more-btn"));
+    },
+  },
+  {
+    name: "touch: a quick tap jots a note, a long press places the character",
+    options: { touch: true },
+    async run(page) {
+      const finger = await touchOn(page);
+      await page.locator(".char-chip", { hasText: "Alice" }).first().click();
+      await finger.down(0, 0);
+      await finger.up();
+      if ((await cell(page, 0, 0).locator(".candidate-mark").count()) !== 1) throw new Error("touch tap did not add a note");
+      await finger.down(0, 2);
+      await page.waitForTimeout(1300);
+      await finger.up();
+      if ((await cell(page, 0, 2).locator(".char-token").count()) !== 1) throw new Error("long press did not place the character");
+      if ((await cell(page, 0, 2).locator(".candidate-mark").count()) !== 0)
+        throw new Error("a hold must not also leave a note (tap after hold)");
+    },
+  },
+  {
+    name: "touch: dragging with the X tool crosses out every cell it crosses, without a tap on release",
+    options: { touch: true },
+    async run(page) {
+      const finger = await touchOn(page);
+      await page.keyboard.press("x");
+      await finger.down(3, 0);
+      await finger.move(3, 1);
+      await finger.move(3, 2);
+      await finger.up();
+      for (const c of [0, 1, 2]) {
+        if (!(await classOf(page, 3, c)).includes("x-mark")) throw new Error(`cell (3,${c}) was not crossed out`);
+      }
+    },
+  },
+  {
+    name: "touch: a gesture cancelled by the system (touchcancel) places nothing, not even later",
+    options: { touch: true },
+    async run(page) {
+      const finger = await touchOn(page);
+      await page.locator(".char-chip", { hasText: "Alice" }).first().click();
+      await finger.down(0, 2);
+      await page.waitForTimeout(400);
+      await finger.cancel();
+      await page.waitForTimeout(1200); // past the hold threshold
+      if ((await cell(page, 0, 2).locator(".char-token").count()) !== 0) throw new Error("a cancelled press placed the character");
+      if ((await cell(page, 0, 2).locator(".candidate-mark").count()) !== 0) throw new Error("a cancelled press left a note");
+    },
+  },
+  {
+    name: "touch: leaving the cell before the hold time turns the press into a drag, never a placement",
+    options: { touch: true },
+    async run(page) {
+      const finger = await touchOn(page);
+      await page.locator(".char-chip", { hasText: "Alice" }).first().click();
+      await finger.down(0, 0);
+      await page.waitForTimeout(300);
+      await finger.move(0, 1);
+      await page.waitForTimeout(1200);
+      await finger.up();
+      if ((await page.locator(".char-token").count()) !== 0) throw new Error("a drag placed a character");
+      if ((await cell(page, 0, 0).locator(".candidate-mark").count()) !== 1) throw new Error("the drag did not note the first cell");
+      if ((await cell(page, 0, 1).locator(".candidate-mark").count()) !== 1) throw new Error("the drag did not note the second cell");
     },
   },
 ];

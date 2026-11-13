@@ -1,5 +1,6 @@
 import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
-import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll, renderPlayerBoard } from "./board.js";
+import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll } from "./board.js";
+import { renderPlayerBoard } from "./boardView.js";
 import { renderClueCards, renderSelectedClue } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
 import { renderHintStep } from "./hintView.js";

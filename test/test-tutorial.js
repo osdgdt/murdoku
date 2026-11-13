@@ -4,6 +4,8 @@
 // the text tells: Carla is forced first, then Bruno, then Anna; the victim takes
 // the last cell; the murderer is whoever shares the victim's room.
 import { validatePuzzleShape } from "../src/model/puzzle.js";
+import { describeClue } from "../src/model/clueTypes.js";
+import { setLanguageForSession } from "../src/i18n/i18n.js";
 import { checkUniqueness, validateSolution } from "../src/solver/validator.js";
 import { buildTutorialCase, deriveSteps, cluePossibleCells } from "../src/tutorial/tutorialCase.js";
 import { assert, assertEqual } from "./assert.js";
@@ -56,6 +58,38 @@ export const tests = [
       const cells = [...steps[5].placed.values()];
       assertEqual(new Set(cells.map((c) => c.row)).size, 4);
       assertEqual(new Set(cells.map((c) => c.col)).size, 4);
+    },
+  },
+  {
+    name: "tutorial: in inglese personaggi, stanze e indizi sono tutti in inglese (e in italiano tutti in italiano)",
+    fn: async () => {
+      // The furniture words (scaffale/shelf, tappeto/rug…) come from object labels fixed when the module
+      // loads — the browser sets the language before that — so e2e/gameplay.mjs checks them on the real page.
+      const ITALIAN = ["Anna", "Bruno", "Carla", "Valerio", "Cucina", "Biblioteca", "finestra", "Si trova", "accanto"];
+      const ENGLISH = ["Alice", "Ben", "Clara", "Victor", "Kitchen", "Library"];
+      const collect = () => {
+        const built = buildTutorialCase();
+        const clues = built.puzzle.clues.map((c) => describeClue(c, built.puzzle));
+        return [...built.puzzle.characters.map((c) => c.name), ...built.grid.zones.map((z) => z.name), ...clues].join(" | ");
+      };
+      const italian = collect();
+      for (const word of ENGLISH) assert(!italian.includes(word), `in italiano non deve comparire «${word}»: ${italian}`);
+      for (const word of ["Anna", "Cucina", "accanto"]) assert(italian.includes(word), `in italiano manca «${word}»: ${italian}`);
+      await setLanguageForSession("en");
+      try {
+        const english = collect();
+        for (const word of ITALIAN) assert(!english.includes(word), `in inglese non deve comparire «${word}»: ${english}`);
+        for (const word of ["Alice", "Ben", "Clara", "Victor", "Kitchen", "Library", "next to", "window"]) {
+          assert(english.includes(word), `in inglese manca «${word}»: ${english}`);
+        }
+        // the English cast keeps the house rules: suspects in alphabetical order, victim with a V
+        const { suspects, characters } = buildTutorialCase();
+        const names = suspects.map((s) => s.name);
+        assertEqual(JSON.stringify(names), JSON.stringify([...names].sort()), "sospettati in ordine alfabetico anche in inglese");
+        assert(characters.victim.name.startsWith("V"), "il nome inglese della vittima inizia con la V");
+      } finally {
+        await setLanguageForSession("it");
+      }
     },
   },
 ];

@@ -1,6 +1,10 @@
 // English text of the tutorial page (src/tutorial/): Italian source -> English.
 export default {
-  // the worked case
+  // the worked case (the cast has English names too: suspects in alphabetical order, the victim with a V)
+  Anna: "Alice",
+  Bruno: "Ben",
+  Carla: "Clara",
+  Valerio: "Victor",
   Biblioteca: "Library",
   Tutorial: "Tutorial",
 
@@ -25,8 +29,8 @@ export default {
   "L'assassino è nella stanza della vittima. ": "The murderer is in the victim's room. ",
   "La vittima si trova sempre in una stanza con esattamente un'altra persona: quella persona è l'assassino.":
     "The victim is always in a room with exactly one other person: that person is the murderer.",
-  "Se Anna sta qui, nessun altro può stare nelle caselle con la X: sono nella sua riga o nella sua colonna.":
-    "If Anna is here, nobody else can be in the cells with an X: they are in her row or her column.",
+  "Se {name} sta qui, nessun altro può stare nelle caselle con la X: sono nella sua riga o nella sua colonna.":
+    "If {name} is here, nobody else can be in the cells with an X: they are in their row or their column.",
 
   // the case
   "{name} (la vittima)": "{name} (the victim)",
@@ -83,8 +87,8 @@ export default {
   "Le caselle d'intersezione": "Intersection cells",
   "Se qualcuno può occupare solo due caselle, pensale come due angoli di un rettangolo: nessun altro può occupare gli altri due angoli. Vale anche quando tutte le caselle possibili stanno su una stessa riga o colonna.":
     "If someone can only occupy two cells, think of them as two corners of a rectangle: nobody else can occupy the other two corners. This also holds when all the possible cells are in one row or column.",
-  "Anna può stare solo su una delle due sedie. Qualunque sedia scelga, la sua riga o la sua colonna passa per le due caselle con la X: nessun altro può starci.":
-    "Anna can only be on one of the two chairs. Whichever chair she picks, her row or column passes through the two cells with an X: nobody else can be there.",
+  "{name} può stare solo su una delle due sedie. Qualunque sedia scelga, la sua riga o la sua colonna passa per le due caselle con la X: nessun altro può starci.":
+    "{name} can only be on one of the two chairs. Whichever chair they pick, their row or column passes through the two cells with an X: nobody else can be there.",
 
   // using the app
   "Come si gioca nell'app": "Playing in the app",

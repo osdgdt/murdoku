@@ -21,6 +21,7 @@ import {
   addZone,
   removeZone,
   renameZone,
+  setZoneColor,
   MAX_ZONE_NAME,
   removeObject,
   resizeGrid,
@@ -33,6 +34,9 @@ import {
 } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import { describeClue } from "../src/model/clueTypes.js";
+import { ROOM_PALETTE } from "../src/model/roomColors.js";
+import { isSafeColor } from "../src/util/safe.js";
+import { roomColor } from "../src/skin/paper/rooms.js";
 import * as store from "../src/storage/puzzleStore.js";
 import { assert, assertEqual } from "./assert.js";
 
@@ -512,6 +516,47 @@ export const tests = [
       renameZone(puzzle.grid, zone.id, "Scriptorium");
       const after = describeClue(clue, puzzle);
       assert(after.includes("Scriptorium") && !after.includes("Cucina"), `dopo il cambio: ${after}`);
+    },
+  },
+  {
+    name: "setZoneColor: cambia solo il colore (id, nome, pavimento e celle restano); minuscole; scarta i colori non validi e le stanze sconosciute",
+    fn: () => {
+      const puzzle = createPuzzle("T");
+      puzzle.grid = resizeGrid(puzzle.grid, 3, 3);
+      const zone = addZone(puzzle.grid, "Cripta", "#f4c2c2", "stone");
+      paintCellZone(puzzle.grid, 1, 1, zone.id);
+      const { id, name, textureId } = zone;
+      assertEqual(setZoneColor(puzzle.grid, zone.id, "#B8C2F4"), true);
+      assertEqual(zone.color, "#b8c2f4", "salvato in minuscolo");
+      assertEqual(zone.id, id);
+      assertEqual(zone.name, name);
+      assertEqual(zone.textureId, textureId);
+      assertEqual(puzzle.grid.cells[1][1].zoneId, id);
+      for (const bad of ["", "rosso", "#12", "#12345", "red", "url(x)", "#gggggg", undefined, null, 5]) {
+        assertEqual(setZoneColor(puzzle.grid, zone.id, bad), false, `rifiutato: ${String(bad)}`);
+      }
+      assertEqual(setZoneColor(puzzle.grid, "zone_che_non_esiste", "#aabbcc"), false);
+      assertEqual(zone.color, "#b8c2f4", "i rifiuti non cambiano nulla");
+    },
+  },
+  {
+    name: "tavolozza delle stanze: colori esadecimali validi e tutti diversi, con un nome ciascuno; contiene gli otto predefiniti delle stanze nuove; ognuno si vede davvero diverso sulla carta",
+    fn: () => {
+      assertEqual(ROOM_PALETTE.length, 16);
+      assertEqual(new Set(ROOM_PALETTE.map((c) => c.color)).size, ROOM_PALETTE.length, "nessun colore ripetuto");
+      for (const { color, name } of ROOM_PALETTE) {
+        assert(name && /^#[0-9a-f]{6}$/.test(color) && isSafeColor(color), `${name}: ${color}`);
+      }
+      const defaults = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8"];
+      assertEqual(
+        ROOM_PALETTE.slice(0, 8)
+          .map((c) => c.color)
+          .join(","),
+        defaults.join(","),
+        "i primi otto sono i predefiniti, nello stesso ordine"
+      );
+      const shown = ROOM_PALETTE.map((c) => roomColor(c.color));
+      assertEqual(new Set(shown).size, shown.length, "anche sulla carta i 16 colori sono diversi");
     },
   },
 ];

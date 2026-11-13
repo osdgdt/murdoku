@@ -98,6 +98,21 @@ export function renameZone(grid, zoneId, name) {
   return true;
 }
 
+// Gives a room a new colour (a "#rrggbb" hex, which is all the editor's pickers
+// produce and the paper skin knows how to turn into a sheet of paper). Only the
+// colour changes. Returns false (and changes nothing) for an unknown room or an
+// invalid colour. The legend and every other place that shows the room read the
+// colour from the room, so they follow on the next draw.
+export function setZoneColor(grid, zoneId, color) {
+  const zone = grid.zones.find((z) => z.id === zoneId);
+  const clean = String(color ?? "")
+    .trim()
+    .toLowerCase();
+  if (!zone || !/^#[0-9a-f]{6}$/.test(clean)) return false;
+  zone.color = clean;
+  return true;
+}
+
 export function removeZone(grid, zoneId) {
   grid.zones = grid.zones.filter((z) => z.id !== zoneId);
   for (const row of grid.cells) {

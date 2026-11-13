@@ -62,7 +62,7 @@ async function touchOn(page) {
   };
 }
 
-async function open(browser, { stripManualHints = false, touch = false } = {}) {
+async function open(browser, { stripManualHints = false, touch = false, url = CASE_URL, ready = "#hint-btn" } = {}) {
   const context = await browser.newContext({
     locale: "en-US",
     viewport: touch ? { width: 390, height: 844 } : { width: 900, height: 900 },
@@ -82,8 +82,8 @@ async function open(browser, { stripManualHints = false, touch = false } = {}) {
       await route.fulfill({ contentType: "application/json", body: JSON.stringify(puzzle) });
     });
   }
-  await page.goto(CASE_URL);
-  await page.waitForSelector("#hint-btn");
+  await page.goto(url);
+  await page.waitForSelector(ready);
   return { context, page, errors };
 }
 
@@ -212,6 +212,18 @@ const scenarios = [
       if ((await page.locator(".char-token").count()) !== 0) throw new Error("a drag placed a character");
       if ((await cell(page, 0, 0).locator(".candidate-mark").count()) !== 1) throw new Error("the drag did not note the first cell");
       if ((await cell(page, 0, 1).locator(".candidate-mark").count()) !== 1) throw new Error("the drag did not note the second cell");
+    },
+  },
+  {
+    name: "tutorial page: six steps with boards, the case ends on the murderer, no horizontal scroll on a phone",
+    options: { url: `${base}/tutorial.html`, ready: ".tt-step", touch: true },
+    async run(page) {
+      if ((await page.locator(".tt-step").count()) !== 6) throw new Error("expected six steps");
+      if ((await page.locator(".tt-step .tt-board").count()) !== 6) throw new Error("every step needs its board");
+      const last = await page.locator(".tt-step").last().innerText();
+      if (!/Carla/.test(last)) throw new Error(`the last step should name the murderer, got: ${last}`);
+      const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+      if (!fits) throw new Error("tutorial scrolls horizontally on a 390px viewport");
     },
   },
 ];

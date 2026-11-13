@@ -40,6 +40,7 @@ const PAGES = [
   ["player picker", "player.html"],
   ["editor (fixture case)", null], // opened via the saved case's id, below
   ["privacy", "privacy.html"],
+  ["tutorial", "tutorial.html"],
 ];
 
 let failed = false;

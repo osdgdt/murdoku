@@ -253,6 +253,40 @@ const scenarios = [
       }
     },
   })),
+  ...["it-IT", "en-US"].map((locale) => ({
+    name: `glossary page (${locale}): cast, rooms, clues and texts are all in one language, none from the other`,
+    options: { url: `${base}/glossary.html`, ready: ".gl-card", locale },
+    async run(page) {
+      // The little boards are drawn only when they are about to scroll into view: bring each pending one into view.
+      await page.evaluate(async () => {
+        for (let pass = 0; pass < 100; pass++) {
+          const pending = document.querySelector(".gl-figure.pending");
+          if (!pending) return;
+          pending.scrollIntoView({ block: "center" });
+          await new Promise((resolve) => setTimeout(resolve, 80));
+        }
+      });
+      await page.waitForFunction(() => !document.querySelector(".gl-figure.pending"), null, { timeout: 15000 });
+      const shown = await page.evaluate(() => {
+        const bits = [document.body.innerText];
+        for (const node of document.querySelectorAll("[title],[aria-label]")) {
+          if (node.closest("[data-lang-toggle]")) continue; // the language button names the OTHER language on purpose
+          bits.push(node.getAttribute("title") || "", node.getAttribute("aria-label") || "");
+        }
+        return bits.join("\n");
+      });
+      const italian = locale === "it-IT";
+      const wrongNames = italian ? /\b(Alice|Ben|Clara|David)\b/ : /\b(Anna|Bruno|Carla|Dario)\b/;
+      const wrongWords = italian
+        ? /\b(kitchen|lounge|bathroom|shelf|rug|window|chair|stool|plant|lamp)\b/i
+        : /\b(cucina|salotto|bagno|scaffale|tappeto|finestra|sedia|sgabello|pianta|lampada)\b/i;
+      const found = shown.match(wrongNames) || shown.match(wrongWords);
+      if (found) throw new Error(`found «${found[0]}» in the ${italian ? "Italian" : "English"} glossary`);
+      for (const mustHave of italian ? ["Anna", "Cucina", "scaffale"] : ["Alice", "Kitchen", "shelf"]) {
+        if (!shown.includes(mustHave)) throw new Error(`«${mustHave}» is missing from the ${italian ? "Italian" : "English"} glossary`);
+      }
+    },
+  })),
 ];
 
 let failed = false;

@@ -420,7 +420,13 @@ function tipsSection() {
     el("div", { class: "tt-tips" }, [
       el("div", { class: "tt-tip" }, [
         el("h3", {}, t("Riga per riga, colonna per colonna")),
-        el("p", {}, t("Se una riga o una colonna ha una sola casella disponibile, qualcuno deve starci, anche se non sai ancora chi.")),
+        el(
+          "p",
+          {},
+          t(
+            "Se una riga o una colonna ha una sola casella disponibile, qualcuno deve starci, anche se non sai ancora chi. Attenzione: vale solo se il numero di persone è uguale al numero di righe e al numero di colonne (come in questo caso); altrimenti una riga o una colonna può restare vuota."
+          )
+        ),
       ]),
       el("div", { class: "tt-tip" }, [
         el("h3", {}, t("Stanza per stanza")),

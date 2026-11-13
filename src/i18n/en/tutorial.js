@@ -79,8 +79,8 @@ export default {
   // tips
   "Qualche trucco": "A few tricks",
   "Riga per riga, colonna per colonna": "Row by row, column by column",
-  "Se una riga o una colonna ha una sola casella disponibile, qualcuno deve starci, anche se non sai ancora chi.":
-    "If a row or column has only one cell available, somebody must be there, even if you don't know who yet.",
+  "Se una riga o una colonna ha una sola casella disponibile, qualcuno deve starci, anche se non sai ancora chi. Attenzione: vale solo se il numero di persone è uguale al numero di righe e al numero di colonne (come in questo caso); altrimenti una riga o una colonna può restare vuota.":
+    "If a row or column has only one cell available, somebody must be there, even if you don't know who yet. Careful: this only holds when the number of people equals the number of rows and the number of columns (as in this case); otherwise a row or column may stay empty.",
   "Stanza per stanza": "Room by room",
   "Invece di chiederti dove sta ogni persona, chiediti chi può e chi non può stare in ciascuna stanza: è utile con indizi come «nessuna stanza è vuota».":
     "Instead of asking where each person is, ask who can and cannot be in each room: handy with clues like “no room is empty”.",

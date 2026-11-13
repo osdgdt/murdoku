@@ -1,6 +1,7 @@
 // English text of the clue glossary (src/glossary/): Italian source -> English.
 export default {
-  // example world
+  // example world (the stock cast: Anna, Bruno and Carla are translated in en/tutorial.js)
+  Dario: "David",
   Cucina: "Kitchen",
   Salotto: "Lounge",
   Studio: "Study",
@@ -29,8 +30,8 @@ export default {
     "In every case there is exactly one person per row and one per column. As soon as a character is placed, the other cells of their row and column are ruled out for everyone (marked with ×). The victim, besides, is always in a room with exactly one other person: the murderer.",
   "Gli indizi servono a stringere ulteriormente: qui sotto, ogni esempio mostra in verde le caselle che restano possibili.":
     "Clues narrow things down further: below, each example shows in green the cells that stay possible.",
-  "Anna, Bruno e Carla: tre persone, tre righe e tre colonne diverse.":
-    "Anna, Bruno and Carla: three people, three different rows and three different columns.",
+  "{a}, {b} e {c}: tre persone, tre righe e tre colonne diverse.":
+    "{a}, {b} and {c}: three people, three different rows and three different columns.",
   "Il bersaglio di un indizio": "A clue's target",
   "Molti indizi parlano di un «bersaglio»: può essere un personaggio, un singolo oggetto (una pianta precisa), una stanza, oppure «qualsiasi» oggetto di un tipo (una qualunque pianta, una qualunque porta). Con «qualsiasi» basta che l'indizio sia vero per uno qualunque di quegli oggetti.":
     "Many clues talk about a “target”: a character, one specific object (a particular plant), a room, or “any” object of a type (any plant, any door). With “any”, the clue only has to hold for one of those objects.",
@@ -101,7 +102,7 @@ export default {
     "The character is alone in their room: nobody else is in it. A specific room can be given too.",
   "Il personaggio è nella stessa stanza di quella persona e con nessun altro: stanno in due, soli.":
     "The character is in the same room as that person and nobody else: just the two of them.",
-  "Se Carla fosse anche lei in Cucina, l'indizio sarebbe falso.": "If Carla were in the Kitchen too, the clue would be false.",
+  "Se anche {name} fosse in Cucina, l'indizio sarebbe falso.": "If {name} were also in the Kitchen, the clue would be false.",
   "Il personaggio è nella stanza con una sola altra persona, e quella persona ha una certa caratteristica (è un uomo, una donna, è seduta, accanto a un oggetto…), senza dire chi sia.":
     "The character is in a room with exactly one other person, and that person has a certain trait (is a man, a woman, is seated, next to an object…), without saying who.",
   "Nella stanza del personaggio c'è almeno un'altra persona con quella caratteristica. A differenza di «sola con…», può esserci anche altra gente.":
@@ -159,9 +160,9 @@ export default {
   "{n} risultati": "{n} results",
   "{n} voci": "{n} entries",
   "Come leggere gli esempi": "How to read the examples",
-  "Ogni esempio è un piccolo caso vero, con mappa, stanze, oggetti e personaggi. Per gli indizi su un personaggio, le caselle verdi sono tutte quelle in cui Anna potrebbe trovarsi: sono calcolate dal gioco stesso, con le stesse regole che usa per controllare le soluzioni. Gli indizi generali, invece, sono mostrati in due scene: una in cui sono veri e una in cui no.":
-    "Each example is a small real case, with a map, rooms, objects and characters. For clues about a character, the green cells are all the places Anna could be: they are worked out by the game itself, with the same rules it uses to check solutions. General clues, instead, are shown in two scenes: one where they hold and one where they don't.",
-  "Verde: le caselle in cui Anna può stare perché l'indizio sia vero.": "Green: the cells where Anna can be for the clue to be true.",
+  "Ogni esempio è un piccolo caso vero, con mappa, stanze, oggetti e personaggi. Per gli indizi su un personaggio, le caselle verdi sono tutte quelle in cui {name} potrebbe trovarsi: sono calcolate dal gioco stesso, con le stesse regole che usa per controllare le soluzioni. Gli indizi generali, invece, sono mostrati in due scene: una in cui sono veri e una in cui no.":
+    "Each example is a small real case, with a map, rooms, objects and characters. For clues about a character, the green cells are all the places {name} could be: they are worked out by the game itself, with the same rules it uses to check solutions. General clues, instead, are shown in two scenes: one where they hold and one where they don't.",
+  "Verde: le caselle in cui {name} può stare perché l'indizio sia vero.": "Green: the cells where {name} can be for the clue to be true.",
   "×: caselle già escluse dalla regola «una persona per riga e per colonna», a causa di chi è già collocato.":
     "×: cells already ruled out by the “one person per row and column” rule, because of who is already placed.",
   "Tratteggio dorato: l'oggetto o la persona a cui si riferisce l'indizio.": "Golden dashes: the object or person the clue refers to.",

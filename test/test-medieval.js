@@ -9,7 +9,7 @@ import {
   isObjectTypeOccupiable,
   isObjectTypeSeat,
 } from "../src/model/icons.js";
-import { ZONE_TEXTURES } from "../src/model/textures.js";
+import { ZONE_TEXTURES, floorStyle } from "../src/model/textures.js";
 import { MEDIEVAL_TEXTURES } from "../src/model/texturesMedieval.js";
 import { objectTypePhrase } from "../src/model/clues/shared.js";
 import { createGrid, placeObject, isOccupiable } from "../src/model/grid.js";
@@ -103,6 +103,38 @@ export const tests = [
       assertEqual(objectTypePhrase("arrow_slit"), "una feritoia");
       assertEqual(objectTypePhrase("shelf"), "uno scaffale", "gli oggetti di prima non cambiano");
       assert(!MEDIEVAL_IDS.some((id) => /\s{2,}/.test(objectTypePhrase(id))), "nessuno spazio doppio");
+    },
+  },
+  {
+    name: "pavimenti: ogni piastrella è disegnata nove volte (spostata di ±lato) così che i segni sul bordo continuino sul lato opposto",
+    fn: () => {
+      for (const [id, def] of Object.entries(MEDIEVAL_TEXTURES)) {
+        const svg = decodeURIComponent(def.layers[0].slice('url("data:image/svg+xml,'.length, -2));
+        assertEqual((svg.match(/<use /g) || []).length, 9, `${id}: nove copie`);
+        const size = parseInt(def.sizes[0], 10);
+        assert(svg.includes(`x='-${size}'`) && svg.includes(`y='${size}'`), `${id}: spostamenti ±${size}`);
+      }
+    },
+  },
+  {
+    name: "pavimenti: floorStyle dà una posizione per ogni livello; solo le piastrelle di dimensione fissa seguono la posizione della casella",
+    fn: () => {
+      for (const id of Object.keys(ZONE_TEXTURES)) {
+        for (const zoneColor of [null, "#f4c2c2"]) {
+          const { image, size, pos } = floorStyle(id, zoneColor);
+          // Gradients contain commas, so count layers through the sizes (one each).
+          const n = size.split(", ").length;
+          assert(image.length > 0 && n >= 1, `${id}: livelli`);
+          const positions = pos.split(/, (?![^()]*\))/); // not the comma inside var(--tile-pos, 0 0)
+          assertEqual(positions.length, n, `${id}: una posizione per livello`);
+          size.split(", ").forEach((sz, i) => {
+            const expected = sz === "auto" ? "0 0" : "var(--tile-pos, 0 0)";
+            assertEqual(positions[i], expected, `${id}: livello ${i}`);
+          });
+        }
+      }
+      // A medieval floor with its tint layer: tint (auto) then tile then base (auto).
+      assertEqual(floorStyle("herringbone", "#f4c2c2").pos, "0 0, var(--tile-pos, 0 0), 0 0");
     },
   },
 ];

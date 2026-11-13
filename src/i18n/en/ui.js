@@ -438,4 +438,6 @@ export default {
   Cemento: "Concrete",
   "Note sulla riga {n}": "Notes on row {n}",
   "Note sulla colonna {n}": "Notes on column {n}",
+  "È disponibile una nuova versione del sito.": "A new version of the site is available.",
+  Ricarica: "Reload",
 };

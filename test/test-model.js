@@ -20,6 +20,8 @@ import {
 import {
   addZone,
   removeZone,
+  renameZone,
+  MAX_ZONE_NAME,
   removeObject,
   resizeGrid,
   setBlocked,
@@ -30,6 +32,7 @@ import {
   edgeObjectsAt,
 } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
+import { describeClue } from "../src/model/clueTypes.js";
 import * as store from "../src/storage/puzzleStore.js";
 import { assert, assertEqual } from "./assert.js";
 
@@ -465,6 +468,50 @@ export const tests = [
       assertEqual(puzzle.manualHints[0].characterId, null);
       assertEqual(puzzle.manualHints[0].row, null);
       assertEqual(puzzle.manualHints[0].col, null);
+    },
+  },
+  {
+    name: "renameZone: cambia solo il nome (id, colore, pavimento e celle dipinte restano)",
+    fn: () => {
+      const puzzle = createPuzzle("T");
+      puzzle.grid = resizeGrid(puzzle.grid, 3, 3);
+      const zone = addZone(puzzle.grid, "Stanza 1", "#c2e0f4", "stone");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      const { id, color, textureId } = zone;
+      assertEqual(renameZone(puzzle.grid, zone.id, "  Sala del trono  "), true);
+      assertEqual(zone.name, "Sala del trono", "i bordi vengono tolti");
+      assertEqual(zone.id, id);
+      assertEqual(zone.color, color);
+      assertEqual(zone.textureId, textureId);
+      assertEqual(puzzle.grid.cells[0][0].zoneId, id, "la cella resta dipinta con la stessa stanza");
+    },
+  },
+  {
+    name: "renameZone: un nome vuoto, solo spazi o una stanza sconosciuta non cambia nulla; un nome troppo lungo viene tagliato",
+    fn: () => {
+      const grid = createPuzzle("T").grid;
+      const zone = addZone(grid, "Cripta", "#eee");
+      assertEqual(renameZone(grid, zone.id, ""), false);
+      assertEqual(renameZone(grid, zone.id, "   "), false);
+      assertEqual(renameZone(grid, zone.id, undefined), false);
+      assertEqual(renameZone(grid, "zone_che_non_esiste", "Altro"), false);
+      assertEqual(zone.name, "Cripta");
+      renameZone(grid, zone.id, "x".repeat(MAX_ZONE_NAME + 25));
+      assertEqual(zone.name.length, MAX_ZONE_NAME);
+    },
+  },
+  {
+    name: "renameZone: gli indizi che nominano la stanza mostrano subito il nome nuovo, senza essere riscritti",
+    fn: () => {
+      const puzzle = createPuzzle("T");
+      puzzle.grid = resizeGrid(puzzle.grid, 3, 3);
+      const anna = addCharacter(puzzle, "Anna", "detective");
+      const zone = addZone(puzzle.grid, "Cucina", "#f4c2c2");
+      const clue = addClue(puzzle, anna.id, "inRoom", { zoneId: zone.id });
+      assert(describeClue(clue, puzzle).includes("Cucina"), "prima del cambio");
+      renameZone(puzzle.grid, zone.id, "Scriptorium");
+      const after = describeClue(clue, puzzle);
+      assert(after.includes("Scriptorium") && !after.includes("Cucina"), `dopo il cambio: ${after}`);
     },
   },
 ];

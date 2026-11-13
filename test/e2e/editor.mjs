@@ -94,6 +94,37 @@ try {
     /Test room/.test(await page.innerText(".room-legend")),
     await page.innerText(".room-legend")
   );
+  // Rename that room: select its swatch, change the name in the field. The legend and the
+  // board follow, undo/redo work, a blank name is refused, and the new name is saved.
+  const legend = () => page.innerText(".room-legend");
+  await page.locator('.swatch[aria-label*="Test room"]').click();
+  await page.fill("#zone-rename-input", "Throne room");
+  await page.press("#zone-rename-input", "Enter");
+  await page.waitForFunction(() => /Throne room/.test(document.querySelector(".room-legend")?.innerText || ""));
+  check(
+    "a room can be renamed (the legend follows)",
+    /Throne room/.test(await legend()) && !/Test room/.test(await legend()),
+    await legend()
+  );
+  check("the new name is on the board too", (await page.locator(".room-name, .room-label-text", { hasText: "Throne room" }).count()) >= 1);
+  await page.click("#editor-undo-btn");
+  await page.waitForFunction(() => /Test room/.test(document.querySelector(".room-legend")?.innerText || ""));
+  check("undo brings the old room name back", /Test room/.test(await legend()) && !/Throne room/.test(await legend()), await legend());
+  await page.click("#editor-redo-btn");
+  await page.waitForFunction(() => /Throne room/.test(document.querySelector(".room-legend")?.innerText || ""));
+  check("redo renames it again", /Throne room/.test(await legend()), await legend());
+  await page.locator('.swatch[aria-label*="Throne room"]').click();
+  await page.fill("#zone-rename-input", "   ");
+  await page.press("#zone-rename-input", "Enter");
+  check(
+    "a blank name is refused and the old one comes back",
+    (await page.inputValue("#zone-rename-input")) === "Throne room" && /Throne room/.test(await legend()),
+    await page.inputValue("#zone-rename-input")
+  );
+  const renamedId = new URL(page.url()).searchParams.get("id");
+  await page.goto(`${base}/editor.html?id=${renamedId}`);
+  await page.waitForSelector("#board [role=gridcell]");
+  check("the new room name is saved with the case", /Throne room/.test(await legend()), await legend());
   const propsBefore = await page.locator(".obj-icon").count();
   await page.locator(".palette-item").first().click();
   await page.click('[data-row="4"][data-col="1"]');

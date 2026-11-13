@@ -62,9 +62,9 @@ async function touchOn(page) {
   };
 }
 
-async function open(browser, { stripManualHints = false, touch = false, url = CASE_URL, ready = "#hint-btn" } = {}) {
+async function open(browser, { stripManualHints = false, touch = false, url = CASE_URL, ready = "#hint-btn", locale = "en-US" } = {}) {
   const context = await browser.newContext({
-    locale: "en-US",
+    locale,
     viewport: touch ? { width: 390, height: 844 } : { width: 900, height: 900 },
     hasTouch: touch,
     serviceWorkers: "block",
@@ -221,11 +221,72 @@ const scenarios = [
       if ((await page.locator(".tt-step").count()) !== 6) throw new Error("expected six steps");
       if ((await page.locator(".tt-step .tt-board").count()) !== 6) throw new Error("every step needs its board");
       const last = await page.locator(".tt-step").last().innerText();
-      if (!/Carla/.test(last)) throw new Error(`the last step should name the murderer, got: ${last}`);
+      if (!/Clara/.test(last)) throw new Error(`the last step should name the murderer, got: ${last}`);
       const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
       if (!fits) throw new Error("tutorial scrolls horizontally on a 390px viewport");
     },
   },
+  ...["it-IT", "en-US"].map((locale) => ({
+    name: `tutorial page (${locale}): cast, rooms, clues and objects are all in one language, none from the other`,
+    options: { url: `${base}/tutorial.html`, ready: ".tt-step", locale },
+    async run(page) {
+      // Everything a visitor can see or hear: the text and the titles/labels of the boards.
+      const shown = await page.evaluate(() => {
+        const bits = [document.body.innerText];
+        for (const node of document.querySelectorAll("[title],[aria-label]")) {
+          if (node.closest("[data-lang-toggle]")) continue; // the language button names the OTHER language on purpose
+          bits.push(node.getAttribute("title") || "", node.getAttribute("aria-label") || "");
+        }
+        return bits.join("\n");
+      });
+      const italian = locale === "it-IT";
+      const wrongNames = italian ? /\b(Alice|Ben|Clara|Victor)\b/ : /\b(Anna|Bruno|Carla|Valerio)\b/;
+      const wrongWords = italian
+        ? /\b(kitchen|library|shelf|rug|window|chair|stool|plant|lamp|victim|murderer|clue|row|column)\b/i
+        : /\b(cucina|biblioteca|scaffale|tappeto|finestra|sedia|sgabello|pianta|lampada|vittima|assassino|indizio|riga|colonna)\b/i;
+      const found = shown.match(wrongNames) || shown.match(wrongWords);
+      if (found) throw new Error(`found «${found[0]}» in the ${italian ? "Italian" : "English"} tutorial`);
+      for (const mustHave of italian
+        ? ["Anna", "Cucina", "Biblioteca", "scaffale", "tappeto"]
+        : ["Alice", "Kitchen", "Library", "shelf", "rug"]) {
+        if (!shown.includes(mustHave)) throw new Error(`«${mustHave}» is missing from the ${italian ? "Italian" : "English"} tutorial`);
+      }
+    },
+  })),
+  ...["it-IT", "en-US"].map((locale) => ({
+    name: `glossary page (${locale}): cast, rooms, clues and texts are all in one language, none from the other`,
+    options: { url: `${base}/glossary.html`, ready: ".gl-card", locale },
+    async run(page) {
+      // The little boards are drawn only when they are about to scroll into view: bring each pending one into view.
+      await page.evaluate(async () => {
+        for (let pass = 0; pass < 100; pass++) {
+          const pending = document.querySelector(".gl-figure.pending");
+          if (!pending) return;
+          pending.scrollIntoView({ block: "center" });
+          await new Promise((resolve) => setTimeout(resolve, 80));
+        }
+      });
+      await page.waitForFunction(() => !document.querySelector(".gl-figure.pending"), null, { timeout: 15000 });
+      const shown = await page.evaluate(() => {
+        const bits = [document.body.innerText];
+        for (const node of document.querySelectorAll("[title],[aria-label]")) {
+          if (node.closest("[data-lang-toggle]")) continue; // the language button names the OTHER language on purpose
+          bits.push(node.getAttribute("title") || "", node.getAttribute("aria-label") || "");
+        }
+        return bits.join("\n");
+      });
+      const italian = locale === "it-IT";
+      const wrongNames = italian ? /\b(Alice|Ben|Clara|David)\b/ : /\b(Anna|Bruno|Carla|Dario)\b/;
+      const wrongWords = italian
+        ? /\b(kitchen|lounge|bathroom|shelf|rug|window|chair|stool|plant|lamp)\b/i
+        : /\b(cucina|salotto|bagno|scaffale|tappeto|finestra|sedia|sgabello|pianta|lampada)\b/i;
+      const found = shown.match(wrongNames) || shown.match(wrongWords);
+      if (found) throw new Error(`found «${found[0]}» in the ${italian ? "Italian" : "English"} glossary`);
+      for (const mustHave of italian ? ["Anna", "Cucina", "scaffale"] : ["Alice", "Kitchen", "shelf"]) {
+        if (!shown.includes(mustHave)) throw new Error(`«${mustHave}» is missing from the ${italian ? "Italian" : "English"} glossary`);
+      }
+    },
+  })),
 ];
 
 let failed = false;

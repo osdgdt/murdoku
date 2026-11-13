@@ -25,12 +25,20 @@ const ROOM_NAMES = () => ({ A: t("Cucina"), B: t("Salotto"), C: t("Studio"), D: 
 
 // The stock cast: Anna is the one the clue is about ("owner"); the others are
 // there to make the board look like a real case.
+// The names are Italian source text: they go through t() when a case is built
+// (and in castName), so the English page shows English names (see en/tutorial.js
+// and en/glossary.js).
 const CAST = {
   a: { name: "Anna", icon: "detective" },
   b: { name: "Bruno", icon: "butler" },
   c: { name: "Carla", icon: "chef" },
   d: { name: "Dario", icon: "gardener" },
 };
+
+// The name of a stock character in the current language.
+export function castName(key) {
+  return t(CAST[key].name);
+}
 
 export const FAMILIES = [
   { id: "concepts", title: () => t("Per cominciare"), blurb: () => t("Le idee che servono per leggere qualsiasi indizio.") },
@@ -72,7 +80,8 @@ export const ENTRIES = [
       ),
     tip: () => t("Gli indizi servono a stringere ulteriormente: qui sotto, ogni esempio mostra in verde le caselle che restano possibili."),
     world: { map: OPEN, cast: { b: { at: [1, 3] }, c: { at: [3, 1] } } },
-    sentence: () => t("Anna, Bruno e Carla: tre persone, tre righe e tre colonne diverse."),
+    sentence: () =>
+      t("{a}, {b} e {c}: tre persone, tre righe e tre colonne diverse.", { a: castName("a"), b: castName("b"), c: castName("c") }),
   },
   {
     id: "targets",
@@ -460,7 +469,7 @@ export const ENTRIES = [
     owner: "a",
     params: { targetId: "@c:b" },
     explain: () => t("Il personaggio è nella stessa stanza di quella persona e con nessun altro: stanno in due, soli."),
-    tip: () => t("Se Carla fosse anche lei in Cucina, l'indizio sarebbe falso."),
+    tip: () => t("Se anche {name} fosse in Cucina, l'indizio sarebbe falso.", { name: castName("c") }),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { b: { at: [1, 1] }, c: { at: [3, 4] } } },
   },
   {
@@ -667,7 +676,7 @@ export function buildExample(entry) {
   const keys = [...(entry.owner ? [entry.owner] : []), ...Object.keys(cast).filter((k) => k !== entry.owner)];
   for (const key of keys) {
     const base = CAST[key];
-    const character = addCharacter(puzzle, base.name, base.icon, !!cast[key]?.victim);
+    const character = addCharacter(puzzle, t(base.name), base.icon, !!cast[key]?.victim);
     if (cast[key]?.gender) character.gender = cast[key].gender;
     characters[key] = character;
   }

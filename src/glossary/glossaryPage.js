@@ -10,7 +10,7 @@ import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
 import { CLUE_TYPES } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
-import { FAMILIES, ENTRIES, buildExample, evaluateCells, evaluateGeneral, targetCells, exampleSentence } from "./examples.js";
+import { FAMILIES, ENTRIES, buildExample, evaluateCells, evaluateGeneral, targetCells, exampleSentence, castName } from "./examples.js";
 
 wireThemeToggle();
 
@@ -181,7 +181,7 @@ function renderCard(entry) {
 
 function howToRead() {
   const items = [
-    legendItem("ok", t("Verde: le caselle in cui Anna può stare perché l'indizio sia vero."), "✓"),
+    legendItem("ok", t("Verde: le caselle in cui {name} può stare perché l'indizio sia vero.", { name: castName("a") }), "✓"),
     legendItem("rule", t("×: caselle già escluse dalla regola «una persona per riga e per colonna», a causa di chi è già collocato."), "×"),
     legendItem("target", t("Tratteggio dorato: l'oggetto o la persona a cui si riferisce l'indizio.")),
   ];
@@ -191,7 +191,8 @@ function howToRead() {
       "p",
       {},
       t(
-        "Ogni esempio è un piccolo caso vero, con mappa, stanze, oggetti e personaggi. Per gli indizi su un personaggio, le caselle verdi sono tutte quelle in cui Anna potrebbe trovarsi: sono calcolate dal gioco stesso, con le stesse regole che usa per controllare le soluzioni. Gli indizi generali, invece, sono mostrati in due scene: una in cui sono veri e una in cui no."
+        "Ogni esempio è un piccolo caso vero, con mappa, stanze, oggetti e personaggi. Per gli indizi su un personaggio, le caselle verdi sono tutte quelle in cui {name} potrebbe trovarsi: sono calcolate dal gioco stesso, con le stesse regole che usa per controllare le soluzioni. Gli indizi generali, invece, sono mostrati in due scene: una in cui sono veri e una in cui no.",
+        { name: castName("a") }
       )
     ),
     el("ul", { class: "gl-legend" }, items),

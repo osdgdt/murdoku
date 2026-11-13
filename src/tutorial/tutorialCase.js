@@ -34,10 +34,10 @@ export function buildTutorialCase() {
   placeObject(grid, "plant", 2, 3);
   placeObject(grid, "window", 3, 3, "E");
 
-  const anna = addCharacter(puzzle, "Anna", "detective");
-  const bruno = addCharacter(puzzle, "Bruno", "butler");
-  const carla = addCharacter(puzzle, "Carla", "chef");
-  const victim = addCharacter(puzzle, "Valerio", "victim", true);
+  const anna = addCharacter(puzzle, t("Anna"), "detective");
+  const bruno = addCharacter(puzzle, t("Bruno"), "butler");
+  const carla = addCharacter(puzzle, t("Carla"), "chef");
+  const victim = addCharacter(puzzle, t("Valerio"), "victim", true);
 
   addClue(puzzle, anna.id, "adjacent", { targetId: objectTypeTargetId("shelf") });
   addClue(puzzle, bruno.id, "onObjectType", { objectTypeId: "carpet" });

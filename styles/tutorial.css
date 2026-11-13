@@ -34,10 +34,10 @@
 /* Candidate dots: the initial of each suspect still possible in the cell. */
 .tt-cands { position: absolute; inset: 0; z-index: 2; display: flex; flex-wrap: wrap; align-content: flex-end; justify-content: center; gap: 2px; padding: 3px; }
 .tt-cand {
-  width: 19px; height: 19px; border-radius: 50%;
+  width: 21px; height: 21px; border-radius: 50%;
   display: grid; place-items: center;
-  font-size: 11px; font-weight: 900; line-height: 1;
-  color: #2b1d12; background: #fffdf6; border: 2px solid var(--who, #888);
+  font-size: 13px; font-weight: 900; line-height: 1;
+  color: #000; background: #fffdf6; border: 2px solid var(--who, #888);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 

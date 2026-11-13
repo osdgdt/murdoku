@@ -120,7 +120,7 @@ function section(id, title, lede, children) {
 
 function rowColumnFigure() {
   const puzzle = createPuzzle("tutorial");
-  const anna = addCharacter(puzzle, "Anna", "detective");
+  const anna = addCharacter(puzzle, t("Anna"), "detective");
   const grid = createGrid(4, 4);
   const marks = new Map();
   for (let i = 0; i < 4; i++) {
@@ -130,7 +130,7 @@ function rowColumnFigure() {
   markFor(marks, 1, 2).token = anna;
   return figure(
     miniBoard(grid, marks),
-    t("Se Anna sta qui, nessun altro può stare nelle caselle con la X: sono nella sua riga o nella sua colonna.")
+    t("Se {name} sta qui, nessun altro può stare nelle caselle con la X: sono nella sua riga o nella sua colonna.", { name: anna.name })
   );
 }
 
@@ -397,7 +397,7 @@ function objectsSection() {
 
 function intersectionFigure() {
   const puzzle = createPuzzle("tutorial");
-  const anna = addCharacter(puzzle, "Anna", "detective");
+  const anna = addCharacter(puzzle, t("Anna"), "detective");
   const grid = createGrid(4, 4);
   placeObject(grid, "chair", 0, 0);
   placeObject(grid, "chair", 1, 2);
@@ -409,7 +409,8 @@ function intersectionFigure() {
   return figure(
     miniBoard(grid, marks),
     t(
-      "Anna può stare solo su una delle due sedie. Qualunque sedia scelga, la sua riga o la sua colonna passa per le due caselle con la X: nessun altro può starci."
+      "{name} può stare solo su una delle due sedie. Qualunque sedia scelga, la sua riga o la sua colonna passa per le due caselle con la X: nessun altro può starci.",
+      { name: anna.name }
     )
   );
 }
@@ -419,7 +420,13 @@ function tipsSection() {
     el("div", { class: "tt-tips" }, [
       el("div", { class: "tt-tip" }, [
         el("h3", {}, t("Riga per riga, colonna per colonna")),
-        el("p", {}, t("Se una riga o una colonna ha una sola casella disponibile, qualcuno deve starci, anche se non sai ancora chi.")),
+        el(
+          "p",
+          {},
+          t(
+            "Se una riga o una colonna ha una sola casella disponibile, qualcuno deve starci, anche se non sai ancora chi. Attenzione: vale solo se il numero di persone è uguale al numero di righe e al numero di colonne (come in questo caso); altrimenti una riga o una colonna può restare vuota."
+          )
+        ),
       ]),
       el("div", { class: "tt-tip" }, [
         el("h3", {}, t("Stanza per stanza")),

@@ -6,6 +6,8 @@ Murdoku is a hybrid of Sudoku and detective deduction. People are placed on a gr
 
 A **medieval / dark-fantasy pack** adds 17 floors (dark flagstones, runed stone, packed earth, mud, straw, ossuary, bridge planks, red damask, decorated tiles…) and 25 props in a "Medieval and fantasy" group of the editor palette: beds, benches, thrones, bearskin rugs and straw pallets can be occupied (benches and thrones are seats); barrels, chests, fireplaces, anvils, altars, statues, armor, weapon racks, cauldrons, wells, carts, sarcophagi, lecterns, banners, candelabra, cages, gravestones and crystal balls block the cell; portcullises and arrow slits sit on the edge like doors and windows. There are also 10 **medieval characters** (blacksmith, executioner, herald, thief, alchemist, archer, princess, prince, jester, bard) next to the king, queen, knight, monk, wizard and countess.
 
+After a site update, a "A new version of the site is available" banner offers a reload: the service worker (`sw.js`) installs the new files bypassing the browser's HTTP cache (GitHub Pages keeps it for 10 minutes), and `npm run e2e:update` simulates a deploy to check it.
+
 The app is available in **Italian and English** (IT/EN button, top right; it follows your browser language by default). Puzzle text written by an author (title, briefing, names, room names) stays as authored.
 
 ## How to play

@@ -81,6 +81,23 @@ export function addZone(grid, name, color, textureId = "hatch") {
   return zone;
 }
 
+// Longest room name the editor accepts (the name is shown on the board, in the legend and in clues).
+export const MAX_ZONE_NAME = 40;
+
+// Gives a room a new name. Only the name changes: the id (which clues, cells and
+// saved cases refer to), the colour, the floor and the painted cells stay as they
+// are. Returns false (and changes nothing) for an unknown room or a blank name.
+export function renameZone(grid, zoneId, name) {
+  const zone = grid.zones.find((z) => z.id === zoneId);
+  const clean = String(name ?? "")
+    .trim()
+    .slice(0, MAX_ZONE_NAME)
+    .trim();
+  if (!zone || !clean) return false;
+  zone.name = clean;
+  return true;
+}
+
 export function removeZone(grid, zoneId) {
   grid.zones = grid.zones.filter((z) => z.id !== zoneId);
   for (const row of grid.cells) {

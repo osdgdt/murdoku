@@ -8,6 +8,8 @@ A **medieval / dark-fantasy pack** adds 17 floors (dark flagstones, runed stone,
 
 After a site update, a "A new version of the site is available" banner offers a reload: the service worker (`sw.js`) installs the new files bypassing the browser's HTTP cache (GitHub Pages keeps it for 10 minutes), and `npm run e2e:update` simulates a deploy to check it.
 
+Rooms can be **renamed** in the editor: pick a room (click its coloured circle) and change its name in the "Rename room" field (Enter or click away to confirm; up to 40 characters; a blank name is refused). The new name shows at once on the map, legend, clues and print view; the id, colour, floor and cells are unchanged, so clues are untouched; one undo step per change.
+
 The app is available in **Italian and English** (IT/EN button, top right; it follows your browser language by default). Puzzle text written by an author (title, briefing, names, room names) stays as authored.
 
 ## How to play

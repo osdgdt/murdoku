@@ -1,7 +1,18 @@
 import { roomColor } from "../skin/paper/rooms.js";
 import { el, clear } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
-import { addZone, removeZone, paintCellZone, placeObject, removeObject, resizeGrid, setBlocked, edgeObjectsAt } from "../model/grid.js";
+import {
+  addZone,
+  removeZone,
+  renameZone,
+  MAX_ZONE_NAME,
+  paintCellZone,
+  placeObject,
+  removeObject,
+  resizeGrid,
+  setBlocked,
+  edgeObjectsAt,
+} from "../model/grid.js";
 import { OBJECT_TYPES, EDGE_SIDES, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { ZONE_TEXTURES, floorStyle } from "../model/textures.js";
 import { t } from "../i18n/i18n.js";
@@ -88,7 +99,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
 
   // Zones
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Stanze / Zone")));
-  const zoneNameInput = el("input", { type: "text", placeholder: t("Nome stanza") });
+  const zoneNameInput = el("input", { type: "text", placeholder: t("Nome stanza"), maxlength: String(MAX_ZONE_NAME) });
   const addZoneBtn = el(
     "button",
     {
@@ -161,11 +172,36 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     zoneList.appendChild(el("div", { class: "zone-swatch-item" }, [swatch, textureSelect]));
   }
   panelEl.appendChild(zoneList);
+
+  // The room being painted can be renamed here. Committed on Enter / when the field
+  // loses focus (not on every keystroke: each change re-draws this panel and one undo
+  // step per letter would be useless). A blank name is refused and the old one comes back.
+  const selectedZone = tool?.kind === "zone" ? puzzle.grid.zones.find((z) => z.id === tool.zoneId) : null;
+  if (selectedZone) {
+    const renameInput = el("input", { id: "zone-rename-input", type: "text", maxlength: String(MAX_ZONE_NAME) });
+    renameInput.value = selectedZone.name;
+    const commitRename = () => {
+      if (renameInput.value.trim() === selectedZone.name) return;
+      if (renameZone(puzzle.grid, selectedZone.id, renameInput.value)) onChange();
+      else renameInput.value = selectedZone.name;
+    };
+    renameInput.addEventListener("change", commitRename);
+    renameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        renameInput.blur();
+      }
+    });
+    panelEl.appendChild(el("div", { class: "field-row" }, [el("label", { for: "zone-rename-input" }, t("Rinomina stanza")), renameInput]));
+  }
+
   panelEl.appendChild(
     el(
       "p",
       { class: "muted" },
-      t("Seleziona una stanza e clicca sulle celle per dipingerle. Doppio click su uno swatch per eliminare la stanza.")
+      t(
+        "Seleziona una stanza e clicca sulle celle per dipingerle; il campo «Rinomina stanza» ne cambia il nome. Doppio click su uno swatch per eliminare la stanza."
+      )
     )
   );
 

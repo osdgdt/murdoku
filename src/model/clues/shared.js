@@ -1,4 +1,4 @@
-import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES } from "../icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES, isObjectTypeOccupiable, isObjectTypeSeat, sideLabel } from "../icons.js";
 import { describeClue } from "../clueTypes.js";
 import { t } from "../../i18n/i18n.js";
 
@@ -11,8 +11,22 @@ export function targetLabel(puzzle, targetId) {
   const zone = puzzle.grid.zones.find((z) => z.id === targetId);
   if (zone) return `"${zone.name}"`;
   const object = puzzle.grid.objects.find((o) => o.id === targetId);
-  if (object) return objectTypePhrase(object.typeId);
+  if (object) return specificObjectPhrase(puzzle, object);
   return "?";
+}
+
+// One SPECIFIC object. "una sedia" alone would read as "any chair", so when the
+// map has several of that type the phrase says which one, with the row/column
+// labels printed around the board: "una sedia (R5, C3)". Doors and windows
+// also say their side. With a single one of its type there is nothing to tell
+// apart and the plain phrase stays.
+function specificObjectPhrase(puzzle, object) {
+  const phrase = objectTypePhrase(object.typeId);
+  if (puzzle.grid.objects.filter((o) => o.typeId === object.typeId).length < 2) return phrase;
+  const where = { phrase, row: object.row + 1, col: object.col + 1 };
+  return object.side
+    ? t("{phrase} (R{row}, C{col}, lato {side})", { ...where, side: sideLabel(object.side) })
+    : t("{phrase} (R{row}, C{col})", where);
 }
 
 // "una porta" / "a door". `article` stays the Italian indefinite article and
@@ -58,22 +72,35 @@ export const PERSON_PROPERTY_LABELS = {
   custom: t("che soddisfaceva un'altra condizione..."),
 };
 export const OBJECT_TYPE_IDS = Object.keys(OBJECT_TYPES);
+// What a character can stand on (rug, chair, stool) and what they can sit on
+// (chair, stool): the choices of "si trova su…" and "seduto su…".
+export const STANDABLE_TYPE_IDS = OBJECT_TYPE_IDS.filter(isObjectTypeOccupiable);
+export const SEAT_TYPE_IDS = OBJECT_TYPE_IDS.filter(isObjectTypeSeat);
 export const OBJECT_TYPE_LABELS = Object.fromEntries(OBJECT_TYPE_IDS.map((id) => [id, OBJECT_TYPES[id].label]));
 export const SHORT_DIRECTION_LABELS = { north: t("Nord"), south: t("Sud"), east: t("Est"), west: t("Ovest") };
 export const SUPERLATIVE_DIRECTION_LABELS = { north: t("a nord"), south: t("a sud"), east: t("a est"), west: t("a ovest") };
 
 export function describeProperty(params, puzzle) {
   switch (params.property) {
-    case "adjacentTo": return t("accanto a {target}", { target: targetLabel(puzzle, params.targetId) });
-    case "male": return t("un uomo");
-    case "female": return t("una donna");
+    case "adjacentTo":
+      return t("accanto a {target}", { target: targetLabel(puzzle, params.targetId) });
+    case "male":
+      return t("un uomo");
+    case "female":
+      return t("una donna");
     // Agrees with `onlyGender` when the clue sets it (currently only
     // noOneWithProperty) — e.g. "nessuna donna... seduta su uno sgabello"
     // instead of the ungrammatical "...seduto...". Every other caller of
     // describeProperty simply never sets onlyGender, so this stays "seduto".
-    case "sittingOn": return t("{seated} su {object}", { seated: params.onlyGender === "female" ? t("seduta") : t("seduto"), object: objectTypePhrase(params.objectTypeId) });
-    case "seated": return params.onlyGender === "female" ? t("seduta") : t("seduto");
-    default: return t("presente");
+    case "sittingOn":
+      return t("{seated} su {object}", {
+        seated: params.onlyGender === "female" ? t("seduta") : t("seduto"),
+        object: objectTypePhrase(params.objectTypeId),
+      });
+    case "seated":
+      return params.onlyGender === "female" ? t("seduta") : t("seduto");
+    default:
+      return t("presente");
   }
 }
 
@@ -104,12 +131,18 @@ export function propertyClause(params, puzzle, verb) {
 export const propertyParams = [
   { name: "property", kind: "enum", values: PERSON_PROPERTIES, labels: PERSON_PROPERTY_LABELS, label: t("Proprietà") },
   { name: "targetId", kind: "characterOrObject", label: t("Bersaglio (se 'accanto a')") },
-  { name: "objectTypeId", kind: "enum", values: OBJECT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto (se 'seduto su')") },
+  { name: "objectTypeId", kind: "enum", values: SEAT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto (se 'seduto su')") },
   { name: "customClue", kind: "clueRef", label: t("Condizione (se 'un'altra condizione')") },
 ];
 // Same, but the property filter itself is optional ("chiunque") — for clue
 // types where a plain, unfiltered "someone" is the natural default.
 export const optionalPropertyParams = [
-  { name: "property", kind: "enum", values: ["", ...PERSON_PROPERTIES], labels: { "": t("chiunque"), ...PERSON_PROPERTY_LABELS }, label: t("Che era...") },
+  {
+    name: "property",
+    kind: "enum",
+    values: ["", ...PERSON_PROPERTIES],
+    labels: { "": t("chiunque"), ...PERSON_PROPERTY_LABELS },
+    label: t("Che è..."),
+  },
   ...propertyParams.slice(1),
 ];

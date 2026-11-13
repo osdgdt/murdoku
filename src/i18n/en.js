@@ -5,5 +5,6 @@ import campaign from "./en/campaign.js";
 import clues from "./en/clues.js";
 import ui from "./en/ui.js";
 import privacy from "./en/privacy.js";
+import glossary from "./en/glossary.js";
 
-export default { ...campaign, ...clues, ...ui, ...privacy };
+export default { ...campaign, ...clues, ...ui, ...privacy, ...glossary };

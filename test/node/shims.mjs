@@ -3,12 +3,24 @@
 
 class MemoryStorage {
   #map = new Map();
-  get length() { return this.#map.size; }
-  key(i) { return [...this.#map.keys()][i] ?? null; }
-  getItem(k) { return this.#map.has(String(k)) ? this.#map.get(String(k)) : null; }
-  setItem(k, v) { this.#map.set(String(k), String(v)); }
-  removeItem(k) { this.#map.delete(String(k)); }
-  clear() { this.#map.clear(); }
+  get length() {
+    return this.#map.size;
+  }
+  key(i) {
+    return [...this.#map.keys()][i] ?? null;
+  }
+  getItem(k) {
+    return this.#map.has(String(k)) ? this.#map.get(String(k)) : null;
+  }
+  setItem(k, v) {
+    this.#map.set(String(k), String(v));
+  }
+  removeItem(k) {
+    this.#map.delete(String(k));
+  }
+  clear() {
+    this.#map.clear();
+  }
 }
 
 export function installLocalStorage() {

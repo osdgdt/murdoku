@@ -12,7 +12,7 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // already confirmed. `solvePuzzle` only reads from it, never mutates it.
 //
 // `maxNodes` is a work budget independent of `maxSolutions`: some predicates
-// (onlyPersonNear, aloneWithVictim) don't prune until the board is complete,
+// (onlyPersonNear, aloneWithPerson) don't prune until the board is complete,
 // so a lightly-clued puzzle could otherwise force near-exhaustive traversal
 // before the solver even determines "few or no solutions." When the optional
 // `stats` out-param is passed, it's filled with `{ nodesVisited, nodeCapHit }`
@@ -41,7 +41,10 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // gets the full scan (safe fallback). This can only prune cells already
 // proven impossible by the same predicate contract forwardCheck relies on
 // — same "changes speed, never the answer" guarantee.
-export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, maxNodes = Infinity, stats = null, forwardCheck = false, domains = null } = {}) {
+export function solvePuzzle(
+  puzzle,
+  { maxSolutions = 2, fixedPlacements = null, maxNodes = Infinity, stats = null, forwardCheck = false, domains = null } = {}
+) {
   const characters = puzzle.characters;
   const { rows, cols } = puzzle.grid.size;
   const predicates = buildPredicates(puzzle);
@@ -54,7 +57,7 @@ export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, 
   // never be treated as "small," or a possibly-huge search gets
   // front-loaded. Ties (including the all-absent case, i.e. `domains`
   // omitted) fall through to the ORIGINAL rule: placing the victim first
-  // tends to prune "aloneWithVictim"-style clues earlier.
+  // tends to prune "aloneWithPerson"-style clues earlier.
   //
   // `sizeA - sizeB` is NOT used directly when both are Infinity (Infinity -
   // Infinity === NaN, and a comparator that can return NaN has unreliable
@@ -109,12 +112,15 @@ export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, 
       // read as a green light to prune, only a definite `contradiction` may
       // prune, so an inconclusive check degrades gracefully to plain
       // backtracking for that one node instead of risking unsoundness.
-      const stillPromising = !forwardCheck || index + 1 >= order.length || !propagate(puzzle, placementMap, {
-        predicates,
-        maxRounds: FORWARD_CHECK_MAX_ROUNDS,
-        maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
-        maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
-      }).contradiction;
+      const stillPromising =
+        !forwardCheck ||
+        index + 1 >= order.length ||
+        !propagate(puzzle, placementMap, {
+          predicates,
+          maxRounds: FORWARD_CHECK_MAX_ROUNDS,
+          maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
+          maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
+        }).contradiction;
       if (stillPromising) backtrack(index + 1);
     }
     usedRows.delete(r);
@@ -195,7 +201,5 @@ export function solvePuzzle(puzzle, { maxSolutions = 2, fixedPlacements = null, 
     stats.nodeCapHit = nodeCapHit;
   }
 
-  return solutions.map((sol) =>
-    order.map((c) => ({ characterId: c.id, row: sol.get(c.id).row, col: sol.get(c.id).col }))
-  );
+  return solutions.map((sol) => order.map((c) => ({ characterId: c.id, row: sol.get(c.id).row, col: sol.get(c.id).col })));
 }

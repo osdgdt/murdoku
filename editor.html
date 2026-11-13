@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https:; frame-src https://*.firebaseapp.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
@@ -40,6 +41,7 @@
       <input id="puzzle-title" class="title-input" type="text" placeholder="Titolo del caso" aria-label="Titolo del caso" />
       <input id="puzzle-author" class="author-input" type="text" placeholder="Autore" aria-label="Autore" />
       <select id="puzzle-difficulty" class="difficulty-input" title="Difficoltà" aria-label="Difficoltà"></select>
+      <select id="puzzle-tense" class="difficulty-input" title="Tempo verbale degli indizi" aria-label="Tempo verbale degli indizi"></select>
     </div>
     <nav class="topbar-actions">
       <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>

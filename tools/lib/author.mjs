@@ -13,6 +13,7 @@ const { resizeGrid, addZone, paintCellZone, placeObject, setBlocked } = await im
 const { CLUE_TYPES } = await import("../../src/model/clueTypes.js");
 const { buildPredicate } = await import("../../src/solver/predicates/index.js");
 const { checkUniqueness, validateSolution } = await import("../../src/solver/validator.js");
+const { solvePuzzle } = await import("../../src/solver/solver.js");
 const { findRedundantClues } = await import("../../src/solver/redundancy.js");
 const { propagate } = await import("../../src/solver/propagation.js");
 const { objectTypeTargetId } = await import("../../src/model/icons.js");
@@ -49,9 +50,12 @@ export function buildBase(spec, lang) {
       else if (zoneIds[ch]) paintCellZone(puzzle.grid, r, c, zoneIds[ch]);
     });
   });
-  for (const o of spec.objects || []) placeObject(puzzle.grid, o.type, o.row, o.col);
+  for (const o of spec.objects || []) placeObject(puzzle.grid, o.type, o.row, o.col, o.side);
   const ids = {};
-  spec.cast.forEach((member) => {
+  // House rule: the victim is always the LAST character (placed last, in the
+  // last cell that remains), whatever order the spec lists the cast in.
+  const cast = [...spec.cast.filter((m) => !m.victim), ...spec.cast.filter((m) => m.victim)];
+  cast.forEach((member) => {
     const c = addCharacter(puzzle, member.names[lang], member.icon, !!member.victim);
     c.gender = member.gender ?? null;
     c.bio = member.bio?.[lang] ?? "";
@@ -83,7 +87,7 @@ function enumerateParams(def, ctx, owner) {
       if (p.name === "objectTypeId") return chosen.property === "sittingOn" ? presentObjectTypes : [undefined];
     }
     switch (p.kind) {
-      case "characterOrObject": return targetsAny;
+      case "characterOrObject": return p.noZone ? targetsAny.filter((id) => !puzzle.grid.zones.some((z) => z.id === id)) : targetsAny;
       case "character": return targetsChar;
       case "zone": return puzzle.grid.zones.map((z) => z.id);
       case "number": return [...Array.from({ length: maxIndex }, (_, i) => i + (p.min ?? 1)), ...(p.optional ? [undefined] : [])];
@@ -114,7 +118,7 @@ export function trueClues(puzzle, ids, solution) {
   const seen = new Set();
   const pool = [];
   for (const [type, def] of Object.entries(CLUE_TYPES)) {
-    if (def.legacy || def.internal || SKIP_TYPES.has(type)) continue;
+    if (def.internal || SKIP_TYPES.has(type)) continue;
     const owners = def.scope === "generic" ? [null] : puzzle.characters.map((c) => c.id);
     for (const owner of owners) {
       for (const params of enumerateParams(def, ctx, owner)) {
@@ -132,6 +136,28 @@ export function trueClues(puzzle, ids, solution) {
     }
   }
   return pool;
+}
+
+// --- victim-free view ---------------------------------------------------------
+// Generated cases never put a clue on the victim and solve the suspects WITHOUT
+// her: she is placed last, in the one cell that is left. So the clue search runs
+// on a copy of the puzzle in which the victim does not exist.
+export function withoutVictim(puzzle) {
+  const victim = puzzle.characters.find((c) => c.isVictim);
+  const copy = JSON.parse(JSON.stringify(puzzle));
+  copy.characters = copy.characters.filter((c) => !c.isVictim);
+  copy.solution = { ...copy.solution, placements: copy.solution.placements.filter((p) => p.characterId !== victim.id) };
+  return copy;
+}
+
+// Does this clue hold for `placements` (Map characterId -> {row,col}) on `puzzle`?
+export function holdsIn(clue, puzzle, placements) {
+  try { return buildPredicate({ id: "x", ...clue }, puzzle)(placements, true) === true; } catch { return false; }
+}
+
+// How many cells can the victim take once every suspect sits in its true cell?
+export function victimCellOptions(puzzle, suspectPlacements) {
+  return solvePuzzle(puzzle, { maxSolutions: 5, fixedPlacements: suspectPlacements }).length;
 }
 
 // --- search -------------------------------------------------------------------
@@ -172,7 +198,13 @@ export async function composeClues(puzzle, pool, { random, allowType, negateChan
   }
   // Prune clues that aren't needed (in random order; `pruneChance` < 1 keeps some
   // redundancy on purpose, for easier cases).
-  const order = clues.map((_, i) => i).sort(() => random() - 0.5);
+  // Fisher-Yates, not sort(() => random() - 0.5): an inconsistent comparator has an
+  // engine-dependent result, and a seed must give the same case under Node and in a browser.
+  const order = clues.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
   let current = clues.slice();
   for (const idx of order) {
     const target = clues[idx];

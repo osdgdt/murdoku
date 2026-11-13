@@ -150,6 +150,43 @@
 }
 
 .board-label-row { position: relative; }
+.board-label { flex-direction: column; gap: 2px; padding: 2px; min-width: 24px; min-height: 24px; }
+
+/* Notes on a whole row/column live inside its label, on the board's outer edge. */
+.line-notes { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: calc(var(--cell-size, 56px) * 0.9); }
+.board-label-row .line-notes { max-width: calc(var(--cell-size, 56px) * 0.9); }
+.line-notes .candidate-mark {
+  width: max(10px, calc(var(--cell-size, 56px) * 0.2));
+  height: max(10px, calc(var(--cell-size, 56px) * 0.2));
+  font-size: max(6px, calc(var(--cell-size, 56px) * 0.13));
+  border-width: 1.5px;
+}
+.board-label-tappable { cursor: pointer; }
+.board-label-tappable:hover { background: var(--accent-soft); }
+.board-label-tappable:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+
+/* The room's name, written on the room itself: a small tab in the top-left of
+   its first free cell (see boardRender.js). Light chip + dark text so it reads
+   on any floor. */
+.board-cell .room-name {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: calc(var(--cell-size, 56px) * var(--span, 1));
+  padding: 1px 5px;
+  font-size: clamp(9px, calc(var(--cell-size, 56px) * 0.18), 14px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #2b1d12;
+  background: rgba(255, 250, 240, 0.86);
+  border-radius: 0 0 8px 0;
+  pointer-events: none;
+}
 
 .room-legend { display: none; }
 
@@ -218,21 +255,17 @@
   cursor: pointer;
 }
 
-/* Terrain texture over any painted zone, so flat color fields read more like
-   a tiled floor and less like a flat UI block. The actual pattern comes from
-   the cell's own --zone-texture custom property (set per-cell in
-   boardRender.js from the zone's author-picked textureId, see
-   src/model/textures.js) — this varies which background-image is used
-   instead of adding a second pseudo-element: .board-cell already spends its
-   whole ::before/::after budget on this rule and .x-mark's, a third one
-   would silently break one of them. Falls back to the original diagonal
-   hatch for a zone with no textureId (zones saved before this feature). */
-.board-cell.zoned::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+/* Floor of a painted zone: the cell's OWN background-image, from the
+   --zone-texture / --zone-texture-size custom properties set per cell in
+   boardRender.js (see src/model/textures.js; the zone color stays the
+   cell's background-color underneath). Deliberately NOT a ::before: an
+   overlay pseudo-element would paint over the cell's inset box-shadows
+   (relief, hover/char-target rings) and hide them on opaque floors, and
+   it frees ::before/::after for .x-mark. Falls back to the original
+   diagonal hatch for a zone with no textureId (zones saved before floors). */
+.board-cell.zoned {
   background-image: var(--zone-texture, repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.055) 0 3px, transparent 3px 10px));
-  pointer-events: none;
+  background-size: var(--zone-texture-size, auto);
 }
 
 /* Bold borders only at true zone boundaries (different zone, or zone vs. the
@@ -241,6 +274,24 @@
 .board-cell.wall-r { border-right: 3px solid var(--ink); }
 .board-cell.wall-b { border-bottom: 3px solid var(--ink); }
 .board-cell.wall-l { border-left: 3px solid var(--ink); }
+
+/* Doors/windows: a thin piece on ONE side of the cell (see boardRender.js),
+   below tokens/icons (z-index 2) so a person standing in the cell stays fully
+   visible, and never intercepting the press/click aimed at the cell itself.
+   E/W pieces are the horizontal artwork rotated 90deg around their center. */
+.board-cell .edge-obj {
+  --edge-w: calc(var(--cell-size, 56px) * 0.72);
+  position: absolute;
+  width: var(--edge-w);
+  aspect-ratio: 4 / 1;
+  z-index: 1;
+  pointer-events: none;
+}
+.board-cell .edge-obj svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.board-cell .edge-N { top: 2px; left: 50%; transform: translateX(-50%); }
+.board-cell .edge-S { bottom: 2px; left: 50%; transform: translateX(-50%); }
+.board-cell .edge-E { top: 50%; left: calc(100% - 2px - var(--edge-w) / 8); transform: translate(-50%, -50%) rotate(90deg); }
+.board-cell .edge-W { top: 50%; left: calc(2px + var(--edge-w) / 8); transform: translate(-50%, -50%) rotate(90deg); }
 
 .board-cell .obj-icon {
   position: relative;
@@ -358,7 +409,31 @@
 /* A zone's color swatch plus its texture picker, stacked as one unit inside
    .zone-swatch-list. */
 .zone-swatch-item { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
-.zone-texture-select { font-size: 0.65rem; padding: 0.15em 0.3em; width: 84px; }
+.floor-details summary { list-style: none; cursor: pointer; display: flex; justify-content: center; }
+.floor-details summary::-webkit-details-marker { display: none; }
+.floor-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 30px);
+  gap: 4px;
+  margin-top: 0.35rem;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+.floor-chip {
+  width: 30px;
+  height: 22px;
+  padding: 0;
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  background-origin: border-box;
+  cursor: pointer;
+}
+.floor-chip.current { display: inline-block; width: 38px; height: 22px; cursor: pointer; }
+.floor-chip.selected { outline: 2px solid var(--accent); outline-offset: 1px; }
+.floor-chip:hover { border-color: var(--gold); }
 
 .palette-item {
   width: 42px; height: 42px;
@@ -388,7 +463,31 @@
 .character-card:hover { box-shadow: var(--shadow-md); }
 .character-card.victim { border-color: var(--danger); background: linear-gradient(180deg, var(--panel), var(--danger-soft) 220%); }
 .character-card .row { display: flex; align-items: center; gap: 0.55rem; margin: 0.2rem 0; }
-.character-card .row svg { width: 22px; height: 22px; }
+/* Profession picker for a NEW character (characterEditor.js): a collapsed
+   <details> showing the current avatar + name, opening into a grid of avatars. */
+.icon-details { position: relative; flex: 1 1 auto; min-width: 0; }
+.icon-details summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.4rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--panel); }
+.icon-details summary::-webkit-details-marker { display: none; }
+.icon-details .icon-current svg { width: 30px; height: 30px; display: block; }
+.icon-current-label { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 42px);
+  gap: 4px;
+  margin-top: 0.35rem;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  max-height: 16rem;
+  overflow-y: auto;
+}
+.icon-chip { width: 42px; height: 42px; padding: 2px; border-radius: 8px; border: 2px solid var(--border); background: var(--panel-alt); cursor: pointer; }
+.icon-chip svg { width: 100%; height: 100%; display: block; }
+.icon-chip.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.icon-chip:hover { border-color: var(--gold); }
+.character-card .row svg { width: 30px; height: 30px; }
 
 /* solutionEditor.js reuses player.html's .player-toolbar/.char-chip character
    selector, but editor.html never loads styles/player.css — without these,
@@ -662,3 +761,7 @@
 }
 
 .tool-toggle { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }
+
+/* Side picker for doors/windows (mapEditor.js). */
+.side-picker { align-items: center; }
+.side-btn.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); font-weight: 700; }

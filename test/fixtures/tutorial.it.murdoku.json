@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 4,
+  "id": "tutorial_it",
+  "title": "Tutorial: il primo caso",
+  "author": "Murdoku",
+  "difficulty": "very-easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Valerio è stato trovato senza vita. Su una griglia ogni persona occupa una casella: mai due nella stessa riga o colonna. La vittima si trova sempre in una stanza con esattamente un'altra persona — ed è l'assassino. Nessun indizio parla della vittima: piazza prima i sospettati, poi lei prende l'ultima casella rimasta. Leggi gli indizi, tocca una casella per segnare una nota e tieni premuto per piazzare il personaggio.",
+  "resolutionNote": "Bruno era l'unica persona con Valerio: è lui l'assassino. Ottimo lavoro, detective!",
+  "tense": "present",
+  "createdAt": 1767225600000,
+  "updatedAt": 1794452472259,
+  "grid": {
+    "size": {
+      "rows": 4,
+      "cols": 4
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537gyd0sy2b",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo537u50g9huv",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwcyo537gyd0sy2b",
+        "name": "Cucina",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "zone_mwcyo537u50g9huv",
+        "name": "Salone",
+        "color": "#c2e0f4",
+        "textureId": "hatch"
+      }
+    ],
+    "objects": []
+  },
+  "characters": [
+    {
+      "id": "char_mwcyo537gpsp8z0o",
+      "name": "Anna",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "",
+      "color": "#608aea",
+      "gender": null
+    },
+    {
+      "id": "char_mwcyo537yo3vm3w6",
+      "name": "Bruno",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "",
+      "color": "#ea558a",
+      "gender": null
+    },
+    {
+      "id": "char_mwcyo537dlo66dkx",
+      "name": "Carla",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "",
+      "color": "#158060",
+      "gender": null
+    },
+    {
+      "id": "char_mwcyo537myk8zjc3",
+      "name": "Valerio",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "",
+      "color": "#9f5595",
+      "gender": null
+    }
+  ],
+  "clues": [
+    {
+      "id": "clue_mwcyo537f7g8zdb7",
+      "characterId": "char_mwcyo537gpsp8z0o",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 1
+      }
+    },
+    {
+      "id": "clue_mwcyo537nc35kuyc",
+      "characterId": "char_mwcyo537gpsp8z0o",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 3
+      }
+    },
+    {
+      "id": "clue_mwcyo537i5q7oqnr",
+      "characterId": "char_mwcyo537yo3vm3w6",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwcyo537gyd0sy2b"
+      }
+    },
+    {
+      "id": "clue_mwcyo537uo5oh9yp",
+      "characterId": "char_mwcyo537yo3vm3w6",
+      "type": "diagonal",
+      "params": {
+        "targetId": "char_mwcyo537gpsp8z0o"
+      }
+    },
+    {
+      "id": "clue_mwcyo537x0rsj5ys",
+      "characterId": "char_mwcyo537dlo66dkx",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwcyo537u50g9huv"
+      }
+    },
+    {
+      "id": "clue_mwcyo537kjtohkj8",
+      "characterId": "char_mwcyo537dlo66dkx",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 4
+      }
+    },
+    {
+      "id": "clue_mwcyo537bhny4ye7",
+      "characterId": "char_mwcyo537dlo66dkx",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 3
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mwcyo537gpsp8z0o",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwcyo537yo3vm3w6",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "characterId": "char_mwcyo537dlo66dkx",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwcyo537myk8zjc3",
+        "row": 3,
+        "col": 0
+      }
+    ]
+  },
+  "manualHints": [
+    {
+      "id": "hint_mwcyo5372qv4awe8",
+      "message": "Parti da Anna: è nella riga 1 e nella colonna 3. Una sola casella soddisfa entrambi gli indizi.",
+      "characterId": "char_mwcyo537gpsp8z0o",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "hint_mwcyo537jva02p33",
+      "message": "Bruno è in Cucina ed è in diagonale rispetto ad Anna. La diagonale di (R1, C3) dentro la Cucina è una sola casella.",
+      "characterId": "char_mwcyo537yo3vm3w6",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "hint_mwcyo537oajp6xpf",
+      "message": "Carla è nel Salone, nella colonna 4 e nella riga 3: una sola casella.",
+      "characterId": "char_mwcyo537dlo66dkx",
+      "row": 2,
+      "col": 3
+    },
+    {
+      "id": "hint_mwcyo537sicdw0mc",
+      "message": "Ora la vittima: nessun indizio la riguarda, prende l'ultima casella rimasta, (R4, C1). Con lei, in Cucina, c'è Bruno: è l'assassino. Verifica la soluzione!",
+      "characterId": "char_mwcyo537myk8zjc3",
+      "row": 3,
+      "col": 0
+    }
+  ]
+}

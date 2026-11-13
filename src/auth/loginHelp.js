@@ -42,9 +42,15 @@ export function describeAuthError(err) {
 // open inside another app.
 export function renderLoginHelp(env = detectEmbeddedBrowser()) {
   const children = [
-    el("p", { class: env.risky ? "violation" : "muted" }, env.risky
-      ? t("Stai usando un browser incorporato in un'altra app: Google non permette di accedere da qui (di solito ti porta su Gmail). Copia il link e aprilo in Chrome.")
-      : t("Se l'accesso ti porta su Gmail o non si completa, apri il sito direttamente nel browser (per esempio Chrome) e riprova.")),
+    el(
+      "p",
+      { class: env.risky ? "violation" : "muted" },
+      env.risky
+        ? t(
+            "Stai usando un browser incorporato in un'altra app: Google non permette di accedere da qui (di solito ti porta su Gmail). Copia il link e aprilo in Chrome."
+          )
+        : t("Se l'accesso ti porta su Gmail o non si completa, apri il sito direttamente nel browser (per esempio Chrome) e riprova.")
+    ),
   ];
   if (env.risky) {
     const copyBtn = el("button", { type: "button" }, t("📋 Copia il link"));

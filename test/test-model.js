@@ -1,5 +1,34 @@
-import { createPuzzle, addCharacter, addClue, removeCharacter, setSolutionPlacement, validatePuzzleShape, duplicatePuzzle, pruneDanglingClueReferences, pruneDanglingSolutionPlacements, genericClues, cluesForCharacter, difficultyLabel, estimateDifficultyFromNodes, addManualHintStep, updateManualHintStep, removeManualHintStep, reorderManualHintSteps } from "../src/model/puzzle.js";
-import { addZone, removeZone, removeObject, resizeGrid, setBlocked, isUsable, isOccupiable, paintCellZone, placeObject } from "../src/model/grid.js";
+import {
+  createPuzzle,
+  addCharacter,
+  addClue,
+  removeCharacter,
+  setSolutionPlacement,
+  validatePuzzleShape,
+  duplicatePuzzle,
+  pruneDanglingClueReferences,
+  pruneDanglingSolutionPlacements,
+  genericClues,
+  cluesForCharacter,
+  difficultyLabel,
+  estimateDifficultyFromNodes,
+  addManualHintStep,
+  updateManualHintStep,
+  removeManualHintStep,
+  reorderManualHintSteps,
+} from "../src/model/puzzle.js";
+import {
+  addZone,
+  removeZone,
+  removeObject,
+  resizeGrid,
+  setBlocked,
+  isUsable,
+  isOccupiable,
+  paintCellZone,
+  placeObject,
+  edgeObjectsAt,
+} from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import * as store from "../src/storage/puzzleStore.js";
 import { assert, assertEqual } from "./assert.js";
@@ -30,7 +59,10 @@ export const tests = [
       puzzle.characters[1].isVictim = true;
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("vittima")), "errore atteso sulla vittima");
+      assert(
+        errors.some((e) => e.includes("vittima")),
+        "errore atteso sulla vittima"
+      );
     },
   },
   {
@@ -40,7 +72,10 @@ export const tests = [
       puzzle.characters.push({ ...puzzle.characters[0] });
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("duplicato")), "errore atteso su id duplicato");
+      assert(
+        errors.some((e) => e.includes("duplicato")),
+        "errore atteso su id duplicato"
+      );
     },
   },
   {
@@ -50,7 +85,10 @@ export const tests = [
       puzzle.grid = resizeGrid(puzzle.grid, 12, 12);
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("dimensioni della griglia")), "errore atteso sulle dimensioni della griglia");
+      assert(
+        errors.some((e) => e.includes("dimensioni della griglia")),
+        "errore atteso sulle dimensioni della griglia"
+      );
     },
   },
   {
@@ -61,7 +99,10 @@ export const tests = [
       addCharacter(puzzle, "Dario", "person2"); // 4 personaggi, griglia 3x3
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("Troppi personaggi")), "errore atteso sul numero di personaggi");
+      assert(
+        errors.some((e) => e.includes("Troppi personaggi")),
+        "errore atteso sul numero di personaggi"
+      );
     },
   },
   {
@@ -71,7 +112,10 @@ export const tests = [
       puzzle.solution.placements[0].row = 99;
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("fuori griglia")), "errore atteso su fuori griglia");
+      assert(
+        errors.some((e) => e.includes("fuori griglia")),
+        "errore atteso su fuori griglia"
+      );
     },
   },
   {
@@ -115,7 +159,10 @@ export const tests = [
       setBlocked(puzzle.grid, 1, 1, true);
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("bloccata")), "errore atteso su cella bloccata");
+      assert(
+        errors.some((e) => e.includes("bloccata")),
+        "errore atteso su cella bloccata"
+      );
     },
   },
   {
@@ -125,7 +172,10 @@ export const tests = [
       placeObject(puzzle.grid, "shelf", 1, 1);
       const { valid, errors } = validatePuzzleShape(puzzle);
       assert(!valid, "atteso non valido");
-      assert(errors.some((e) => e.includes("oggetto")), "errore atteso su cella con oggetto");
+      assert(
+        errors.some((e) => e.includes("oggetto")),
+        "errore atteso su cella con oggetto"
+      );
     },
   },
   {
@@ -323,7 +373,7 @@ export const tests = [
     },
   },
   {
-    name: "isOccupiable è vero su sedie e tappeti, falso sugli altri oggetti",
+    name: "isOccupiable è vero su sedie, tappeti, porte e finestre (bordo), falso sul resto dei mobili",
     fn: () => {
       const puzzle = buildValidPuzzle();
       placeObject(puzzle.grid, "chair", 1, 0);
@@ -335,9 +385,48 @@ export const tests = [
       assert(isOccupiable(puzzle.grid, 1, 0), "una sedia si può occupare");
       assert(isOccupiable(puzzle.grid, 1, 1), "un tappeto si può occupare");
       assert(!isOccupiable(puzzle.grid, 1, 2), "un tavolo non si può occupare");
-      assert(!isOccupiable(puzzle.grid, 2, 0), "una porta non si può occupare");
-      assert(!isOccupiable(puzzle.grid, 2, 1), "una finestra non si può occupare");
+      assert(isOccupiable(puzzle.grid, 2, 0), "una porta sta sul bordo: la cella resta occupabile");
+      assert(isOccupiable(puzzle.grid, 2, 1), "una finestra sta sul bordo: la cella resta occupabile");
       assert(!isOccupiable(puzzle.grid, 2, 2), "una lampada non si può occupare");
+    },
+  },
+  {
+    name: "placeObject (porta/finestra): sta su un lato, non occupa la cella, più elementi nella stessa cella, un solo elemento per lato",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const g = puzzle.grid;
+      const door = placeObject(g, "door", 1, 1, "N");
+      const win = placeObject(g, "window", 1, 1, "E");
+      assertEqual(door.side, "N");
+      assertEqual(win.side, "E");
+      assertEqual(g.cells[1][1].objectId, null, "un elemento di bordo non imposta cell.objectId");
+      assert(isOccupiable(g, 1, 1), "la cella resta occupabile");
+      assertEqual(edgeObjectsAt(g, 1, 1).length, 2);
+      const replacement = placeObject(g, "door", 1, 1, "N");
+      assertEqual(edgeObjectsAt(g, 1, 1).length, 2, "lo stesso lato viene sostituito, non duplicato");
+      assert(!g.objects.find((o) => o.id === door.id), "la vecchia porta sul lato N non c'è più");
+      assert(g.objects.find((o) => o.id === replacement.id));
+    },
+  },
+  {
+    name: "placeObject (porta) non sostituisce un mobile a tutta cella, e un mobile non sostituisce la porta",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const g = puzzle.grid;
+      placeObject(g, "table", 0, 2);
+      placeObject(g, "door", 0, 2, "S");
+      assert(g.cells[0][2].objectId, "il tavolo resta nella cella");
+      placeObject(g, "shelf", 0, 2);
+      assertEqual(edgeObjectsAt(g, 0, 2).length, 1, "la porta sopravvive alla sostituzione del mobile");
+    },
+  },
+  {
+    name: "setBlocked rimuove anche le porte/finestre di bordo della cella",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      placeObject(puzzle.grid, "window", 2, 2, "W");
+      setBlocked(puzzle.grid, 2, 2, true);
+      assertEqual(puzzle.grid.objects.length, 0);
     },
   },
   {

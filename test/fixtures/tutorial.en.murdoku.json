@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 4,
+  "id": "tutorial_en",
+  "title": "Tutorial: your first case",
+  "author": "Murdoku",
+  "difficulty": "very-easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Victor has been found dead. On the grid every person takes one cell: never two in the same row or column. The victim is always in a room with exactly one other person — and that person is the murderer. No clue is about the victim: place the suspects first, then she takes the last cell left. Read the clues, tap a cell to jot a note, and press and hold to place the character.",
+  "resolutionNote": "Ben was the only person with Victor: he is the murderer. Well done, detective!",
+  "tense": "present",
+  "createdAt": 1767225600000,
+  "updatedAt": 1794452472266,
+  "grid": {
+    "size": {
+      "rows": 4,
+      "cols": 4
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ez224t0vj",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwcyo53ee9an92ag",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwcyo53ez224t0vj",
+        "name": "Kitchen",
+        "color": "#f4c2c2",
+        "textureId": "hatch"
+      },
+      {
+        "id": "zone_mwcyo53ee9an92ag",
+        "name": "Hall",
+        "color": "#c2e0f4",
+        "textureId": "hatch"
+      }
+    ],
+    "objects": []
+  },
+  "characters": [
+    {
+      "id": "char_mwcyo53ec6hsda2e",
+      "name": "Alice",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "",
+      "color": "#608aea",
+      "gender": null
+    },
+    {
+      "id": "char_mwcyo53e7flqawt4",
+      "name": "Ben",
+      "iconId": "butler",
+      "isVictim": false,
+      "bio": "",
+      "color": "#ea558a",
+      "gender": null
+    },
+    {
+      "id": "char_mwcyo53eq874s8jo",
+      "name": "Clara",
+      "iconId": "chef",
+      "isVictim": false,
+      "bio": "",
+      "color": "#158060",
+      "gender": null
+    },
+    {
+      "id": "char_mwcyo53e7sdpop9g",
+      "name": "Victor",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "",
+      "color": "#9f5595",
+      "gender": null
+    }
+  ],
+  "clues": [
+    {
+      "id": "clue_mwcyo53evunf4i47",
+      "characterId": "char_mwcyo53ec6hsda2e",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 1
+      }
+    },
+    {
+      "id": "clue_mwcyo53exbvfyn6x",
+      "characterId": "char_mwcyo53ec6hsda2e",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 3
+      }
+    },
+    {
+      "id": "clue_mwcyo53e7k8q1m40",
+      "characterId": "char_mwcyo53e7flqawt4",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwcyo53ez224t0vj"
+      }
+    },
+    {
+      "id": "clue_mwcyo53exomted4s",
+      "characterId": "char_mwcyo53e7flqawt4",
+      "type": "diagonal",
+      "params": {
+        "targetId": "char_mwcyo53ec6hsda2e"
+      }
+    },
+    {
+      "id": "clue_mwcyo53e86g1t5rp",
+      "characterId": "char_mwcyo53eq874s8jo",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwcyo53ee9an92ag"
+      }
+    },
+    {
+      "id": "clue_mwcyo53earu1e6k7",
+      "characterId": "char_mwcyo53eq874s8jo",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 4
+      }
+    },
+    {
+      "id": "clue_mwcyo53e507xvv9t",
+      "characterId": "char_mwcyo53eq874s8jo",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 3
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mwcyo53ec6hsda2e",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwcyo53e7flqawt4",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "characterId": "char_mwcyo53eq874s8jo",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwcyo53e7sdpop9g",
+        "row": 3,
+        "col": 0
+      }
+    ]
+  },
+  "manualHints": [
+    {
+      "id": "hint_mwcyo53ea6qee4fo",
+      "message": "Start with Alice: she is in row 1 and in column 3. Only one cell satisfies both clues.",
+      "characterId": "char_mwcyo53ec6hsda2e",
+      "row": 0,
+      "col": 2
+    },
+    {
+      "id": "hint_mwcyo53edf4kvcyg",
+      "message": "Ben is in the Kitchen and diagonal to Alice. The diagonal of (R1, C3) inside the Kitchen is a single cell.",
+      "characterId": "char_mwcyo53e7flqawt4",
+      "row": 1,
+      "col": 1
+    },
+    {
+      "id": "hint_mwcyo53ep3yp1kqh",
+      "message": "Clara is in the Hall, in column 4 and in row 3: a single cell.",
+      "characterId": "char_mwcyo53eq874s8jo",
+      "row": 2,
+      "col": 3
+    },
+    {
+      "id": "hint_mwcyo53e6cyod935",
+      "message": "Now the victim: no clue is about her, she takes the last cell left, (R4, C1). Ben is in the Kitchen with her: he is the murderer. Check your solution!",
+      "characterId": "char_mwcyo53e7sdpop9g",
+      "row": 3,
+      "col": 0
+    }
+  ]
+}

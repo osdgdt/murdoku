@@ -20,26 +20,57 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
 
   const nameInput = el("input", { type: "text", placeholder: t("Nome personaggio") });
   // Auto-assigned round-robin, mirroring CHARACTER_COLORS's own rotation in
-  // addCharacter() — the select simply defaults to whichever icon is next in
-  // rotation; picking a different one from the menu still fully overrides it.
-  const nextIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
-  const iconSelect = el(
-    "select",
-    { "aria-label": t("Icona del personaggio") },
-    SELECTABLE_CHARACTER_ICON_IDS.map((id) =>
-      el("option", { value: id, selected: id === nextIconId || undefined }, CHARACTER_ICONS[id].label)
-    )
+  // addCharacter() — the picker simply starts on whichever profession is next
+  // in rotation; choosing another from the grid fully overrides it.
+  let selectedIconId = SELECTABLE_CHARACTER_ICON_IDS[puzzle.characters.length % SELECTABLE_CHARACTER_ICON_IDS.length];
+  // The figures are drawn in the character's color: show them in the color the
+  // new character will get (the grid tints each one with a different palette entry).
+  const previewColor = CHARACTER_COLORS[puzzle.characters.length % CHARACTER_COLORS.length];
+  const currentIcon = el("span", { class: "icon-current", style: `color:${previewColor}` });
+  const currentLabel = el("span", { class: "icon-current-label" });
+  const refreshCurrent = () => {
+    currentIcon.innerHTML = CHARACTER_ICONS[selectedIconId].icon;
+    currentLabel.textContent = CHARACTER_ICONS[selectedIconId].label;
+  };
+  refreshCurrent();
+  const iconPickerDetails = el("details", { class: "icon-details" });
+  const iconGrid = el(
+    "div",
+    { class: "icon-picker" },
+    SELECTABLE_CHARACTER_ICON_IDS.map((id, index) => {
+      const chip = el("button", {
+        type: "button",
+        class: "icon-chip" + (id === selectedIconId ? " selected" : ""),
+        style: `color:${CHARACTER_COLORS[index % CHARACTER_COLORS.length]}`,
+        title: CHARACTER_ICONS[id].label,
+        "aria-label": t("Professione: {label}", { label: CHARACTER_ICONS[id].label }),
+        onClick: () => {
+          selectedIconId = id;
+          iconGrid.querySelectorAll(".icon-chip").forEach((c) => c.classList.toggle("selected", c === chip));
+          refreshCurrent();
+          iconPickerDetails.removeAttribute("open");
+        },
+      });
+      chip.innerHTML = CHARACTER_ICONS[id].icon;
+      return chip;
+    })
   );
-  const addBtn = el("button", {
-    onClick: () => {
-      const name = nameInput.value.trim();
-      if (!name) return;
-      addCharacter(puzzle, name, iconSelect.value, puzzle.characters.length === 0);
-      nameInput.value = "";
-      onChange();
+  iconPickerDetails.appendChild(el("summary", { title: t("Scegli la professione") }, [currentIcon, currentLabel]));
+  iconPickerDetails.appendChild(iconGrid);
+  const addBtn = el(
+    "button",
+    {
+      onClick: () => {
+        const name = nameInput.value.trim();
+        if (!name) return;
+        addCharacter(puzzle, name, selectedIconId, puzzle.characters.length === 0);
+        nameInput.value = "";
+        onChange();
+      },
     },
-  }, t("+ Aggiungi"));
-  container.appendChild(el("div", { class: "field-row" }, [nameInput, iconSelect, addBtn]));
+    t("+ Aggiungi")
+  );
+  container.appendChild(el("div", { class: "field-row" }, [nameInput, iconPickerDetails, addBtn]));
 
   const list = el("div", { class: "character-list" });
   for (const character of puzzle.characters) {
@@ -52,17 +83,22 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     const colorList = character.isVictim ? null : el("div", { class: "zone-swatch-list" });
     if (colorList) {
       for (const color of CHARACTER_COLORS) {
-        const selectColor = () => { character.color = color; onChange(); };
-        colorList.appendChild(el("div", {
-          class: "swatch" + (characterColor(character) === color ? " selected" : ""),
-          style: `background:${color}`,
-          title: t("Colore del personaggio"),
-          tabindex: "0",
-          role: "button",
-          "aria-label": t("Colore {color} per {name}", { color, name: character.name }),
-          onClick: selectColor,
-          onKeydown: onActivateKey(selectColor),
-        }));
+        const selectColor = () => {
+          character.color = color;
+          onChange();
+        };
+        colorList.appendChild(
+          el("div", {
+            class: "swatch" + (characterColor(character) === color ? " selected" : ""),
+            style: `background:${color}`,
+            title: t("Colore del personaggio"),
+            tabindex: "0",
+            role: "button",
+            "aria-label": t("Colore {color} per {name}", { color, name: character.name }),
+            onClick: selectColor,
+            onKeydown: onActivateKey(selectColor),
+          })
+        );
       }
     }
 
@@ -85,7 +121,10 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
       "select",
       {
         "aria-label": t("Genere"),
-        onChange: (e) => { character.gender = e.target.value || null; onChange(); },
+        onChange: (e) => {
+          character.gender = e.target.value || null;
+          onChange();
+        },
       },
       [
         el("option", { value: "", selected: !character.gender || undefined }, t("Genere non specificato")),
@@ -94,29 +133,44 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
       ]
     );
 
-    const removeBtn = el("button", {
-      onClick: () => {
-        removeCharacter(puzzle, character.id);
-        onChange();
+    const removeBtn = el(
+      "button",
+      {
+        onClick: () => {
+          removeCharacter(puzzle, character.id);
+          onChange();
+        },
       },
-    }, t("Rimuovi"));
+      t("Rimuovi")
+    );
 
-    const bioInput = el("textarea", {
-      class: "bio-input",
-      rows: "2",
-      placeholder: t("Bio / nota narrativa (facoltativa)"),
-      onInput: (e) => { character.bio = e.target.value; onPersistOnly(); },
-    }, character.bio || "");
+    const bioInput = el(
+      "textarea",
+      {
+        class: "bio-input",
+        rows: "2",
+        placeholder: t("Bio / nota narrativa (facoltativa)"),
+        onInput: (e) => {
+          character.bio = e.target.value;
+          onPersistOnly();
+        },
+      },
+      character.bio || ""
+    );
 
-    const card = el("div", {
-      class: "character-card" + (character.isVictim ? " victim" : ""),
-      style: character.isVictim ? "" : `border-left: 3px solid ${characterColor(character)}`,
-    }, [
-      el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]),
-      colorList,
-      el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]),
-      bioInput,
-    ]);
+    const card = el(
+      "div",
+      {
+        class: "character-card" + (character.isVictim ? " victim" : ""),
+        style: character.isVictim ? "" : `border-left: 3px solid ${characterColor(character)}`,
+      },
+      [
+        el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]),
+        colorList,
+        el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]),
+        bioInput,
+      ]
+    );
     list.appendChild(card);
   }
   container.appendChild(list);

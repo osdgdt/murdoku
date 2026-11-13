@@ -10,7 +10,9 @@ installLocalStorage();
 installWorkerShim();
 
 const testDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const files = readdirSync(testDir).filter((f) => /^test-.*\.js$/.test(f)).sort();
+const files = readdirSync(testDir)
+  .filter((f) => /^test-.*\.js$/.test(f))
+  .sort();
 const only = process.argv[2];
 
 let passed = 0;

@@ -1,13 +1,19 @@
 import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
-import { handleCellTap, handleCellHold, handleCellDrag, undo, clearAll, renderPlayerBoard } from "./board.js";
-import { renderClueCards } from "./clueCards.js";
+import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll, renderPlayerBoard } from "./board.js";
+import { renderClueCards, renderSelectedClue } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
 import { renderHintStep } from "./hintView.js";
 import { renderWinPanel } from "./winPanel.js";
-import { createEffectiveSolution, murdererName, SOLUTION_UNSATISFIABLE_MSG, SOLUTION_AMBIGUOUS_MSG, SOLUTION_INCONCLUSIVE_MSG } from "./effectiveSolution.js";
-import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleStep } from "./hintLogic.js";
+import {
+  createEffectiveSolution,
+  murdererName,
+  SOLUTION_UNSATISFIABLE_MSG,
+  SOLUTION_AMBIGUOUS_MSG,
+  SOLUTION_INCONCLUSIVE_MSG,
+} from "./effectiveSolution.js";
+import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleStep, isGradedStep, HINT_LEVELS } from "./hintLogic.js";
 import { computeHintChainAsync } from "../solver/solverClient.js";
-import { resolveClueHoverCells, resolveCharacterHoverDomain } from "../solver/hoverTargets.js";
+import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTargetCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import * as solveHistory from "../storage/solveHistoryStore.js";
@@ -29,7 +35,7 @@ import { t } from "../i18n/i18n.js";
 // Queries its own DOM refs by id rather than taking them as a parameter —
 // player.html and campaign.html deliberately use the exact same ids for
 // every element this module touches (#player-toolbar, #board, #clues-panel,
-// #briefing-panel, #result-panel, #undo-btn, #clear-btn, #hint-btn,
+// #selected-clue-panel, #briefing-panel, #result-panel, #undo-btn, #clear-btn, #hint-btn,
 // #hint-panel, #submit-btn, #timer). Keep it that way if either page's
 // markup changes. #notes-hint also exists in both pages but is a static
 // instruction paragraph now (no mode toggle to reflect) — this module never
@@ -38,6 +44,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
   const cluesEl = qs("#clues-panel");
+  const selectedClueEl = qs("#selected-clue-panel");
   const briefingEl = qs("#briefing-panel");
   const resultEl = qs("#result-panel");
   const undoBtn = qs("#undo-btn");
@@ -50,6 +57,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   let hintHighlight = null; // { cells: [{row,col,cls}] } | null — ephemeral, not part of board.js state
   let hintChain = [];
   let hintChainIndex = 0;
+  let pinnedClueId = null; // a clue whose cells stay highlighted until it is clicked again
+  let hintLevels = []; // per chain step: how much of a graded hint is revealed (hintLogic.js)
   let timerInterval = null;
   let startedAt = null; // read by onSubmit too, for the elapsed time passed to onSolved
   let solved = false; // true once onSubmit's win branch has fired — keeps "Verifica soluzione" disabled until a placement/note actually changes again
@@ -76,6 +85,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   // re-render both whenever the active tool changes.
   function selectTool(tool) {
     state.selectedTool = tool;
+    const pinned = puzzle.clues.find((c) => c.id === pinnedClueId);
+    if (pinned && pinned.characterId && !(tool?.kind === "character" && tool.id === pinned.characterId)) pinnedClueId = null; // the pin follows its character
     renderToolbar();
     renderBoardAndClues();
   }
@@ -119,7 +130,36 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     }
   }
 
+  // Stable (re-applied on every render, since renderBoardAndClues rebuilds the
+  // whole board) highlight of everything the SELECTED character's clues refer
+  // to — a whole room, every plant, a row… Derived from state.selectedTool,
+  // never stored. Skipped while a hint is showing so it can't compete with it.
+  function applySelectedCharacterTargets() {
+    if (hintHighlight || state.selectedTool?.kind !== "character") return;
+    for (const { row, col } of resolveCharacterTargetCells(puzzle, state.selectedTool.id, state.placements)) {
+      const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      if (node) node.classList.add("char-target");
+    }
+  }
+
+  // Stable highlight of the clue the player pinned (clicking its line), derived
+  // from `pinnedClueId` on every render; skipped while a hint is showing.
+  function applyPinnedClue() {
+    const clue = puzzle.clues.find((c) => c.id === pinnedClueId);
+    if (!clue || hintHighlight) return;
+    for (const { row, col } of resolveClueHoverCells(clue, puzzle, state.placements)) {
+      const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      if (node) node.classList.add("clue-pin");
+    }
+  }
+  function togglePinnedClue(clue) {
+    pinnedClueId = pinnedClueId === clue.id ? null : clue.id;
+    clearHover();
+    renderBoardAndClues();
+  }
+
   function clearHint() {
+    hintLevels = [];
     hintHighlight = null;
     hintChain = [];
     hintChainIndex = 0;
@@ -155,42 +195,72 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     // handleCellHold's own `tool` override meaningful.
     let pressStartTool = null;
     renderPlayerBoard(
-      boardEl, puzzle, state,
+      boardEl,
+      puzzle,
+      state,
       (row, col) => applyBoardChange(() => handleCellTap(state, puzzle.grid, row, col)), // tap: nota (o X/gomma)
       (row, col) => applyBoardChange(() => handleCellHold(state, puzzle.grid, row, col, pressStartTool)), // hold: conferma il personaggio selezionato all'inizio della pressione
-      (row, col) => { // drag: note su più caselle (non azzera l'eventuale suggerimento)
+      (row, col) => {
+        // drag: note su più caselle (non azzera l'eventuale suggerimento)
         handleCellDrag(state, puzzle.grid, row, col);
         markUnsolved();
         persistProgress();
         renderBoardAndClues();
       },
-      () => { pressStartTool = state.selectedTool; } // onPressStart
+      () => {
+        pressStartTool = state.selectedTool;
+      }, // onPressStart
+      (kind, index) => applyBoardChange(() => handleLineTap(state, kind, index)) // tap su un'etichetta di riga/colonna: nota sull'intera riga/colonna
     );
     applyHintHighlight();
-    renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover);
+    applySelectedCharacterTargets();
+    applyPinnedClue();
+    const pin = { clueId: pinnedClueId, onToggle: togglePinnedClue };
+    renderClueCards(cluesEl, puzzle, state, showClueHover, clearHover, pin);
+    renderSelectedClue(selectedClueEl, puzzle, state, showClueHover, clearHover, pin);
   }
 
   function showHintStep() {
     const result = hintChain[hintChainIndex];
     hintHighlight = null;
+    // Computed deductions come in levels (see hintLogic.js): before the last one
+    // only the character is selected, no cell is highlighted.
+    const level = isGradedStep(result) ? (hintLevels[hintChainIndex] ?? 1) : HINT_LEVELS;
 
-    if (result.type === "forcedPlacement") {
+    if (level < HINT_LEVELS) {
+      state.selectedTool = { kind: "character", id: result.characterId };
+    } else if (result.type === "forcedPlacement") {
       hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-target" }] };
       state.selectedTool = { kind: "character", id: result.characterId };
     } else if (result.type === "eliminatedCell") {
       hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-info" }] };
     } else if (result.type === "contradiction" && result.culprits.length > 0) {
       hintHighlight = {
-        cells: result.culprits.map((id) => state.placements.get(id)).filter(Boolean).map((pos) => ({ row: pos.row, col: pos.col, cls: "hint-culprit" })),
+        cells: result.culprits
+          .map((id) => state.placements.get(id))
+          .filter(Boolean)
+          .map((pos) => ({ row: pos.row, col: pos.col, cls: "hint-culprit" })),
       };
       if (result.culprits.length === 1) state.selectedTool = { kind: "erase" };
     }
 
     clear(hintPanel);
     for (const node of renderHintStep(puzzle, hintChain, hintChainIndex, {
-      onPrev: () => { hintChainIndex--; showHintStep(); },
-      onNext: () => { hintChainIndex++; showHintStep(); },
-    })) hintPanel.appendChild(node);
+      onPrev: () => {
+        hintChainIndex--;
+        showHintStep();
+      },
+      onNext: () => {
+        hintChainIndex++;
+        showHintStep();
+      },
+      level,
+      onMore: () => {
+        hintLevels[hintChainIndex] = Math.min(HINT_LEVELS, level + 1);
+        showHintStep();
+      },
+    }))
+      hintPanel.appendChild(node);
     renderToolbar();
     renderBoardAndClues();
   }
@@ -208,6 +278,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   async function onHint() {
     hintBtn.disabled = true;
     clear(hintPanel);
+    hintLevels = [];
 
     // No Web Worker round-trip for author-written hints: the content is
     // already fully known synchronously.
@@ -230,7 +301,13 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       showHintStep(); // already clears and re-renders hintPanel
     } catch (err) {
       clear(hintPanel);
-      hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message })));
+      hintPanel.appendChild(
+        el(
+          "div",
+          { class: "result-banner hint-error" },
+          t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message })
+        )
+      );
     } finally {
       hintBtn.disabled = false;
     }
@@ -245,9 +322,11 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
       clear(resultEl);
       if (effective.status !== "unique") {
         const message =
-          effective.status === "unsatisfiable" ? SOLUTION_UNSATISFIABLE_MSG :
-          effective.status === "ambiguous" ? SOLUTION_AMBIGUOUS_MSG :
-          SOLUTION_INCONCLUSIVE_MSG;
+          effective.status === "unsatisfiable"
+            ? SOLUTION_UNSATISFIABLE_MSG
+            : effective.status === "ambiguous"
+              ? SOLUTION_AMBIGUOUS_MSG
+              : SOLUTION_INCONCLUSIVE_MSG;
         const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
         resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
         return;
@@ -269,15 +348,25 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         const hintsUsed = state.hintsUsed;
         const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed });
         solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed });
-        resultEl.appendChild(renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked }));
+        resultEl.appendChild(
+          renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked })
+        );
       } else {
         // Deliberately doesn't say how many are right — that would let you brute
         // force it by trial and error instead of reasoning from the clues.
-        resultEl.appendChild(el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi.")));
+        resultEl.appendChild(
+          el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi."))
+        );
       }
     } catch (err) {
       clear(resultEl);
-      resultEl.appendChild(el("div", { class: "result-banner hint-error" }, t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message })));
+      resultEl.appendChild(
+        el(
+          "div",
+          { class: "result-banner hint-error" },
+          t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message })
+        )
+      );
     } finally {
       submitBtn.disabled = solved;
     }
@@ -311,15 +400,27 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
     if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
     if (e.altKey) return;
     const key = e.key.toLowerCase();
-    if ((e.ctrlKey || e.metaKey) && key === "z") { e.preventDefault(); undoBtn.click(); return; }
+    if ((e.ctrlKey || e.metaKey) && key === "z") {
+      e.preventDefault();
+      undoBtn.click();
+      return;
+    }
     if (e.ctrlKey || e.metaKey) return;
     if (/^[1-9]$/.test(key)) {
       const character = puzzle.characters[Number(key) - 1];
-      if (character) { e.preventDefault(); selectTool({ kind: "character", id: character.id }); }
-    } else if (key === "x") { selectTool({ kind: "x" }); }
-    else if (key === "e") { selectTool({ kind: "erase" }); }
-    else if (key === "u") { undoBtn.click(); }
-    else if (key === "h" && !hintBtn.disabled) { hintBtn.click(); }
+      if (character) {
+        e.preventDefault();
+        selectTool({ kind: "character", id: character.id });
+      }
+    } else if (key === "x") {
+      selectTool({ kind: "x" });
+    } else if (key === "e") {
+      selectTool({ kind: "erase" });
+    } else if (key === "u") {
+      undoBtn.click();
+    } else if (key === "h" && !hintBtn.disabled) {
+      hintBtn.click();
+    }
   }
 
   // Full initial setup — render, briefing, timer, and every control's event

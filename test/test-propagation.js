@@ -3,6 +3,13 @@ import { addZone, paintCellZone, placeObject, resizeGrid } from "../src/model/gr
 import { propagate } from "../src/solver/propagation.js";
 import { assert, assertEqual } from "./assert.js";
 
+// The unified form of the old "not…" clue types: the positive type + `negate`.
+function addNegated(puzzle, ownerId, type, params) {
+  const clue = addClue(puzzle, ownerId, type, params);
+  clue.negate = true;
+  return clue;
+}
+
 function basePuzzle(rows = 3, cols = 3) {
   const puzzle = createPuzzle("Test propagation");
   puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
@@ -38,7 +45,7 @@ export const tests = [
       const b = addCharacter(puzzle, "B", "person2");
       const zone = addZone(puzzle.grid, "Studio", "#fff");
       paintCellZone(puzzle.grid, 1, 1, zone.id);
-      const clue = addClue(puzzle, b.id, "notInRoom", { zoneId: zone.id });
+      const clue = addNegated(puzzle, b.id, "inRoom", { zoneId: zone.id });
       const result = propagate(puzzle, new Map());
       assertEqual(result.contradiction, null);
       assertEqual(result.forced.length, 0, "né A né B hanno un dominio ridotto a una sola cella");
@@ -231,7 +238,7 @@ export const tests = [
       const b = addCharacter(puzzle, "B", "person2");
       const zone = addZone(puzzle.grid, "Studio", "#fff");
       paintCellZone(puzzle.grid, 1, 1, zone.id);
-      addClue(puzzle, b.id, "notInRoom", { zoneId: zone.id });
+      addNegated(puzzle, b.id, "inRoom", { zoneId: zone.id });
       const result = propagate(puzzle, new Map());
       const [a] = puzzle.characters;
       assertEqual(result.domains.get(a.id).length, 9, "A non ha alcun indizio: il dominio deve coprire l'intera griglia 3x3");
@@ -259,8 +266,15 @@ export const tests = [
       assert(!result.domains.has(a.id), "A è già forzata al round 0: nessuna voce di dominio per lei");
       assert(!result.domains.has(c.id), "C è già forzata al round 0: nessuna voce di dominio per lei");
       const bDomain = result.domains.get(b.id);
-      assertEqual(bDomain.length, 3, "il dominio di B esposto deve essere quello del round 0 (prima che il round 1, mai eseguito, la forzi)");
-      const cells = bDomain.map((cell) => `${cell.row},${cell.col}`).sort().join("|");
+      assertEqual(
+        bDomain.length,
+        3,
+        "il dominio di B esposto deve essere quello del round 0 (prima che il round 1, mai eseguito, la forzi)"
+      );
+      const cells = bDomain
+        .map((cell) => `${cell.row},${cell.col}`)
+        .sort()
+        .join("|");
       assertEqual(cells, "1,0|1,1|1,2");
     },
   },

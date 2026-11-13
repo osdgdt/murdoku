@@ -1,5 +1,5 @@
 import { el, clear } from "../util/dom.js";
-import { objectIcon, characterIcon } from "../model/icons.js";
+import { objectIcon, characterIcon, isEdgeObjectType } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
 import { cluesForCharacter, genericClues, difficultyLabel } from "../model/puzzle.js";
 import { t } from "../i18n/i18n.js";
@@ -42,6 +42,14 @@ function renderMapGrid(puzzle) {
           cellNode.appendChild(wrap);
         }
       }
+      for (const o of grid.objects) {
+        if (o.row !== r || o.col !== c || !isEdgeObjectType(o.typeId)) continue;
+        const def = objectIcon(o.typeId);
+        if (!def || !def.edgeIcon) continue;
+        const piece = el("span", { class: `print-edge print-edge-${o.side || "N"}` });
+        piece.innerHTML = def.edgeIcon;
+        cellNode.appendChild(piece);
+      }
       board.appendChild(cellNode);
     }
   }
@@ -55,7 +63,11 @@ function renderClueCards(puzzle) {
     wrap.appendChild(
       el("div", { class: "print-card generic" }, [
         el("h3", {}, t("🔎 Indizi generali del caso")),
-        el("ul", {}, generic.map((clue) => el("li", {}, describeClue(clue, puzzle)))),
+        el(
+          "ul",
+          {},
+          generic.map((clue) => el("li", {}, describeClue(clue, puzzle)))
+        ),
       ])
     );
   }
@@ -66,11 +78,7 @@ function renderClueCards(puzzle) {
     const card = el("div", { class: "print-card" }, [
       el("h3", {}, [iconWrap, character.name + (character.isVictim ? t(" (Vittima)") : "")]),
       character.bio ? el("p", { class: "print-bio" }, character.bio) : null,
-      el(
-        "ul",
-        {},
-        clues.length ? clues.map((clue) => el("li", {}, describeClue(clue, puzzle))) : [el("li", {}, t("Nessun indizio."))]
-      ),
+      el("ul", {}, clues.length ? clues.map((clue) => el("li", {}, describeClue(clue, puzzle))) : [el("li", {}, t("Nessun indizio."))]),
     ]);
     wrap.appendChild(card);
   }

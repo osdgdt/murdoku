@@ -5,6 +5,7 @@ import { isSafeId, isSafeColor } from "../util/safe.js";
 
 import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
 import { t } from "../i18n/i18n.js";
+import { TENSES, DEFAULT_TENSE, isTense } from "../i18n/tense.js";
 
 export const SCHEMA_VERSION = CURRENT_SCHEMA_VERSION;
 
@@ -16,6 +17,19 @@ export const DIFFICULTY_LEVELS = [
   { value: "hard", label: t("Difficile") },
   { value: "expert", label: t("Esperto") },
 ];
+
+// The verb tense every clue of a case is written in (one choice for the whole
+// case, so the wording never mixes "è" and "era"). See i18n/tense.js.
+export const TENSE_OPTIONS = [
+  { value: "present", label: t("Presente (è accanto a…)") },
+  { value: "past", label: t("Passato (era accanto a…)") },
+  { value: "future", label: t("Futuro (sarà accanto a…)") },
+];
+
+export function setTense(puzzle, tense) {
+  puzzle.tense = isTense(tense) ? tense : DEFAULT_TENSE;
+  touch(puzzle);
+}
 
 export function difficultyLabel(value) {
   return DIFFICULTY_LEVELS.find((d) => d.value === value)?.label || DIFFICULTY_LEVELS[0].label;
@@ -51,8 +65,16 @@ export function estimateDifficultyFromNodes(nodesVisited) {
 // colours. Colour is never the ONLY cue anyway — tokens carry a distinct icon
 // and candidate marks carry the character's initial.
 export const CHARACTER_COLORS = [
-  "#608aea", "#ea558a", "#158060", "#9f5595", "#bf8020",
-  "#4a6aca", "#9f80b5", "#6a9560", "#2b9f95", "#9f6a0b",
+  "#608aea",
+  "#ea558a",
+  "#158060",
+  "#9f5595",
+  "#bf8020",
+  "#4a6aca",
+  "#9f80b5",
+  "#6a9560",
+  "#2b9f95",
+  "#9f6a0b",
 ];
 
 // Puzzles saved before this field existed lack `character.color` — fall back
@@ -72,6 +94,7 @@ export function createPuzzle(title = t("Nuovo caso")) {
     bestTimeSeconds: null,
     briefing: "",
     resolutionNote: "",
+    tense: DEFAULT_TENSE,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     grid: createGrid(6, 6),
@@ -204,31 +227,50 @@ function validateUntrustedStrings(puzzle, errors) {
     if (value !== undefined && value !== null && !isSafeColor(value)) errors.push(t("Colore non valido ({what}).", { what }));
   };
   badId("puzzle", puzzle.id);
+  if (puzzle.tense !== undefined && !TENSES.includes(puzzle.tense)) errors.push(t("Il tempo verbale degli indizi non è valido."));
   for (const field of ["title", "author", "briefing", "resolutionNote"]) {
-    if (puzzle[field] !== undefined && typeof puzzle[field] !== "string") errors.push(t("Il campo \"{field}\" deve essere testo.", { field }));
+    if (puzzle[field] !== undefined && typeof puzzle[field] !== "string")
+      errors.push(t('Il campo "{field}" deve essere testo.', { field }));
   }
   for (const c of Array.isArray(puzzle.characters) ? puzzle.characters : []) {
-    if (!c || typeof c !== "object") { errors.push(t("Personaggio non valido.")); continue; }
+    if (!c || typeof c !== "object") {
+      errors.push(t("Personaggio non valido."));
+      continue;
+    }
     badId("personaggio", c.id);
     badColor("personaggio", c.color);
     if (typeof c.name !== "string") errors.push(t("Il nome di un personaggio deve essere testo."));
   }
   for (const z of Array.isArray(puzzle.grid?.zones) ? puzzle.grid.zones : []) {
-    if (!z || typeof z !== "object") { errors.push(t("Zona non valida.")); continue; }
+    if (!z || typeof z !== "object") {
+      errors.push(t("Zona non valida."));
+      continue;
+    }
     badId("zona", z.id);
     badColor("zona", z.color);
   }
   for (const o of Array.isArray(puzzle.grid?.objects) ? puzzle.grid.objects : []) {
-    if (!o || typeof o !== "object") { errors.push(t("Oggetto non valido.")); continue; }
+    if (!o || typeof o !== "object") {
+      errors.push(t("Oggetto non valido."));
+      continue;
+    }
     badId("oggetto", o.id);
   }
   for (const cl of Array.isArray(puzzle.clues) ? puzzle.clues : []) {
-    if (!cl || typeof cl !== "object") { errors.push(t("Indizio non valido.")); continue; }
+    if (!cl || typeof cl !== "object") {
+      errors.push(t("Indizio non valido."));
+      continue;
+    }
     badId("indizio", cl.id);
   }
   const cells = puzzle.grid?.cells;
   const size = puzzle.grid?.size;
-  if (size && (!Array.isArray(cells) || cells.length !== size.rows || cells.some((row) => !Array.isArray(row) || row.length !== size.cols || row.some((cell) => !cell || typeof cell !== "object")))) {
+  if (
+    size &&
+    (!Array.isArray(cells) ||
+      cells.length !== size.rows ||
+      cells.some((row) => !Array.isArray(row) || row.length !== size.cols || row.some((cell) => !cell || typeof cell !== "object")))
+  ) {
     errors.push(t("Le celle della griglia non corrispondono alle sue dimensioni."));
   }
 }
@@ -241,11 +283,22 @@ export function validatePuzzleShape(puzzle) {
   } else {
     const { rows, cols } = puzzle.grid.size;
     if (!(rows >= MIN_GRID_SIZE && rows <= MAX_GRID_SIZE) || !(cols >= MIN_GRID_SIZE && cols <= MAX_GRID_SIZE)) {
-      errors.push(t("Le dimensioni della griglia devono essere comprese tra {MIN_GRID_SIZE} e {MAX_GRID_SIZE} (trovato {rows}×{cols}).", { MIN_GRID_SIZE, MAX_GRID_SIZE, rows, cols }));
+      errors.push(
+        t("Le dimensioni della griglia devono essere comprese tra {MIN_GRID_SIZE} e {MAX_GRID_SIZE} (trovato {rows}×{cols}).", {
+          MIN_GRID_SIZE,
+          MAX_GRID_SIZE,
+          rows,
+          cols,
+        })
+      );
     }
   }
   if (schemaVersionOf(puzzle) > SCHEMA_VERSION) {
-    errors.push(t("Questo caso è stato creato con una versione più recente di Murdoku (formato {schemaVersion}): aggiorna la pagina e riprova.", { schemaVersion: puzzle.schemaVersion }));
+    errors.push(
+      t("Questo caso è stato creato con una versione più recente di Murdoku (formato {schemaVersion}): aggiorna la pagina e riprova.", {
+        schemaVersion: puzzle.schemaVersion,
+      })
+    );
   }
   validateUntrustedStrings(puzzle, errors);
   if (!Array.isArray(puzzle.characters)) errors.push(t("Manca l'elenco personaggi."));
@@ -273,21 +326,28 @@ export function validatePuzzleShape(puzzle) {
     if (puzzle.grid?.size) {
       const { rows, cols } = puzzle.grid.size;
       if (puzzle.characters.length > rows || puzzle.characters.length > cols) {
-        errors.push(t("Troppi personaggi ({length}) per una griglia {rows}×{cols}: al massimo uno per riga e uno per colonna.", { length: puzzle.characters.length, rows, cols }));
+        errors.push(
+          t("Troppi personaggi ({length}) per una griglia {rows}×{cols}: al massimo uno per riga e uno per colonna.", {
+            length: puzzle.characters.length,
+            rows,
+            cols,
+          })
+        );
       }
     }
   }
 
   if (puzzle.grid && Array.isArray(puzzle.solution?.placements)) {
     for (const p of puzzle.solution.placements) {
-      const inBounds =
-        p.row >= 0 && p.row < puzzle.grid.size.rows && p.col >= 0 && p.col < puzzle.grid.size.cols;
+      const inBounds = p.row >= 0 && p.row < puzzle.grid.size.rows && p.col >= 0 && p.col < puzzle.grid.size.cols;
       if (!inBounds) {
         errors.push(t("Piazzamento fuori griglia per il personaggio {characterId}.", { characterId: p.characterId }));
       } else if (puzzle.grid.cells[p.row][p.col]?.blocked) {
         errors.push(t("Piazzamento su una cella bloccata per il personaggio {characterId}.", { characterId: p.characterId }));
       } else if (!isOccupiable(puzzle.grid, p.row, p.col)) {
-        errors.push(t("Piazzamento su una cella con un oggetto non occupabile per il personaggio {characterId}.", { characterId: p.characterId }));
+        errors.push(
+          t("Piazzamento su una cella con un oggetto non occupabile per il personaggio {characterId}.", { characterId: p.characterId })
+        );
       }
     }
   }
@@ -332,12 +392,7 @@ export function pruneDanglingClueReferences(puzzle) {
   const before = puzzle.clues.length;
   puzzle.clues = puzzle.clues.filter((clue) => {
     const p = clue.params || {};
-    return (
-      isKnownReference(p.targetId) &&
-      isKnownReference(p.targetAId) &&
-      isKnownReference(p.targetBId) &&
-      isKnownReference(p.zoneId)
-    );
+    return isKnownReference(p.targetId) && isKnownReference(p.targetAId) && isKnownReference(p.targetBId) && isKnownReference(p.zoneId);
   });
   if (puzzle.clues.length !== before) touch(puzzle);
   return puzzle;
@@ -352,9 +407,7 @@ export function pruneDanglingClueReferences(puzzle) {
 export function pruneDanglingSolutionPlacements(puzzle) {
   const { rows, cols } = puzzle.grid.size;
   const before = puzzle.solution.placements.length;
-  puzzle.solution.placements = puzzle.solution.placements.filter(
-    (p) => p.row >= 0 && p.row < rows && p.col >= 0 && p.col < cols
-  );
+  puzzle.solution.placements = puzzle.solution.placements.filter((p) => p.row >= 0 && p.row < rows && p.col >= 0 && p.col < cols);
   if (puzzle.solution.placements.length !== before) touch(puzzle);
   return puzzle;
 }

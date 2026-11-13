@@ -4,10 +4,12 @@ import { MAX_IMPORT_BYTES } from "../util/safe.js";
 import { t } from "../i18n/i18n.js";
 
 function slugify(text) {
-  return (text || "puzzle")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "") || "puzzle";
+  return (
+    (text || "puzzle")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "puzzle"
+  );
 }
 
 export function exportPuzzle(puzzle) {

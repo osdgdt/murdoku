@@ -17,7 +17,12 @@ export function el(tag, props = {}, children = []) {
   }
   // A form control that only has a title/placeholder gets that as its
   // accessible name too (a title alone isn't a reliable label for assistive tech).
-  if ((tag === "select" || tag === "input" || tag === "textarea") && !node.hasAttribute("aria-label") && node.type !== "checkbox" && node.type !== "hidden") {
+  if (
+    (tag === "select" || tag === "input" || tag === "textarea") &&
+    !node.hasAttribute("aria-label") &&
+    node.type !== "checkbox" &&
+    node.type !== "hidden"
+  ) {
     const name = node.getAttribute("title") || node.getAttribute("placeholder");
     if (name) node.setAttribute("aria-label", name);
   }

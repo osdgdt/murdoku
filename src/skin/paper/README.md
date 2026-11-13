@@ -7,8 +7,8 @@ significa cambiare una stringa SVG qui, senza toccare altro.
 
 | File | Cosa contiene |
 |---|---|
-| `objects.js` | I 10 oggetti (`shelf, plant, carpet, chair, stool, table, lamp, door, window, tv`) |
-| `characters.js` | I 12 ritratti selezionabili + la vittima (`victim`) |
+| `objects.js` | I 10 oggetti (`shelf, plant, carpet, chair, stool, table, lamp, door, window, tv`) e le versioni "di bordo" di porta e finestra (`EDGE_ART`, strisce orizzontali 64×16 che stanno su un lato della cella) |
+| `characters.js` | I 12 ritratti originali, la vittima (`victim`) e le professioni aggiunte dopo (~43, composte da parti piccole: capelli, barba, vestito, copricapo, accessorio) |
 | `rooms.js` | Dai pastelli salvati nell'editor ai colori dei "fogli di carta" delle stanze |
 | `logo.js`, `ui-icons.js` | Marchio, icone delle card della home, scena dell'intestazione |
 | `defs.js` | Il filtro SVG condiviso (ombra morbida sotto ogni strato di carta) |

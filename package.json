@@ -10,15 +10,16 @@
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --check \"src/**/*.js\" \"test/**/*.{js,mjs}\"",
     "i18n": "node tools/i18n-check.mjs",
-    "check": "npm run lint && npm test",
+    "check": "npm run lint && npm test && npm run check:size",
+    "check:size": "node tools/check-size.mjs",
     "build:sw": "node tools/build-sw.mjs",
     "e2e": "node test/e2e/smoke.mjs",
     "e2e:a11y": "node test/e2e/a11y.mjs",
     "build": "node tools/build-sw.mjs",
     "e2e:editor": "node test/e2e/editor.mjs",
-    "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor",
-    "make:library": "node tools/make-library.mjs",
-    "make:tutorial": "node tools/make-tutorial.mjs"
+    "e2e:gameplay": "node test/e2e/gameplay.mjs",
+    "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor && npm run e2e:gameplay",
+    "make:library": "node tools/make-library.mjs"
   },
   "engines": {
     "node": ">=20"

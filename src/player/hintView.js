@@ -3,6 +3,7 @@
 import { el } from "../util/dom.js";
 import { describeClue } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
+import { HINT_LEVELS, isGradedStep, gradedHintMessage } from "./hintLogic.js";
 
 // Which specific clues (by name, prefixed with the owning character when it's
 // not the step's own subject) make the deduction certain. Returns null when
@@ -12,45 +13,94 @@ export function renderHintExplanation(puzzle, result) {
   if (result.type === "contradiction" && result.cause === "clue") {
     return el("div", { class: "hint-explain" }, [
       el("div", { class: "hint-explain-label" }, t("Indizio in conflitto:")),
-      el("ul", { class: "hint-clue-list" }, result.clueIds.map((id) => {
-        const clue = puzzle.clues.find((c) => c.id === id);
-        if (!clue) return null;
-        const owner = clue.characterId && puzzle.characters.find((c) => c.id === clue.characterId);
-        return el("li", {}, (owner ? owner.name + ": " : "") + describeClue(clue, puzzle));
-      })),
+      el(
+        "ul",
+        { class: "hint-clue-list" },
+        result.clueIds.map((id) => {
+          const clue = puzzle.clues.find((c) => c.id === id);
+          if (!clue) return null;
+          const owner = clue.characterId && puzzle.characters.find((c) => c.id === clue.characterId);
+          return el("li", {}, (owner ? owner.name + ": " : "") + describeClue(clue, puzzle));
+        })
+      ),
     ]);
   }
   if (result.type !== "forcedPlacement" && result.type !== "eliminatedCell") return null;
   if (result.viaDerivedSolution) {
-    return el("div", { class: "hint-explain" },
-      el("p", { class: "hint-explain-note" }, t("Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso.")));
+    return el(
+      "div",
+      { class: "hint-explain" },
+      el(
+        "p",
+        { class: "hint-explain-note" },
+        t("Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso.")
+      )
+    );
   }
   if (result.jointlyDetermined) {
-    return el("div", { class: "hint-explain" }, el("p", { class: "hint-explain-note" }, t("Questa deduzione dipende dalla combinazione di più indizi insieme.")));
+    return el(
+      "div",
+      { class: "hint-explain" },
+      el("p", { class: "hint-explain-note" }, t("Questa deduzione dipende dalla combinazione di più indizi insieme."))
+    );
   }
   const blocks = [];
   if (result.involvedClues?.length) {
     blocks.push(el("div", { class: "hint-explain-label" }, t("Perché:")));
-    blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedClues.map((c) => el("li", {}, (c.ownerName ? c.ownerName + ": " : "") + c.description))));
+    blocks.push(
+      el(
+        "ul",
+        { class: "hint-clue-list" },
+        result.involvedClues.map((c) => el("li", {}, (c.ownerName ? c.ownerName + ": " : "") + c.description))
+      )
+    );
   }
   if (result.involvedGroups?.length) {
     // "Naked subset" deductions (see solver/propagation.js): not caused by any
     // one clue, but by several characters' clue-narrowed domains jointly
     // leaving no room for anyone else in a shared set of cells.
     blocks.push(el("div", { class: "hint-explain-label" }, t("Interazione tra personaggi:")));
-    blocks.push(el("ul", { class: "hint-clue-list" }, result.involvedGroups.map((g) =>
-      el("li", {}, t("{v} possono stare solo in {v2}: nessun altro personaggio può occupare quelle celle.", { v: g.characterNames.join(" e "), v2: g.cellLabels.join(" o ") }))
-    )));
+    blocks.push(
+      el(
+        "ul",
+        { class: "hint-clue-list" },
+        result.involvedGroups.map((g) =>
+          el(
+            "li",
+            {},
+            t("{v} possono stare solo in {v2}: nessun altro personaggio può occupare quelle celle.", {
+              v: g.characterNames.join(" e "),
+              v2: g.cellLabels.join(" o "),
+            })
+          )
+        )
+      )
+    );
   }
   if (blocks.length === 0) return null;
   return el("div", { class: "hint-explain" }, blocks);
 }
 
-export function renderHintStep(puzzle, chain, index, { onPrev, onNext }) {
+// `level` (graded steps only, see hintLogic.js): 1 = just the character,
+// 2 = plus the clues involved, 3 (or omitted) = everything. `onMore` reveals the
+// next level.
+export function renderHintStep(puzzle, chain, index, { onPrev, onNext, level = HINT_LEVELS, onMore }) {
   const result = chain[index];
-  const nodes = [el("div", { class: `result-banner hint-${result.variant}` }, result.message)];
-  const explanation = renderHintExplanation(puzzle, result);
+  const graded = isGradedStep(result) && level < HINT_LEVELS;
+  const nodes = [
+    el(
+      "div",
+      { class: `result-banner hint-${graded ? "info" : result.variant}` },
+      graded ? gradedHintMessage(puzzle, result, level) : result.message
+    ),
+  ];
+  const explanation = !graded || level >= 2 ? renderHintExplanation(puzzle, result) : null;
   if (explanation) nodes.push(explanation);
+  if (graded) {
+    nodes.push(
+      el("button", { id: "hint-more-btn", class: "hint-more", onClick: onMore }, level >= 2 ? t("Mostra la casella") : t("Mostra di più"))
+    );
+  }
   if (chain.length > 1) {
     nodes.push(
       el("div", { class: "hint-nav" }, [

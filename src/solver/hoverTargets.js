@@ -1,7 +1,8 @@
 import { CLUE_TYPES } from "../model/clueTypes.js";
-import { isObjectTypeOccupiable } from "../model/icons.js";
+import { isObjectTypeSeat } from "../model/icons.js";
 import { isUsable, isOccupiable } from "../model/grid.js";
-import { resolveTargetPositions, victimId, buildPredicates } from "./predicates/index.js";
+import { resolveTargetPositions, buildPredicates } from "./predicates/index.js";
+import { windowFrontPositions } from "./predicates/helpers.js";
 
 // Resolves the "proprietà" (property) family shared by several clue types
 // (someoneInRoomWithProperty, aloneWithPersonProperty, someoneAtDirectionDistance,
@@ -16,11 +17,11 @@ function resolvePropertyTargets(params, puzzle, placementMap) {
     case "sittingOn":
       return puzzle.grid.objects.filter((o) => o.typeId === params.objectTypeId).map((o) => ({ row: o.row, col: o.col }));
     // "seduto/a (su una sedia, uno sgabello, o simili)" — vale per qualunque
-    // oggetto occupabile, non un tipo specifico (vedi PERSON_PROPERTY_LABELS.seated
-    // in clueTypes.js) — quindi l'unione di tutti gli oggetti occupabili sulla
-    // mappa, non un singolo typeId da filtrare.
+    // seduta, non un tipo specifico (vedi PERSON_PROPERTY_LABELS.seated in
+    // clues/shared.js; un tappeto non è una seduta) — quindi l'unione di tutte
+    // le sedute sulla mappa, non un singolo typeId da filtrare.
     case "seated":
-      return puzzle.grid.objects.filter((o) => isObjectTypeOccupiable(o.typeId)).map((o) => ({ row: o.row, col: o.col }));
+      return puzzle.grid.objects.filter((o) => isObjectTypeSeat(o.typeId)).map((o) => ({ row: o.row, col: o.col }));
     case "custom":
       return params.customClue?.type ? resolveClueHoverCells(params.customClue, puzzle, placementMap) : [];
     default:
@@ -37,7 +38,7 @@ const PROPERTY_FAMILY_PARAM_NAMES = new Set(["property", "targetId", "objectType
 // usata da clueBuilder.js per il rendering dei controlli, invece di
 // riscrivere un caso per ognuno dei ~44 tipi di indizio. Tipi puramente
 // geometrici/relativi senza bersaglio esterno (inRowOrCol, inCorner,
-// someoneAtDirectionDistance senza property, emptyRoomsCount...) risolvono
+// someoneAtDirectionDistance senza property, roomsWithStateCount...) risolvono
 // naturalmente a un array vuoto: nessun parametro dichiarato è del genere
 // giusto, quindi nessuna cella viene aggiunta — comportamento corretto, non
 // un caso da gestire a parte.
@@ -81,12 +82,12 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
 
   if (isPropertyBased) cells.push(...resolvePropertyTargets(clue.params || {}, puzzle, placementMap));
 
-  // Bersaglio implicito (nessun parametro dichiarato): la vittima.
-  if (clue.type === "aloneWithVictim") {
-    const vId = victimId(puzzle);
-    if (vId) {
-      const resolved = resolveTargetPositions(placementMap, puzzle, vId);
-      if (resolved) cells.push(...resolved);
+  // inFrontOfWindow: nessun parametro dichiarato, ma il bersaglio sono le
+  // caselle davanti a ogni finestra (le due che la finestra separa, o solo la
+  // sua se dall'altra parte non c'è una stanza).
+  if (clue.type === "inFrontOfWindow") {
+    for (const o of puzzle.grid.objects) {
+      if (o.typeId === "window") cells.push(...windowFrontPositions(puzzle, o));
     }
   }
 
@@ -147,9 +148,9 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
 
   // "seated" è anche un tipo di indizio a sé (params: [], vedi clueTypes.js),
   // distinto dal valore property "seated" già gestito sopra — stessa unione
-  // di ogni oggetto occupabile sulla mappa.
+  // di ogni seduta sulla mappa.
   if (clue.type === "seated") {
-    cells.push(...puzzle.grid.objects.filter((o) => isObjectTypeOccupiable(o.typeId)).map((o) => ({ row: o.row, col: o.col })));
+    cells.push(...puzzle.grid.objects.filter((o) => isObjectTypeSeat(o.typeId)).map((o) => ({ row: o.row, col: o.col })));
   }
 
   // orClue: due sotto-indizi annidati in params.a/params.b, mai dichiarati
@@ -167,6 +168,28 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     seen.add(k);
     return true;
   });
+}
+
+// Unione deduplicata dei bersagli di TUTTI gli indizi PROPRI di characterId
+// (stanze intere, tutte le istanze di un tipo di oggetto, righe/colonne…),
+// usata per l'evidenziazione stabile al click su un personaggio
+// (src/player/gameScreen.js). Diversa da resolveCharacterHoverDomain (hover),
+// che è l'INTERSEZIONE delle celle compatibili con tutti gli indizi insieme.
+// Gli indizi generici (characterId null) e quelli di altri personaggi non
+// contano; un bersaglio-personaggio non ancora piazzato non aggiunge celle.
+export function resolveCharacterTargetCells(puzzle, characterId, placementMap) {
+  const seen = new Set();
+  const cells = [];
+  for (const clue of puzzle.clues) {
+    if (clue.characterId !== characterId) continue;
+    for (const { row, col } of resolveClueHoverCells(clue, puzzle, placementMap)) {
+      const k = `${row},${col}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      cells.push({ row, col });
+    }
+  }
+  return cells;
 }
 
 // Dominio di celle compatibili con TUTTI gli indizi PROPRI di characterId
@@ -218,7 +241,10 @@ export function resolveCharacterHoverDomain(puzzle, characterId, currentPlacemen
       tentative.set(characterId, { row: r, col: c });
       let excluded = false;
       for (const { predicate } of ownPredicates) {
-        if (predicate(tentative, isComplete) === false) { excluded = true; break; }
+        if (predicate(tentative, isComplete) === false) {
+          excluded = true;
+          break;
+        }
       }
       if (!excluded) cells.push({ row: r, col: c });
     }

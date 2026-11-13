@@ -1,6 +1,6 @@
 import { isAdjacent } from "../../util/geometry.js";
 import { cellAt } from "../../model/grid.js";
-import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeOccupiable } from "../../model/icons.js";
+import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeSeat, isEdgeObjectType } from "../../model/icons.js";
 import { buildPredicate } from "./index.js";
 
 // A predicate is (placementMap, puzzle) -> true | false | undefined.
@@ -11,9 +11,42 @@ export function posOfCharacter(placementMap, characterId) {
   return placementMap.get(characterId) || null;
 }
 
+// Where an object counts as being. A door/window sits on a SIDE of its cell
+// instead of filling it, so its position is flagged `edge: true`: someone
+// standing in that very cell is "next to" it too (see geometry.js' isAdjacent).
+// Always a fresh object — callers must never mutate the placement map's.
+function objectPosition(obj) {
+  return isEdgeObjectType(obj.typeId) ? { row: obj.row, col: obj.col, edge: true } : { row: obj.row, col: obj.col };
+}
+
 export function posOfObject(puzzle, objectId) {
   const obj = puzzle.grid.objects.find((o) => o.id === objectId);
-  return obj ? { row: obj.row, col: obj.col } : null;
+  return obj ? objectPosition(obj) : null;
+}
+
+// "Next to" a character or object: orthogonally adjacent AND in the same room
+// as the target — standing across a wall, in the next room, doesn't count.
+// (Two cells outside any room count as the same open area, like on the board.)
+// A ROOM as the target is the opposite: "next to the kitchen" means touching
+// one of its walls from OUTSIDE — standing inside the kitchen doesn't count.
+// Those positions carry `room: true` and the room's `zoneId`.
+export function isNextTo(puzzle, a, target) {
+  if (!isAdjacent(a, target)) return false;
+  if (target.room === true) return zoneAt(puzzle, a) !== target.zoneId;
+  return zoneAt(puzzle, a) === zoneAt(puzzle, target);
+}
+
+// The cells "in front of" a window: the two cells the window separates (it sits
+// on one side of its own cell, so the other one is the neighbour on that side),
+// or just its own cell when there is no room on the other side — the map ends
+// there, the cell is blocked, or it belongs to no room.
+const SIDE_STEP = { N: [-1, 0], E: [0, 1], S: [1, 0], W: [0, -1] };
+export function windowFrontPositions(puzzle, windowObj) {
+  const positions = [{ row: windowObj.row, col: windowObj.col }];
+  const [dr, dc] = SIDE_STEP[windowObj.side || "N"] || SIDE_STEP.N;
+  const neighbor = cellAt(puzzle.grid, windowObj.row + dr, windowObj.col + dc);
+  if (neighbor && !neighbor.blocked && neighbor.zoneId) positions.push({ row: windowObj.row + dr, col: windowObj.col + dc });
+  return positions;
 }
 
 export function resolveTargetPos(placementMap, puzzle, targetId) {
@@ -45,10 +78,10 @@ export function positionsInZone(puzzle, zoneId) {
 export function resolveTargetPositions(placementMap, puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
     const typeId = parseObjectTypeTarget(targetId);
-    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map((o) => ({ row: o.row, col: o.col }));
+    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map(objectPosition);
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
-    return positionsInZone(puzzle, targetId);
+    return positionsInZone(puzzle, targetId).map((p) => ({ ...p, room: true, zoneId: targetId }));
   }
   const pos = resolveTargetPos(placementMap, puzzle, targetId);
   return pos ? [pos] : null;
@@ -80,8 +113,14 @@ export function zonesAreAdjacent(grid, zoneIdA, zoneIdB) {
     for (let c = 0; c < grid.size.cols; c++) {
       const cell = grid.cells[r][c];
       if (cell.blocked || cell.zoneId !== zoneIdA) continue;
-      for (const [dr, dc] of [[0, 1], [1, 0], [0, -1], [-1, 0]]) {
-        const nr = r + dr, nc = c + dc;
+      for (const [dr, dc] of [
+        [0, 1],
+        [1, 0],
+        [0, -1],
+        [-1, 0],
+      ]) {
+        const nr = r + dr,
+          nc = c + dc;
         if (nr < 0 || nr >= grid.size.rows || nc < 0 || nc >= grid.size.cols) continue;
         const neighbor = grid.cells[nr][nc];
         if (!neighbor.blocked && neighbor.zoneId === zoneIdB) return true;
@@ -117,11 +156,13 @@ export function isRoomCorner(grid, pos, zoneId) {
 // same on the column axis. Used only by the "between" clue type.
 export function isStrictlyBetween(owner, a, b) {
   if (a.row === b.row && owner.row === a.row) {
-    const lo = Math.min(a.col, b.col), hi = Math.max(a.col, b.col);
+    const lo = Math.min(a.col, b.col),
+      hi = Math.max(a.col, b.col);
     return owner.col > lo && owner.col < hi;
   }
   if (a.col === b.col && owner.col === a.col) {
-    const lo = Math.min(a.row, b.row), hi = Math.max(a.row, b.row);
+    const lo = Math.min(a.row, b.row),
+      hi = Math.max(a.row, b.row);
     return owner.row > lo && owner.row < hi;
   }
   return false;
@@ -156,18 +197,17 @@ export function characterHasProperty(puzzle, pm, characterId, params, isComplete
       return !!obj && obj.typeId === params.objectTypeId;
     }
     case "seated": {
-      // Any occupiable object type (chair, stool, a rug...), not just one
-      // specific type — see isObjectTypeOccupiable in icons.js, the same
-      // flag that already governs which furniture a character can stand on.
+      // Any seat (a chair, a stool...), not just one specific type — but not
+      // a rug: you stand on it, you don't sit on it (`seat` flag in icons.js).
       const cell = cellAt(puzzle.grid, pos.row, pos.col);
       const obj = cell?.objectId ? puzzle.grid.objects.find((o) => o.id === cell.objectId) : null;
-      return !!obj && isObjectTypeOccupiable(obj.typeId);
+      return !!obj && isObjectTypeSeat(obj.typeId);
     }
     case "adjacentTo": {
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);
       if (targets === null) return undefined;
       if (targets.length === 0) return false;
-      return targets.some((t) => isAdjacent(pos, t));
+      return targets.some((t) => isNextTo(puzzle, pos, t));
     }
     case "custom": {
       if (!params.customClue?.type) return true; // no condition configured yet
@@ -187,10 +227,15 @@ export function characterHasProperty(puzzle, pm, characterId, params, isComplete
 // True if `a` is strictly more extreme than `b` in the given compass direction.
 export function isMoreExtreme(direction, a, b) {
   switch (direction) {
-    case "north": return a.row < b.row;
-    case "south": return a.row > b.row;
-    case "east": return a.col > b.col;
-    case "west": return a.col < b.col;
-    default: return false;
+    case "north":
+      return a.row < b.row;
+    case "south":
+      return a.row > b.row;
+    case "east":
+      return a.col > b.col;
+    case "west":
+      return a.col < b.col;
+    default:
+      return false;
   }
 }

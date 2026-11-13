@@ -18,12 +18,15 @@ import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
 import { t } from "../i18n/i18n.js";
 
-export const SOLUTION_UNSATISFIABLE_MSG =
-  t("Gli indizi di questo caso non ammettono nessuna soluzione: il caso non può essere risolto così com'è. Se sei l'autore, correggilo nell'editor.");
-export const SOLUTION_AMBIGUOUS_MSG =
-  t("Gli indizi di questo caso ammettono più soluzioni diverse: non è possibile stabilire con certezza quale sia quella corretta. Se sei l'autore, usa \"Verifica unicità\" nell'editor per individuare l'ambiguità.");
-export const SOLUTION_INCONCLUSIVE_MSG =
-  t("Non riesco a stabilire con certezza la soluzione di questo caso: gli indizi lasciano lo spazio di ricerca troppo ampio anche per un'analisi approfondita. Se sei l'autore, aggiungi indizi più stringenti.");
+export const SOLUTION_UNSATISFIABLE_MSG = t(
+  "Gli indizi di questo caso non ammettono nessuna soluzione: il caso non può essere risolto così com'è. Se sei l'autore, correggilo nell'editor."
+);
+export const SOLUTION_AMBIGUOUS_MSG = t(
+  "Gli indizi di questo caso ammettono più soluzioni diverse: non è possibile stabilire con certezza quale sia quella corretta. Se sei l'autore, usa \"Verifica unicità\" nell'editor per individuare l'ambiguità."
+);
+export const SOLUTION_INCONCLUSIVE_MSG = t(
+  "Non riesco a stabilire con certezza la soluzione di questo caso: gli indizi lasciano lo spazio di ricerca troppo ampio anche per un'analisi approfondita. Se sei l'autore, aggiungi indizi più stringenti."
+);
 
 // Budget for confirming an already clue-consistent declared solution is also
 // the UNIQUE one — well under deriveSolution.js's cap (10,000,000): with

@@ -7,12 +7,6 @@ export const ROOMS_CLUES = {
     params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
     describe: (params, puzzle) => t("Si trova nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
   },
-  notInRoom: {
-    legacy: true,
-    label: t("Non si trova nella stanza"),
-    params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
-    describe: (params, puzzle) => t("Non si trova nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
-  },
   zoneAdjacentTo: {
     label: t("Si trova in una stanza adiacente a"),
     // Target can be a specific room, but also a character/object (or object
@@ -26,26 +20,13 @@ export const ROOMS_CLUES = {
     params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],
     describe: (params, puzzle) => t("Si trova nella stessa stanza di {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
-  notSameRoomAs: {
-    legacy: true,
-    label: t("Non si trova nella stessa stanza di"),
-    params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],
-    describe: (params, puzzle) => t("Non si trova nella stessa stanza di {v}.", { v: targetLabel(puzzle, params.targetId) }),
-  },
   onlyPersonNear: {
-    label: t("È l'unica persona vicino a"),
+    label: t("È l'unica persona accanto a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
-    describe: (params, puzzle) => t("È l'unica persona vicino a {v}.", { v: targetLabel(puzzle, params.targetId) }),
-  },
-  aloneWithVictim: {
-    legacy: true,
-    label: t("È sola con la vittima nella stanza"),
-    params: [],
-    describe: () => t(`È sola con la vittima nella stanza.`),
+    describe: (params, puzzle) => t("È l'unica persona accanto a {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   // Not a real clue type — never offered in any "+ Indizio" dropdown
-  // (`internal: true`, checked by characterClueTypeIds/genericClueTypeIds
-  // alongside `legacy`). Registered here only so buildPredicates()'s
+  // (`internal: true`, checked by characterClueTypeIds/genericClueTypeIds). Registered here only so buildPredicates()'s
   // always-on base-rule entry (predicates.js) has a describe() to show in
   // "Valida soluzione" violation messages, without a whole separate
   // description path just for one hardcoded string.
@@ -62,9 +43,9 @@ export const ROOMS_CLUES = {
     describe: (params, puzzle) => t("È sola con {v} nella stanza.", { v: targetLabel(puzzle, params.targetId) }),
   },
   aloneWithPersonProperty: {
-    label: t("È sola con qualcuno che era..."),
+    label: t("È sola con qualcuno che è..."),
     params: propertyParams,
-    describe: (params, puzzle) => t("È sola nella stanza con qualcuno{v}.", { v: propertyClause(params, puzzle, "che era") }),
+    describe: (params, puzzle) => t("È sola nella stanza con qualcuno{v}.", { v: propertyClause(params, puzzle, "che è") }),
   },
   aloneInRoom: {
     label: t("È sola nella stanza"),
@@ -73,12 +54,6 @@ export const ROOMS_CLUES = {
       params.zoneId
         ? t("È l'unica persona nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) })
         : t(`È sola nella stanza in cui si trova.`),
-  },
-  onlyPersonInRoom: {
-    legacy: true,
-    label: t("È l'unica persona nella stanza"),
-    params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
-    describe: (params, puzzle) => t("È l'unica persona nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
   },
   inRoomCorner: {
     label: t("Si trova in un angolo della sua stanza"),
@@ -90,9 +65,9 @@ export const ROOMS_CLUES = {
     describe: () => t("Si trova in un angolo della sua stanza."),
   },
   someoneInRoomWithProperty: {
-    label: t("Qualcun altro nella sua stanza era..."),
+    label: t("Qualcun altro nella sua stanza è..."),
     params: propertyParams,
-    describe: (params, puzzle) => t("Qualcun altro nella sua stanza{v}.", { v: propertyClause(params, puzzle, "era") }),
-    negatedDescribe: (params, puzzle) => t("Nessun altro nella sua stanza{v}.", { v: propertyClause(params, puzzle, "era") }),
+    describe: (params, puzzle) => t("Qualcun altro nella sua stanza{v}.", { v: propertyClause(params, puzzle, "è") }),
+    negatedDescribe: (params, puzzle) => t("Nessun altro nella sua stanza{v}.", { v: propertyClause(params, puzzle, "è") }),
   },
 };

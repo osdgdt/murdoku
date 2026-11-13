@@ -28,7 +28,7 @@ export const tests = [
       achievementsStore.recordSolve({ key: "puzzle:b", elapsedSeconds: 200, hintsUsed: 0 });
       assertEqual(achievementsStore.getStats().totalSolved, 2);
       achievementsStore.recordSolve({ key: "puzzle:a", elapsedSeconds: 250, hintsUsed: 1 });
-      assertEqual(achievementsStore.getStats().totalSolved, 2, "ririsolvere \"a\" non deve aggiungere una nuova voce");
+      assertEqual(achievementsStore.getStats().totalSolved, 2, 'ririsolvere "a" non deve aggiungere una nuova voce');
     },
   },
   {
@@ -47,7 +47,7 @@ export const tests = [
       achievementsStore.recordSolve({ key: "puzzle:a", elapsedSeconds: 300, hintsUsed: 2 });
       assertEqual(achievementsStore.getStats().totalSolvedWithoutHints, 0);
       achievementsStore.recordSolve({ key: "puzzle:a", elapsedSeconds: 250, hintsUsed: 0 });
-      assertEqual(achievementsStore.getStats().totalSolvedWithoutHints, 1, "il miglior tentativo di \"a\" ora è senza indizi");
+      assertEqual(achievementsStore.getStats().totalSolvedWithoutHints, 1, 'il miglior tentativo di "a" ora è senza indizi');
       assertEqual(achievementsStore.getStats().totalSolved, 1, "resta comunque una sola chiave");
     },
   },
@@ -66,8 +66,14 @@ export const tests = [
     fn: () => {
       reset();
       const first = achievementsStore.recordSolve({ key: "puzzle:a", elapsedSeconds: 300, hintsUsed: 0 });
-      assert(first.some((a) => a.id === "first_solve"), "il primo caso risolto deve sbloccare first_solve");
-      assert(first.some((a) => a.id === "no_hints"), "risolvere senza indizi deve sbloccare no_hints subito");
+      assert(
+        first.some((a) => a.id === "first_solve"),
+        "il primo caso risolto deve sbloccare first_solve"
+      );
+      assert(
+        first.some((a) => a.id === "no_hints"),
+        "risolvere senza indizi deve sbloccare no_hints subito"
+      );
       const second = achievementsStore.recordSolve({ key: "puzzle:b", elapsedSeconds: 300, hintsUsed: 0 });
       assert(!second.some((a) => a.id === "first_solve"), "first_solve non deve essere ri-annunciato");
       assert(!second.some((a) => a.id === "no_hints"), "no_hints non deve essere ri-annunciato");
@@ -80,7 +86,10 @@ export const tests = [
       const slow = achievementsStore.recordSolve({ key: "puzzle:a", elapsedSeconds: 121, hintsUsed: 0 });
       assert(!slow.some((a) => a.id === "under_2_minutes"), "121s non deve sbloccarlo");
       const fast = achievementsStore.recordSolve({ key: "puzzle:b", elapsedSeconds: 119, hintsUsed: 0 });
-      assert(fast.some((a) => a.id === "under_2_minutes"), "119s deve sbloccarlo");
+      assert(
+        fast.some((a) => a.id === "under_2_minutes"),
+        "119s deve sbloccarlo"
+      );
     },
   },
   {
@@ -128,9 +137,9 @@ export const tests = [
         unlocked: {},
       });
       const stats = achievementsStore.getStats();
-      assertEqual(stats.totalSolved, 2, "\"a\" in comune non deve contare due volte, \"b\" si aggiunge");
-      assertEqual(stats.totalSolvedWithoutHints, 1, "il lato remoto aveva 0 indizi per \"a\": deve vincere il minimo");
-      assertEqual(stats.fastestSolveSeconds, 250, "il minimo tra 300 (locale) e 250 (remoto) per \"a\", contro i 400 di \"b\"");
+      assertEqual(stats.totalSolved, 2, '"a" in comune non deve contare due volte, "b" si aggiunge');
+      assertEqual(stats.totalSolvedWithoutHints, 1, 'il lato remoto aveva 0 indizi per "a": deve vincere il minimo');
+      assertEqual(stats.fastestSolveSeconds, 250, 'il minimo tra 300 (locale) e 250 (remoto) per "a", contro i 400 di "b"');
     },
   },
   {
@@ -145,7 +154,10 @@ export const tests = [
       for (let i = 0; i < 5; i++) remoteSolves[`puzzle:remote-${i}`] = { firstSolvedAt: 1000, bestHintsUsed: 1, bestElapsedSeconds: 300 };
       const newlyUnlocked = achievementsStore.mergeRemote({ solves: remoteSolves, unlocked: {} });
       assertEqual(achievementsStore.getStats().totalSolved, 11, "6 locali + 5 remoti, nessuna chiave in comune");
-      assert(newlyUnlocked.some((a) => a.id === "ten_solves"), "solo l'unione supera la soglia di 10, né i 6 né i 5 da soli");
+      assert(
+        newlyUnlocked.some((a) => a.id === "ten_solves"),
+        "solo l'unione supera la soglia di 10, né i 6 né i 5 da soli"
+      );
     },
   },
   {

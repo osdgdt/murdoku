@@ -1,7 +1,7 @@
 import { createPuzzle, addCharacter, addClue, setVictim } from "../src/model/puzzle.js";
 import { addZone, paintCellZone, placeObject, resizeGrid, setBlocked } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
-import { resolveClueHoverCells } from "../src/solver/hoverTargets.js";
+import { resolveClueHoverCells, resolveCharacterTargetCells } from "../src/solver/hoverTargets.js";
 import { assert, assertEqual } from "./assert.js";
 
 function basePuzzle(rows = 4, cols = 4) {
@@ -51,7 +51,14 @@ export const tests = [
       const b = addCharacter(puzzle, "B", "person2");
       const c = addCharacter(puzzle, "C", "person1");
       const clue = addClue(puzzle, a.id, "inRowOrColWithAny", { axis: "row", targetIds: [b.id, c.id] });
-      const cells = resolveClueHoverCells(clue, puzzle, mapOf([[b.id, { row: 0, col: 0 }], [c.id, { row: 2, col: 3 }]]));
+      const cells = resolveClueHoverCells(
+        clue,
+        puzzle,
+        mapOf([
+          [b.id, { row: 0, col: 0 }],
+          [c.id, { row: 2, col: 3 }],
+        ])
+      );
       assertEqual(cellSet(cells).size, 2, "entrambi i bersagli devono essere evidenziati");
       assert(cellSet(cells).has("0,0"));
       assert(cellSet(cells).has("2,3"));
@@ -123,7 +130,7 @@ export const tests = [
     },
   },
   {
-    name: 'resolveClueHoverCells: proprietà "seated" (l\'esempio dell\'utente) evidenzia OGNI oggetto occupabile, non solo un tipo specifico',
+    name: "resolveClueHoverCells: proprietà \"seated\" (l'esempio dell'utente) evidenzia OGNI oggetto occupabile, non solo un tipo specifico",
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
@@ -167,13 +174,13 @@ export const tests = [
     },
   },
   {
-    name: "resolveClueHoverCells: aloneWithVictim risolve alla cella della vittima (bersaglio implicito)",
+    name: "resolveClueHoverCells: aloneWithPerson verso la vittima risolve alla cella della vittima",
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
       const victim = addCharacter(puzzle, "Vittima", "person1");
       setVictim(puzzle, victim.id);
-      const clue = addClue(puzzle, a.id, "aloneWithVictim", {});
+      const clue = addClue(puzzle, a.id, "aloneWithPerson", { targetId: victim.id });
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([[victim.id, { row: 1, col: 3 }]]));
       assertEqual(cells.length, 1);
       assertEqual(cells[0].row, 1);
@@ -301,7 +308,11 @@ export const tests = [
       // famiglia "proprietà", risolto dal cammino generico) + property
       // "adjacentTo" (risolto da resolvePropertyTargets) nello stesso
       // indizio — l'unico tipo che combina le due cose.
-      const clue = addClue(puzzle, null, "noOneWithProperty", { zoneId: zone.id, property: "adjacentTo", targetId: puzzle.grid.objects[0].id });
+      const clue = addClue(puzzle, null, "noOneWithProperty", {
+        zoneId: zone.id,
+        property: "adjacentTo",
+        targetId: puzzle.grid.objects[0].id,
+      });
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
       const set = cellSet(cells);
       assertEqual(set.size, 3, "le 2 celle della stanza più la cella della finestra");
@@ -319,6 +330,60 @@ export const tests = [
       assertEqual(cells.length, 1);
       assertEqual(cells[0].row, 1);
       assertEqual(cells[0].col, 2);
+    },
+  },
+  {
+    name: "resolveCharacterTargetCells: unisce stanza (inRoom) e tutte le istanze di un tipo di oggetto (adjacent a 'qualsiasi pianta')",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const zone = addZone(puzzle.grid, "Cucina", "#fff");
+      paintCellZone(puzzle.grid, 0, 0, zone.id);
+      paintCellZone(puzzle.grid, 0, 1, zone.id);
+      placeObject(puzzle.grid, "plant", 2, 2);
+      placeObject(puzzle.grid, "plant", 3, 3);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zone.id });
+      addClue(puzzle, a.id, "adjacent", { targetId: objectTypeTargetId("plant") });
+      const cells = resolveCharacterTargetCells(puzzle, a.id, mapOf([]));
+      assertEqual(cellSet(cells).size, 4);
+      for (const k of ["0,0", "0,1", "2,2", "3,3"]) assert(cellSet(cells).has(k), "manca " + k);
+    },
+  },
+  {
+    name: "resolveCharacterTargetCells: deduplica celle sovrapposte tra indizi diversi",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const zone = addZone(puzzle.grid, "Studio", "#fff");
+      paintCellZone(puzzle.grid, 1, 1, zone.id);
+      placeObject(puzzle.grid, "table", 1, 1);
+      addClue(puzzle, a.id, "inRoom", { zoneId: zone.id });
+      addClue(puzzle, a.id, "adjacent", { targetId: objectTypeTargetId("table") });
+      assertEqual(resolveCharacterTargetCells(puzzle, a.id, mapOf([])).length, 1);
+    },
+  },
+  {
+    name: "resolveCharacterTargetCells: ignora gli indizi di altri personaggi e quelli generici",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      placeObject(puzzle.grid, "plant", 2, 2);
+      addClue(puzzle, b.id, "adjacent", { targetId: objectTypeTargetId("plant") });
+      addClue(puzzle, null, "exactlyOneNear", { targetId: objectTypeTargetId("plant") });
+      assertEqual(resolveCharacterTargetCells(puzzle, a.id, mapOf([])).length, 0);
+    },
+  },
+  {
+    name: "resolveCharacterTargetCells: un bersaglio-personaggio non ancora piazzato non aggiunge celle",
+    fn: () => {
+      const puzzle = basePuzzle();
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      addClue(puzzle, a.id, "adjacent", { targetId: b.id });
+      assertEqual(resolveCharacterTargetCells(puzzle, a.id, mapOf([])).length, 0);
+      const placed = resolveCharacterTargetCells(puzzle, a.id, mapOf([[b.id, { row: 1, col: 1 }]]));
+      assertEqual(placed.length, 1);
     },
   },
 ];

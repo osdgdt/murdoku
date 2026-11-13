@@ -17,7 +17,10 @@ export function renderAchievementsPage(root) {
   root.appendChild(
     el("div", { class: "panel achievement-stats" }, [
       el("div", { class: "achievement-stat" }, [el("strong", {}, String(stats.totalSolved)), el("span", {}, t("casi risolti"))]),
-      el("div", { class: "achievement-stat" }, [el("strong", {}, String(stats.totalSolvedWithoutHints)), el("span", {}, t("senza indizi"))]),
+      el("div", { class: "achievement-stat" }, [
+        el("strong", {}, String(stats.totalSolvedWithoutHints)),
+        el("span", {}, t("senza indizi")),
+      ]),
       el("div", { class: "achievement-stat" }, [
         el("strong", {}, stats.fastestSolveSeconds != null ? formatElapsed(stats.fastestSolveSeconds) : "—"),
         el("span", {}, t("miglior tempo")),
@@ -54,29 +57,56 @@ function renderHistory(root) {
   if (summary.length === 0) return;
   const dateOf = (ms) => new Date(ms).toLocaleDateString(intlLocale(), { day: "numeric", month: "short", year: "numeric" });
   const average = solveHistory.averageSolveSeconds();
+  const streak = solveHistory.solveStreak();
+  const days = (n) => (n === 1 ? t("1 giorno") : t("{count} giorni", { count: n }));
 
-  const caseRows = summary.slice(0, 10).map((s) =>
-    el("li", {}, [
-      el("strong", {}, s.title || "—"),
-      el("span", { class: "muted" }, " · " + [
-        s.solves === 1 ? t("risolto 1 volta") : t("risolto {count} volte", { count: s.solves }),
-        s.bestElapsedSeconds != null ? t("miglior tempo {time}", { time: formatElapsed(s.bestElapsedSeconds) }) : null,
-        s.bestHintsUsed === 0 ? t("senza suggerimenti") : t("meno suggerimenti: {count}", { count: s.bestHintsUsed }),
-      ].filter(Boolean).join(" · ")),
-    ])
-  );
-  const recentRows = solveHistory.recentSolves(10).map((e) =>
-    el("li", {}, [
-      el("span", {}, `${dateOf(e.at)} — `),
-      el("strong", {}, e.title || "—"),
-      el("span", { class: "muted" }, ` · ${e.elapsedSeconds != null ? formatElapsed(e.elapsedSeconds) : "—"} · ` + (e.hintsUsed === 0 ? t("senza suggerimenti") : t("suggerimenti: {count}", { count: e.hintsUsed }))),
-    ])
-  );
+  const caseRows = summary
+    .slice(0, 10)
+    .map((s) =>
+      el("li", {}, [
+        el("strong", {}, s.title || "—"),
+        el(
+          "span",
+          { class: "muted" },
+          " · " +
+            [
+              s.solves === 1 ? t("risolto 1 volta") : t("risolto {count} volte", { count: s.solves }),
+              s.bestElapsedSeconds != null ? t("miglior tempo {time}", { time: formatElapsed(s.bestElapsedSeconds) }) : null,
+              s.bestHintsUsed === 0 ? t("senza suggerimenti") : t("meno suggerimenti: {count}", { count: s.bestHintsUsed }),
+            ]
+              .filter(Boolean)
+              .join(" · ")
+        ),
+      ])
+    );
+  const recentRows = solveHistory
+    .recentSolves(10)
+    .map((e) =>
+      el("li", {}, [
+        el("span", {}, `${dateOf(e.at)} — `),
+        el("strong", {}, e.title || "—"),
+        el(
+          "span",
+          { class: "muted" },
+          ` · ${e.elapsedSeconds != null ? formatElapsed(e.elapsedSeconds) : "—"} · ` +
+            (e.hintsUsed === 0 ? t("senza suggerimenti") : t("suggerimenti: {count}", { count: e.hintsUsed }))
+        ),
+      ])
+    );
 
   root.appendChild(
     el("div", { class: "panel solve-history" }, [
       el("h3", {}, t("📜 Il tuo storico")),
       average != null ? el("p", { class: "muted" }, t("Tempo medio di risoluzione: {time}", { time: formatElapsed(average) })) : null,
+      el(
+        "p",
+        { class: "muted" },
+        [
+          t("🔥 Serie attuale: {current} (record: {best})", { current: days(streak.current), best: days(streak.best) }),
+          " · ",
+          t("Ultimi 7 giorni: {count} risolti", { count: solveHistory.solvesInLastDays(7) }),
+        ].join("")
+      ),
       el("h4", {}, t("Per caso")),
       el("ul", { class: "history-list" }, caseRows),
       el("h4", {}, t("Ultime risoluzioni")),

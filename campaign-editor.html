@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https:; frame-src https://*.firebaseapp.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
@@ -64,7 +65,7 @@
         <div id="case-list"></div>
         <div class="field-row" style="margin-top:0.8rem">
           <label for="add-case-url">Nuovo caso</label>
-          <input id="add-case-url" type="text" placeholder="URL del file .murdoku.json (es. examples/tutorial.it.murdoku.json)" style="flex:1" />
+          <input id="add-case-url" type="text" placeholder="URL del file .murdoku.json (es. https://example.com/caso.murdoku.json)" style="flex:1" />
           <button id="add-case-btn">Aggiungi</button>
         </div>
         <p id="add-case-status" class="muted"></p>

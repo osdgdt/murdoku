@@ -30,8 +30,13 @@ export const tests = [
     fn: () => {
       reset();
       recentActivity.recordOpened({
-        kind: "campaign", campaignId: "c1", campaignTitle: "La villa", caseId: "case_2",
-        caseLabel: "Caso 2", title: "La villa — Caso 2", url: "campaign.html?campaign=c1&case=case_2",
+        kind: "campaign",
+        campaignId: "c1",
+        campaignTitle: "La villa",
+        caseId: "case_2",
+        caseLabel: "Caso 2",
+        title: "La villa — Caso 2",
+        url: "campaign.html?campaign=c1&case=case_2",
       });
       const recent = recentActivity.getRecent();
       assertEqual(recent.kind, "campaign");

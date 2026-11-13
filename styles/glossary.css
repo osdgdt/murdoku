@@ -1,0 +1,143 @@
+/* Clue glossary page (glossary.html). Colors come from the shared theme
+   variables, so it follows light/dark with the rest of the site. */
+.glossary { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+.gl-hero { text-align: center; margin: 2.5rem auto 1.5rem; max-width: 46rem; }
+.gl-hero .eyebrow { display: inline-block; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.6rem; }
+.gl-hero h1 { font-size: 2.3rem; line-height: 1.15; margin: 0 0 0.6rem; }
+.gl-hero .lede { color: var(--ink-soft); font-size: 1.05rem; margin: 0 auto; }
+
+/* Search bar: stays in view while you scroll the long list. */
+.gl-tools {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0 0 1.25rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--panel);
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: var(--shadow-md);
+}
+.gl-search { flex: 1; min-width: 0; font-size: 1rem; padding: 0.55em 0.9em; }
+.gl-count { color: var(--ink-soft); font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+
+.gl-howto { background: var(--panel); border-radius: var(--radius-lg, 14px); box-shadow: var(--shadow-sm); padding: 1rem 1.3rem 1.1rem; margin-bottom: 1.75rem; }
+.gl-howto h2 { margin: 0 0 0.4rem; font-size: 1.1rem; }
+.gl-howto p { margin: 0 0 0.7rem; color: var(--ink-soft); }
+
+.gl-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 1.75rem; align-items: start; }
+.gl-toc { position: sticky; top: 5rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.gl-toc a {
+  display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+  padding: 0.45em 0.8em; border-radius: 10px; text-decoration: none;
+  color: var(--ink); font-weight: 700; font-size: 0.9rem;
+}
+.gl-toc a:hover { background: var(--accent-soft); color: var(--accent-dark); }
+.gl-toc-n { font-size: 0.72rem; color: var(--ink-soft); background: var(--panel-alt); border-radius: 999px; padding: 0.1em 0.6em; }
+
+.gl-section { margin-bottom: 2.4rem; scroll-margin-top: 5rem; }
+.gl-section > h2 { margin: 0 0 0.2rem; font-size: 1.5rem; }
+.gl-blurb { margin: 0 0 1rem; color: var(--ink-soft); }
+
+.gl-card {
+  background: var(--panel);
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem 1.35rem 1.25rem;
+  margin-bottom: 1.1rem;
+  scroll-margin-top: 5rem;
+}
+.gl-card:target { box-shadow: 0 0 0 3px var(--gold), var(--shadow-md); }
+.gl-card-head { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.7rem; }
+.gl-card-head h3 { margin: 0; font-size: 1.15rem; color: var(--accent-dark); }
+:root[data-theme="dark"] .gl-card-head h3 { color: var(--accent); }
+
+.gl-badge { font-size: 0.7rem; font-weight: 800; padding: 0.15em 0.65em; border-radius: 999px; letter-spacing: 0.03em; }
+.gl-badge.general { background: var(--gold-soft); color: #6b4a00; }
+:root[data-theme="dark"] .gl-badge.general { color: var(--gold); }
+
+.gl-body { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem; align-items: start; }
+.gl-card.text-only .gl-body { grid-template-columns: minmax(0, 1fr); }
+.gl-explain { margin: 0 0 0.8rem; line-height: 1.55; }
+
+.gl-sentence { margin: 0 0 0.8rem; padding: 0.55rem 0.9rem; background: var(--panel-alt); border-left: 5px solid var(--accent); border-radius: 0 10px 10px 0; }
+.gl-sentence-label { display: block; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.15rem; }
+.gl-sentence p { margin: 0; font-family: var(--font-display); font-style: italic; font-size: 1.05rem; }
+
+.gl-tip { margin: 0; padding: 0.5rem 0.8rem; background: var(--gold-soft); color: var(--ink); border-radius: 10px; font-size: 0.9rem; line-height: 1.45; }
+
+.gl-figure { margin: 0; }
+.gl-caption { margin-top: 0.5rem; max-width: 22rem; font-size: 0.82rem; color: var(--ink-soft); }
+
+/* The little boards. They reuse the game's own board renderer (paper rooms,
+   floors, objects, black grid); only the size and the markers are set here. */
+.glossary .gl-board.board-grid {
+  --cell-size: 40px;
+  margin: 0;
+  padding: 8px;
+  width: fit-content;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+}
+.gl-board .board-cell { cursor: default; }
+.gl-board .board-label { font-size: 0.65rem; }
+.gl-board .room-name { font-size: 9px; padding: 0 4px; }
+/* A little smaller and pushed down, so a person standing in a room's first cell
+   doesn't hide the room's name tab. */
+.gl-board .char-token { width: 31px; height: 31px; margin-top: 9px; }
+
+.gl-board .board-cell.gl-ok { box-shadow: inset 0 0 0 3px #2e9e5b, inset 0 0 0 5px rgba(255, 255, 255, 0.55); }
+.gl-board .board-cell.gl-ok::after {
+  content: "✓";
+  position: absolute; right: 3px; top: 3px; z-index: 3;
+  width: 15px; height: 15px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 10px; font-weight: 900; line-height: 1;
+  color: #fff; background: #2e9e5b;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.gl-board .board-cell.gl-rule::after {
+  content: "×";
+  position: absolute; inset: 0; z-index: 3;
+  display: grid; place-items: center;
+  font-size: 22px; font-weight: 800; line-height: 1;
+  color: rgba(30, 18, 8, 0.5);
+}
+.gl-board .board-cell.gl-target { outline: 3px dashed #f2b01e; outline-offset: -5px; }
+
+.gl-cast { list-style: none; margin: 0 0 0.55rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; font-size: 0.82rem; font-weight: 700; color: var(--ink); }
+.gl-cast li { display: inline-flex; align-items: center; gap: 0.3rem; }
+.gl-cast-token { width: 24px; height: 24px; display: inline-flex; }
+.gl-cast-token svg { width: 100%; height: 100%; }
+
+.gl-legend { list-style: none; margin: 0.7rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; max-width: 24rem; font-size: 0.84rem; color: var(--ink-soft); }
+.gl-howto .gl-legend { max-width: none; margin-top: 0.3rem; }
+.gl-legend li { display: flex; align-items: center; gap: 0.55rem; }
+.gl-swatch { flex: none; width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; font-size: 12px; font-weight: 900; line-height: 1; }
+.gl-swatch.ok { background: #2e9e5b; color: #fff; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5); }
+.gl-swatch.rule { background: var(--panel-alt); border: 1px solid var(--border); color: var(--ink-soft); font-size: 15px; }
+.gl-swatch.target { border: 3px dashed #f2b01e; background: transparent; }
+
+.gl-pair { display: flex; flex-wrap: wrap; gap: 1rem; }
+.gl-case { display: flex; flex-direction: column; gap: 0.4rem; }
+.gl-verdict { font-weight: 800; font-size: 0.85rem; padding: 0.2em 0.7em; border-radius: 999px; width: fit-content; }
+.gl-case.is-true .gl-verdict { background: #d9f0e1; color: #1b6a3b; }
+.gl-case.is-false .gl-verdict { background: #f8dcd7; color: #8a2a1e; }
+:root[data-theme="dark"] .gl-case.is-true .gl-verdict { background: #1f4a31; color: #9fe0b8; }
+:root[data-theme="dark"] .gl-case.is-false .gl-verdict { background: #582620; color: #f2a79b; }
+
+.gl-empty { text-align: center; color: var(--ink-soft); padding: 2rem 0; }
+
+@media (max-width: 860px) {
+  .gl-layout { grid-template-columns: minmax(0, 1fr); }
+  .gl-toc { position: static; flex-direction: row; overflow-x: auto; padding-bottom: 0.3rem; margin-bottom: 0.5rem; }
+  .gl-toc a { flex: none; background: var(--panel); box-shadow: var(--shadow-sm); }
+  .gl-body { grid-template-columns: minmax(0, 1fr); }
+  .gl-tools { top: 0.25rem; }
+  .gl-hero h1 { font-size: 1.8rem; }
+  .glossary .gl-board.board-grid { --cell-size: 36px; }
+}

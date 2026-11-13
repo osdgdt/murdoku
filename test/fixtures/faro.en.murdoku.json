@@ -1,13 +1,14 @@
 {
-  "schemaVersion": 2,
-  "id": "lib_dinner_en",
-  "title": "Dinner Party Murder",
+  "schemaVersion": 4,
+  "id": "lib_faro_en",
+  "title": "The Lighthouse in the Storm",
   "author": "Murdoku",
-  "difficulty": "easy",
+  "difficulty": "very-easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Countess Vera will not live to see dessert: she is found in the room \"Dining room\". Five guests, and only one person in the room with her. Who?",
-  "resolutionNote": "Edward was the only guest with the countess: dessert can wait.",
+  "briefing": "On a stormy night, Captain Victor Morgan is found dead. The lighthouse is cut off by the raging sea: who was with him?",
+  "resolutionNote": "Arthur was the only person with the captain. The lighthouse beam turns again.",
+  "tense": "present",
   "createdAt": 1767225600000,
   "updatedAt": 1767225600000,
   "grid": {
@@ -24,28 +25,6 @@
         },
         {
           "zoneId": "z1",
-          "objectId": "o4",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
@@ -56,44 +35,39 @@
         },
         {
           "zoneId": "z2",
-          "objectId": "o1",
-          "blocked": false
-        },
-        {
-          "zoneId": "z2",
           "objectId": null,
           "blocked": false
         },
         {
           "zoneId": "z2",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "z3",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
-          "objectId": "o2",
-          "blocked": false
-        },
-        {
-          "zoneId": "z3",
           "objectId": "o7",
           "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z1",
+          "objectId": "o8",
+          "blocked": false
         },
         {
-          "zoneId": "z4",
+          "zoneId": "z1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z4",
-          "objectId": "o3",
+          "zoneId": "z1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z2",
+          "objectId": null,
           "blocked": false
         }
       ],
@@ -109,7 +83,7 @@
           "blocked": false
         },
         {
-          "zoneId": "z3",
+          "zoneId": "z4",
           "objectId": null,
           "blocked": false
         },
@@ -126,17 +100,44 @@
       ],
       [
         {
-          "zoneId": "z5",
+          "zoneId": "z3",
           "objectId": "o6",
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z3",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "z5",
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": "o4",
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "z4",
           "objectId": "o5",
           "blocked": false
         },
@@ -155,205 +156,205 @@
     "zones": [
       {
         "id": "z1",
-        "name": "Hall",
+        "name": "Lantern room",
         "color": "#f4c2c2",
-        "textureId": "hatch"
+        "textureId": "planks"
       },
       {
         "id": "z2",
-        "name": "Dining room",
+        "name": "Keeper's quarters",
         "color": "#c2e0f4",
-        "textureId": "wood"
+        "textureId": "parquet"
       },
       {
         "id": "z3",
-        "name": "Lounge",
+        "name": "Boat shed",
         "color": "#c9f4c2",
-        "textureId": "stone"
+        "textureId": "gravel"
       },
       {
         "id": "z4",
-        "name": "Kitchen",
+        "name": "Cellar",
         "color": "#f4ecc2",
-        "textureId": "carpet"
-      },
-      {
-        "id": "z5",
-        "name": "Pantry",
-        "color": "#e0c2f4",
-        "textureId": "grass"
+        "textureId": "stone"
       }
     ],
     "objects": [
       {
         "id": "o1",
-        "typeId": "table",
+        "typeId": "window",
         "row": 1,
-        "col": 2
+        "col": 2,
+        "side": "E"
       },
       {
         "id": "o2",
-        "typeId": "carpet",
-        "row": 2,
-        "col": 1
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
       },
       {
         "id": "o3",
-        "typeId": "stool",
+        "typeId": "door",
         "row": 2,
-        "col": 4
+        "col": 1,
+        "side": "E"
       },
       {
         "id": "o4",
-        "typeId": "lamp",
-        "row": 0,
-        "col": 1
+        "typeId": "table",
+        "row": 3,
+        "col": 3
       },
       {
         "id": "o5",
-        "typeId": "shelf",
+        "typeId": "chair",
         "row": 4,
         "col": 2
       },
       {
         "id": "o6",
-        "typeId": "plant",
-        "row": 4,
+        "typeId": "carpet",
+        "row": 3,
         "col": 0
       },
       {
         "id": "o7",
-        "typeId": "door",
-        "row": 2,
-        "col": 2
+        "typeId": "plant",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "o8",
+        "typeId": "lamp",
+        "row": 1,
+        "col": 0
       }
     ]
   },
   "characters": [
     {
       "id": "c1",
-      "name": "Countess Vera",
-      "iconId": "person1",
-      "isVictim": true,
-      "bio": "The guest of honour.",
+      "name": "Arthur",
+      "iconId": "sailor",
+      "isVictim": false,
+      "bio": "The sailor who brings the supplies.",
       "color": "#608aea",
-      "gender": "female"
+      "gender": "male"
     },
     {
       "id": "c2",
-      "name": "Edward",
-      "iconId": "professor",
+      "name": "Beatrice",
+      "iconId": "photographer",
       "isVictim": false,
-      "bio": "The professor, passed over as guest of honour.",
+      "bio": "A photographer who came for the storms.",
       "color": "#ea558a",
-      "gender": "male"
+      "gender": "female"
     },
     {
       "id": "c3",
-      "name": "Livia",
-      "iconId": "artist",
+      "name": "Charles",
+      "iconId": "mechanic",
       "isVictim": false,
-      "bio": "The artist, always late.",
+      "bio": "The generator mechanic.",
       "color": "#158060",
-      "gender": "female"
-    },
-    {
-      "id": "c4",
-      "name": "Marcus",
-      "iconId": "driver",
-      "isVictim": false,
-      "bio": "The driver, waiting by the door.",
-      "color": "#9f5595",
       "gender": "male"
     },
     {
-      "id": "c5",
-      "name": "Nora",
-      "iconId": "glasses",
+      "id": "c4",
+      "name": "Diana",
+      "iconId": "tourist",
       "isVictim": false,
-      "bio": "The countess's cousin, fascinated by poisons.",
-      "color": "#bf8020",
+      "bio": "A tourist stranded by the storm.",
+      "color": "#9f5595",
       "gender": "female"
+    },
+    {
+      "id": "c5",
+      "name": "Victor Morgan",
+      "iconId": "victim",
+      "isVictim": true,
+      "bio": "The old lighthouse keeper.",
+      "color": "#bf8020",
+      "gender": "male"
     }
   ],
   "clues": [
     {
       "id": "k1",
-      "characterId": "c5",
-      "type": "aloneInRoom",
-      "params": {
-        "zoneId": "z5"
-      }
+      "characterId": "c1",
+      "type": "inFrontOfWindow",
+      "params": {}
     },
     {
       "id": "k2",
-      "characterId": "c4",
-      "type": "inRowOrCol",
+      "characterId": "c3",
+      "type": "adjacent",
       "params": {
-        "axis": "col",
-        "index": 3
+        "targetId": "o6"
       }
     },
     {
       "id": "k3",
+      "characterId": "c3",
+      "type": "inCorner",
+      "params": {}
+    },
+    {
+      "id": "k4",
       "characterId": "c4",
       "type": "inRowOrCol",
       "params": {
-        "axis": "row",
+        "axis": "col",
         "index": 4
       }
     },
     {
-      "id": "k4",
-      "characterId": "c3",
-      "type": "adjacent",
-      "params": {
-        "targetId": "o2"
-      }
-    },
-    {
       "id": "k5",
-      "characterId": "c2",
-      "type": "facing",
+      "characterId": "c4",
+      "type": "rowOrColWith",
       "params": {
-        "targetId": "objtype:table"
+        "axis": "row",
+        "targetId": "z4"
       }
     },
     {
       "id": "k6",
       "characterId": "c2",
-      "type": "adjacent",
+      "type": "inRowOrCol",
       "params": {
-        "targetId": "objtype:stool"
+        "axis": "col",
+        "index": 5
       }
     }
   ],
   "solution": {
     "placements": [
       {
-        "characterId": "c1",
+        "characterId": "c5",
         "row": 0,
-        "col": 3
+        "col": 1
+      },
+      {
+        "characterId": "c1",
+        "row": 1,
+        "col": 2
       },
       {
         "characterId": "c2",
-        "row": 1,
+        "row": 3,
         "col": 4
       },
       {
         "characterId": "c3",
-        "row": 2,
+        "row": 4,
         "col": 0
       },
       {
         "characterId": "c4",
-        "row": 3,
-        "col": 2
-      },
-      {
-        "characterId": "c5",
-        "row": 4,
-        "col": 1
+        "row": 2,
+        "col": 3
       }
     ]
   },

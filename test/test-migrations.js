@@ -2,13 +2,21 @@ import { migratePuzzle, CURRENT_SCHEMA_VERSION } from "../src/model/migrations.j
 import { validatePuzzleShape, createPuzzle } from "../src/model/puzzle.js";
 import * as store from "../src/storage/puzzleStore.js";
 import { readJson, writeRaw, StorageFullError, useBackendForTests } from "../src/storage/storage.js";
+import { isOccupiable } from "../src/model/grid.js";
 import { assert, assertEqual } from "./assert.js";
 
 export const tests = [
   {
     name: "migratePuzzle porta un documento senza schemaVersion alla versione corrente riempiendo i campi mancanti",
     fn: () => {
-      const legacy = { id: "p1", title: "Vecchio", grid: { size: { rows: 3, cols: 3 }, cells: [], zones: [{ id: "z1", name: "A", color: "#fff" }], objects: [] }, characters: [{ id: "c1", name: "X", isVictim: true }], clues: [], solution: { placements: [] } };
+      const legacy = {
+        id: "p1",
+        title: "Vecchio",
+        grid: { size: { rows: 3, cols: 3 }, cells: [], zones: [{ id: "z1", name: "A", color: "#fff" }], objects: [] },
+        characters: [{ id: "c1", name: "X", isVictim: true }],
+        clues: [],
+        solution: { placements: [] },
+      };
       migratePuzzle(legacy);
       assertEqual(legacy.schemaVersion, CURRENT_SCHEMA_VERSION);
       assertEqual(legacy.difficulty, "");
@@ -26,6 +34,41 @@ export const tests = [
       migratePuzzle(p);
       migratePuzzle(p);
       assertEqual(JSON.stringify(p), before);
+    },
+  },
+  {
+    name: "migratePuzzle: una vecchia porta a tutta cella passa sul lato Nord e libera la cella; è idempotente",
+    fn: () => {
+      const puzzle = createPuzzle("Vecchia porta");
+      puzzle.schemaVersion = 2;
+      const g = puzzle.grid;
+      g.objects.push({ id: "objDoor", typeId: "door", row: 1, col: 2 });
+      g.cells[1][2].objectId = "objDoor";
+      g.objects.push({ id: "objTable", typeId: "table", row: 0, col: 2 });
+      g.cells[0][2].objectId = "objTable";
+      migratePuzzle(puzzle);
+      assertEqual(puzzle.schemaVersion, CURRENT_SCHEMA_VERSION);
+      const door = g.objects.find((o) => o.id === "objDoor");
+      assertEqual(door.side, "N");
+      assertEqual(g.cells[1][2].objectId, null);
+      assert(isOccupiable(g, 1, 2), "la cella della vecchia porta ora è libera");
+      assertEqual(g.objects.find((o) => o.id === "objTable").side, undefined, "i mobili non si toccano");
+      assertEqual(g.cells[0][2].objectId, "objTable");
+      const before = JSON.stringify(puzzle);
+      migratePuzzle(puzzle);
+      assertEqual(JSON.stringify(puzzle), before, "seconda migrazione = nessun cambiamento");
+    },
+  },
+  {
+    name: "migratePuzzle: una porta che ha già un lato non viene toccata; input malformato non lancia",
+    fn: () => {
+      const puzzle = createPuzzle("Porta con lato");
+      puzzle.schemaVersion = 2;
+      puzzle.grid.objects.push({ id: "objDoor", typeId: "door", row: 0, col: 0, side: "E" });
+      migratePuzzle(puzzle);
+      assertEqual(puzzle.grid.objects[0].side, "E");
+      assertEqual(migratePuzzle(null), null);
+      migratePuzzle({ schemaVersion: 2, grid: { objects: "no", cells: [] } });
     },
   },
   {
@@ -57,10 +100,22 @@ export const tests = [
   {
     name: "writeRaw lancia StorageFullError quando lo storage rifiuta la scrittura",
     fn: () => {
-      useBackendForTests({ setItem() { throw new Error("QuotaExceededError"); }, getItem() { return null; }, removeItem() {} });
+      useBackendForTests({
+        setItem() {
+          throw new Error("QuotaExceededError");
+        },
+        getItem() {
+          return null;
+        },
+        removeItem() {},
+      });
       try {
         let thrown = null;
-        try { writeRaw("k", "v"); } catch (e) { thrown = e; }
+        try {
+          writeRaw("k", "v");
+        } catch (e) {
+          thrown = e;
+        }
         assert(thrown instanceof StorageFullError, "atteso StorageFullError");
       } finally {
         useBackendForTests(null);

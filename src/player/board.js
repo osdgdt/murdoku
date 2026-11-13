@@ -8,6 +8,7 @@ export function createBoardState() {
     placements: new Map(), // characterId -> {row,col}
     xMarks: new Set(), // "row,col"
     candidates: new Map(), // "row,col" -> Set<characterId>
+    lineNotes: new Map(), // "row:N" / "col:N" -> Set<characterId> — notes on a whole row/column, drawn on the board's outer edge
     autoXByCharacter: new Map(), // characterId -> [{row,col}...] X's auto-marked alongside that placement
     undoStack: [],
     selectedTool: null, // {kind:'character', id} | {kind:'x'} | {kind:'erase'}
@@ -33,6 +34,7 @@ export function serializeBoardState(state) {
     placements: [...state.placements.entries()],
     xMarks: [...state.xMarks],
     candidates: [...state.candidates.entries()].map(([k, set]) => [k, [...set]]),
+    lineNotes: [...state.lineNotes.entries()].map(([k, set]) => [k, [...set]]),
     autoXByCharacter: [...state.autoXByCharacter.entries()],
     hintsUsed: state.hintsUsed,
   };
@@ -49,6 +51,8 @@ export function deserializeBoardState(saved) {
     state.xMarks = new Set(saved.xMarks || []);
     state.candidates = new Map((saved.candidates || []).map(([k, arr]) => [k, new Set(arr)]));
     state.autoXByCharacter = new Map(saved.autoXByCharacter || []);
+    // Saved before row/column notes existed: none.
+    state.lineNotes = new Map((saved.lineNotes || []).map(([k, arr]) => [k, new Set(arr)]));
     // Progress saved before this feature existed lacks `hintsUsed` — fall
     // back to 0 (assume hint-free) instead of leaving it undefined.
     state.hintsUsed = Number.isFinite(saved.hintsUsed) && saved.hintsUsed >= 0 ? saved.hintsUsed : 0;
@@ -88,6 +92,42 @@ function toggleCandidate(state, characterId, row, col) {
     set.add(characterId);
   }
   state.undoStack.push({ type: "candidate", row, col, characterId, added: !had });
+}
+
+function lineKey(kind, index) {
+  return `${kind}:${index}`;
+}
+
+// A tap on a row/column label (the board's outer edge): the same note toggle a
+// cell tap does, but for "this character is somewhere in this whole row/column".
+// The eraser clears every note on that line; the X tool has no meaning there.
+export function handleLineTap(state, kind, index, tool = state.selectedTool) {
+  if (!tool) return { ok: false };
+  const k = lineKey(kind, index);
+  if (tool.kind === "character") {
+    let set = state.lineNotes.get(k);
+    const had = !!set && set.has(tool.id);
+    if (had) {
+      set.delete(tool.id);
+      if (set.size === 0) state.lineNotes.delete(k);
+    } else {
+      if (!set) {
+        set = new Set();
+        state.lineNotes.set(k, set);
+      }
+      set.add(tool.id);
+    }
+    state.undoStack.push({ type: "lineNote", key: k, characterId: tool.id, added: !had });
+    return { ok: true };
+  }
+  if (tool.kind === "erase") {
+    const set = state.lineNotes.get(k);
+    if (!set || set.size === 0) return { ok: false };
+    state.undoStack.push({ type: "lineNotes-clear", key: k, before: new Set(set) });
+    state.lineNotes.delete(k);
+    return { ok: true };
+  }
+  return { ok: false };
 }
 
 // After confirming a character, auto-mark X on the rest of that row/column
@@ -140,6 +180,18 @@ function removePlacement(state, characterId) {
 // character resolves the question their notes were tracking, so old
 // suspicions elsewhere on the board no longer mean anything. Returns the
 // touched cell keys, so undo() can restore exactly those and only those.
+function clearLineNotesForCharacter(state, characterId) {
+  const cleared = [];
+  for (const [k, set] of state.lineNotes) {
+    if (set.has(characterId)) {
+      set.delete(characterId);
+      cleared.push(k);
+      if (set.size === 0) state.lineNotes.delete(k);
+    }
+  }
+  return cleared;
+}
+
 function clearCandidatesForCharacter(state, characterId) {
   const cleared = [];
   for (const [k, set] of state.candidates) {
@@ -238,12 +290,13 @@ export function handleCellHold(state, grid, row, col, tool = state.selectedTool)
   const before = state.placements.get(tool.id) || null;
   const removedAutoX = takeAutoX(state, tool.id); // stale X's from their old cell, if moving
   const clearedCandidates = clearCandidatesForCharacter(state, tool.id);
+  const clearedLineNotes = clearLineNotesForCharacter(state, tool.id);
   state.placements.set(tool.id, { row, col });
   state.xMarks.delete(key(row, col));
   state.candidates.delete(key(row, col));
   const autoXMarks = autoMarkRowCol(state, grid, row, col);
   state.autoXByCharacter.set(tool.id, autoXMarks);
-  state.undoStack.push({ type: "place", characterId: tool.id, before, removedAutoX, autoXMarks, clearedCandidates });
+  state.undoStack.push({ type: "place", characterId: tool.id, before, removedAutoX, autoXMarks, clearedCandidates, clearedLineNotes });
   return { ok: true };
 }
 
@@ -308,7 +361,18 @@ export function undo(state) {
     // cell-by-cell restoration, mirroring the autoX undo above.
     for (const k of action.clearedCandidates || []) {
       let set = state.candidates.get(k);
-      if (!set) { set = new Set(); state.candidates.set(k, set); }
+      if (!set) {
+        set = new Set();
+        state.candidates.set(k, set);
+      }
+      set.add(action.characterId);
+    }
+    for (const k of action.clearedLineNotes || []) {
+      let set = state.lineNotes.get(k);
+      if (!set) {
+        set = new Set();
+        state.lineNotes.set(k, set);
+      }
       set.add(action.characterId);
     }
   } else if (action.type === "remove") {
@@ -336,6 +400,22 @@ export function undo(state) {
     }
   } else if (action.type === "candidates-clear") {
     state.candidates.set(key(action.row, action.col), new Set(action.before));
+  } else if (action.type === "lineNote") {
+    let set = state.lineNotes.get(action.key);
+    if (action.added) {
+      if (set) {
+        set.delete(action.characterId);
+        if (set.size === 0) state.lineNotes.delete(action.key);
+      }
+    } else {
+      if (!set) {
+        set = new Set();
+        state.lineNotes.set(action.key, set);
+      }
+      set.add(action.characterId);
+    }
+  } else if (action.type === "lineNotes-clear") {
+    state.lineNotes.set(action.key, new Set(action.before));
   }
 }
 
@@ -343,6 +423,7 @@ export function clearAll(state) {
   state.placements.clear();
   state.xMarks.clear();
   state.candidates.clear();
+  state.lineNotes.clear();
   state.autoXByCharacter.clear();
   state.undoStack = [];
   // hintsUsed is deliberately NOT reset here: "pulisci tutto" wipes the
@@ -351,39 +432,59 @@ export function clearAll(state) {
   // from memory and still qualify for "solved senza indizi".
 }
 
+// One note badge: a paper-colored disc ringed in the character's own color with
+// their initial on it, so it reads on ANY floor (the old bare colored letter
+// vanished on floors of a similar color).
+function makeMark(character, highlightId) {
+  const mark = document.createElement("span");
+  mark.className = "candidate-mark" + (character.id === highlightId ? " highlighted" : "");
+  mark.style.setProperty("--mark-color", character.isVictim ? "var(--danger)" : characterColor(character));
+  mark.title = character.name;
+  mark.textContent = character.name.charAt(0).toUpperCase();
+  return mark;
+}
+
 // Fixed "box cell" position (like Sudoku pencil marks): each character keeps
 // the same slot (0-8, laid out 3x3) in every cell's candidate grid, based on
 // its order in the roster. Grids have at most 9 characters, so it always fits.
 // `highlightId`, when set, marks that character's own notes across the whole
 // board — e.g. while their toolbar chip is selected — so you can spot every
 // cell you've already suspected them in at a glance.
-function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId) {
-  const slots = new Array(9).fill(null);
-  puzzle.characters.forEach((character, index) => {
-    if (index < 9) slots[index] = character;
-  });
-
+//
+// A cell that holds an object (a rug, a chair, a stool) gets the COMPACT
+// layout instead: the object is drawn smaller on top and the notes sit in a
+// band below it, so a note never lands on the drawing.
+function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId, compact) {
   const grid = document.createElement("div");
-  grid.className = "candidate-grid";
-  for (const character of slots) {
-    const slot = document.createElement("div");
-    slot.className = "candidate-slot";
-    if (character && candidateSet.has(character.id)) {
-      const mark = document.createElement("span");
-      mark.className = "candidate-mark" + (character.id === highlightId ? " highlighted" : "");
-      const markColor = character.isVictim ? "var(--danger)" : characterColor(character);
-      mark.style.color = markColor;
-      // Kept as its own custom property (not just currentColor) so the
-      // highlighted badge can recolor its background to this while the text
-      // itself switches to a fixed light color, independently.
-      mark.style.setProperty("--mark-color", markColor);
-      mark.title = character.name;
-      mark.textContent = character.name.charAt(0).toUpperCase();
-      slot.appendChild(mark);
+  grid.className = "candidate-grid" + (compact ? " compact" : "");
+  if (compact) {
+    puzzle.characters.slice(0, 9).forEach((character) => {
+      if (candidateSet.has(character.id)) grid.appendChild(makeMark(character, highlightId));
+    });
+  } else {
+    const slots = new Array(9).fill(null);
+    puzzle.characters.forEach((character, index) => {
+      if (index < 9) slots[index] = character;
+    });
+    for (const character of slots) {
+      const slot = document.createElement("div");
+      slot.className = "candidate-slot";
+      if (character && candidateSet.has(character.id)) slot.appendChild(makeMark(character, highlightId));
+      grid.appendChild(slot);
     }
-    grid.appendChild(slot);
   }
   cellNode.appendChild(grid);
+}
+
+// Notes on a whole row/column, drawn inside its label on the board's edge.
+function renderLineNotes(labelNode, puzzle, set, highlightId) {
+  if (!set || set.size === 0) return;
+  const box = document.createElement("span");
+  box.className = "line-notes";
+  puzzle.characters.slice(0, 9).forEach((character) => {
+    if (set.has(character.id)) box.appendChild(makeMark(character, highlightId));
+  });
+  labelNode.appendChild(box);
 }
 
 // `onCellTap` fires on a plain tap (or Enter/Space from the keyboard);
@@ -396,8 +497,11 @@ function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId) {
 // could otherwise change out from under a pending hold (see board.js's
 // handleCellHold `tool` param). See src/util/boardRender.js for the full
 // gesture state machine.
-export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter, onPressStart) {
+export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter, onPressStart, onLineTap) {
+  const selectedId = () => (state.selectedTool?.kind === "character" ? state.selectedTool.id : null);
   renderBoard(container, puzzle.grid, {
+    onLabelTap: onLineTap,
+    decorateLabel: (node, kind, index) => renderLineNotes(node, puzzle, state.lineNotes.get(`${kind}:${index}`), selectedId()),
     onCellTap,
     onCellHold,
     onCellEnter,
@@ -422,8 +526,9 @@ export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHol
       }
       const candidateSet = state.candidates.get(key(row, col));
       if (candidateSet && candidateSet.size > 0) {
-        const highlightId = state.selectedTool?.kind === "character" ? state.selectedTool.id : null;
-        renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId);
+        const compact = !!cellNode.querySelector(".obj-icon");
+        if (compact) cellNode.classList.add("notes-compact");
+        renderCandidateGrid(cellNode, puzzle, candidateSet, selectedId(), compact);
       }
     },
   });

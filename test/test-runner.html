@@ -30,6 +30,7 @@
     import { tests as recentActivityTests } from "./test-recent-activity.js";
     import { tests as hoverTargetsTests } from "./test-hover-targets.js";
     import { tests as hoverDomainTests } from "./test-hover-domain.js";
+    import { tests as texturesTests } from "./test-textures.js";
     import { tests as iconsTests } from "./test-icons.js";
     import { tests as progressCodecTests } from "./test-progress-codec.js";
     import { tests as securityTests } from "./test-security.js";
@@ -44,9 +45,11 @@
     import { tests as errorReportTests } from "./test-error-report.js";
     import { tests as libraryTests } from "./test-library.js";
     import { tests as skinTests } from "./test-skin.js";
+    import { tests as glossaryTests } from "./test-glossary.js";
+    import { tests as tenseTests } from "./test-tense.js";
     import { tests as loginHelpTests } from "./test-login-help.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...loginHelpTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...texturesTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...glossaryTests, ...tenseTests, ...loginHelpTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

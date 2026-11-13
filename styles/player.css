@@ -54,7 +54,7 @@
 }
 .player-toolbar .char-chip:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .player-toolbar .char-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.player-toolbar .char-chip svg { width: 16px; height: 16px; }
+.player-toolbar .char-chip svg { width: 24px; height: 24px; }
 .player-toolbar .char-chip.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
 .player-toolbar .char-chip.used { opacity: 0.45; }
 
@@ -75,27 +75,96 @@
   justify-content: center;
 }
 
+/* A note: a paper-colored disc ringed in the character's color, initial on it —
+   readable on any floor. Sized from the cell so it scales with the board. */
 .candidate-mark {
-  font-size: 0.62rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max(12px, calc(var(--cell-size, 56px) * 0.27));
+  height: max(12px, calc(var(--cell-size, 56px) * 0.27));
+  font-size: max(8px, calc(var(--cell-size, 56px) * 0.165));
   font-weight: 800;
   line-height: 1;
   font-family: var(--font-ui);
+  color: #2b1d12;
+  background: #fffaf0;
+  border: 2px solid var(--mark-color, var(--accent));
   border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(20, 10, 0, 0.4);
   transition: transform 0.12s ease;
 }
 
 /* Every note for the selected character pops, so you can spot at a glance
    every cell you've already suspected them in. */
 .candidate-mark.highlighted {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5em;
-  height: 1.5em;
-  color: #fdf3e6 !important;
+  color: #fffaf0;
   background: var(--mark-color, var(--accent));
-  box-shadow: 0 0 0 2px var(--panel), 0 0 4px 2px rgba(36, 26, 12, 0.35);
-  transform: scale(1.35);
+  border-color: #fffaf0;
+  box-shadow: 0 0 0 2px var(--mark-color, var(--accent)), 0 0 4px 2px rgba(20, 10, 0, 0.35);
+  transform: scale(1.2);
+}
+
+/* Keep notes clear of everything else drawn in the cell: the room's name tab
+   (top), doors/windows on a side, and — in the compact layout below — an object. */
+.board-cell.has-room-name .candidate-grid { padding-top: calc(var(--cell-size, 56px) * 0.27); }
+.board-cell.has-edge-N .candidate-grid { padding-top: calc(var(--cell-size, 56px) * 0.2); }
+.board-cell.has-edge-S .candidate-grid { padding-bottom: calc(var(--cell-size, 56px) * 0.2); }
+.board-cell.has-edge-W .candidate-grid { padding-left: calc(var(--cell-size, 56px) * 0.2); }
+.board-cell.has-edge-E .candidate-grid { padding-right: calc(var(--cell-size, 56px) * 0.2); }
+
+/* A cell with an object (rug, chair, stool): the drawing shrinks to the top and
+   the notes wrap in a band under it — they never sit on the drawing. */
+.board-cell.notes-compact { flex-direction: column; justify-content: flex-start; }
+.board-cell.notes-compact .obj-icon {
+  width: calc(var(--cell-size, 56px) * 0.46);
+  height: calc(var(--cell-size, 56px) * 0.46);
+  flex: none;
+  margin-top: 2px;
+}
+.board-cell.notes-compact.has-edge-N .obj-icon { margin-top: calc(var(--cell-size, 56px) * 0.2); }
+.candidate-grid.compact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+  gap: 1px;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  padding: 0 2px;
+}
+.candidate-grid.compact .candidate-mark {
+  width: max(8px, calc(var(--cell-size, 56px) * 0.19));
+  height: max(8px, calc(var(--cell-size, 56px) * 0.19));
+  font-size: max(6px, calc(var(--cell-size, 56px) * 0.12));
+  border-width: 1.5px;
+}
+
+/* Beside the board: first a box of its own with the selected character's
+   clues, which sticks to the top of the window while the page scrolls, then
+   the briefing and the full list of clue cards in normal flow. */
+.selected-clue {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 5;
+  margin-bottom: 1rem;
+  border-left: 8px solid var(--clue-accent, var(--gold));
+  max-height: calc(100vh - 1.5rem);
+  overflow-y: auto;
+}
+.selected-clue.empty { border-left-color: var(--border); }
+.selected-clue-empty { margin: 0; color: var(--ink-soft); font-style: italic; }
+.selected-clue-head { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
+.selected-clue-icon { flex: none; width: 46px; height: 46px; display: inline-flex; }
+.selected-clue-icon svg { width: 100%; height: 100%; color: unset; }
+.selected-clue-name { display: block; font-size: 1.15rem; }
+.selected-clue-placed { font-size: 0.75rem; font-weight: 700; color: var(--success); }
+.selected-clue-list { margin: 0; padding-left: 1.3em; font-size: 1.02rem; line-height: 1.45; color: var(--ink); }
+.selected-clue-list li { margin: 0.3em 0; }
+.selected-clue-list li:hover { background: var(--accent-soft); border-radius: 4px; }
+@media (max-width: 860px) {
+  .selected-clue { top: 0.25rem; max-height: 45vh; }
 }
 
 .board-cell.x-mark::before, .board-cell.x-mark::after {
@@ -211,12 +280,39 @@
   transition: box-shadow 0.12s ease;
 }
 
+/* Bersagli degli indizi del personaggio selezionato (click sul chip): ombra
+   INSET oro, stabile. Inset perché l'hover/hint usano anelli esterni: così
+   convivono senza cambiare z-index. Niente outline (preso da :focus-visible)
+   né pseudo-elementi (budget della cella già pieno). */
+.board-cell.char-target {
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 5px var(--gold-soft);
+}
+/* Indizio fissato con un clic sulla sua riga: anello interno nel colore d'accento,
+   sovrapponibile all'evidenziazione del personaggio (oro) e al passaggio del mouse. */
+.board-cell.clue-pin {
+  box-shadow: inset 0 0 0 4px var(--accent);
+}
+.board-cell.clue-pin.char-target {
+  box-shadow: inset 0 0 0 4px var(--accent), inset 0 0 0 6px var(--gold);
+}
+.board-cell.clue-pin.hover-target {
+  box-shadow: inset 0 0 0 4px var(--accent), 0 0 0 3px var(--success), 0 0 12px 3px var(--success-soft);
+}
+.clue-line { display: block; cursor: pointer; }
+.clue-line:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.clue-line.pinned { background: var(--accent-soft); border-radius: 4px; font-weight: 600; }
+.hint-more { margin-top: 0.5em; }
+
+.board-cell.char-target.hover-target {
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 5px var(--gold-soft), 0 0 0 3px var(--success), 0 0 12px 3px var(--success-soft);
+}
+
 /* Pressione prolungata su una casella (per piazzare il personaggio
    selezionato) — una rotella circolare reale che si riempie mentre il timer
    di HOLD_THRESHOLD_MS conta (src/util/boardRender.js). z-index:4 sulla
    cella stessa, sopra gli anelli hint/hover (3); la rotella (un vero nodo
    DOM figlio, .hold-wheel, non uno pseudo-elemento: le celle usano già
-   ::before/::after per .x-mark e per la texture di .zoned, un terzo
+   ::before/::after per .x-mark, un terzo
    pseudo-elemento li romperebbe silenziosamente) sta a z-index:5, sopra
    anche il contenuto della cella (token/candidate-grid, tutti a z-index:2). */
 .board-cell.holding { z-index: 4; }
@@ -279,7 +375,7 @@
 }
 .clue-card.active.placed { opacity: 0.7; }
 .clue-card .row { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.35rem; }
-.clue-card .row svg { width: 22px; height: 22px; }
+.clue-card .row svg { width: 30px; height: 30px; }
 .clue-card ul { margin: 0.35em 0 0; padding-left: 1.3em; font-size: 0.85rem; color: var(--ink-soft); }
 .clue-card .bio-text { margin: 0 0 0.4em; font-size: 0.8rem; font-style: italic; color: var(--ink-soft); }
 

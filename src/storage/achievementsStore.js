@@ -97,7 +97,7 @@ export function recordSolve({ key, elapsedSeconds, hintsUsed }) {
         ? existing?.bestElapsedSeconds != null
           ? Math.min(existing.bestElapsedSeconds, elapsedSeconds)
           : elapsedSeconds
-        : existing?.bestElapsedSeconds ?? null,
+        : (existing?.bestElapsedSeconds ?? null),
   };
   const newlyUnlocked = unlockNew(data);
   write(data);
@@ -131,7 +131,7 @@ export function mergeRemote(remote) {
             bestElapsedSeconds:
               existing.bestElapsedSeconds != null && r.bestElapsedSeconds != null
                 ? Math.min(existing.bestElapsedSeconds, r.bestElapsedSeconds)
-                : existing.bestElapsedSeconds ?? r.bestElapsedSeconds ?? null,
+                : (existing.bestElapsedSeconds ?? r.bestElapsedSeconds ?? null),
           }
         : { ...r };
     }

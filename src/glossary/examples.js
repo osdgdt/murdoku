@@ -185,7 +185,7 @@ export const ENTRIES = [
     params: { objectTypeId: "carpet" },
     explain: () =>
       t(
-        "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie e sgabelli. Non su uno scaffale o un tavolo."
+        "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie, sgabelli, letti, panche e troni. Non su uno scaffale o un tavolo."
       ),
     world: {
       map: OPEN,

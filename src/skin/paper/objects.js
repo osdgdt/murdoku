@@ -4,6 +4,7 @@
 // module for another skin): nothing else in the app depends on the drawing.
 import "./defs.js";
 import { SHADOW_FILTER_ID } from "./defs.js";
+import { MEDIEVAL_OBJECT_ART, MEDIEVAL_EDGE_ART } from "./objectsMedieval.js";
 
 // A layer: soft shadow (offset down) + the flat shape.
 const L = (shape, fill, dy = 2) =>
@@ -60,6 +61,8 @@ export const OBJECT_ART = {
     L(`<rect x="10" y="19" width="44" height="28" rx="3"/>`, "#e8b84a", 1.5) +
     L(`<path d="M32 21L46 33 32 45 18 33Z"/>`, "#b24f3d", 1) +
     L(`<circle cx="32" cy="33" r="5"/>`, "#fff6e4", 1),
+  // medieval / dark-fantasy props (objectsMedieval.js)
+  ...MEDIEVAL_OBJECT_ART,
 };
 
 // Doors and windows as they sit ON THE EDGE of a cell (viewBox 0 0 64 16, drawn
@@ -73,6 +76,7 @@ export const EDGE_ART = {
     L(`<rect x="2" y="2" width="60" height="12" rx="3.5"/>`, "#fff6e4", 1.2) +
     L(`<rect x="6" y="4.5" width="52" height="7" rx="2"/>`, "#8fc7e6", 0.6) +
     `<path d="M21 4.5V11.5M32 4.5V11.5M43 4.5V11.5" stroke="#fff6e4" stroke-width="2"/><path d="M9 6.5L16 6.5" stroke="rgba(255,255,255,.75)" stroke-width="1.6" stroke-linecap="round"/>`,
+  ...MEDIEVAL_EDGE_ART,
 };
 
 export const edgeSvg = (inner) => `<svg viewBox="0 0 64 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;

@@ -7,5 +7,6 @@ import ui from "./en/ui.js";
 import privacy from "./en/privacy.js";
 import glossary from "./en/glossary.js";
 import tutorial from "./en/tutorial.js";
+import medieval from "./en/medieval.js";
 
-export default { ...campaign, ...clues, ...ui, ...privacy, ...glossary, ...tutorial };
+export default { ...campaign, ...clues, ...ui, ...privacy, ...glossary, ...tutorial, ...medieval };

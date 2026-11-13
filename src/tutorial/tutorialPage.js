@@ -389,6 +389,13 @@ function objectsSection() {
           "Una finestra può stare sul bordo della griglia o tra due caselle: nel secondo caso è accanto a entrambe. Su un tappeto si sta in piedi; su sedie e sgabelli si è seduti."
         )
       ),
+      el(
+        "p",
+        { class: "tt-note" },
+        t(
+          "Nei casi medievali trovi altri oggetti: letti, panche, troni, pelli d'orso e giacigli si possono occupare (su panche e troni si è seduti); botti, forzieri, camini, pozzi, altari e gli altri no. Saracinesche e feritoie stanno sul bordo, come porte e finestre."
+        )
+      ),
     ]
   );
 }

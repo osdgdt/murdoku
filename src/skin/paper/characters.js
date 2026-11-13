@@ -610,3 +610,113 @@ Object.assign(CHARACTER_ART, {
     prop: trayArm,
   }),
 });
+
+// Medieval / dark-fantasy cast: fabbro, boia, araldo, ladro, alchimista, arciere,
+// principessa, principe, giullare, bardo.
+const hammer = `<path d="M45 59V44" stroke="#8a5a3a" stroke-width="2.8" stroke-linecap="round"/><rect x="39.5" y="40.5" width="12" height="7" rx="1.6" fill="#6b7280"/><rect x="39.5" y="40.5" width="12" height="2" rx="1" fill="rgba(255,255,255,.3)"/>`;
+const axe = `<path d="M47 60V40" stroke="#8a5a3a" stroke-width="2.8" stroke-linecap="round"/><path d="M47 41Q60 39 58 54Q52 50 47 51Z" fill="#aab2bd"/><path d="M49 43Q55 43 56 48" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.2" stroke-linecap="round"/>`;
+const trumpet = `<path d="M40 55L53 49" stroke="${GOLD}" stroke-width="2.6" stroke-linecap="round"/><path d="M52 44L60 41V55L52 52Z" fill="${GOLD}"/><path d="M52 44L60 41" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/>`;
+const dagger = `<path d="M46 40L49 56L43 56Z" fill="#cfd5dd"/><rect x="41.5" y="56" width="9" height="2.6" rx="1" fill="${GOLD}"/><rect x="44.4" y="58.4" width="3.2" height="4" rx="1" fill="#5b3a29"/>`;
+const flask = `<path d="M42 46h5v4l4 8H38l4-8Z" fill="rgba(143,224,120,.9)"/><path d="M41 46h7" stroke="#aab2bd" stroke-width="1.8" stroke-linecap="round"/><circle cx="43.5" cy="55" r="1.2" fill="${WHITE}"/><circle cx="47" cy="52" r=".9" fill="${WHITE}"/>`;
+const bow = `<path d="M13 38Q4 50 14 62" stroke="#8a5a3a" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M13 38L14 62" stroke="#e8e0cb" stroke-width="1"/>`;
+const lute = `<ellipse cx="45" cy="53" rx="7.5" ry="6.5" fill="#b9834a"/><ellipse cx="45" cy="53" rx="7.5" ry="6.5" fill="none" stroke="#6f4f3a" stroke-width="1.2"/><circle cx="45" cy="53" r="2.2" fill="#3b3028"/><path d="M50 48L58 38" stroke="#6f4f3a" stroke-width="2.8" stroke-linecap="round"/><circle cx="58.5" cy="37.5" r="2" fill="#6f4f3a"/>`;
+const tabard = (c) =>
+  `<path d="M23 41L32 52 41 41V59H23Z" fill="${c}"/><path d="M32 46l1.6 3.4 3.6.5-2.6 2.5.6 3.6L32 54.2l-3.2 1.8.6-3.6-2.6-2.5 3.6-.5Z" fill="${GOLD}"/>`;
+const sash = (c) =>
+  `<path d="M19 43L42 59H48L25 41Z" fill="${c}"/><circle cx="33" cy="52" r="1.3" fill="${GOLD}"/><circle cx="38" cy="56" r="1.3" fill="${GOLD}"/>`;
+const jesterCollar = `<path d="M22 41L26 47 32 41 38 47 42 41 40 52 32 45 24 52Z" fill="#c0392b"/><path d="M26 47L32 41 38 47 32 45Z" fill="#2f5fb0"/>`;
+const feathered = (c, feather) =>
+  `<path d="M18 21C18 8 46 8 46 21Q32 14 18 21Z" fill="${c}"/><path d="M39 11Q50 3 55 8Q47 8 43 14Z" fill="${feather}"/><path d="M40 12Q47 8 53 8" stroke="rgba(0,0,0,.2)" stroke-width=".8" fill="none"/>`;
+
+Object.assign(CHARACTER_ART, {
+  blacksmith: person({
+    skin: SK.tan,
+    hair: ["short", HC.dark],
+    facial: ["beard", HC.red],
+    trim:
+      apron("#6f4f3a") +
+      circles(
+        [
+          [27, 53, 1.1],
+          [37, 53, 1.1],
+        ],
+        "#3b3028"
+      ),
+    hat: `<path d="M19.5 17Q32 11 44.5 17V21Q32 17 19.5 21Z" fill="#c0392b"/>`,
+    prop: hammer,
+  }),
+  executioner: person({
+    hair: ["bald", HC.black],
+    trim: `<path d="M12 56H52" stroke="#8a1f2d" stroke-width="3"/>`,
+    hat: `<path fill-rule="evenodd" d="M17.5 23C17 7 47 7 46.5 23V39.5H17.5ZM21 21.5H43V30.5H21Z" fill="#2b2622"/><path d="M17.5 23C17 7 47 7 46.5 23" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.6"/>`,
+    prop: axe,
+  }),
+  herald: person({
+    skin: SK.light,
+    hair: ["bob", HC.auburn],
+    trim: tabard("#f3ead6"),
+    hat: feathered("#2f5fb0", "#c0392b"),
+    prop: trumpet,
+  }),
+  thief: person({
+    skin: SK.warm,
+    hair: ["bald", HC.dark],
+    trim: `<path d="M22 41Q32 49 42 41" fill="none" stroke="#2b3a28" stroke-width="2.4"/><circle cx="32" cy="45" r="1.6" fill="${GOLD}"/>`,
+    back: `<path d="M16 30C13 6 51 6 48 30L46 41H18Z" fill="#3f5a3a"/>`,
+    hat: `<path d="M19 22C19 8 45 8 45 22 40 17 24 17 19 22Z" fill="#3f5a3a"/><path d="M20 29Q32 34 44 29V35Q32 41 20 35Z" fill="#2b2622"/>`,
+    prop: dagger,
+  }),
+  alchemist: person({
+    skin: SK.pale,
+    hair: ["wild", "#e9e9ee"],
+    trim: `<path d="M24 41L32 52 40 41" fill="none" stroke="#5b1520" stroke-width="3"/>${circles(
+      [
+        [32, 53, 1.3],
+        [32, 57, 1.3],
+      ],
+      GOLD
+    )}`,
+    glasses: ROUND_GLASSES,
+    hat: `<path d="M20 20C20 11 44 11 44 20Z" fill="#8a1f2d"/><rect x="19" y="18.5" width="26" height="2.6" rx="1.3" fill="${GOLD}"/>`,
+    prop: flask,
+  }),
+  archer: person({
+    skin: SK.tan,
+    hair: ["short", HC.brown],
+    trim: `<path d="M21 41L41 59" stroke="#6f4f3a" stroke-width="3.2"/><rect x="29" y="49" width="4" height="2.4" rx="1" fill="${GOLD}" transform="rotate(45 31 50)"/>`,
+    back: `<path d="M46 36L53 14" stroke="#6f4f3a" stroke-width="5" stroke-linecap="round"/><path d="M51 13l1.5-6M53.5 15l3-5M49 12l-1-5" stroke="#e8e0cb" stroke-width="2" stroke-linecap="round"/>`,
+    hat: feathered("#4f7a3a", "#e8e0cb"),
+    prop: bow,
+  }),
+  princess: person({
+    skin: SK.light,
+    hair: ["long", HC.blond],
+    trim: pearls,
+    hat: `<path d="M22 17l2.8-5 3.2 3.8L32 9l4 6.8 3.2-3.8 2.8 5Z" fill="${GOLD}"/><circle cx="32" cy="13.4" r="1.6" fill="#d9392f"/><circle cx="24.6" cy="13.6" r="1" fill="#6ab0e0"/><circle cx="39.4" cy="13.6" r="1" fill="#6ab0e0"/>`,
+  }),
+  prince: person({
+    skin: SK.fair,
+    hair: ["short", HC.blond],
+    trim: sash("#8a1f2d"),
+    hat: `<path d="M19.5 17.5Q32 12.5 44.5 17.5V21Q32 16.5 19.5 21Z" fill="${GOLD}"/><circle cx="32" cy="15.6" r="2.1" fill="#4b8bd9"/>`,
+  }),
+  jester: person({
+    skin: SK.fair,
+    hair: ["bald", HC.brown],
+    trim: jesterCollar,
+    hat: `<path d="M20 17C13 14 9 8 7 4 16 5 22 9 28 13Z" fill="#c0392b"/><path d="M44 17C51 14 55 8 57 4 48 5 42 9 36 13Z" fill="#2f5fb0"/><path d="M19.5 15.5Q32 20 44.5 15.5V19.6Q32 24 19.5 19.6Z" fill="${GOLD}"/><circle cx="7" cy="4" r="2.8" fill="${GOLD}"/><circle cx="57" cy="4" r="2.8" fill="${GOLD}"/>`,
+  }),
+  bard: person({
+    skin: SK.warm,
+    hair: ["long", HC.brown],
+    trim: `<path d="M24 41L32 50 40 41" fill="none" stroke="#c9a24d" stroke-width="2"/>${circles(
+      [
+        [32, 54, 1.2],
+        [32, 57, 1.2],
+      ],
+      "#c9a24d"
+    )}`,
+    hat: feathered("#7a3b8f", "#e8b84a"),
+    prop: lute,
+  }),
+});

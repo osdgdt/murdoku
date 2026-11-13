@@ -1,6 +1,6 @@
 import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES, isObjectTypeOccupiable, isObjectTypeSeat, sideLabel } from "../icons.js";
 import { describeClue } from "../clueTypes.js";
-import { t } from "../../i18n/i18n.js";
+import { t, getLanguage } from "../../i18n/i18n.js";
 
 export function targetLabel(puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
@@ -34,7 +34,10 @@ function specificObjectPhrase(puzzle, object) {
 // already translated.
 export function objectTypePhrase(typeId) {
   const def = OBJECT_TYPES[typeId];
-  return def ? t("{article} {label}", { article: t(def.article), label: def.label.toLowerCase() }) : t("un oggetto");
+  if (!def) return t("un oggetto");
+  // "un'incudine" (no space after an elided article); English takes its own article ("an anvil").
+  const article = getLanguage() === "en" && def.articleEn ? def.articleEn : t(def.article);
+  return t("{article}{joiner}{label}", { article, joiner: article.endsWith("'") ? "" : " ", label: def.label.toLowerCase() });
 }
 
 // Axis nouns shared by every row/column clue. `plural` picks "righe/colonne".

@@ -51,8 +51,8 @@ export default {
     "Only the target's own room counts: the cell to the right of the plant, beyond the wall, is in the Lounge and doesn't count.",
   "Il personaggio sta in una delle quattro caselle in diagonale rispetto al bersaglio. A differenza di «accanto», le stanze qui non contano.":
     "The character stands on one of the four cells diagonal to the target. Unlike “next to”, rooms don't matter here.",
-  "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie e sgabelli. Non su uno scaffale o un tavolo.":
-    "The character stands right on an object of that type. You can only stand on things that are low and flat: rugs, chairs and stools. Not on a shelf or a table.",
+  "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie, sgabelli, letti, panche e troni. Non su uno scaffale o un tavolo.":
+    "The character stands right on an object of that type. You can only stand on things that are low and flat: rugs, chairs, stools, beds, benches and thrones. Not on a shelf or a table.",
   "Il personaggio è seduto: su una sedia, uno sgabello, o su qualunque altra seduta. A differenza di «si trova su un oggetto di un certo tipo», non serve dire quale. Un tappeto non è una seduta: ci si sta sopra in piedi, non ci si siede.":
     "The character is seated: on a chair, a stool, or any other seat. Unlike “is on an object of a certain type”, you don't have to say which. A rug is not a seat: you stand on it, you don't sit on it.",
   "Il personaggio sta sulla stessa riga (o colonna) dei due bersagli, in una casella strettamente compresa tra loro. Non basta essere «da qualche parte in mezzo»: serve la linea retta. Se un bersaglio è una stanza, il personaggio sta tra quella stanza e l'altro bersaglio, mai dentro la stanza.":

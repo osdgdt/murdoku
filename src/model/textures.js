@@ -1,4 +1,5 @@
 import { t } from "../i18n/i18n.js";
+import { MEDIEVAL_TEXTURES } from "./texturesMedieval.js";
 
 // Registry of CSS-only floors a zone can be painted with — same shape/lookup
 // pattern as OBJECT_TYPES in icons.js. No external images: every floor is a
@@ -239,6 +240,8 @@ export const ZONE_TEXTURES = {
     tint: 0.3,
   },
   concrete: { label: t("Cemento"), layers: [svgUrl(28, 28, CONCRETE), solid("#a9a9a5")], sizes: [px(28), "auto"], tint: 0.3 },
+  // medieval / dark-fantasy floors (texturesMedieval.js)
+  ...MEDIEVAL_TEXTURES,
 };
 
 // CSS `background-image` / `background-size` values for a floor. `zoneColor`

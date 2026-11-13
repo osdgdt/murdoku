@@ -79,4 +79,23 @@ export default {
   "Salvati solo su questo dispositivo. Accedi con Google per sincronizzarli tra più dispositivi.":
     "Saved on this device only. Sign in with Google to sync them across devices.",
   "Puzzle non trovato.": "Puzzle not found.",
+
+  // hidden clues (a case's clue stays hidden until an earlier case is solved)
+  "1 indizio nel caso «{caso}»": "1 clue in the case “{caso}”",
+  "{n} indizi nel caso «{caso}»": "{n} clues in the case “{caso}”",
+  "🔓 Hai scoperto nuovi indizi: {elenco}.": "🔓 You have discovered new clues: {elenco}.",
+  "🔒 Indizi nascosti ({n})": "🔒 Hidden clues ({n})",
+  "🔒 Indizi nascosti": "🔒 Hidden clues",
+  "Quando si mostra: {indizio}": "When to show: {indizio}",
+  "Sempre visibile": "Always visible",
+  "Dopo il caso {n}: {caso}": "After case {n}: {caso}",
+  "⚠ Dipendeva da un caso che ora non viene prima: l'indizio viene mostrato sempre.":
+    "⚠ It depended on a case that no longer comes first: the clue is always shown.",
+  "Il primo caso non ha casi precedenti: tutti i suoi indizi sono sempre visibili.":
+    "The first case has no earlier cases: all its clues are always visible.",
+  "Scegli quali indizi di questo caso restano nascosti finché il giocatore non risolve uno dei casi precedenti. La soluzione del caso resta quella completa: la verifica usa sempre tutti gli indizi.":
+    "Choose which clues of this case stay hidden until the player solves one of the earlier cases. The case's solution stays the complete one: the check always uses all the clues.",
+  "Caso {v}: gli indizi nascosti non sono validi.": "Case {v}: the hidden clues are not valid.",
+  "🔒 Indizio nascosto: risolvi «{caso}» per scoprirlo": "🔒 Hidden clue: solve “{caso}” to discover it",
+  "🔒 Indizio nascosto": "🔒 Hidden clue",
 };

@@ -419,3 +419,23 @@
 }
 
 .case-of-the-day { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 1rem; padding: 0.8rem 1rem; border-left: 4px solid var(--gold); }
+
+/* A clue a campaign keeps hidden until an earlier case is solved. */
+.clue-card li.locked-clue,
+.selected-clue-list li.locked-clue {
+  list-style: none;
+  color: var(--ink-soft);
+  font-style: italic;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.25em 0.6em;
+  margin-top: 0.3rem;
+}
+.unlock-note {
+  margin-top: 0.8rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-weight: 700;
+}

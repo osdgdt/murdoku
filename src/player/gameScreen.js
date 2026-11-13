@@ -41,7 +41,11 @@ import { t } from "../i18n/i18n.js";
 // markup changes. #notes-hint also exists in both pages but is a static
 // instruction paragraph now (no mode toggle to reflect) — this module never
 // touches it.
-export function createGameScreen({ puzzle, state, persistProgress, onSolved, achievementKey }) {
+// `answerPuzzle`: the complete case when `puzzle` is a version with some clues
+// hidden (campaigns): the answer key must come from ALL the clues, because
+// without the hidden ones the solution is not unique. `winExtras()`, when given,
+// returns an extra node shown under the "case solved" panel.
+export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persistProgress, onSolved, achievementKey, winExtras }) {
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
   const cluesEl = qs("#clues-panel");
@@ -63,7 +67,7 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
   let timerInterval = null;
   let startedAt = null; // read by onSubmit too, for the elapsed time passed to onSolved
   let solved = false; // true once onSubmit's win branch has fired — keeps "Verifica soluzione" disabled until a placement/note actually changes again
-  const effectiveSolution = createEffectiveSolution(puzzle);
+  const effectiveSolution = createEffectiveSolution(answerPuzzle);
   const getEffectiveSolution = () => effectiveSolution.get();
 
   function startTimer() {
@@ -352,6 +356,8 @@ export function createGameScreen({ puzzle, state, persistProgress, onSolved, ach
         resultEl.appendChild(
           renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked })
         );
+        const extras = winExtras?.();
+        if (extras) resultEl.appendChild(extras);
       } else {
         // Deliberately doesn't say how many are right — that would let you brute
         // force it by trial and error instead of reasoning from the clues.

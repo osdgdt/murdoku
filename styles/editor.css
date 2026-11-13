@@ -765,3 +765,13 @@
 /* Side picker for doors/windows (mapEditor.js). */
 .side-picker { align-items: center; }
 .side-btn.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); font-weight: 700; }
+
+/* Campaign editor: which clues of a case stay hidden until an earlier case is solved. */
+.case-block { border-bottom: 1px solid var(--border-soft, var(--border)); }
+.case-block .saved-row { border-bottom: none; }
+.unlock-panel { margin: 0 0 0.6rem; padding: 0 0.4rem; }
+.unlock-panel summary { cursor: pointer; font-weight: 700; color: var(--ink-soft); padding: 0.2em 0; }
+.unlock-body { display: grid; gap: 0.5rem; padding: 0.4rem 0 0.2rem; }
+.unlock-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 18rem); gap: 0.4rem 0.8rem; align-items: center; }
+.unlock-row .violation { grid-column: 1 / -1; }
+@media (max-width: 640px) { .unlock-row { grid-template-columns: minmax(0, 1fr); } }

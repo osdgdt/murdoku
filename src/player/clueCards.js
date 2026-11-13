@@ -1,7 +1,7 @@
 import { el, clear, onActivateKey } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
-import { cluesForCharacter, genericClues, characterColor } from "../model/puzzle.js";
+import { cluesForCharacter, genericClues, lockedCluesFor, characterColor } from "../model/puzzle.js";
 import { t } from "../i18n/i18n.js";
 
 // `state`, when passed, dims a character's card once the player has confirmed
@@ -22,11 +22,12 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
   }
 
   const generic = genericClues(puzzle);
-  if (generic.length > 0) {
+  const genericLocked = lockedCluesFor(puzzle, null);
+  if (generic.length > 0 || genericLocked.length > 0) {
     container.appendChild(
       el("div", { class: "clue-card generic" }, [
         el("div", { class: "row" }, [el("strong", {}, t("🔎 Indizi generali del caso"))]),
-        el("ul", {}, generic.map(clueLi)),
+        el("ul", {}, [...generic.map(clueLi), ...genericLocked.map(lockedLine)]),
       ])
     );
   }
@@ -36,7 +37,14 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
     iconWrap.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
 
     const clues = cluesForCharacter(puzzle, character.id);
-    const list = el("ul", {}, clues.length ? clues.map(clueLi) : [el("li", { class: "muted" }, t("Nessun indizio."))]);
+    const locked = lockedCluesFor(puzzle, character.id);
+    const list = el(
+      "ul",
+      {},
+      clues.length || locked.length
+        ? [...clues.map(clueLi), ...locked.map(lockedLine)]
+        : [el("li", { class: "muted" }, t("Nessun indizio."))]
+    );
 
     const placed = state?.placements.has(character.id);
     const active = state?.selectedTool?.kind === "character" && state.selectedTool.id === character.id;
@@ -54,6 +62,15 @@ export function renderClueCards(container, puzzle, state, onClueHover, onClueHov
     );
     container.appendChild(card);
   }
+}
+
+// A clue the campaign keeps hidden until an earlier case is solved: a padlock, never the text.
+function lockedLine(locked) {
+  return el(
+    "li",
+    { class: "locked-clue" },
+    locked.byLabel ? t("🔒 Indizio nascosto: risolvi «{caso}» per scoprirlo", { caso: locked.byLabel }) : t("🔒 Indizio nascosto")
+  );
 }
 
 // One clue line: hover shows its cells; with `pin`, a click (or Enter/Space)
@@ -102,6 +119,7 @@ export function renderSelectedClue(container, puzzle, state, onClueHover, onClue
   const icon = el("span", { class: "selected-clue-icon", style: `color:${color}` });
   icon.innerHTML = characterIcon(character.isVictim ? "victim" : character.iconId).icon;
   const clues = cluesForCharacter(puzzle, character.id);
+  const locked = lockedCluesFor(puzzle, character.id);
   const placed = state.placements.has(character.id);
   container.appendChild(
     el("div", { class: "selected-clue-head" }, [
@@ -116,8 +134,8 @@ export function renderSelectedClue(container, puzzle, state, onClueHover, onClue
     el(
       "ul",
       { class: "selected-clue-list" },
-      clues.length
-        ? clues.map((clue) => clueLine(clue, puzzle, onClueHover, onClueHoverEnd, pin))
+      clues.length || locked.length
+        ? [...clues.map((clue) => clueLine(clue, puzzle, onClueHover, onClueHoverEnd, pin)), ...locked.map(lockedLine)]
         : [el("li", { class: "muted" }, t("Nessun indizio."))]
     )
   );

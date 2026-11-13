@@ -287,6 +287,153 @@ const scenarios = [
       }
     },
   })),
+  {
+    name: "campaign hidden clues: a padlock replaces the hidden clue, and the case is still solved against the complete answer key",
+    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    async run(page) {
+      // Drive the real game screen the way campaign.html does (that page needs Firebase, this does not).
+      const hiddenText = await page.evaluate(async () => {
+        const model = await import("/src/campaign/campaignModel.js");
+        const { createGameScreen } = await import("/src/player/gameScreen.js");
+        const { createBoardState } = await import("/src/player/board.js");
+        const { importPuzzleFromUrl } = await import("/src/storage/importExport.js");
+        const { describeClue } = await import("/src/model/clueTypes.js");
+        const puzzle = await importPuzzleFromUrl("test/fixtures/tutorial.en.murdoku.json");
+        const campaign = model.createCampaign("Test");
+        const first = model.addCase(campaign, { puzzleId: "a", puzzleUrl: "a.json", label: "The first case" });
+        const second = model.addCase(campaign, { puzzleId: puzzle.id, puzzleUrl: "b.json", label: "The second case" });
+        const hidden = puzzle.clues[0];
+        model.setClueUnlock(campaign, second.id, hidden.id, first.id);
+        const locks = model.applyClueLocks(puzzle, campaign, second.id, []);
+        document.querySelector("#puzzle-picker").classList.add("hidden");
+        document.querySelector("#game").classList.remove("hidden");
+        createGameScreen({
+          puzzle: locks.puzzle,
+          answerPuzzle: locks.answerPuzzle,
+          state: createBoardState(),
+          persistProgress() {},
+          onSolved: async () => {},
+          achievementKey: "test:hidden-clues",
+        }).start();
+        return describeClue(hidden, puzzle);
+      });
+      await page.waitForSelector("#clues-panel .clue-card");
+      const panel = await page.locator("#clues-panel").innerText();
+      if ((await page.locator("#clues-panel .locked-clue").count()) !== 1)
+        throw new Error("expected exactly one padlock on the clue cards");
+      if (!/Hidden clue: solve “The first case”/.test(panel)) throw new Error(`the padlock should name the case that reveals it: ${panel}`);
+      if (panel.includes(hiddenText)) throw new Error(`the hidden clue's text leaked: ${hiddenText}`);
+      // Solve it: the win is judged on the complete case even though a clue is hidden.
+      for (const [name, [r, c]] of Object.entries({ Alice: [0, 2], Ben: [1, 1], Clara: [2, 3], Victor: [3, 0] })) {
+        await page.locator(".char-chip", { hasText: name }).first().click();
+        await hold(page, r, c);
+      }
+      await page.click("#submit-btn");
+      await page.waitForFunction(() => /Case solved/.test(document.querySelector("#result-panel")?.innerText || ""), null, {
+        timeout: 15000,
+      });
+    },
+  },
+  {
+    name: "campaign hidden clues: solving a case announces the clues it revealed in later cases",
+    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    async run(page) {
+      const text = await page.evaluate(async () => {
+        const model = await import("/src/campaign/campaignModel.js");
+        const { renderUnlockNote } = await import("/src/campaign/unlockNote.js");
+        const campaign = model.createCampaign("Test");
+        const a = model.addCase(campaign, { puzzleId: "a", puzzleUrl: "a.json", label: "One" });
+        const b = model.addCase(campaign, { puzzleId: "b", puzzleUrl: "b.json", label: "Two" });
+        const c = model.addCase(campaign, { puzzleId: "c", puzzleUrl: "c.json", label: "Finale" });
+        model.setClueUnlock(campaign, c.id, "k1", a.id);
+        model.setClueUnlock(campaign, c.id, "k2", a.id);
+        model.setClueUnlock(campaign, c.id, "k3", b.id);
+        return [
+          renderUnlockNote(campaign, a.id)?.textContent,
+          renderUnlockNote(campaign, b.id)?.textContent,
+          renderUnlockNote(campaign, c.id),
+        ];
+      });
+      if (text[0] !== "🔓 You have discovered new clues: 2 clues in the case “Finale”.") throw new Error(`unexpected note: ${text[0]}`);
+      if (text[1] !== "🔓 You have discovered new clues: 1 clue in the case “Finale”.") throw new Error(`unexpected note: ${text[1]}`);
+      if (text[2] !== null) throw new Error("the last case reveals nothing");
+    },
+  },
+  {
+    name: "campaign editor panel: pick which earlier case reveals a clue; saved, counted, and a stale choice is flagged",
+    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    async run(page) {
+      await page.evaluate(async () => {
+        const model = await import("/src/campaign/campaignModel.js");
+        const { createUnlockPanel } = await import("/src/campaign/unlockPanel.js");
+        const { importPuzzleFromUrl } = await import("/src/storage/importExport.js");
+        const puzzle = await importPuzzleFromUrl("test/fixtures/tutorial.en.murdoku.json");
+        const campaign = model.createCampaign("Test");
+        const a = model.addCase(campaign, { puzzleId: "a", puzzleUrl: "a.json", label: "Alpha" });
+        const b = model.addCase(campaign, { puzzleId: "b", puzzleUrl: "b.json", label: "Beta" });
+        const c = model.addCase(campaign, { puzzleId: puzzle.id, puzzleUrl: "c.json", label: "Finale" });
+        window.__campaign = campaign;
+        window.__saves = 0;
+        const host = document.createElement("div");
+        host.id = "panel-host";
+        // a stale rule: Beta's first clue is wired to the LATER case Finale, which can never be solved first
+        model.setClueUnlock(campaign, b.id, puzzle.clues[0].id, c.id);
+        for (const [entry, index] of [
+          [a, 0],
+          [c, 2],
+          [b, 1],
+        ]) {
+          host.appendChild(
+            createUnlockPanel({ campaign, caseEntry: entry, index, loadPuzzle: async () => puzzle, onChange: () => window.__saves++ })
+          );
+        }
+        window.__finale = c;
+        document.body.prepend(host);
+      });
+      const panels = page.locator("#panel-host details");
+      // the first case has nobody before it
+      await panels.nth(0).locator("summary").click();
+      await panels.nth(0).locator(".unlock-body p").waitFor();
+      if (!/no earlier cases/.test(await panels.nth(0).innerText())) throw new Error("the first case should say it has no earlier cases");
+      // the finale: one row per clue, the choices are the earlier cases only
+      await panels.nth(1).locator("summary").click();
+      await panels.nth(1).locator(".unlock-row").first().waitFor();
+      const rows = await panels.nth(1).locator(".unlock-row").count();
+      const total = await page.evaluate(
+        async () =>
+          (await import("/src/storage/importExport.js").then((m) => m.importPuzzleFromUrl("test/fixtures/tutorial.en.murdoku.json"))).clues
+            .length
+      );
+      if (rows !== total) throw new Error(`expected a row per clue (${total}), got ${rows}`);
+      const options = await panels.nth(1).locator(".unlock-row select").first().locator("option").allInnerTexts();
+      if (options.join("|") !== "Always visible|After case 1: Alpha|After case 2: Beta")
+        throw new Error(`unexpected choices: ${options.join("|")}`);
+      // choose "After case 1" for the first clue
+      await panels.nth(1).locator(".unlock-row select").first().selectOption({ label: "After case 1: Alpha" });
+      const state = await page.evaluate(() => ({
+        saves: window.__saves,
+        unlocks: window.__finale.clueUnlocks,
+        summary: document.querySelectorAll("#panel-host summary")[1].textContent,
+      }));
+      if (state.saves !== 1) throw new Error(`the campaign should be saved once, saved ${state.saves}`);
+      if (Object.keys(state.unlocks || {}).length !== 1) throw new Error("the choice was not stored");
+      if (state.summary !== "🔒 Hidden clues (1)") throw new Error(`the summary should count it: ${state.summary}`);
+      // the stale rule is flagged and the clue shows as always visible
+      await panels.nth(2).locator("summary").click();
+      await panels.nth(2).locator(".unlock-row").first().waitFor();
+      if ((await panels.nth(2).locator(".unlock-row .violation").count()) !== 1) throw new Error("the stale rule should be flagged");
+      if ((await panels.nth(2).locator(".unlock-row select").first().inputValue()) !== "")
+        throw new Error("a stale rule shows as always visible");
+      // back to "always visible" removes the rule entirely
+      await panels.nth(1).locator(".unlock-row select").first().selectOption({ label: "Always visible" });
+      const cleared = await page.evaluate(() => ({
+        has: "clueUnlocks" in window.__finale,
+        summary: document.querySelectorAll("#panel-host summary")[1].textContent,
+      }));
+      if (cleared.has) throw new Error("an empty rule map must disappear (Firestore)");
+      if (cleared.summary !== "🔒 Hidden clues") throw new Error(`the count should go away: ${cleared.summary}`);
+    },
+  },
 ];
 
 let failed = false;

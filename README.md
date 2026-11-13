@@ -129,12 +129,12 @@ npm run lint      # ESLint
 npm run format    # Prettier (solo controllo; `npx prettier --write` per correggere)
 npm run i18n      # elenca le stringhe senza traduzione inglese (--strict per far fallire)
 npm run e2e:all   # test nel browser (Playwright): gioca un caso di prova (`test/fixtures`) in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor, gesti di gioco (nota, pressione lunga, annulla, ripresa dopo il ricaricamento, suggerimenti graduali)
-npm run check:size  # nessun file tracciato oltre 1 MB (5 MB sotto design/)
+npm run check:size  # nessun file tracciato oltre 1 MB
 npm run make:library  # rigenera i casi in examples/library/ e l'indice examples/library.json (oggi vuoti; ogni caso è verificato dal solver)
 npm run build:sw  # rigenera la lista di file in cache del service worker
 ```
 
-I test girano anche nel browser: apri `test/test-runner.html` dal server statico locale. La CI (GitHub Actions) esegue lint, formattazione, test, controllo dimensioni ed e2e a ogni push. Se in Impostazioni → Pages la sorgente è «GitHub Actions», il sito si pubblica solo dopo che la CI è passata (`.github/workflows/pages.yml`); `design/`, `test/` e `tools/` non vengono pubblicati.
+I test girano anche nel browser: apri `test/test-runner.html` dal server statico locale. La CI (GitHub Actions) esegue lint, formattazione, test, controllo dimensioni ed e2e a ogni push. Se in Impostazioni → Pages la sorgente è «GitHub Actions», il sito si pubblica solo dopo che la CI è passata (`.github/workflows/pages.yml`); `test/` e `tools/` non vengono pubblicati.
 
 **Aggiungere o cambiare testi:** scrivi il testo in italiano dentro `t("…")` (con segnaposto `{nome}`), poi aggiungi la voce inglese in `src/i18n/en/`. L'HTML statico si traduce da solo: basta aggiungere la voce al dizionario.
 

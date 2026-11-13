@@ -171,25 +171,30 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
 
   // Objects
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Oggetti / Mobili")));
-  const objectPalette = el("div", { class: "object-palette" });
-  for (const [typeId, def] of Object.entries(OBJECT_TYPES)) {
-    const selectObject = () => {
-      tool = { kind: "object", typeId };
-      onChange();
-    };
-    const item = el("div", {
-      class: "palette-item" + (tool?.kind === "object" && tool.typeId === typeId ? " selected" : ""),
-      title: def.label,
-      tabindex: "0",
-      role: "button",
-      "aria-label": t("Oggetto: {label}", { label: def.label }),
-      onClick: selectObject,
-      onKeydown: onActivateKey(selectObject),
-    });
-    item.innerHTML = def.icon;
-    objectPalette.appendChild(item);
+  // The classic furniture first, then a group of medieval / dark-fantasy props.
+  for (const group of ["classic", "medieval"]) {
+    if (group === "medieval") panelEl.appendChild(el("h4", { class: "palette-group", "aria-level": "3" }, t("Medioevo e fantasy")));
+    const objectPalette = el("div", { class: "object-palette" });
+    for (const [typeId, def] of Object.entries(OBJECT_TYPES)) {
+      if ((def.group || "classic") !== group) continue;
+      const selectObject = () => {
+        tool = { kind: "object", typeId };
+        onChange();
+      };
+      const item = el("div", {
+        class: "palette-item" + (tool?.kind === "object" && tool.typeId === typeId ? " selected" : ""),
+        title: def.label,
+        tabindex: "0",
+        role: "button",
+        "aria-label": t("Oggetto: {label}", { label: def.label }),
+        onClick: selectObject,
+        onKeydown: onActivateKey(selectObject),
+      });
+      item.innerHTML = def.icon;
+      objectPalette.appendChild(item);
+    }
+    panelEl.appendChild(objectPalette);
   }
-  panelEl.appendChild(objectPalette);
   // Doors and windows sit on ONE side of a cell: the author picks which here,
   // then clicks the cells (several per cell are fine, on different sides).
   if (tool?.kind === "object" && isEdgeObjectType(tool.typeId)) {

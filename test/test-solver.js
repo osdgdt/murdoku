@@ -3207,10 +3207,13 @@ export const tests = [
     name: "i controlli «seduto su…» offrono solo le sedute; «si trova su…» anche il tappeto, mai porte o scaffali",
     fn: () => {
       const seatChoices = CLUE_TYPES.someoneInRoomWithProperty.params.find((p) => p.name === "objectTypeId").values;
-      assertEqual(seatChoices.join(","), "chair,stool");
+      assertEqual([...seatChoices].sort().join(","), "bench,chair,stool,throne", "sedie, sgabelli, panche e troni");
       const standChoices = CLUE_TYPES.onObjectType.params.find((p) => p.name === "objectTypeId").values;
-      assert(standChoices.includes("carpet") && standChoices.includes("chair") && standChoices.includes("stool"));
-      assert(!standChoices.includes("door") && !standChoices.includes("shelf"), "non si sta sopra una porta o uno scaffale");
+      for (const id of ["carpet", "chair", "stool", "bed", "bench", "throne", "bearskin", "pallet"])
+        assert(standChoices.includes(id), `si sta sopra: ${id}`);
+      for (const id of ["door", "shelf", "barrel", "chest", "fireplace", "well", "portcullis"]) {
+        assert(!standChoices.includes(id), `non si sta sopra: ${id}`);
+      }
     },
   },
   {

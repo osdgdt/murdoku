@@ -73,6 +73,8 @@ export default {
   "Si possono occupare": "Can be occupied",
   "Non si possono occupare": "Cannot be occupied",
   "Sul bordo di una casella": "On the edge of a cell",
+  "Nei casi medievali trovi altri oggetti: letti, panche, troni, pelli d'orso e giacigli si possono occupare (su panche e troni si è seduti); botti, forzieri, camini, pozzi, altari e gli altri no. Saracinesche e feritoie stanno sul bordo, come porte e finestre.":
+    "Medieval cases have more objects: beds, benches, thrones, bearskin rugs and straw pallets can be occupied (you sit on benches and thrones); barrels, chests, fireplaces, wells, altars and the rest cannot. Portcullises and arrow slits sit on the edge, like doors and windows.",
   "Una finestra può stare sul bordo della griglia o tra due caselle: nel secondo caso è accanto a entrambe. Su un tappeto si sta in piedi; su sedie e sgabelli si è seduti.":
     "A window can be on the edge of the grid or between two cells: in the second case it is next to both. You stand on a rug; you sit on chairs and stools.",
 

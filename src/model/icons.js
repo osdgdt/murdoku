@@ -26,6 +26,53 @@ export const OBJECT_TYPES = {
   door: { label: t("Porta"), article: "una", edge: true, icon: paperSvg(OBJECT_ART.door), edgeIcon: edgeSvg(EDGE_ART.door) },
   window: { label: t("Finestra"), article: "una", edge: true, icon: paperSvg(OBJECT_ART.window), edgeIcon: edgeSvg(EDGE_ART.window) },
   tv: { label: t("Televisore"), article: "un", icon: paperSvg(OBJECT_ART.tv) },
+
+  // Medieval / dark-fantasy props. `group` only orders the editor palette.
+  // `articleEn` is the English indefinite article when it is not "a" (the
+  // Italian `article` is the key of the usual dictionary lookup).
+  // low and flat: a person can stand on them (beds, benches and thrones are also seats for "seduto" clues)
+  bed: { label: t("Letto"), article: "un", occupiable: true, group: "medieval", icon: paperSvg(OBJECT_ART.bed) },
+  bench: { label: t("Panca"), article: "una", occupiable: true, seat: true, group: "medieval", icon: paperSvg(OBJECT_ART.bench) },
+  throne: { label: t("Trono"), article: "un", occupiable: true, seat: true, group: "medieval", icon: paperSvg(OBJECT_ART.throne) },
+  bearskin: { label: t("Pelle d'orso"), article: "una", occupiable: true, group: "medieval", icon: paperSvg(OBJECT_ART.bearskin) },
+  pallet: { label: t("Giaciglio"), article: "un", occupiable: true, group: "medieval", icon: paperSvg(OBJECT_ART.pallet) },
+  // they block the cell
+  barrel: { label: t("Botte"), article: "una", group: "medieval", icon: paperSvg(OBJECT_ART.barrel) },
+  chest: { label: t("Forziere"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.chest) },
+  fireplace: { label: t("Camino"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.fireplace) },
+  anvil: { label: t("Incudine"), article: "un'", articleEn: "an", group: "medieval", icon: paperSvg(OBJECT_ART.anvil) },
+  altar: { label: t("Altare"), article: "un", articleEn: "an", group: "medieval", icon: paperSvg(OBJECT_ART.altar) },
+  statue: { label: t("Statua"), article: "una", group: "medieval", icon: paperSvg(OBJECT_ART.statue) },
+  armor: { label: t("Armatura"), article: "un'", group: "medieval", icon: paperSvg(OBJECT_ART.armor) },
+  weapon_rack: { label: t("Rastrelliera"), article: "una", group: "medieval", icon: paperSvg(OBJECT_ART.weapon_rack) },
+  cauldron: { label: t("Calderone"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.cauldron) },
+  well: { label: t("Pozzo"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.well) },
+  cart: { label: t("Carro"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.cart) },
+  sarcophagus: { label: t("Sarcofago"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.sarcophagus) },
+  lectern: { label: t("Leggio"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.lectern) },
+  banner: { label: t("Stendardo"), article: "uno", group: "medieval", icon: paperSvg(OBJECT_ART.banner) },
+  candelabrum: { label: t("Candelabro"), article: "un", group: "medieval", icon: paperSvg(OBJECT_ART.candelabrum) },
+  cage: { label: t("Gabbia"), article: "una", group: "medieval", icon: paperSvg(OBJECT_ART.cage) },
+  gravestone: { label: t("Lapide"), article: "una", group: "medieval", icon: paperSvg(OBJECT_ART.gravestone) },
+  crystal_ball: { label: t("Sfera di cristallo"), article: "una", group: "medieval", icon: paperSvg(OBJECT_ART.crystal_ball) },
+  // on the edge of a cell, like doors and windows
+  portcullis: {
+    label: t("Saracinesca"),
+    article: "una",
+    edge: true,
+    group: "medieval",
+    icon: paperSvg(OBJECT_ART.portcullis),
+    edgeIcon: edgeSvg(EDGE_ART.portcullis),
+  },
+  arrow_slit: {
+    label: t("Feritoia"),
+    article: "una",
+    articleEn: "an",
+    edge: true,
+    group: "medieval",
+    icon: paperSvg(OBJECT_ART.arrow_slit),
+    edgeIcon: edgeSvg(EDGE_ART.arrow_slit),
+  },
 };
 
 // Ids stay stable (referenced by saved puzzles' character.iconId): the first

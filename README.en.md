@@ -15,6 +15,8 @@ The app is available in **Italian and English** (IT/EN button, top right; it fol
 5. **✓ Check solution** only says whether the case is solved — it never reveals how many placements are right.
 6. After solving you can **📤 share your result** (title, time, hints — no spoilers).
 
+The **tutorial** (`tutorial.html`, “How to play”, linked from the home page and under the board while playing) teaches the rules by solving a small original case step by step, then covers the objects, three strategy tricks and the app's gestures. The case and its deduction are computed with the solver's own rules (`src/tutorial/tutorialCase.js`), and a test keeps the page's story true.
+
 ## Create and share cases
 
 - **Clue glossary:** `glossary.html` (linked from the home page and under the board while playing) explains every clue type in plain words, with the sentence as the game words it and a mini board: for clues about a character the green cells are where the clue holds; general clues show the same scene once true and once false. The examples are real little cases judged by the solver's own rules, so they can't drift from the game.

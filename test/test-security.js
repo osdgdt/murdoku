@@ -27,6 +27,7 @@ const PAGES = [
   "editor.html",
   "print.html",
   "glossary.html",
+  "tutorial.html",
   "privacy.html",
   "achievements.html",
   "campaign.html",

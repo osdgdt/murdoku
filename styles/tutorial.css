@@ -1,0 +1,117 @@
+/* Tutorial page (tutorial.html). Colors come from the shared theme variables, so
+   it follows light/dark with the rest of the site. The little boards reuse the
+   game's own board renderer; only size and markers are set here. */
+.tutorial { max-width: 980px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+.tt-hero { text-align: center; margin: 2.5rem auto 1.5rem; max-width: 46rem; }
+.tt-hero .eyebrow { display: inline-block; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.6rem; }
+.tt-hero h1 { font-size: 2.3rem; line-height: 1.15; margin: 0 0 0.6rem; }
+.tt-hero .lede { color: var(--ink-soft); font-size: 1.05rem; margin: 0 auto; }
+
+.tt-section { margin: 0 0 2.2rem; background: var(--panel); border-radius: var(--radius-lg, 14px); box-shadow: var(--shadow-sm); padding: 1.2rem 1.4rem 1.4rem; }
+.tt-section > h2 { margin: 0 0 0.3rem; font-size: 1.5rem; }
+.tt-lede { margin: 0 0 1rem; color: var(--ink-soft); }
+.tt-note { margin: 0.5rem 0 0; font-size: 0.9rem; color: var(--ink-soft); }
+
+/* ---- boards */
+.tutorial .tt-board.board-grid {
+  --cell-size: 52px;
+  margin: 0;
+  padding: 8px;
+  width: fit-content;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+}
+.tt-board .board-cell { cursor: default; }
+.tt-board .board-label { font-size: 0.65rem; }
+.tt-board .room-name { font-size: 9px; padding: 0 4px; }
+/* A little smaller and pushed down, so a person standing in a room's first cell
+   doesn't hide the room's name tab. */
+.tt-board .char-token { width: 36px; height: 36px; margin-top: 8px; }
+.tt-board .board-cell.tt-room { box-shadow: inset 0 0 0 3px #c0392b; }
+
+/* Candidate dots: the initial of each suspect still possible in the cell. */
+.tt-cands { position: absolute; inset: 0; z-index: 2; display: flex; flex-wrap: wrap; align-content: flex-end; justify-content: center; gap: 2px; padding: 3px; }
+.tt-cand {
+  width: 19px; height: 19px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 900; line-height: 1;
+  color: #2b1d12; background: #fffdf6; border: 2px solid var(--who, #888);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tt-figure { margin: 0; }
+.tt-figure figcaption { margin-top: 0.5rem; max-width: 22rem; font-size: 0.85rem; color: var(--ink-soft); }
+
+/* ---- rules + the case */
+.tt-rules { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem; align-items: center; }
+.tt-rule-list { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.6rem; }
+.tt-rule-list li::marker { font-weight: 900; color: var(--accent-dark); }
+.tt-case { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.tt-case-text { display: grid; gap: 1rem; }
+
+.tt-cast, .tt-clues, .tt-count { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.tt-cast li, .tt-clues li, .tt-count li { display: flex; align-items: center; gap: 0.5rem; }
+.tt-sticker { flex: none; width: 28px; height: 28px; display: inline-flex; }
+.tt-sticker svg { width: 100%; height: 100%; }
+
+/* ---- the steps */
+.tt-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.6rem; }
+.tt-step { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem; align-items: center; padding-top: 1.2rem; border-top: 2px dashed var(--border-soft, var(--border)); }
+.tt-step:first-child { border-top: 0; padding-top: 0; }
+.tt-step-text h3 { margin: 0 0 0.5rem; font-size: 1.15rem; display: flex; align-items: center; gap: 0.55rem; }
+.tt-step-text p { margin: 0 0 0.5rem; }
+.tt-step-n {
+  flex: none; width: 1.9rem; height: 1.9rem; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1rem; font-weight: 900;
+  background: #8a3a2c; color: #fff;
+}
+.tt-solved { font-weight: 900; font-size: 1.1rem; color: #1b6a3b; }
+:root[data-theme="dark"] .tt-solved { color: #9fe0b8; }
+
+/* ---- objects */
+.tt-objects { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+.tt-obj-group { border-radius: 12px; padding: 0.8rem 1rem 1rem; background: var(--panel-alt); border: 2px solid var(--border); }
+.tt-obj-group.ok { border-color: #2e9e5b; }
+.tt-obj-group.no { border-color: #c0392b; }
+.tt-obj-group.edge { border-color: #4a78c2; }
+.tt-obj-group h3 { margin: 0 0 0.6rem; font-size: 1rem; }
+.tt-obj-group ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; }
+.tt-obj-group li { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; font-size: 0.85rem; font-weight: 700; min-width: 4.2rem; }
+.tt-obj-icon { width: 44px; height: 44px; display: inline-flex; }
+.tt-obj-icon svg { width: 100%; height: 100%; }
+
+/* ---- tips */
+.tt-tips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.tt-tip { background: var(--panel-alt); border-radius: 12px; padding: 0.9rem 1.1rem 1.1rem; }
+.tt-tip.wide { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem; align-items: center; }
+.tt-tip h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.tt-tip p { margin: 0; }
+
+/* ---- using the app */
+.tt-how { margin: 0 0 1.2rem; padding-left: 1.2rem; display: grid; gap: 0.55rem; }
+.tt-how kbd {
+  display: inline-block; min-width: 1.6em; text-align: center; padding: 0.05em 0.45em;
+  font: inherit; font-weight: 800; font-size: 0.9em;
+  border: 1px solid var(--border); border-bottom-width: 3px; border-radius: 6px; background: var(--panel-alt); color: var(--ink);
+}
+.tt-cta { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.tt-button {
+  display: inline-block; padding: 0.7em 1.3em; border-radius: 999px; text-decoration: none;
+  font-weight: 800; background: #8a3a2c; color: #fff;
+}
+/* The link color of the theme must not tint the button text (dark theme). */
+.tutorial a.tt-button:any-link { color: #fff; }
+.tt-button.secondary { background: var(--panel-alt); border: 2px solid var(--border); }
+.tutorial a.tt-button.secondary:any-link { color: var(--ink); }
+.tt-button:hover { filter: brightness(1.08); }
+.tt-button:focus-visible { outline: 3px solid var(--gold, #f2b01e); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .tt-hero h1 { font-size: 1.8rem; }
+  .tt-section { padding: 1rem 1rem 1.2rem; }
+  .tt-rules, .tt-case, .tt-step, .tt-tips, .tt-tip.wide { grid-template-columns: minmax(0, 1fr); }
+  .tutorial .tt-board.board-grid { --cell-size: 44px; }
+  .tt-board .char-token { width: 30px; height: 30px; margin-top: 8px; }
+}

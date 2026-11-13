@@ -192,6 +192,13 @@ export function genericClues(puzzle) {
   return puzzle.clues.filter((c) => c.characterId === null);
 }
 
+// Clues a campaign still keeps hidden from the player (see applyClueLocks in
+// campaign/campaignModel.js): runtime-only placeholders { id, characterId, byLabel }
+// in `puzzle.lockedClues` — never part of a saved or exported case.
+export function lockedCluesFor(puzzle, characterId) {
+  return (puzzle.lockedClues || []).filter((l) => l.characterId === characterId);
+}
+
 export function setSolutionPlacement(puzzle, characterId, row, col) {
   const placements = puzzle.solution.placements.filter((p) => p.characterId !== characterId);
   if (row !== null && col !== null) placements.push({ characterId, row, col });

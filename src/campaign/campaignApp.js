@@ -7,6 +7,8 @@ import { createBoardState, serializeBoardState, deserializeBoardState } from "..
 import { createGameScreen } from "../player/gameScreen.js";
 import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
+import { applyClueLocks } from "./campaignModel.js";
+import { renderUnlockNote } from "./unlockNote.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
 import { describeAuthError, renderLoginHelp } from "../auth/loginHelp.js";
@@ -274,7 +276,10 @@ async function showGameView(campaignId, caseId) {
   }
 
   clear(caseErrorPanel);
-  puzzle = fetchedPuzzle;
+  // Clues that wait for an earlier case stay hidden (padlocks on the cards); the
+  // answer key is still worked out from the complete case.
+  const locks = applyClueLocks(fetchedPuzzle, campaign, currentCase.id, progress.completedCaseIds);
+  puzzle = locks.puzzle;
   recentActivity.recordOpened({
     kind: "campaign",
     campaignId: campaign.id,
@@ -289,6 +294,8 @@ async function showGameView(campaignId, caseId) {
 
   const screen = createGameScreen({
     puzzle,
+    answerPuzzle: locks.answerPuzzle,
+    winExtras: () => renderUnlockNote(campaign, currentCase.id),
     state,
     persistProgress,
     achievementKey: `campaign:${campaign.id}:${currentCase.id}`,

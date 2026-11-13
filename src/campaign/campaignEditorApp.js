@@ -6,6 +6,7 @@ import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync } from "../solver/solverClient.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
+import { createUnlockPanel } from "./unlockPanel.js";
 import * as campaignStore from "./campaignStore.js";
 import { describeAuthError, renderLoginHelp } from "../auth/loginHelp.js";
 import { t } from "../i18n/i18n.js";
@@ -143,6 +144,20 @@ async function persistCampaign(statusEl) {
   }
 }
 
+const casePuzzles = new Map(); // case id -> Promise of its puzzle (one download per case and page load)
+function loadCasePuzzle(caseEntry) {
+  if (!casePuzzles.has(caseEntry.id)) {
+    casePuzzles.set(
+      caseEntry.id,
+      importPuzzleFromUrl(caseEntry.puzzleUrl).catch((err) => {
+        casePuzzles.delete(caseEntry.id);
+        throw err;
+      })
+    );
+  }
+  return casePuzzles.get(caseEntry.id);
+}
+
 function renderCaseList() {
   clear(caseListEl);
   if (campaign.cases.length === 0) {
@@ -150,49 +165,55 @@ function renderCaseList() {
     return;
   }
   campaign.cases.forEach((c, i) => {
-    caseListEl.appendChild(
-      el("div", { class: "saved-row" }, [
-        el("div", {}, [el("span", { class: "title" }, `${i + 1}. ${c.label || c.puzzleId}`), el("span", { class: "meta" }, c.puzzleUrl)]),
-        el("div", { class: "actions" }, [
-          el(
-            "button",
-            {
-              disabled: i === 0 || undefined,
-              onClick: () => {
-                reorderCases(campaign, i, i - 1);
-                renderCaseList();
-                persistCampaign(detailStatus);
-              },
+    const row = el("div", { class: "saved-row" }, [
+      el("div", {}, [el("span", { class: "title" }, `${i + 1}. ${c.label || c.puzzleId}`), el("span", { class: "meta" }, c.puzzleUrl)]),
+      el("div", { class: "actions" }, [
+        el(
+          "button",
+          {
+            disabled: i === 0 || undefined,
+            onClick: () => {
+              reorderCases(campaign, i, i - 1);
+              renderCaseList();
+              persistCampaign(detailStatus);
             },
-            "↑"
-          ),
-          el(
-            "button",
-            {
-              disabled: i === campaign.cases.length - 1 || undefined,
-              onClick: () => {
-                reorderCases(campaign, i, i + 1);
-                renderCaseList();
-                persistCampaign(detailStatus);
-              },
+          },
+          "↑"
+        ),
+        el(
+          "button",
+          {
+            disabled: i === campaign.cases.length - 1 || undefined,
+            onClick: () => {
+              reorderCases(campaign, i, i + 1);
+              renderCaseList();
+              persistCampaign(detailStatus);
             },
-            "↓"
-          ),
-          el(
-            "button",
-            {
-              class: "danger",
-              onClick: () => {
-                removeCase(campaign, c.id);
-                renderCaseList();
-                persistCampaign(detailStatus);
-              },
+          },
+          "↓"
+        ),
+        el(
+          "button",
+          {
+            class: "danger",
+            onClick: () => {
+              removeCase(campaign, c.id);
+              renderCaseList();
+              persistCampaign(detailStatus);
             },
-            "🗑"
-          ),
-        ]),
-      ])
-    );
+          },
+          "🗑"
+        ),
+      ]),
+    ]);
+    const panel = createUnlockPanel({
+      campaign,
+      caseEntry: c,
+      index: i,
+      loadPuzzle: loadCasePuzzle,
+      onChange: () => persistCampaign(detailStatus),
+    });
+    caseListEl.appendChild(el("div", { class: "case-block" }, [row, panel]));
   });
 }
 

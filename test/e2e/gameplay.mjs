@@ -439,10 +439,12 @@ const scenarios = [
     options: { url: `${base}/player.html`, ready: "header.topbar", locale },
     async run(page) {
       const got = await page.evaluate(async () => {
-        const { OBJECT_TYPES } = await import("/src/model/icons.js");
+        const { OBJECT_TYPES, CHARACTER_ICONS } = await import("/src/model/icons.js");
         const { ZONE_TEXTURES } = await import("/src/model/textures.js");
         const { objectTypePhrase } = await import("/src/model/clues/shared.js");
         return {
+          smith: CHARACTER_ICONS.blacksmith.label,
+          jester: CHARACTER_ICONS.jester.label,
           anvil: OBJECT_TYPES.anvil.label,
           armor: OBJECT_TYPES.armor.label,
           crystal: OBJECT_TYPES.crystal_ball.label,
@@ -457,6 +459,8 @@ const scenarios = [
       const italian = locale === "it-IT";
       const want = italian
         ? {
+            smith: "Fabbro",
+            jester: "Giullare/a",
             anvil: "Incudine",
             armor: "Armatura",
             crystal: "Sfera di cristallo",
@@ -465,6 +469,8 @@ const scenarios = [
             phrases: ["un'incudine", "un altare", "un'armatura", "una feritoia", "una botte", "un trono", "uno stendardo"],
           }
         : {
+            smith: "Blacksmith",
+            jester: "Jester",
             anvil: "Anvil",
             armor: "Suit of armor",
             crystal: "Crystal ball",

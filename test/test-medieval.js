@@ -1,7 +1,14 @@
 // The medieval / dark-fantasy assets: floors (model/texturesMedieval.js) and props
 // (OBJECT_TYPES "group: medieval"). Their drawings are checked for every type by
 // test-skin.js; the wording of the clues in each language by e2e/gameplay.mjs.
-import { OBJECT_TYPES, isEdgeObjectType, isObjectTypeOccupiable, isObjectTypeSeat } from "../src/model/icons.js";
+import {
+  OBJECT_TYPES,
+  CHARACTER_ICONS,
+  SELECTABLE_CHARACTER_ICON_IDS,
+  isEdgeObjectType,
+  isObjectTypeOccupiable,
+  isObjectTypeSeat,
+} from "../src/model/icons.js";
 import { ZONE_TEXTURES } from "../src/model/textures.js";
 import { MEDIEVAL_TEXTURES } from "../src/model/texturesMedieval.js";
 import { objectTypePhrase } from "../src/model/clues/shared.js";
@@ -70,6 +77,19 @@ export const tests = [
       const grid = createGrid(3, 3);
       placeObject(grid, "portcullis", 1, 1, "N");
       assertEqual(isOccupiable(grid, 1, 1), true, "una persona può stare nella casella con la saracinesca");
+    },
+  },
+  {
+    name: "medievale: i dieci personaggi nuovi hanno etichetta e disegno, si possono scegliere, e «vittima» resta l'ultimo e non selezionabile",
+    fn: () => {
+      const ids = ["blacksmith", "executioner", "herald", "thief", "alchemist", "archer", "princess", "prince", "jester", "bard"];
+      for (const id of ids) {
+        assert(CHARACTER_ICONS[id]?.label, `${id}: etichetta`);
+        assert(CHARACTER_ICONS[id].icon.startsWith("<svg"), `${id}: disegno`);
+        assert(SELECTABLE_CHARACTER_ICON_IDS.includes(id), `${id}: selezionabile`);
+      }
+      assertEqual(Object.keys(CHARACTER_ICONS).at(-1), "victim", "la vittima resta l'ultima");
+      assert(!SELECTABLE_CHARACTER_ICON_IDS.includes("victim"));
     },
   },
   {

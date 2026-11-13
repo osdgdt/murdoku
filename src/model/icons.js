@@ -135,6 +135,17 @@ export const CHARACTER_ICONS = Object.fromEntries(
     ["nun", t("Suora")],
     ["gangster", t("Gangster")],
     ["waiter", t("Cameriere")],
+    // medieval / dark-fantasy cast
+    ["blacksmith", t("Fabbro")],
+    ["executioner", t("Boia")],
+    ["herald", t("Araldo/a")],
+    ["thief", t("Ladro/a")],
+    ["alchemist", t("Alchimista")],
+    ["archer", t("Arciere/a")],
+    ["princess", t("Principessa")],
+    ["prince", t("Principe")],
+    ["jester", t("Giullare/a")],
+    ["bard", t("Bardo/a")],
     ["victim", t("Vittima")],
   ].map(([id, label]) => [id, { label, icon: CHARACTER_ART[id] }])
 );

@@ -52,4 +52,16 @@ export default {
   "Mattoni a intreccio": "Woven brick",
   "Piastrelle decorate": "Decorated tiles",
   "Damasco rosso": "Red damask",
+
+  // characters
+  Fabbro: "Blacksmith",
+  Boia: "Executioner",
+  "Araldo/a": "Herald",
+  "Ladro/a": "Thief",
+  Alchimista: "Alchemist",
+  "Arciere/a": "Archer",
+  Principessa: "Princess",
+  Principe: "Prince",
+  "Giullare/a": "Jester",
+  "Bardo/a": "Bard",
 };

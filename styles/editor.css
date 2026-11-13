@@ -106,6 +106,7 @@
 .board-grid {
   display: grid;
   gap: 3px;
+  --cell-gap: 3px;
   background: linear-gradient(155deg, var(--cell-border), var(--gold));
   border: 3px solid var(--ink);
   border-radius: var(--radius-sm);
@@ -266,6 +267,14 @@
 .board-cell.zoned {
   background-image: var(--zone-texture, repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.055) 0 3px, transparent 3px 10px));
   background-size: var(--zone-texture-size, auto);
+  background-position: var(--zone-texture-pos, 0 0);
+  /* The floor is one sheet laid under the whole board: every cell shows its own
+     piece of it (offset by its row/column times the cell pitch), so a pattern
+     is continuous between neighbouring cells of a room. Borders (room walls,
+     grid lines) must not shift it, hence border-box. */
+  --tile-pos: calc((var(--cell-size, 56px) + var(--cell-gap, 0px)) * var(--c, 0) * -1)
+    calc((var(--cell-size, 56px) + var(--cell-gap, 0px)) * var(--r, 0) * -1);
+  background-origin: border-box;
 }
 
 /* Bold borders only at true zone boundaries (different zone, or zone vs. the

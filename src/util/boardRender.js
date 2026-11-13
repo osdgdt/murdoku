@@ -92,8 +92,11 @@ export function renderBoard(
   const floorCache = new Map();
   const floorOf = (zone) => {
     if (!floorCache.has(zone.id)) {
-      const { image, size, own } = floorStyle(zone.textureId, roomColor(zone.color));
-      floorCache.set(zone.id, { own, style: `--room:${roomColor(zone.color)};--zone-texture:${image};--zone-texture-size:${size}` });
+      const { image, size, pos, own } = floorStyle(zone.textureId, roomColor(zone.color));
+      floorCache.set(zone.id, {
+        own,
+        style: `--room:${roomColor(zone.color)};--zone-texture:${image};--zone-texture-size:${size};--zone-texture-pos:${pos}`,
+      });
     }
     return floorCache.get(zone.id);
   };
@@ -236,7 +239,9 @@ export function renderBoard(
         // the paint-by-dragging feature outside of synthetic/automated
         // clicks (where no native drag ever kicks in to begin with).
         draggable: "false",
-        style: zone ? floorOf(zone).style : "",
+        // --r/--c: the cell's place on the board, so a room's floor pattern runs
+        // on from cell to cell (see --tile-pos in editor.css).
+        style: zone ? `${floorOf(zone).style};--r:${r};--c:${c}` : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers

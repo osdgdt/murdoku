@@ -169,6 +169,7 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
   border-radius: 10px;
   padding: 12px;
   gap: 0;
+  --cell-gap: 0px;
   box-shadow: 0 2px 0 rgba(255, 255, 255, 0.55) inset, 0 16px 30px -8px rgba(60, 30, 10, 0.5), 0 3px 0 rgba(60, 30, 10, 0.22);
 }
 .board-label {
@@ -193,6 +194,7 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
 .board-cell.zoned.floored {
   background-image: linear-gradient(var(--floor-wash), var(--floor-wash)), var(--zone-texture);
   background-size: auto, var(--zone-texture-size, auto);
+  background-position: 0 0, var(--zone-texture-pos, 0 0);
 }
 .board-cell.zoned::before { opacity: 0.55; }
 .board-cell.blocked {

@@ -5,11 +5,14 @@
 //
 // Every pattern is drawn from fixed coordinates and a seeded generator, so a
 // floor looks the same on every load and on every device.
+//
+// Seamless tiling (see tileSvg.js): the structure of each floor (joints, boards,
+// bricks) is periodic in the tile size, and marks that cross a tile edge are
+// completed on the opposite one.
 import { t } from "../i18n/i18n.js";
+import { svgUrl } from "./tileSvg.js";
 
 const solid = (c) => `linear-gradient(${c}, ${c})`;
-const svgUrl = (w, h, body) =>
-  `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${body}</svg>`)}")`;
 const px = (w, h = w) => `${w}px ${h}px`;
 
 // Small deterministic generator (mulberry32).
@@ -42,19 +45,28 @@ const floor = (label, body, size, base, tint = 0.3) => ({
 });
 
 // ---------------------------------------------------------------- stone
-// Irregular slabs (56px tile): each slab is a polygon with its own tone.
+// Irregular slabs (56px tile): each slab is a polygon with its own tone. Each
+// row is a run of slabs whose widths add up to exactly 56, so the row closes on
+// itself; a slab that crosses the tile edge is completed by the wrap in floor().
 function slabs(seed, tones, line) {
   const r = rand(seed);
   const rows = [
-    [0, 18],
-    [18, 38],
-    [38, 56],
+    [0, 18, 0],
+    [18, 38, -9],
+    [38, 56, -4],
   ];
   let out = "";
-  rows.forEach(([y0, y1], ri) => {
-    let x = ri === 1 ? -9 : 0;
-    while (x < 56) {
+  for (const [y0, y1, start] of rows) {
+    const raw = [];
+    let sum = 0;
+    while (sum < 56) {
       const w = 15 + Math.floor(r() * 14);
+      raw.push(w);
+      sum += w;
+    }
+    let x = start;
+    for (const rw of raw) {
+      const w = (rw * 56) / sum;
       const x1 = x + w;
       const j = () => f((r() - 0.5) * 2);
       out +=
@@ -62,7 +74,7 @@ function slabs(seed, tones, line) {
         ` fill='${pick(r, tones)}' stroke='${line}' stroke-width='1.3' stroke-linejoin='round'/>`;
       x = x1;
     }
-  });
+  }
   return out;
 }
 
@@ -217,30 +229,29 @@ const BRIDGE =
   [0, 7, 14, 21]
     .map(
       (y, i) =>
-        `<rect x='0' y='${y + 0.7}' width='28' height='5.6' rx='1' fill='${["#8a6238", "#7d5731", "#946a3f", "#835c35"][i]}'/>` +
+        `<rect x='-2' y='${y + 0.7}' width='32' height='5.6' rx='1' fill='${["#8a6238", "#7d5731", "#946a3f", "#835c35"][i]}'/>` +
         `<path d='M${3 + i * 5} ${y + 2.4}h6M${16 - i * 2} ${y + 4.4}h7' stroke='rgba(40,20,5,0.4)' stroke-width='.8' stroke-linecap='round'/>` +
         `<circle cx='${2 + (i % 2) * 24}' cy='${y + 3.5}' r='.9' fill='#3a2a18'/>`
     )
     .join("");
 
 const HERRINGBONE = (() => {
-  // bricks 14×7 laid at right angles in a zig-zag (28px tile)
-  const brick = (x, y, horizontal, c) =>
-    horizontal
-      ? `<rect x='${x + 0.6}' y='${y + 0.6}' width='13' height='6' rx='.8' fill='${c}' stroke='rgba(60,25,10,0.45)' stroke-width='.8'/>`
-      : `<rect x='${x + 0.6}' y='${y + 0.6}' width='6' height='13' rx='.8' fill='${c}' stroke='rgba(60,25,10,0.45)' stroke-width='.8'/>`;
+  // Bricks 14×7 laid at right angles (28px tile = a 4×4 grid of 7px units).
+  // Horizontal bricks run down the diagonal, vertical ones fill the gaps; the
+  // bricks that stick out of the tile are completed by the wrap in floor().
+  const brick = (u, v, horizontal, c) => {
+    const x = u * 7;
+    const y = v * 7;
+    const [w, h] = horizontal ? [14, 7] : [7, 14];
+    return `<rect x='${x + 0.6}' y='${y + 0.6}' width='${w - 1.2}' height='${h - 1.2}' rx='.8' fill='${c}' stroke='rgba(60,25,10,0.45)' stroke-width='.8'/>`;
+  };
   const cols = ["#b0553a", "#a14a33", "#bb6044", "#9a432e"];
-  return (
-    brick(0, 0, true, cols[0]) +
-    brick(14, 0, false, cols[1]) +
-    brick(0, 7, false, cols[2]) +
-    brick(7, 7, true, cols[3]) +
-    brick(21, 14, false, cols[0]) +
-    brick(0, 14, true, cols[1]) +
-    brick(14, 14, true, cols[2]) +
-    brick(7, 21, false, cols[3]) +
-    brick(14, 21, true, cols[0])
-  );
+  let out = "";
+  for (let k = 0; k < 4; k++) {
+    out += brick(k, k, true, cols[k]);
+    out += brick((k + 3) % 4, k, false, cols[(k + 2) % 4]);
+  }
+  return out;
 })();
 
 const ENCAUSTIC = (() => {

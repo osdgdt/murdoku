@@ -1,5 +1,6 @@
 import { t } from "../i18n/i18n.js";
 import { MEDIEVAL_TEXTURES } from "./texturesMedieval.js";
+import { svgUrl } from "./tileSvg.js";
 
 // Registry of CSS-only floors a zone can be painted with — same shape/lookup
 // pattern as OBJECT_TYPES in icons.js. No external images: every floor is a
@@ -14,14 +15,13 @@ import { MEDIEVAL_TEXTURES } from "./texturesMedieval.js";
 //    (`none`, `hatch`) have tint 0 and semi-transparent layers: there the zone
 //    color itself is the base, exactly as before floors existed.
 // Tile sizes are divisors of the 56px cell (28, 14, 7...), so the pattern
-// repeats cleanly inside a cell.
+// repeats cleanly inside a cell. A tile must also join itself on all four
+// sides (seamless), or the joins show wherever two cells of a room meet.
 //
 // Ids are persisted in saved puzzles (zone.textureId): never rename or remove
 // one — an unknown id falls back to "hatch".
 
 const solid = (c) => `linear-gradient(${c}, ${c})`;
-const svgUrl = (w, h, body) =>
-  `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${body}</svg>`)}")`;
 const px = (w, h = w) => `${w}px ${h}px`;
 
 // Boards laid in running bond (each row shifted by half a plank).
@@ -139,13 +139,13 @@ const STONE_SLABS =
     [32, 40, 0.8, "rgba(0,0,0,0.12)"],
   ]);
 const MARBLE_WHITE =
-  `<path d='M0 40C14 28 22 48 34 32S50 16 56 10' stroke='#a9a398' stroke-width='1.2' fill='none' opacity='0.7'/>` +
-  `<path d='M0 12C10 18 18 6 30 14S48 26 56 22' stroke='#c7c2b8' stroke-width='0.9' fill='none' opacity='0.8'/>` +
-  `<path d='M20 56C24 44 32 40 40 44' stroke='#bdb7ac' stroke-width='0.8' fill='none' opacity='0.7'/>`;
+  `<path d='M0 40C14 28 22 48 34 32S46 44 56 40' stroke='#a9a398' stroke-width='1.2' fill='none' opacity='0.7'/>` +
+  `<path d='M0 12C10 18 18 6 30 14S46 8 56 12' stroke='#c7c2b8' stroke-width='0.9' fill='none' opacity='0.8'/>` +
+  `<path d='M14 66C16 62 18 60 20 56C24 44 32 40 40 44' stroke='#bdb7ac' stroke-width='0.8' fill='none' opacity='0.7'/>`;
 const MARBLE_BLACK =
-  `<path d='M0 40C14 28 22 48 34 32S50 16 56 10' stroke='#b99a5a' stroke-width='1.1' fill='none' opacity='0.6'/>` +
-  `<path d='M0 12C10 18 18 6 30 14S48 26 56 22' stroke='#ffffff' stroke-width='0.7' fill='none' opacity='0.25'/>` +
-  `<path d='M20 56C24 44 32 40 40 44' stroke='#b99a5a' stroke-width='0.7' fill='none' opacity='0.5'/>`;
+  `<path d='M0 40C14 28 22 48 34 32S46 44 56 40' stroke='#b99a5a' stroke-width='1.1' fill='none' opacity='0.6'/>` +
+  `<path d='M0 12C10 18 18 6 30 14S46 8 56 12' stroke='#ffffff' stroke-width='0.7' fill='none' opacity='0.25'/>` +
+  `<path d='M14 66C16 62 18 60 20 56C24 44 32 40 40 44' stroke='#b99a5a' stroke-width='0.7' fill='none' opacity='0.5'/>`;
 
 export const ZONE_TEXTURES = {
   none: { label: t("Nessuna (tinta unita)"), layers: ["none"], sizes: ["auto"], tint: 0 },
@@ -250,13 +250,19 @@ export function floorStyle(textureId, zoneColor = null) {
   const def = ZONE_TEXTURES[textureId || "hatch"] || ZONE_TEXTURES.hatch;
   const layers = [...def.layers];
   const sizes = [...def.sizes];
+  // Tiled layers (a fixed size) are positioned by --tile-pos, which each board
+  // cell sets from its own row/column (see .board-cell in editor.css), so the
+  // pattern runs on from one cell of a room into the next instead of starting
+  // over in every cell. Full-cell layers (size "auto") stay where they are.
+  const pos = def.sizes.map((sz) => (sz === "auto" ? "0 0" : "var(--tile-pos, 0 0)"));
   if (zoneColor && def.tint > 0) {
     const pct = Math.round(def.tint * 100);
     const mix = `color-mix(in srgb, ${zoneColor} ${pct}%, transparent)`;
     layers.unshift(`linear-gradient(${mix}, ${mix})`);
     sizes.unshift("auto");
+    pos.unshift("0 0");
   }
   // `own`: the floor brings colors of its own (everything but the two legacy
   // overlay floors), so the skin may wash/dim it to sit on the paper.
-  return { image: layers.join(", "), size: sizes.join(", "), own: def.tint > 0 };
+  return { image: layers.join(", "), size: sizes.join(", "), pos: pos.join(", "), own: def.tint > 0 };
 }

@@ -10,7 +10,7 @@ Nomi, luoghi e dettagli sono proposte: cambiali pure, purché restino coerenti c
 
 ## 1. Premessa
 
-**Il regno.** Carvenna: un regno inventato di stile europeo, con un castello su una rupe (la Rocca), un borgo ai suoi piedi (Borgo Basso), un'abbazia (San Ilario) e una corte piena di cariche e di rancori.
+**Il regno.** Carvenna: un regno inventato di stile europeo, con un castello su una rupe battuta dal vento (**Rocca Malvento**), un borgo di forge e di fumo ai suoi piedi (**Borgocenere**), un'abbazia (San Ilario) e una corte piena di cariche e di rancori.
 
 **La coppia reale.** Il re **Victor**, 58 anni, vanitoso al punto di dare a ogni cosa il proprio nome o la propria iniziale. La regina **Adela**, 54 anni, calma, devota, gran conoscitrice di erbe e di giardini.
 
@@ -38,7 +38,7 @@ Otto sospettati più la vittima (il 9×9 del finale ha nove persone). Le inizial
 |---|---|---|---|
 | A | **Adela** | la regina | la moglie tradita, e quella che lo trova per prima |
 | M | **Matilde** | nobildonna, vedova di un conte; madre di 3 dei figli del re | promesse di nozze non mantenute |
-| G | **Gemma** | locandiera di Borgo Basso; madre di 2 figli | il re la lasciò con i debiti |
+| G | **Gemma** | locandiera di Borgocenere; madre di 2 figli | il re la lasciò con i debiti |
 | B | **Berta** | sarta, ex novizia; madre di 2 figli | fu cacciata dall'abbazia per colpa sua |
 | R | **Ruggero** | cancelliere del regno | teme di perdere il potere se il trono cambia mano |
 | E | **Eustachio** | medico di corte e coroner | ha firmato un referto falso |
@@ -97,12 +97,12 @@ Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un
 
 ### Caso 1 — Il garzone della forgia · 4×4
 - **Vittima**: Vanni, 19 anni, garzone fabbro.
-- **Scena**: la forgia di Borgo Basso. Oggetti: incudine, camino (la fornace), botte, rastrelliera.
+- **Scena**: la forgia di Borgocenere. Oggetti: incudine, camino (la fornace), botte, rastrelliera.
 - **Colpevole**: Bertoldo, il maestro fabbro. **Movente**: Vanni aveva scoperto che vendeva lame difettose al presidio.
 - **Altri sospettati** (3 in tutto, con il colpevole): Lupo (lavorante), Mabilia (moglie del fabbro).
 - **Oggetto**: gettone di ferro cavo con lo stemma di Victor; fa capire che Vanni era figlio del re.
 
-**Introduzione.** La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgo Basso: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e tre persone giurano di non aver visto niente.
+**Introduzione.** La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e tre persone giurano di non aver visto niente.
 
 **Epilogo.** Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.
 
@@ -130,7 +130,7 @@ Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un
 
 ### Caso 4 — La taverna dei Tre Corvi · 5×5
 - **Vittima**: Vitale, 21 anni, mercenario.
-- **Scena**: la taverna di Borgo Basso. Oggetti: botti, camino, panche.
+- **Scena**: la taverna di Borgocenere. Oggetti: botti, camino, panche.
 - **Colpevole**: Rodolfo il Guercio, soldato di ventura. **Movente**: un debito di gioco, e Vitale lo aveva sorpreso a barare ai dadi.
 - **Altri sospettati** (4 in tutto): Gisulfo (mercante), Orsola (cameriera), Drogone (mandriano).
 - **Oggetto**: medaglia da soldato.
@@ -186,7 +186,7 @@ Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un
 ### Caso 9 — Il banchetto dell'erede · 8×8
 - **Vittima**: Valdemaro, 23 anni, il maggiore, acclamato erede al banchetto.
 - **Scena**: la sala grande. Oggetti: trono, stendardi, candelabri, panche.
-- **Colpevole**: lord Folco di Roccaverde, nobile di un'altra casata. **Movente**: impedire l'incoronazione e restare a corte.
+- **Colpevole**: lord Folco di Valgrigia, nobile di un'altra casata. **Movente**: impedire l'incoronazione e restare a corte.
 - **Altri sospettati** (7 in tutto): araldo, giullare, bardo, contessa, cavaliere, prete.
 - **Oggetto**: anello col sigillo del re.
 
@@ -196,7 +196,7 @@ Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un
 
 ### Caso 10 — La notte del re · 9×9
 - **Vittima**: il re Victor.
-- **Scena**: la Rocca nella notte della morte. Stanze suggerite: camera coniugale (due letti, camino, forziere), anticamera, cappella, cucine, sala del consiglio, cortile, dispensa, corridoio.
+- **Scena**: Rocca Malvento nella notte della morte. Stanze suggerite: camera coniugale (due letti, camino, forziere), anticamera, cappella, cucine, sala del consiglio, cortile, dispensa, corridoio.
 - **Colpevole**: la regina Adela. **Movente**: il tradimento. **Mezzo**: digitale nel bicchiere serale. **Complice**: Eustachio, corrotto per il referto.
 - **Indizi nascosti**: i nove dei casi 1-9.
 
@@ -212,7 +212,7 @@ Dopo il caso 10 il giocatore sceglie tra due epiloghi. Entrambi sono amari.
 
 **Arresto.** *Pulsante*: «Denuncio la regina». Adela confessa senza alzare la voce: ha dato al regno un re per trentaquattro anni e ha avuto in cambio ventiquattro anni di tradimenti. Viene processata e condannata. Il trono resta vuoto, i nove figli sono morti, e un consiglio di reggenti giura di governare in nome di un regno senza re. Tu resti l'investigatore di una corte che non ha più nessuno da proteggere.
 
-**Clemenza.** *Pulsante*: «Taccio». Tu metti sul fuoco l'ultimo foglietto, Adela abdica e si ritira in un convento del silenzio. Il referto falso resta nei registri e la verità muore con voi due. Il regno ha un lutto in meno e un segreto in più, e a ogni cena a cui sei invitato sai che qualcuno, alla Rocca, brinda a un morto che non è stato vendicato.
+**Clemenza.** *Pulsante*: «Taccio». Tu metti sul fuoco l'ultimo foglietto, Adela abdica e si ritira in un convento del silenzio. Il referto falso resta nei registri e la verità muore con voi due. Il regno ha un lutto in meno e un segreto in più, e a ogni cena a cui sei invitato sai che qualcuno, a Rocca Malvento, brinda a un morto che non è stato vendicato.
 
 ---
 

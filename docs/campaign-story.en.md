@@ -10,7 +10,7 @@ Names, places and details are proposals: change them freely, as long as they res
 
 ## 1. Premise
 
-**The kingdom.** Carvenna: an invented, generically European realm, with a castle on a crag (the Keep), a town at its foot (Lowtown), an abbey (Saint Hilary's) and a court full of offices and grudges.
+**The kingdom.** Carvenna: an invented, generically European realm, with a castle on a wind-beaten crag (**Hollowmere Keep**), a town of forges and smoke at its foot (**Cinderwick**), an abbey (Saint Hilary's) and a court full of offices and grudges.
 
 **The royal couple.** King **Victor**, 58, vain enough to put his own name or initial on everything. Queen **Adela**, 54, calm, devout, a great connoisseur of herbs and gardens.
 
@@ -38,7 +38,7 @@ Eight suspects plus the victim (the 9×9 finale has nine people). All initials d
 |---|---|---|---|
 | A | **Adela** | the queen | the betrayed wife, and the one who finds him first |
 | M | **Matilda** | noblewoman, a count's widow; mother of 3 of the king's children | broken promises of marriage |
-| G | **Gwen** | innkeeper of Lowtown; mother of 2 children | the king left her with the debts |
+| G | **Gwen** | innkeeper of Cinderwick; mother of 2 children | the king left her with the debts |
 | B | **Bertha** | seamstress, former novice; mother of 2 children | expelled from the abbey because of him |
 | R | **Roger** | chancellor of the realm | fears losing power if the throne changes hands |
 | E | **Eustace** | court physician and coroner | signed a false report |
@@ -97,12 +97,12 @@ Grid, characters and objects are suggestions. **No suspect** may have a name sta
 
 ### Case 1 — The Smith's Apprentice · 4×4
 - **Victim**: Vance, 19, a smith's apprentice.
-- **Scene**: the forge in Lowtown. Objects: anvil, fireplace (the furnace), barrel, weapon rack.
+- **Scene**: the forge in Cinderwick. Objects: anvil, fireplace (the furnace), barrel, weapon rack.
 - **Culprit**: Walter, the master smith. **Motive**: Vance had found out he sold flawed blades to the garrison.
 - **Other suspects** (3 in all, culprit included): Hob (journeyman), Maud (the smith's wife).
 - **Object**: a hollow iron token bearing Victor's crest; it shows that Vance was the king's son.
 
-**Introduction.** Queen Adela has picked you to find out how her husband died, but to begin with she sends you to Lowtown: a smith's apprentice lies dead beside the anvil. «A small matter,» she says, «but an investigation starts wherever it can.» The forge is still hot, and three people swear they saw nothing.
+**Introduction.** Queen Adela has picked you to find out how her husband died, but to begin with she sends you to Cinderwick: a smith's apprentice lies dead beside the anvil. «A small matter,» she says, «but an investigation starts wherever it can.» The forge is still hot, and three people swear they saw nothing.
 
 **Epilogue.** The master smith confesses: Vance had discovered the flawed blades sold to the army. In the iron token the boy wore round his neck there is Victor's crest, and a slip: «The cupbearer never went into the chamber». You tell the queen the apprentice was the king's son. «I did not know,» Adela whispers.
 
@@ -130,7 +130,7 @@ Grid, characters and objects are suggestions. **No suspect** may have a name sta
 
 ### Case 4 — The Three Ravens · 5×5
 - **Victim**: Vaughan, 21, a mercenary.
-- **Scene**: the tavern in Lowtown. Objects: barrels, fireplace, benches.
+- **Scene**: the tavern in Cinderwick. Objects: barrels, fireplace, benches.
 - **Culprit**: Rudolf One-Eye, a sellsword. **Motive**: a gambling debt, and Vaughan had caught him cheating at dice.
 - **Other suspects** (4 in all): Godric (merchant), Ursula (serving girl), Drogo (drover).
 - **Object**: a soldier's medal.
@@ -186,7 +186,7 @@ Grid, characters and objects are suggestions. **No suspect** may have a name sta
 ### Case 9 — The Heir's Feast · 8×8
 - **Victim**: Valdemar, 23, the eldest, hailed as heir at the feast.
 - **Scene**: the great hall. Objects: throne, banners, candelabra, benches.
-- **Culprit**: Lord Fulk of Greenrock, a noble of another house. **Motive**: to prevent a coronation and stay at court.
+- **Culprit**: Lord Fulk of Graywater, a noble of another house. **Motive**: to prevent a coronation and stay at court.
 - **Other suspects** (7 in all): herald, jester, bard, countess, knight, priest.
 - **Object**: the king's signet ring.
 
@@ -196,7 +196,7 @@ Grid, characters and objects are suggestions. **No suspect** may have a name sta
 
 ### Case 10 — The King's Night · 9×9
 - **Victim**: King Victor.
-- **Scene**: the Keep on the night of the death. Suggested rooms: marital chamber (two beds, fireplace, chest), anteroom, chapel, kitchens, council hall, courtyard, pantry, corridor.
+- **Scene**: Hollowmere Keep on the night of the death. Suggested rooms: marital chamber (two beds, fireplace, chest), anteroom, chapel, kitchens, council hall, courtyard, pantry, corridor.
 - **Culprit**: Queen Adela. **Motive**: the betrayal. **Means**: foxglove in the evening cup. **Accomplice**: Eustace, bought for the report.
 - **Hidden clues**: the nine from cases 1-9.
 
@@ -212,7 +212,7 @@ After case 10 the player chooses between two epilogues. Both are bitter.
 
 **Arrest.** *Button*: «I accuse the queen». Adela confesses without raising her voice: she gave the realm a king for thirty-four years and was given twenty-four years of betrayal in return. She is tried and condemned. The throne stays empty, the nine children are dead, and a council of regents swears to rule in the name of a kingdom without a king. You remain the investigator of a court with no one left to protect.
 
-**Mercy.** *Button*: «I stay silent». You put the last slip in the fire, Adela abdicates and retires to a convent of silence. The false report stays in the registers and the truth dies with the two of you. The realm has one mourning less and one secret more, and at every dinner you attend you know that somebody at the Keep is raising a glass to a dead man who was never avenged.
+**Mercy.** *Button*: «I stay silent». You put the last slip in the fire, Adela abdicates and retires to a convent of silence. The false report stays in the registers and the truth dies with the two of you. The realm has one mourning less and one secret more, and at every dinner you attend you know that somebody at Hollowmere is raising a glass to a dead man who was never avenged.
 
 ---
 

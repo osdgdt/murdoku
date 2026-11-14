@@ -31,8 +31,11 @@ import {
   paintCellZone,
   placeObject,
   edgeObjectsAt,
+  edgeCells,
+  edgeObjectOnSide,
+  misplacedEdgeObjects,
 } from "../src/model/grid.js";
-import { objectTypeTargetId } from "../src/model/icons.js";
+import { objectTypeTargetId, isEdgeObjectType } from "../src/model/icons.js";
 import { describeClue } from "../src/model/clueTypes.js";
 import { ROOM_PALETTE } from "../src/model/roomColors.js";
 import { isSafeColor } from "../src/util/safe.js";
@@ -248,7 +251,7 @@ export const tests = [
     fn: () => {
       const puzzle = buildValidPuzzle();
       const [anna] = puzzle.characters;
-      const obj = placeObject(puzzle.grid, "door", 2, 2);
+      const obj = placeObject(puzzle.grid, "door", 2, 2, "S");
       addClue(puzzle, anna.id, "adjacent", { targetId: obj.id });
       removeObject(puzzle.grid, obj.id);
       pruneDanglingClueReferences(puzzle);
@@ -386,8 +389,8 @@ export const tests = [
       placeObject(puzzle.grid, "chair", 1, 0);
       placeObject(puzzle.grid, "carpet", 1, 1);
       placeObject(puzzle.grid, "table", 1, 2);
-      placeObject(puzzle.grid, "door", 2, 0);
-      placeObject(puzzle.grid, "window", 2, 1);
+      assert(placeObject(puzzle.grid, "door", 2, 0, "S"), "porta sul bordo della mappa");
+      assert(placeObject(puzzle.grid, "window", 2, 1, "S"), "finestra sul bordo della mappa");
       placeObject(puzzle.grid, "lamp", 2, 2);
       assert(isOccupiable(puzzle.grid, 1, 0), "una sedia si può occupare");
       assert(isOccupiable(puzzle.grid, 1, 1), "un tappeto si può occupare");
@@ -398,21 +401,65 @@ export const tests = [
     },
   },
   {
-    name: "placeObject (porta/finestra): sta su un lato, non occupa la cella, più elementi nella stessa cella, un solo elemento per lato",
+    name: "porte e finestre: un pezzo di muro condiviso dalle due caselle, scritto da un lato o dall'altro è lo stesso segmento",
     fn: () => {
       const puzzle = buildValidPuzzle();
       const g = puzzle.grid;
-      const door = placeObject(g, "door", 1, 1, "N");
-      const win = placeObject(g, "window", 1, 1, "E");
-      assertEqual(door.side, "N");
-      assertEqual(win.side, "E");
+      const kitchen = addZone(g, "Cucina", "#f4c2c2");
+      const hall = addZone(g, "Sala", "#c2e0f4");
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) paintCellZone(g, r, c, c < 2 ? kitchen.id : hall.id);
+      // il muro tra le colonne 1 e 2
+      const door = placeObject(g, "door", 1, 1, "E");
+      assertEqual(door.side, "E");
       assertEqual(g.cells[1][1].objectId, null, "un elemento di bordo non imposta cell.objectId");
-      assert(isOccupiable(g, 1, 1), "la cella resta occupabile");
-      assertEqual(edgeObjectsAt(g, 1, 1).length, 2);
-      const replacement = placeObject(g, "door", 1, 1, "N");
-      assertEqual(edgeObjectsAt(g, 1, 1).length, 2, "lo stesso lato viene sostituito, non duplicato");
-      assert(!g.objects.find((o) => o.id === door.id), "la vecchia porta sul lato N non c'è più");
-      assert(g.objects.find((o) => o.id === replacement.id));
+      assert(isOccupiable(g, 1, 1) && isOccupiable(g, 1, 2), "le due caselle restano occupabili");
+      assertEqual(edgeObjectsAt(g, 1, 1).length, 1);
+      assertEqual(edgeObjectsAt(g, 1, 2).length, 1, "lo vede anche la casella dall'altra parte");
+      assertEqual(edgeObjectsAt(g, 0, 1).length, 0);
+      assertEqual(
+        edgeCells(g, door)
+          .map((c) => `${c.row},${c.col}`)
+          .join(" "),
+        "1,1 1,2"
+      );
+      // dall'altro lato è lo stesso segmento: sostituisce, non duplica
+      const win = placeObject(g, "window", 1, 2, "W");
+      assertEqual(g.objects.filter((o) => isEdgeObjectType(o.typeId)).length, 1, "un solo pezzo per segmento");
+      assert(!g.objects.find((o) => o.id === door.id), "la vecchia porta non c'è più");
+      assertEqual(edgeObjectOnSide(g, 1, 1, "E").id, win.id);
+      assertEqual(edgeObjectOnSide(g, 1, 2, "W").id, win.id, "stesso pezzo visto dall'altra casella");
+      assertEqual(`${win.row},${win.col},${win.side}`, "1,1,E", "si salva sempre come E/S della casella prima");
+      // sul bordo della mappa: una sola casella
+      const border = placeObject(g, "door", 0, 0, "N");
+      assertEqual(edgeCells(g, border).length, 1);
+      assertEqual(`${border.row},${border.col},${border.side}`, "0,0,N");
+      // due pezzi su lati diversi della stessa casella
+      assertEqual(edgeObjectsAt(g, 0, 0).length, 1);
+      placeObject(g, "window", 0, 0, "W");
+      assertEqual(edgeObjectsAt(g, 0, 0).length, 2, "più pezzi nella stessa casella, su lati diversi");
+    },
+  },
+  {
+    name: "porte e finestre: si possono mettere solo su un muro (tra due stanze, stanza e fuori, bordo della mappa)",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const g = puzzle.grid;
+      const room = addZone(g, "Stanza", "#f4c2c2");
+      paintCellZone(g, 0, 0, room.id);
+      paintCellZone(g, 0, 1, room.id);
+      assertEqual(placeObject(g, "door", 0, 0, "E"), null, "dentro la stanza non c'è muro");
+      assert(placeObject(g, "door", 0, 1, "E"), "tra la stanza e una casella fuori");
+      assert(placeObject(g, "window", 0, 0, "S"), "tra la stanza e una casella fuori, sotto");
+      assert(placeObject(g, "door", 0, 0, "W"), "sul bordo della mappa");
+      assertEqual(placeObject(g, "door", 2, 0, "E"), null, "tra due caselle fuori da ogni stanza: spazio aperto, nessun muro");
+      assertEqual(placeObject(g, "door", 5, 5, "N"), null, "fuori dalla mappa");
+      setBlocked(g, 2, 0, true);
+      assertEqual(placeObject(g, "window", 2, 0, "S"), null, "una casella bloccata sul bordo non è utilizzabile");
+      assertEqual(g.objects.length, 3);
+      assertEqual(misplacedEdgeObjects(g).length, 0);
+      // le stanze si ridisegnano attorno a una porta: il pezzo resta, ma l'editor lo segnala
+      paintCellZone(g, 0, 2, room.id);
+      assertEqual(misplacedEdgeObjects(g).length, 1, "la porta tra (0,1) e (0,2) ora sta dentro la stanza");
     },
   },
   {
@@ -421,19 +468,28 @@ export const tests = [
       const puzzle = buildValidPuzzle();
       const g = puzzle.grid;
       placeObject(g, "table", 0, 2);
-      placeObject(g, "door", 0, 2, "S");
+      placeObject(g, "door", 0, 2, "N");
       assert(g.cells[0][2].objectId, "il tavolo resta nella cella");
       placeObject(g, "shelf", 0, 2);
       assertEqual(edgeObjectsAt(g, 0, 2).length, 1, "la porta sopravvive alla sostituzione del mobile");
     },
   },
   {
-    name: "setBlocked rimuove anche le porte/finestre di bordo della cella",
+    name: "setBlocked toglie le porte/finestre che restano senza nessuna casella utilizzabile, ma non quelle sul muro esterno di una stanza",
     fn: () => {
       const puzzle = buildValidPuzzle();
-      placeObject(puzzle.grid, "window", 2, 2, "W");
-      setBlocked(puzzle.grid, 2, 2, true);
-      assertEqual(puzzle.grid.objects.length, 0);
+      const g = puzzle.grid;
+      const room = addZone(g, "Stanza", "#f4c2c2");
+      paintCellZone(g, 1, 1, room.id);
+      paintCellZone(g, 1, 2, room.id);
+      placeObject(g, "window", 2, 2, "S"); // sul bordo: una sola casella, (2,2)
+      placeObject(g, "window", 1, 1, "S"); // tra la stanza e (2,1)
+      assertEqual(g.objects.length, 2);
+      setBlocked(g, 2, 1, true);
+      assertEqual(g.objects.length, 2, "la finestra della stanza verso la casella bloccata resta: ora è sul suo muro esterno");
+      setBlocked(g, 2, 2, true);
+      assertEqual(g.objects.length, 1, "quella sul bordo che resta senza casella utilizzabile se ne va");
+      assertEqual(g.objects[0].typeId, "window");
     },
   },
   {

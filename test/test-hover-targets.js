@@ -83,9 +83,9 @@ export const tests = [
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
-      placeObject(puzzle.grid, "door", 0, 0);
-      placeObject(puzzle.grid, "door", 3, 3);
-      placeObject(puzzle.grid, "window", 1, 1);
+      placeObject(puzzle.grid, "door", 0, 0, "N"); // sul bordo della mappa: una sola casella
+      placeObject(puzzle.grid, "door", 3, 3, "S");
+      placeObject(puzzle.grid, "window", 1, 3, "E");
       const clue = addClue(puzzle, a.id, "onObjectType", { objectTypeId: "door" });
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
       assertEqual(cellSet(cells).size, 2, "solo le porte, non la finestra");
@@ -162,7 +162,7 @@ export const tests = [
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
-      placeObject(puzzle.grid, "door", 3, 0);
+      placeObject(puzzle.grid, "door", 3, 0, "S");
       const clue = addClue(puzzle, a.id, "someoneInRoomWithProperty", {
         property: "custom",
         customClue: { type: "onObjectType", params: { objectTypeId: "door" } },
@@ -263,8 +263,8 @@ export const tests = [
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
-      placeObject(puzzle.grid, "door", 0, 0);
-      placeObject(puzzle.grid, "window", 3, 3);
+      placeObject(puzzle.grid, "door", 0, 0, "N");
+      placeObject(puzzle.grid, "window", 3, 3, "S");
       const clue = addClue(puzzle, a.id, "orClue", {
         a: { type: "onObjectType", params: { objectTypeId: "door" } },
         b: { type: "onObjectType", params: { objectTypeId: "window" } },
@@ -303,7 +303,7 @@ export const tests = [
       const zone = addZone(puzzle.grid, "Salotto", "#fff");
       paintCellZone(puzzle.grid, 0, 0, zone.id);
       paintCellZone(puzzle.grid, 0, 1, zone.id);
-      placeObject(puzzle.grid, "window", 3, 3);
+      placeObject(puzzle.grid, "window", 3, 3, "S");
       // Generico (characterId: null): zoneId (kind "zone", fuori dalla
       // famiglia "proprietà", risolto dal cammino generico) + property
       // "adjacentTo" (risolto da resolvePropertyTargets) nello stesso
@@ -324,12 +324,12 @@ export const tests = [
     name: "resolveClueHoverCells: exactlyOneNear (generico) risolve al bersaglio come qualunque altro characterOrObject",
     fn: () => {
       const puzzle = basePuzzle();
-      placeObject(puzzle.grid, "door", 1, 2);
+      placeObject(puzzle.grid, "door", 1, 0, "W"); // sul bordo della mappa: una sola casella
       const clue = addClue(puzzle, null, "exactlyOneNear", { targetId: puzzle.grid.objects[0].id });
       const cells = resolveClueHoverCells(clue, puzzle, mapOf([]));
       assertEqual(cells.length, 1);
       assertEqual(cells[0].row, 1);
-      assertEqual(cells[0].col, 2);
+      assertEqual(cells[0].col, 0);
     },
   },
   {

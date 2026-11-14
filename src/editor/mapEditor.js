@@ -14,6 +14,8 @@ import {
   resizeGrid,
   setBlocked,
   edgeObjectsAt,
+  edgeObjectOnSide,
+  misplacedEdgeObjects,
 } from "../model/grid.js";
 import { OBJECT_TYPES, EDGE_SIDES, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { ZONE_TEXTURES, floorStyle } from "../model/textures.js";
@@ -23,6 +25,8 @@ const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4
 
 // Side of the cell the next door/window goes on — picked explicitly in the panel.
 let edgeSide = "N";
+// Why the last door/window could not be placed (shown under the palette until the next try).
+let edgeNotice = "";
 let tool = null; // { kind: 'zone', zoneId } | { kind: 'object', typeId } | { kind: 'block' } | { kind: 'erase' }
 
 // Enter/Space equivalent of a click, for custom (non-<button>) widgets like
@@ -50,14 +54,15 @@ function nearestSide(e) {
   return dy > 0 ? "S" : "N";
 }
 
-// Erase under the pointer: the edge piece on the nearest side if there is one,
-// else the whole-cell object, else any edge piece left in the cell.
+// Erase under the pointer: the door/window on the nearest side if there is one
+// (it may be stored under the neighbouring cell: it is the same piece of wall),
+// else the whole-cell object, else any door/window left on the cell.
 function eraseObjectAt(grid, row, col, side) {
   const cell = grid.cells[row][col];
-  const edges = edgeObjectsAt(grid, row, col);
-  const onSide = edges.find((o) => (o.side || "N") === side);
+  const onSide = edgeObjectOnSide(grid, row, col, side);
   if (onSide) return removeObject(grid, onSide.id);
   if (cell.objectId) return removeObject(grid, cell.objectId);
+  const edges = edgeObjectsAt(grid, row, col);
   if (edges.length) removeObject(grid, edges[0].id);
 }
 
@@ -110,6 +115,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
         const color = ZONE_COLORS[puzzle.grid.zones.length % ZONE_COLORS.length];
         const zone = addZone(puzzle.grid, name, color);
         tool = { kind: "zone", zoneId: zone.id };
+        edgeNotice = "";
         zoneNameInput.value = "";
         onChange();
       },
@@ -122,6 +128,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   for (const zone of puzzle.grid.zones) {
     const selectZone = () => {
       tool = { kind: "zone", zoneId: zone.id };
+      edgeNotice = "";
       onChange();
     };
     const swatch = el("div", {
@@ -246,6 +253,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       if ((def.group || "classic") !== group) continue;
       const selectObject = () => {
         tool = { kind: "object", typeId };
+        edgeNotice = "";
         onChange();
       };
       const item = el("div", {
@@ -262,8 +270,8 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     }
     panelEl.appendChild(objectPalette);
   }
-  // Doors and windows sit on ONE side of a cell: the author picks which here,
-  // then clicks the cells (several per cell are fine, on different sides).
+  // Doors and windows are a piece of WALL, shared by the two cells it lies
+  // between: the author picks here which side of the clicked cell it goes on.
   if (tool?.kind === "object" && isEdgeObjectType(tool.typeId)) {
     panelEl.appendChild(
       el("div", { class: "field-row side-picker", role: "group", "aria-label": t("Lato della cella") }, [
@@ -291,10 +299,23 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       "p",
       { class: "muted" },
       t(
-        "Porte e finestre stanno su un lato della cella: scegli il lato qui sopra e clicca sulle celle (puoi metterne più di una nella stessa cella, su lati diversi, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click."
+        "Porte e finestre sono un pezzo di muro, condiviso dalle due caselle ai suoi lati: scegli qui sopra da quale lato della casella cliccata va messo. Si possono mettere solo su un muro (tra due stanze, tra una stanza e l'esterno, o sul bordo della mappa), e le persone possono stare in entrambe le caselle. Con la gomma o il tasto destro si toglie quella più vicina al click."
       )
     )
   );
+  if (edgeNotice) panelEl.appendChild(el("p", { class: "violation", role: "alert" }, edgeNotice));
+  const misplaced = misplacedEdgeObjects(puzzle.grid).length;
+  if (misplaced > 0) {
+    panelEl.appendChild(
+      el(
+        "p",
+        { class: "violation" },
+        misplaced === 1
+          ? t("⚠ Una porta o finestra non è più su un muro (le stanze sono cambiate): spostala o cancellala.")
+          : t("⚠ {n} porte o finestre non sono più su un muro (le stanze sono cambiate): spostale o cancellale.", { n: misplaced })
+      )
+    );
+  }
 
   // Shape tool
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Forma della mappa")));
@@ -303,6 +324,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     {
       onClick: () => {
         tool = { kind: "block" };
+        edgeNotice = "";
         onChange();
       },
     },
@@ -322,6 +344,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     {
       onClick: () => {
         tool = { kind: "erase" };
+        edgeNotice = "";
         onChange();
       },
     },
@@ -340,7 +363,11 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
       } else if (tool.kind === "zone") {
         paintCellZone(puzzle.grid, row, col, tool.zoneId);
       } else if (tool.kind === "object") {
-        placeObject(puzzle.grid, tool.typeId, row, col, isEdgeObjectType(tool.typeId) ? edgeSide : undefined);
+        const placed = placeObject(puzzle.grid, tool.typeId, row, col, isEdgeObjectType(tool.typeId) ? edgeSide : undefined);
+        edgeNotice =
+          placed || !isEdgeObjectType(tool.typeId)
+            ? ""
+            : t("Qui non c'è un muro: porte e finestre vanno tra due stanze, tra una stanza e l'esterno, o sul bordo della mappa.");
       } else if (tool.kind === "erase") {
         eraseObjectAt(puzzle.grid, row, col, nearestSide(e));
         cell.zoneId = null;

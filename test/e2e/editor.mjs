@@ -85,6 +85,61 @@ try {
   await player.waitForSelector("#board [role=gridcell]", { timeout: 20000 });
   check("opening the share link loads the case in the player", (await player.innerText("#player-title")) === "The Lighthouse in the Storm");
 
+  // Doors and windows are a piece of WALL shared by the two cells they lie between: drawn
+  // once, centred on the line between them; only on a wall; one per segment.
+  const pieces = () => page.locator("#board .edge-obj").count();
+  check("the case's doors and windows are drawn (3 pieces)", (await pieces()) === 3, String(await pieces()));
+  const sharedDoor = await page.evaluate(() => {
+    const cell = (r, c) => document.querySelector(`#board [data-row="${r}"][data-col="${c}"]`);
+    const piece = cell(2, 1).querySelector(".edge-obj");
+    const a = cell(2, 1).getBoundingClientRect();
+    const b = cell(2, 2).getBoundingClientRect();
+    const p = piece.getBoundingClientRect();
+    return {
+      centreOnLine: Math.abs(p.left + p.width / 2 - a.right) < 4 && Math.abs(a.right - b.left) < 4,
+      west: cell(2, 2).classList.contains("has-edge-W"),
+      east: cell(2, 1).classList.contains("has-edge-E"),
+      once: document.querySelectorAll('#board [data-row="2"] .edge-obj').length === 1,
+    };
+  });
+  check("a door between two rooms is centred on the wall line", sharedDoor.centreOnLine, JSON.stringify(sharedDoor));
+  check(
+    "both cells it lies between know about it, and it is drawn only once",
+    sharedDoor.east && sharedDoor.west && sharedDoor.once,
+    JSON.stringify(sharedDoor)
+  );
+  await page.click('[aria-label="Object: Door"]');
+  await page.locator(".side-btn").nth(2).click(); // South
+  await page.click('#board [data-row="0"][data-col="1"]'); // inside the Lighthouse: no wall below
+  const notice = await page.locator("p.violation[role=alert]").allInnerTexts();
+  check(
+    "a door inside a room is refused, with a notice",
+    (await pieces()) === 3 && notice.some((t) => /no wall/i.test(t)),
+    notice.join(" | ")
+  );
+  await page.click('#board [data-row="1"][data-col="1"]'); // Lighthouse | Bedroom wall
+  check("a door on a wall between two rooms is placed", (await pieces()) === 4, String(await pieces()));
+  const both = await page.evaluate(() => {
+    const cell = (r, c) => document.querySelector(`#board [data-row="${r}"][data-col="${c}"]`);
+    return cell(1, 1).classList.contains("has-edge-S") && cell(2, 1).classList.contains("has-edge-N");
+  });
+  check("the new door belongs to both cells", both);
+  await page.click('[aria-label="Object: Window"]');
+  await page.locator(".side-btn").nth(0).click(); // North of the cell below: the same segment
+  await page.click('#board [data-row="2"][data-col="1"]');
+  const replaced = await page.evaluate(() => {
+    const piece = document.querySelector('#board [data-row="1"][data-col="1"] .edge-S');
+    return { title: piece?.title || "", below: document.querySelector('#board [data-row="2"][data-col="1"] .edge-N') !== null };
+  });
+  check(
+    "a window put on the same segment from the other side replaces the door (one piece per segment)",
+    (await pieces()) === 4 && /Window/.test(replaced.title) && !replaced.below,
+    JSON.stringify(replaced)
+  );
+  // right-click near the top side of the cell below: the nearest piece is the shared one
+  await page.click('#board [data-row="2"][data-col="1"]', { button: "right", position: { x: 28, y: 3 } });
+  check("erasing from the other cell removes the shared piece", (await pieces()) === 3, String(await pieces()));
+
   // The map editor's own tools: add a room, paint a cell, place a prop, resize the grid.
   await page.fill('input[placeholder="Room name"]', "Test room");
   await page.click("text=+ Add room");

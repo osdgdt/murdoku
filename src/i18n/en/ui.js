@@ -411,8 +411,14 @@ export default {
   "{label} ({row},{col}, lato {side})": "{label} ({row},{col}, {side} side)",
   "{label} (lato {side})": "{label} ({side} side)",
   "Pavimento: {label}": "Floor: {label}",
-  "Porte e finestre stanno su un lato della cella: scegli il lato qui sopra e clicca sulle celle (puoi metterne più di una nella stessa cella, su lati diversi, e una persona può starci). Con la gomma o il tasto destro si toglie quella più vicina al click.":
-    "Doors and windows sit on one side of a cell: pick the side above and click the cells (you can put several in the same cell, on different sides, and a person can stand there too). The eraser or a right-click removes the one nearest to the click.",
+  "Porte e finestre sono un pezzo di muro, condiviso dalle due caselle ai suoi lati: scegli qui sopra da quale lato della casella cliccata va messo. Si possono mettere solo su un muro (tra due stanze, tra una stanza e l'esterno, o sul bordo della mappa), e le persone possono stare in entrambe le caselle. Con la gomma o il tasto destro si toglie quella più vicina al click.":
+    "Doors and windows are a piece of wall, shared by the two cells on its sides: pick above which side of the clicked cell it goes on. They can only go on a wall (between two rooms, between a room and the outside, or on the edge of the map), and people can stand in both cells. The eraser or a right-click removes the one nearest to the click.",
+  "Qui non c'è un muro: porte e finestre vanno tra due stanze, tra una stanza e l'esterno, o sul bordo della mappa.":
+    "There is no wall here: doors and windows go between two rooms, between a room and the outside, or on the edge of the map.",
+  "⚠ Una porta o finestra non è più su un muro (le stanze sono cambiate): spostala o cancellala.":
+    "⚠ A door or window is no longer on a wall (the rooms have changed): move it or delete it.",
+  "⚠ {n} porte o finestre non sono più su un muro (le stanze sono cambiate): spostale o cancellale.":
+    "⚠ {n} doors or windows are no longer on a wall (the rooms have changed): move them or delete them.",
   "Lato della cella": "Cell side",
   Lato: "Side",
   "Parquet a quadrotti": "Parquet squares",

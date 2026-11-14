@@ -2,7 +2,7 @@ import { CLUE_TYPES } from "../model/clueTypes.js";
 import { isObjectTypeSeat } from "../model/icons.js";
 import { isUsable, isOccupiable } from "../model/grid.js";
 import { resolveTargetPositions, buildPredicates } from "./predicates/index.js";
-import { windowFrontPositions } from "./predicates/helpers.js";
+import { objectPositions } from "./predicates/helpers.js";
 
 // Resolves the "proprietà" (property) family shared by several clue types
 // (someoneInRoomWithProperty, aloneWithPersonProperty, someoneAtDirectionDistance,
@@ -83,11 +83,11 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
   if (isPropertyBased) cells.push(...resolvePropertyTargets(clue.params || {}, puzzle, placementMap));
 
   // inFrontOfWindow: nessun parametro dichiarato, ma il bersaglio sono le
-  // caselle davanti a ogni finestra (le due che la finestra separa, o solo la
-  // sua se dall'altra parte non c'è una stanza).
+  // caselle davanti a ogni finestra (le due che la finestra separa, o la sola
+  // casella se la finestra è sul bordo della mappa).
   if (clue.type === "inFrontOfWindow") {
     for (const o of puzzle.grid.objects) {
-      if (o.typeId === "window") cells.push(...windowFrontPositions(puzzle, o));
+      if (o.typeId === "window") cells.push(...objectPositions(puzzle, o));
     }
   }
 

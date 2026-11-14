@@ -1,5 +1,5 @@
 import { isAdjacent } from "../../util/geometry.js";
-import { cellAt } from "../../model/grid.js";
+import { cellAt, edgeCells, isUsable } from "../../model/grid.js";
 import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeSeat, isEdgeObjectType } from "../../model/icons.js";
 import { buildPredicate } from "./index.js";
 
@@ -11,48 +11,32 @@ export function posOfCharacter(placementMap, characterId) {
   return placementMap.get(characterId) || null;
 }
 
-// Where an object counts as being. A door/window sits on a SIDE of its cell
-// instead of filling it, so its position is flagged `edge: true`: someone
-// standing in that very cell is "next to" it too (see geometry.js' isAdjacent).
-// Always a fresh object — callers must never mutate the placement map's.
-function objectPosition(obj) {
-  return isEdgeObjectType(obj.typeId) ? { row: obj.row, col: obj.col, edge: true } : { row: obj.row, col: obj.col };
-}
-
-export function posOfObject(puzzle, objectId) {
-  const obj = puzzle.grid.objects.find((o) => o.id === objectId);
-  return obj ? objectPosition(obj) : null;
+// Where an object counts as being. Furniture is in its own cell. A door/window
+// is a piece of a WALL, shared by the two cells it lies between (or one, on the
+// border of the map): it counts as being in each of those cells that a person
+// can stand in, so its positions are flagged `edge: true`. Always fresh objects —
+// callers must never mutate the placement map's.
+export function objectPositions(puzzle, obj) {
+  if (!isEdgeObjectType(obj.typeId)) return [{ row: obj.row, col: obj.col }];
+  return edgeCells(puzzle.grid, obj)
+    .filter((c) => isUsable(puzzle.grid, c.row, c.col))
+    .map((c) => ({ row: c.row, col: c.col, edge: true }));
 }
 
 // "Next to" a character or object: orthogonally adjacent AND in the same room
 // as the target — standing across a wall, in the next room, doesn't count.
+// (Doors and windows are the exception, see below.)
 // (Two cells outside any room count as the same open area, like on the board.)
 // A ROOM as the target is the opposite: "next to the kitchen" means touching
 // one of its walls from OUTSIDE — standing inside the kitchen doesn't count.
 // Those positions carry `room: true` and the room's `zoneId`.
 export function isNextTo(puzzle, a, target) {
+  // A door/window is next to whoever stands in either cell it lies between (they
+  // may be in different rooms: the piece is in the wall between them).
+  if (target.edge === true) return a.row === target.row && a.col === target.col;
   if (!isAdjacent(a, target)) return false;
   if (target.room === true) return zoneAt(puzzle, a) !== target.zoneId;
   return zoneAt(puzzle, a) === zoneAt(puzzle, target);
-}
-
-// The cells "in front of" a window: the two cells the window separates (it sits
-// on one side of its own cell, so the other one is the neighbour on that side),
-// or just its own cell when there is no room on the other side — the map ends
-// there, the cell is blocked, or it belongs to no room.
-const SIDE_STEP = { N: [-1, 0], E: [0, 1], S: [1, 0], W: [0, -1] };
-export function windowFrontPositions(puzzle, windowObj) {
-  const positions = [{ row: windowObj.row, col: windowObj.col }];
-  const [dr, dc] = SIDE_STEP[windowObj.side || "N"] || SIDE_STEP.N;
-  const neighbor = cellAt(puzzle.grid, windowObj.row + dr, windowObj.col + dc);
-  if (neighbor && !neighbor.blocked && neighbor.zoneId) positions.push({ row: windowObj.row + dr, col: windowObj.col + dc });
-  return positions;
-}
-
-export function resolveTargetPos(placementMap, puzzle, targetId) {
-  const charPos = posOfCharacter(placementMap, targetId);
-  if (charPos) return charPos;
-  return posOfObject(puzzle, targetId);
 }
 
 export function positionsInZone(puzzle, zoneId) {
@@ -78,13 +62,15 @@ export function positionsInZone(puzzle, zoneId) {
 export function resolveTargetPositions(placementMap, puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
     const typeId = parseObjectTypeTarget(targetId);
-    return puzzle.grid.objects.filter((o) => o.typeId === typeId).map(objectPosition);
+    return puzzle.grid.objects.filter((o) => o.typeId === typeId).flatMap((o) => objectPositions(puzzle, o));
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
     return positionsInZone(puzzle, targetId).map((p) => ({ ...p, room: true, zoneId: targetId }));
   }
-  const pos = resolveTargetPos(placementMap, puzzle, targetId);
-  return pos ? [pos] : null;
+  const charPos = posOfCharacter(placementMap, targetId);
+  if (charPos) return [charPos];
+  const obj = puzzle.grid.objects.find((o) => o.id === targetId);
+  return obj ? objectPositions(puzzle, obj) : null;
 }
 
 export function zoneAt(puzzle, pos) {

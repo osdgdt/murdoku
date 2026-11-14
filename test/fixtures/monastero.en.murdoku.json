@@ -563,7 +563,7 @@
       "type": "directionDistance",
       "params": {
         "direction": "north",
-        "distance": 2,
+        "distance": 3,
         "targetId": "o4"
       }
     },

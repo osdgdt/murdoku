@@ -128,13 +128,12 @@ export function renderBoard(
     }
   }
 
-  // The room's name is written ON the room: a small tab in the top-left of its
-  // first cell, spanning along that row while the cells to the right are free
-  // of objects. The cells under the tab are flagged so notes keep clear of it.
-  // (Anchor: first cell in reading order with no object and no door/window on
-  // its north side, so the tab never covers a drawing.)
-  const roomName = new Map(); // "r,c" -> { zone, span }
-  const roomNameCells = new Set();
+  // The room's name is written ON the room, once: a small tab in the top-left of
+  // its first cell, as wide as the name (one cell at most). The cell under it is
+  // flagged so notes keep clear of it. (Anchor: first cell in reading order with
+  // no object and no door/window on its north side, so the tab never covers a
+  // drawing.)
+  const roomName = new Map(); // "r,c" -> zone
   const freeForName = (r, c) => {
     const cd = grid.cells[r][c];
     if (cd.blocked || cd.objectId) return false;
@@ -145,17 +144,12 @@ export function renderBoard(
     for (let r = 0; r < grid.size.rows && !anchor; r++) {
       for (let c = 0; c < grid.size.cols; c++) {
         if (grid.cells[r][c].zoneId === zone.id && !grid.cells[r][c].blocked && freeForName(r, c)) {
-          anchor = [r, c];
+          anchor = `${r},${c}`;
           break;
         }
       }
     }
-    if (!anchor) continue;
-    const [ar, ac] = anchor;
-    let span = 1;
-    while (ac + span < grid.size.cols && grid.cells[ar][ac + span].zoneId === zone.id && freeForName(ar, ac + span)) span++;
-    roomName.set(`${ar},${ac}`, { zone, span });
-    for (let i = 0; i < span; i++) roomNameCells.add(`${ar},${ac + i}`);
+    if (anchor) roomName.set(anchor, zone);
   }
 
   // role="grid" requires row -> cell ownership. The rows are `display: contents`
@@ -212,7 +206,7 @@ export function renderBoard(
       let classes = "board-cell";
       if (cellData.blocked) classes += " blocked";
       if (zone) classes += floorOf(zone).own ? " zoned floored" : " zoned";
-      if (roomNameCells.has(`${r},${c}`)) classes += " has-room-name";
+      if (roomName.has(`${r},${c}`)) classes += " has-room-name";
       for (const edge of edgesByCell.get(`${r},${c}`) || []) classes += ` has-edge-${edge.side || "N"}`;
       if (wallBetween(r, c, r - 1, c)) classes += " wall-t";
       if (wallBetween(r, c, r, c + 1)) classes += " wall-r";
@@ -352,16 +346,8 @@ export function renderBoard(
         }
       }
 
-      const nameTag = roomName.get(`${r},${c}`);
-      if (nameTag) {
-        cellNode.appendChild(
-          el(
-            "span",
-            { class: "room-name", style: `--span:${nameTag.span}`, title: nameTag.zone.name, "aria-hidden": "true" },
-            nameTag.zone.name
-          )
-        );
-      }
+      const nameZone = roomName.get(`${r},${c}`);
+      if (nameZone) cellNode.appendChild(el("span", { class: "room-name", title: nameZone.name, "aria-hidden": "true" }, nameZone.name));
 
       for (const edge of edgesByCell.get(`${r},${c}`) || []) {
         const def = objectIcon(edge.typeId);

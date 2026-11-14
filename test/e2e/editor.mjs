@@ -107,6 +107,22 @@ try {
     await legend()
   );
   check("the new name is on the board too", (await page.locator(".room-name, .room-label-text", { hasText: "Throne room" }).count()) >= 1);
+  // The name is written once per room, in one cell, on a tab no wider than that cell.
+  const tabs = await page.evaluate(() => {
+    const names = [...document.querySelectorAll(".board-cell .room-name")];
+    return {
+      rooms: document.querySelectorAll(".room-legend-item").length,
+      tabs: names.length,
+      distinct: new Set(names.map((n) => n.textContent)).size,
+      tooWide: names.filter((n) => n.getBoundingClientRect().width > n.closest(".board-cell").getBoundingClientRect().width + 0.5).length,
+    };
+  });
+  check(
+    "each room's name is on the map once, not on every cell",
+    tabs.tabs === tabs.distinct && tabs.tabs <= tabs.rooms && tabs.tabs >= 1,
+    JSON.stringify(tabs)
+  );
+  check("a room-name tab never grows wider than its cell", tabs.tooWide === 0, JSON.stringify(tabs));
   await page.click("#editor-undo-btn");
   await page.waitForFunction(() => /Test room/.test(document.querySelector(".room-legend")?.innerText || ""));
   check("undo brings the old room name back", /Test room/.test(await legend()) && !/Throne room/.test(await legend()), await legend());

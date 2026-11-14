@@ -166,15 +166,18 @@
 .board-label-tappable:hover { background: var(--accent-soft); }
 .board-label-tappable:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 
-/* The room's name, written on the room itself: a small tab in the top-left of
-   its first free cell (see boardRender.js). Light chip + dark text so it reads
-   on any floor. */
+/* The room's name, written on the room itself, once: a small tab in the top-left
+   of its first free cell (see boardRender.js), as wide as the name and never
+   wider than the cell (a longer name is cut with an ellipsis; the full name is
+   in the tooltip and in the legend). Light chip + dark text so it reads on any
+   floor. */
 .board-cell .room-name {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1;
-  width: calc(var(--cell-size, 56px) * var(--span, 1));
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 1px 5px;
   font-size: clamp(9px, calc(var(--cell-size, 56px) * 0.18), 14px);
   font-weight: 800;

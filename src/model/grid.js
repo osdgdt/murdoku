@@ -70,8 +70,12 @@ export function setBlocked(grid, row, col, blocked) {
   cell.blocked = blocked;
   if (blocked) {
     if (cell.objectId) removeObject(grid, cell.objectId);
-    for (const edge of edgeObjectsAt(grid, row, col)) removeObject(grid, edge.id);
     cell.zoneId = null;
+    // A door/window between this cell and a usable one stays (it is now on the
+    // outer wall of that room); one left with no usable cell at all goes.
+    for (const edge of edgeObjectsAt(grid, row, col)) {
+      if (!edgeCells(grid, edge).some((c) => isUsable(grid, c.row, c.col))) removeObject(grid, edge.id);
+    }
   }
 }
 
@@ -128,20 +132,92 @@ export function paintCellZone(grid, row, col, zoneId) {
   cell.zoneId = zoneId;
 }
 
+// ---------------------------------------------------------------- walls and edge pieces
+// Doors, windows and the other edge types (OBJECT_TYPES' `edge` flag) are not
+// furniture: each is ONE piece of a WALL, shared by the two cells it lies
+// between, drawn across the line that separates them. It is stored as
+// { row, col, side }: the side of that cell the piece sits on. The S side of a
+// cell and the N side of the cell below are the same segment, so every reader
+// goes through the helpers below (edgeCells, edgeKey, ...) and never looks at
+// `side` alone; documents written before pieces were shared (always from one
+// cell's point of view) therefore keep working unchanged.
+const SIDE_STEP = { N: [-1, 0], E: [0, 1], S: [1, 0], W: [0, -1] };
+
+// Where `side` of (row, col) leads: the other cell of that segment (it may be
+// outside the grid, when the segment is on the border of the map).
+export function edgeNeighbor(row, col, side = "N") {
+  const [dr, dc] = SIDE_STEP[side] || SIDE_STEP.N;
+  return { row: row + dr, col: col + dc };
+}
+
+// One way to write each segment: E and S, except on the first row/column where
+// N/W have no cell beyond (a piece on the border of the map).
+export function normalizeEdge(row, col, side = "N") {
+  if (!SIDE_STEP[side]) side = "N";
+  if (side === "N" && row > 0) return { row: row - 1, col, side: "S" };
+  if (side === "W" && col > 0) return { row, col: col - 1, side: "E" };
+  return { row, col, side };
+}
+
+export function edgeKey(obj) {
+  const n = normalizeEdge(obj.row, obj.col, obj.side || "N");
+  return `${n.row},${n.col},${n.side}`;
+}
+
+// The cells (inside the grid) a piece lies between: two, or one when it is on
+// the border of the map. Not filtered by blocked/usable.
+export function edgeCells(grid, obj) {
+  const cells = [{ row: obj.row, col: obj.col }];
+  const other = edgeNeighbor(obj.row, obj.col, obj.side || "N");
+  if (inBounds(grid, other.row, other.col)) cells.push(other);
+  return cells;
+}
+
+const zoneKeyAt = (grid, r, c) => {
+  const cell = grid.cells[r][c];
+  return !cell.blocked && cell.zoneId ? cell.zoneId : null;
+};
+
+// Whether a wall is drawn between two neighbouring cells: a different room, or a
+// room against the outside / a blocked cell. Two cells outside any room are the
+// same open area (no wall). The border of the map has its own frame, so it is
+// not counted here (see isWallEdge for the pieces that sit on it).
+export function wallBetween(grid, r1, c1, r2, c2) {
+  if (!inBounds(grid, r2, c2)) return false;
+  const a = zoneKeyAt(grid, r1, c1);
+  const b = zoneKeyAt(grid, r2, c2);
+  if (a === null && b === null) return false;
+  return a !== b;
+}
+
+// Whether the segment on `side` of (row, col) is a wall: between two rooms, a
+// room and the outside, or on the border of the map. Doors and windows only go
+// on walls.
+export function isWallEdge(grid, row, col, side = "N") {
+  if (!inBounds(grid, row, col)) return false;
+  const other = edgeNeighbor(row, col, side);
+  if (!inBounds(grid, other.row, other.col)) return true;
+  return wallBetween(grid, row, col, other.row, other.col);
+}
+
 // Whole-cell furniture: one per cell, placing over an existing one replaces it.
-// Edge types (doors, windows — see OBJECT_TYPES' `edge`): sit on ONE side of
-// the cell (`side`, default "N"), never touch cell.objectId (so the cell stays
-// free for a person), several per cell are fine, but only one per (cell,
-// side) — placing on an already-used side replaces what's there.
+// Edge types (see above): only on a WALL — between two rooms, a room and the
+// outside, or on the border of the map — and only one per segment (placing on a
+// used segment replaces what is there). They never touch cell.objectId, so the
+// cells stay free for people. Returns null when nothing was placed.
 export function placeObject(grid, typeId, row, col, side = "N") {
-  if (!isUsable(grid, row, col)) return null;
   if (isEdgeObjectType(typeId)) {
-    const existing = edgeObjectsAt(grid, row, col).find((o) => o.side === side);
-    if (existing) removeObject(grid, existing.id);
-    const edge = { id: makeId("obj"), typeId, row, col, side };
-    grid.objects.push(edge);
-    return edge;
+    const edge = normalizeEdge(row, col, side);
+    if (!inBounds(grid, edge.row, edge.col)) return null;
+    if (!edgeCells(grid, edge).some((c) => isUsable(grid, c.row, c.col))) return null;
+    if (!isWallEdge(grid, edge.row, edge.col, edge.side)) return null;
+    const key = edgeKey(edge);
+    for (const old of grid.objects.filter((o) => isEdgeObjectType(o.typeId) && edgeKey(o) === key)) removeObject(grid, old.id);
+    const piece = { id: makeId("obj"), typeId, ...edge };
+    grid.objects.push(piece);
+    return piece;
   }
+  if (!isUsable(grid, row, col)) return null;
   const existingId = grid.cells[row][col].objectId;
   if (existingId) removeObject(grid, existingId);
   const obj = { id: makeId("obj"), typeId, row, col };
@@ -150,9 +226,25 @@ export function placeObject(grid, typeId, row, col, side = "N") {
   return obj;
 }
 
-// Doors/windows sitting on any side of this cell.
+// Doors/windows lying on any side of this cell (each also lies on a neighbour).
 export function edgeObjectsAt(grid, row, col) {
-  return grid.objects.filter((o) => o.row === row && o.col === col && isEdgeObjectType(o.typeId));
+  return grid.objects.filter((o) => isEdgeObjectType(o.typeId) && edgeCells(grid, o).some((c) => c.row === row && c.col === col));
+}
+
+// The piece on one side of a cell, if any (whichever cell it is stored under).
+export function edgeObjectOnSide(grid, row, col, side = "N") {
+  const key = edgeKey({ row, col, side });
+  return grid.objects.find((o) => isEdgeObjectType(o.typeId) && edgeKey(o) === key) || null;
+}
+
+// Pieces that are not on a wall any more (the rooms were repainted around them),
+// or that have no usable cell: the editor warns about them.
+export function misplacedEdgeObjects(grid) {
+  return grid.objects.filter(
+    (o) =>
+      isEdgeObjectType(o.typeId) &&
+      (!isWallEdge(grid, o.row, o.col, o.side || "N") || !edgeCells(grid, o).some((c) => isUsable(grid, c.row, c.col)))
+  );
 }
 
 export function removeObject(grid, objectId) {

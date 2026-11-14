@@ -45,8 +45,8 @@ export default {
     "If the target is a room, “next to” means next to one of its walls, but from outside: you stand on a cell that touches the room without being part of it. Someone inside the room doesn't count.",
 
   // near
-  "Il personaggio sta in una casella confinante (sopra, sotto, a destra o a sinistra) con il bersaglio. Le diagonali non contano. Per una porta o una finestra, che stanno sul bordo di una casella, vale anche chi è in quella stessa casella.":
-    "The character stands on a cell touching the target (above, below, left or right). Diagonals don't count. For a door or a window, which sit on the edge of a cell, someone standing in that very cell counts too.",
+  "Il personaggio sta in una casella confinante (sopra, sotto, a destra o a sinistra) con il bersaglio. Le diagonali non contano. Una porta o una finestra è un pezzo di muro tra due caselle: vale chi sta in una di quelle due caselle, anche se sono in stanze diverse.":
+    "The character stands on a cell touching the target (above, below, left or right). Diagonals don't count. A door or a window is a piece of wall between two cells: it counts for whoever stands in either of those two cells, even if they are in different rooms.",
   "Conta solo la stanza del bersaglio: la casella a destra della pianta, oltre il muro, è nel Salotto e non vale.":
     "Only the target's own room counts: the cell to the right of the plant, beyond the wall, is in the Lounge and doesn't count.",
   "Il personaggio sta in una delle quattro caselle in diagonale rispetto al bersaglio. A differenza di «accanto», le stanze qui non contano.":
@@ -143,8 +143,8 @@ export default {
     "“Is next to a plant” · “Was next to a plant” · “Will be next to a plant”",
   "Qui «accanto alla Cucina» significa le caselle del Salotto e dello Studio che confinano con la Cucina, non quelle della Cucina stessa.":
     "Here “next to the Kitchen” means the cells of the Lounge and the Study that border the Kitchen, not those of the Kitchen itself.",
-  "Una finestra sta sul lato di una casella e separa due caselle: il personaggio è in una delle due. Se dall'altra parte non c'è una stanza (il bordo della mappa, o una casella bloccata), vale solo la casella della finestra.":
-    "A window sits on the side of a cell and separates two cells: the character is in one of them. If there is no room on the other side (the edge of the map, or a blocked cell), only the window's own cell counts.",
+  "Una finestra è un pezzo di muro e separa due caselle: il personaggio è in una delle due, anche se sono in stanze diverse. Se è sul bordo della mappa (o dall'altra parte c'è una casella bloccata), vale solo la casella utilizzabile.":
+    "A window is a piece of wall and separates two cells: the character is in one of them, even if they are in different rooms. If it is on the edge of the map (or there is a blocked cell on the other side), only the usable cell counts.",
   "La finestra nel muro tra Cucina e Salotto vale per le due caselle ai suoi lati; quella sul bordo in alto vale solo per la sua casella.":
     "The window in the wall between Kitchen and Lounge counts for the two cells on its sides; the one on the top edge counts only for its own cell.",
 

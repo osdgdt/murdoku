@@ -9,7 +9,7 @@ import {
   isStrictlyBetween,
   characterHasProperty,
   isMoreExtreme,
-  windowFrontPositions,
+  objectPositions,
 } from "./helpers.js";
 
 export const builders = {
@@ -40,13 +40,13 @@ export const builders = {
   },
 
   inFrontOfWindow: ({ clue, puzzle, ownerId, params }) => {
-    // In one of the two cells a window separates, or in the window's own
-    // cell when nothing is on the other side (see windowFrontPositions).
+    // In one of the two cells a window lies between, or in its only cell when
+    // the window is on the border of the map (see objectPositions).
     return (pm) => {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
       return puzzle.grid.objects.some(
-        (o) => o.typeId === "window" && windowFrontPositions(puzzle, o).some((p) => p.row === a.row && p.col === a.col)
+        (o) => o.typeId === "window" && objectPositions(puzzle, o).some((p) => p.row === a.row && p.col === a.col)
       );
     };
   },

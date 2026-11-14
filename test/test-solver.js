@@ -378,8 +378,8 @@ export const tests = [
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
-      placeObject(puzzle.grid, "door", 2, 2); // porta lontana da A
-      placeObject(puzzle.grid, "door", 0, 1); // porta vicina ad A
+      placeObject(puzzle.grid, "door", 2, 2, "S"); // porta lontana da A
+      placeObject(puzzle.grid, "door", 0, 0, "N"); // porta nella casella di A (sul bordo: una sola casella)
       const clue = addClue(puzzle, a.id, "adjacent", { targetId: objectTypeTargetId("door") });
       const predicate = buildPredicate(clue, puzzle);
       const pm = mapOf([[a.id, { row: 0, col: 0 }]]);
@@ -403,13 +403,13 @@ export const tests = [
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
       const b = addCharacter(puzzle, "B", "person2");
-      placeObject(puzzle.grid, "door", 0, 1); // porta vicina ad A
-      placeObject(puzzle.grid, "door", 2, 2); // porta vicina a B, ma A non è vicino a questa
+      placeObject(puzzle.grid, "door", 0, 0, "N"); // porta di A (sul bordo: una sola casella)
+      placeObject(puzzle.grid, "door", 2, 2, "S"); // porta di B, ma A non è vicino a questa
       const clue = addClue(puzzle, a.id, "onlyPersonNear", { targetId: objectTypeTargetId("door") });
       const predicate = buildPredicate(clue, puzzle);
       const pm = mapOf([
         [a.id, { row: 0, col: 0 }],
-        [b.id, { row: 2, col: 1 }], // vicino solo alla porta (2,2), non a quella di A
+        [b.id, { row: 2, col: 2 }], // nella casella dell'altra porta, non di quella di A
       ]);
       assertEqual(predicate(pm, true), true, "B è vicino a un'altra porta, non deve invalidare l'indizio di A");
     },
@@ -974,18 +974,23 @@ export const tests = [
     },
   },
   {
-    name: "predicate adjacent a una porta (elemento di bordo): vero nella stessa cella e nelle ortogonali, falso a distanza 2 e in diagonale",
+    name: "predicate adjacent a una porta (pezzo di muro): vero in ognuna delle due caselle che unisce, anche se sono in stanze diverse; falso in tutte le altre",
     fn: () => {
       const puzzle = basePuzzle(5, 5);
       const a = addCharacter(puzzle, "A", "person1");
-      const door = placeObject(puzzle.grid, "door", 2, 2, "N");
+      const left = addZone(puzzle.grid, "Sinistra", "#eee");
+      const right = addZone(puzzle.grid, "Destra", "#ddd");
+      for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) paintCellZone(puzzle.grid, r, c, c < 3 ? left.id : right.id);
+      const door = placeObject(puzzle.grid, "door", 2, 2, "E"); // nel muro tra (2,2) e (2,3)
       const predicate = buildPredicate(addClue(puzzle, a.id, "adjacent", { targetId: door.id }), puzzle);
       const at = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
-      assertEqual(at(2, 2), true, "nella cella della porta");
-      assertEqual(at(1, 2), true);
-      assertEqual(at(2, 3), true);
-      assertEqual(at(2, 4), false, "distanza 2");
-      assertEqual(at(1, 1), false, "diagonale");
+      assertEqual(at(2, 2), true, "da questo lato del muro");
+      assertEqual(at(2, 3), true, "dall'altro lato, in un'altra stanza");
+      assertEqual(at(1, 2), false, "vicina alla casella della porta ma non una delle due");
+      assertEqual(at(2, 1), false);
+      assertEqual(at(2, 4), false);
+      assertEqual(at(1, 3), false);
+      assertEqual(at(0, 0), false);
     },
   },
   {
@@ -1077,10 +1082,10 @@ export const tests = [
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
       const b = addCharacter(puzzle, "B", "person2");
-      const door = placeObject(puzzle.grid, "door", 1, 1);
+      const door = placeObject(puzzle.grid, "door", 1, 0, "W"); // sul bordo: una sola casella, (1,0)
       const clue = addClue(puzzle, null, "noOneNear", { targetId: door.id });
       const predicate = buildPredicate(clue, puzzle);
-      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }]]), false), false, "A è adiacente alla porta");
+      assertEqual(predicate(mapOf([[a.id, { row: 1, col: 0 }]]), false), false, "A è nella casella della porta");
       assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }]]), false), undefined, "B non ancora piazzato");
       assertEqual(
         predicate(
@@ -1105,25 +1110,28 @@ export const tests = [
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
       const b = addCharacter(puzzle, "B", "person2");
-      const door = placeObject(puzzle.grid, "door", 1, 1);
+      const left = addZone(puzzle.grid, "Sinistra", "#eee");
+      const right = addZone(puzzle.grid, "Destra", "#ddd");
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) paintCellZone(puzzle.grid, r, c, c < 2 ? left.id : right.id);
+      const door = placeObject(puzzle.grid, "door", 1, 1, "E"); // nel muro tra (1,1) e (1,2)
       const clue = addClue(puzzle, null, "exactlyOneNear", { targetId: door.id });
       const predicate = buildPredicate(clue, puzzle);
       assertEqual(
         predicate(
           mapOf([
-            [a.id, { row: 0, col: 1 }],
-            [b.id, { row: 1, col: 0 }],
+            [a.id, { row: 1, col: 1 }],
+            [b.id, { row: 1, col: 2 }],
           ]),
           false
         ),
         false,
-        "entrambi vicino alla porta: già troppi"
+        "uno per lato: entrambi vicino alla porta, già troppi"
       );
-      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }]]), false), undefined, "solo uno per ora, B potrebbe ancora avvicinarsi o no");
+      assertEqual(predicate(mapOf([[a.id, { row: 1, col: 1 }]]), false), undefined, "solo uno per ora, B potrebbe ancora avvicinarsi o no");
       assertEqual(
         predicate(
           mapOf([
-            [a.id, { row: 0, col: 1 }],
+            [a.id, { row: 1, col: 1 }],
             [b.id, { row: 2, col: 2 }],
           ]),
           true
@@ -1464,12 +1472,12 @@ export const tests = [
     fn: () => {
       const puzzle = basePuzzle();
       const a = addCharacter(puzzle, "A", "person1");
-      const window = placeObject(puzzle.grid, "window", 1, 1);
+      const window = placeObject(puzzle.grid, "window", 1, 0, "W"); // sul bordo: la sua casella è (1,0)
       const clue = addClue(puzzle, a.id, "facing", { targetId: window.id });
       const predicate = buildPredicate(clue, puzzle);
-      assertEqual(predicate(mapOf([[a.id, { row: 1, col: 0 }]]), true), true, "stessa riga della finestra");
-      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }]]), true), true, "stessa colonna della finestra");
-      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }]]), true), false, "né riga né colonna in comune");
+      assertEqual(predicate(mapOf([[a.id, { row: 1, col: 2 }]]), true), true, "stessa riga della finestra");
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 0 }]]), true), true, "stessa colonna della finestra");
+      assertEqual(predicate(mapOf([[a.id, { row: 0, col: 1 }]]), true), false, "né riga né colonna in comune");
 
       const emptyClue = addClue(puzzle, a.id, "facing", { targetId: objectTypeTargetId("door") });
       const emptyPredicate = buildPredicate(emptyClue, puzzle);
@@ -1738,11 +1746,11 @@ export const tests = [
       const puzzle = basePuzzle(3, 4);
       const a = addCharacter(puzzle, "A", "person1");
       const b = addCharacter(puzzle, "B", "person2");
-      const door = placeObject(puzzle.grid, "door", 0, 2);
       const zone = addZone(puzzle.grid, "Studio", "#fff");
       paintCellZone(puzzle.grid, 0, 0, zone.id);
       paintCellZone(puzzle.grid, 0, 1, zone.id);
-      paintCellZone(puzzle.grid, 0, 2, zone.id); // la porta è nella stessa stanza: "accanto" vale solo dentro la stanza del bersaglio
+      paintCellZone(puzzle.grid, 0, 2, zone.id);
+      const door = placeObject(puzzle.grid, "door", 0, 2, "E"); // nel muro tra lo Studio e (0,3): unisce (0,2) e (0,3)
       const clue = addClue(puzzle, a.id, "someoneInRoomWithProperty", { property: "adjacentTo", targetId: door.id });
       const predicate = buildPredicate(clue, puzzle);
       assertEqual(
@@ -1765,12 +1773,23 @@ export const tests = [
         predicate(
           mapOf([
             [a.id, { row: 0, col: 0 }],
-            [b.id, { row: 0, col: 1 }],
+            [b.id, { row: 0, col: 2 }],
           ]),
           true
         ),
         true,
-        "B è nella stanza di A ed è accanto alla porta"
+        "B è nella stanza di A e sta in una delle due caselle della porta"
+      );
+      assertEqual(
+        predicate(
+          mapOf([
+            [a.id, { row: 0, col: 0 }],
+            [b.id, { row: 0, col: 1 }],
+          ]),
+          true
+        ),
+        false,
+        "vicino alla casella della porta non basta: deve stare in una delle due"
       );
     },
   },
@@ -3154,24 +3173,24 @@ export const tests = [
     },
   },
   {
-    name: "predicate inFrontOfWindow: se dall'altra parte non c'è una stanza vale solo la casella della finestra",
+    name: "predicate inFrontOfWindow: sul bordo della mappa o verso una casella bloccata vale la sola casella utilizzabile; verso una casella senza stanza valgono entrambe",
     fn: () => {
       const puzzle = basePuzzle(4, 4);
       const a = addCharacter(puzzle, "A", "person1");
       const z = addZone(puzzle.grid, "Z", "#eee");
       for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) paintCellZone(puzzle.grid, r, c, z.id);
-      placeObject(puzzle.grid, "window", 0, 0, "N"); // sul bordo della mappa
-      placeObject(puzzle.grid, "window", 2, 3, "S"); // verso una casella bloccata
       setBlocked(puzzle.grid, 3, 3, true);
-      placeObject(puzzle.grid, "window", 1, 2, "W"); // verso una casella senza stanza
       puzzle.grid.cells[1][1].zoneId = null;
+      assert(placeObject(puzzle.grid, "window", 0, 0, "N"), "sul bordo della mappa");
+      assert(placeObject(puzzle.grid, "window", 2, 3, "S"), "verso una casella bloccata");
+      assert(placeObject(puzzle.grid, "window", 1, 2, "W"), "verso una casella senza stanza");
       const predicate = buildPredicate(addClue(puzzle, a.id, "inFrontOfWindow", {}), puzzle);
       const at = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
       assertEqual(at(0, 0), true, "bordo della mappa: la sua casella");
       assertEqual(at(2, 3), true, "verso una casella bloccata: la sua casella");
       assertEqual(at(3, 3), false, "la casella bloccata non conta");
-      assertEqual(at(1, 2), true, "verso una casella senza stanza: la sua casella");
-      assertEqual(at(1, 1), false, "la casella senza stanza non conta");
+      assertEqual(at(1, 2), true, "la casella della stanza");
+      assertEqual(at(1, 1), true, "la casella senza stanza, dall'altra parte del muro, vale anche lei");
       assertEqual(at(3, 0), false);
     },
   },

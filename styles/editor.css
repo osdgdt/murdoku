@@ -287,12 +287,14 @@
 .board-cell.wall-b { border-bottom: 3px solid var(--ink); }
 .board-cell.wall-l { border-left: 3px solid var(--ink); }
 
-/* Doors/windows: a thin piece on ONE side of the cell (see boardRender.js),
-   below tokens/icons (z-index 2) so a person standing in the cell stays fully
-   visible, and never intercepting the press/click aimed at the cell itself.
-   E/W pieces are the horizontal artwork rotated 90deg around their center. */
+/* Doors/windows: a piece of the WALL between two cells (see boardRender.js),
+   drawn once, centred on the line that separates them: half in each cell, over
+   the wall line, so the wall seems to open there. Below tokens/icons (z-index 2)
+   so a person standing next to it stays fully visible, and never intercepting
+   the press/click aimed at a cell. E/W pieces are the horizontal artwork
+   rotated 90deg around their centre. */
 .board-cell .edge-obj {
-  --edge-w: calc(var(--cell-size, 56px) * 0.72);
+  --edge-w: calc(var(--cell-size, 56px) * 0.8);
   position: absolute;
   width: var(--edge-w);
   aspect-ratio: 4 / 1;
@@ -300,10 +302,10 @@
   pointer-events: none;
 }
 .board-cell .edge-obj svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.board-cell .edge-N { top: 2px; left: 50%; transform: translateX(-50%); }
-.board-cell .edge-S { bottom: 2px; left: 50%; transform: translateX(-50%); }
-.board-cell .edge-E { top: 50%; left: calc(100% - 2px - var(--edge-w) / 8); transform: translate(-50%, -50%) rotate(90deg); }
-.board-cell .edge-W { top: 50%; left: calc(2px + var(--edge-w) / 8); transform: translate(-50%, -50%) rotate(90deg); }
+.board-cell .edge-N { top: 0; left: 50%; transform: translate(-50%, -50%); }
+.board-cell .edge-S { top: 100%; left: 50%; transform: translate(-50%, -50%); }
+.board-cell .edge-W { top: 50%; left: 0; transform: translate(-50%, -50%) rotate(90deg); }
+.board-cell .edge-E { top: 50%; left: 100%; transform: translate(-50%, -50%) rotate(90deg); }
 
 .board-cell .obj-icon {
   position: relative;

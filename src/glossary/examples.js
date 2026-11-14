@@ -160,7 +160,7 @@ export const ENTRIES = [
     params: { targetId: "@o:0" },
     explain: () =>
       t(
-        "Il personaggio sta in una casella confinante (sopra, sotto, a destra o a sinistra) con il bersaglio. Le diagonali non contano. Per una porta o una finestra, che stanno sul bordo di una casella, vale anche chi è in quella stessa casella."
+        "Il personaggio sta in una casella confinante (sopra, sotto, a destra o a sinistra) con il bersaglio. Le diagonali non contano. Una porta o una finestra è un pezzo di muro tra due caselle: vale chi sta in una di quelle due caselle, anche se sono in stanze diverse."
       ),
     tip: () => t("Conta solo la stanza del bersaglio: la casella a destra della pianta, oltre il muro, è nel Salotto e non vale."),
     world: { map: TWO_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "plant", at: [2, 2] }] },
@@ -225,7 +225,7 @@ export const ENTRIES = [
     params: {},
     explain: () =>
       t(
-        "Una finestra sta sul lato di una casella e separa due caselle: il personaggio è in una delle due. Se dall'altra parte non c'è una stanza (il bordo della mappa, o una casella bloccata), vale solo la casella della finestra."
+        "Una finestra è un pezzo di muro e separa due caselle: il personaggio è in una delle due, anche se sono in stanze diverse. Se è sul bordo della mappa (o dall'altra parte c'è una casella bloccata), vale solo la casella utilizzabile."
       ),
     tip: () =>
       t(

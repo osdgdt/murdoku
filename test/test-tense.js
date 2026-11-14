@@ -299,11 +299,11 @@ export const tests = [
       assertEqual(describeClue(clue(ids.obj), puzzle), "È più vicino a una sedia che a Bruno.", "una sola sedia: nessuna ambiguità");
       const second = placeObject(puzzle.grid, "chair", 3, 2);
       assertEqual(describeClue(clue(second.id), puzzle), "È più vicino a una sedia (R4, C3) che a Bruno.");
-      const door = placeObject(puzzle.grid, "door", 1, 1, "S");
-      placeObject(puzzle.grid, "door", 2, 2, "E");
+      const door = placeObject(puzzle.grid, "door", 1, 0, "W"); // sul bordo della mappa
+      placeObject(puzzle.grid, "door", 0, 1, "N");
       assertEqual(
         describeClue({ id: "c", type: "adjacent", characterId: ids.owner, params: { targetId: door.id } }, puzzle),
-        "È accanto a una porta (R2, C2, lato Sud)."
+        "È accanto a una porta (R2, C1, lato Ovest)."
       );
       // «qualsiasi sedia» (bersaglio di tipo) resta generico, senza coordinate
       assertEqual(describeClue(clue("objtype:chair"), puzzle), "È più vicino a una sedia che a Bruno.");

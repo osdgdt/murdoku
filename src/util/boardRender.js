@@ -1,6 +1,7 @@
 import { el, clear } from "./dom.js";
 import { objectIcon, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { floorStyle } from "../model/textures.js";
+import { wallBetween as modelWallBetween, edgeCells } from "../model/grid.js";
 import { roomColor } from "../skin/paper/rooms.js";
 import { t } from "../i18n/i18n.js";
 import { setGestureCallbacks, isPressActive, startPress, enterCell, beginTouchPress } from "./boardGestures.js";
@@ -79,14 +80,28 @@ export function renderBoard(
   container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, var(--cell-size, ${CELL_SIZE}px))`;
 
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
-  // Doors/windows sit on a side of a cell (object.side), not inside it: group
-  // them per cell so each cell can draw its own thin edge pieces.
+  // Doors/windows are pieces of a WALL, shared by the two cells they lie
+  // between (see model/grid.js): each is drawn once, by the cell it is stored
+  // under, centred on the line between the two cells. Both cells learn which of
+  // their sides it is on (`edgeSidesByCell`), to keep notes and the room name
+  // clear of it.
+  const OPPOSITE_SIDE = { N: "S", S: "N", E: "W", W: "E" };
   const edgesByCell = new Map();
+  const edgeSidesByCell = new Map();
+  const addEdgeSide = (r, c, side) => {
+    const k = `${r},${c}`;
+    if (!edgeSidesByCell.has(k)) edgeSidesByCell.set(k, new Set());
+    edgeSidesByCell.get(k).add(side);
+  };
   for (const o of grid.objects) {
     if (!isEdgeObjectType(o.typeId)) continue;
     const k = `${o.row},${o.col}`;
     if (!edgesByCell.has(k)) edgesByCell.set(k, []);
     edgesByCell.get(k).push(o);
+    const side = o.side || "N";
+    const [own, other] = edgeCells(grid, o);
+    addEdgeSide(own.row, own.col, side);
+    if (other) addEdgeSide(other.row, other.col, OPPOSITE_SIDE[side]);
   }
   // Every cell of a room shares one floor style: build it once per zone.
   const floorCache = new Map();
@@ -110,13 +125,7 @@ export function renderBoard(
   };
   // Grid edges are already framed by .board-grid's own border, so a boundary
   // only becomes a rendered "wall" when the neighbor is in-bounds and differs.
-  const wallBetween = (r1, c1, r2, c2) => {
-    if (r2 < 0 || r2 >= grid.size.rows || c2 < 0 || c2 >= grid.size.cols) return false;
-    const a = zoneKeyAt(r1, c1);
-    const b = zoneKeyAt(r2, c2);
-    if (a === null && b === null) return false;
-    return a !== b;
-  };
+  const wallBetween = (r1, c1, r2, c2) => modelWallBetween(grid, r1, c1, r2, c2);
 
   // One room-name label per zone, anchored at its first cell in reading
   // order, instead of repeating the name on every cell of the zone.
@@ -137,7 +146,7 @@ export function renderBoard(
   const freeForName = (r, c) => {
     const cd = grid.cells[r][c];
     if (cd.blocked || cd.objectId) return false;
-    return !(edgesByCell.get(`${r},${c}`) || []).some((o) => (o.side || "N") === "N");
+    return !edgeSidesByCell.get(`${r},${c}`)?.has("N");
   };
   for (const zone of grid.zones) {
     let anchor = null;
@@ -207,7 +216,7 @@ export function renderBoard(
       if (cellData.blocked) classes += " blocked";
       if (zone) classes += floorOf(zone).own ? " zoned floored" : " zoned";
       if (roomName.has(`${r},${c}`)) classes += " has-room-name";
-      for (const edge of edgesByCell.get(`${r},${c}`) || []) classes += ` has-edge-${edge.side || "N"}`;
+      for (const side of edgeSidesByCell.get(`${r},${c}`) || []) classes += ` has-edge-${side}`;
       if (wallBetween(r, c, r - 1, c)) classes += " wall-t";
       if (wallBetween(r, c, r, c + 1)) classes += " wall-r";
       if (wallBetween(r, c, r + 1, c)) classes += " wall-b";

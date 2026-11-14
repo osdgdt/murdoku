@@ -9,6 +9,14 @@ import {
   lockedClueIds,
   applyClueLocks,
   unlocksProvidedBy,
+  setCaseStory,
+  caseStoryOf,
+  setFinale,
+  finaleOf,
+  isCampaignComplete,
+  splitParagraphs,
+  STORY_TEXT_MAX,
+  STORY_LABEL_MAX,
 } from "../src/campaign/campaignModel.js";
 import { buildTutorialCase } from "../src/tutorial/tutorialCase.js";
 import { checkUniqueness } from "../src/solver/validator.js";
@@ -267,6 +275,142 @@ export const tests = [
       assert(!validateCampaignShape(campaign).valid, "i valori devono essere id di caso");
       campaign.cases[1].clueUnlocks = { k1: campaign.cases[0].id };
       assert(validateCampaignShape(campaign).valid);
+    },
+  },
+  {
+    name: "storia: setCaseStory salva introduzione ed epilogo ripuliti, e un testo vuoto toglie il campo (Firestore non ammette undefined)",
+    fn: () => {
+      const campaign = buildCampaignWithCases(2);
+      const [a, b] = campaign.cases;
+      assertEqual(caseStoryOf(a).intro, "", "un caso vecchio non ha testi");
+      setCaseStory(campaign, a.id, { intro: "  Era una notte buia.  ", outro: "Fine." });
+      assertEqual(a.intro, "Era una notte buia.");
+      assertEqual(caseStoryOf(a).outro, "Fine.");
+      assert(!("intro" in b) && !("outro" in b), "gli altri casi non cambiano");
+      setCaseStory(campaign, a.id, { intro: "   " });
+      assert(!("intro" in a), "un testo vuoto toglie il campo");
+      assertEqual(a.outro, "Fine.", "l'epilogo non cambia se non viene passato");
+      setCaseStory(campaign, a.id, { outro: "" });
+      assert(!JSON.stringify(campaign).includes("undefined"));
+      assert(!("outro" in a));
+      setCaseStory(campaign, "non-esiste", { intro: "x" }); // nessun errore
+      setCaseStory(campaign, b.id, { intro: "x".repeat(STORY_TEXT_MAX + 50) });
+      assertEqual(b.intro.length, STORY_TEXT_MAX, "un testo troppo lungo viene tagliato");
+    },
+  },
+  {
+    name: "storia: il finale si salva anche a metà ma si mostra solo quando entrambi i finali hanno pulsante e testo",
+    fn: () => {
+      const campaign = buildCampaignWithCases(1);
+      assertEqual(finaleOf(campaign), null, "nessun finale");
+      setFinale(campaign, {
+        endings: [
+          { label: "Arresto", text: "" },
+          { label: "", text: "" },
+        ],
+      });
+      assert(campaign.finale, "a metà viene conservato");
+      assertEqual(finaleOf(campaign), null, "ma non è pronto");
+      setFinale(campaign, {
+        prompt: "  Che fai?  ",
+        endings: [
+          { label: " Denuncio ", text: "Adela confessa." },
+          { label: "Taccio", text: "Il segreto resta." },
+        ],
+      });
+      const ready = finaleOf(campaign);
+      assertEqual(ready.prompt, "Che fai?");
+      assertEqual(ready.endings[0].label, "Denuncio");
+      assertEqual(ready.endings[1].text, "Il segreto resta.");
+      setFinale(campaign, {
+        endings: [
+          { label: "A", text: "a" },
+          { label: "B", text: "b" },
+        ],
+      });
+      assert(!("prompt" in campaign.finale), "senza domanda il campo non c'è");
+      assertEqual(finaleOf(campaign).prompt, "");
+      setFinale(campaign, {
+        prompt: "",
+        endings: [
+          { label: "", text: "" },
+          { label: " ", text: "" },
+        ],
+      });
+      assert(!("finale" in campaign), "tutto vuoto: il finale sparisce");
+      assert(!JSON.stringify(campaign).includes("undefined"));
+      setFinale(campaign, {
+        endings: [
+          { label: "x".repeat(STORY_LABEL_MAX + 10), text: "t" },
+          { label: "y", text: "t" },
+        ],
+      });
+      assertEqual(campaign.finale.endings[0].label.length, STORY_LABEL_MAX, "etichetta troppo lunga: tagliata");
+    },
+  },
+  {
+    name: "storia: isCampaignComplete vuole almeno un caso e tutti i casi completati",
+    fn: () => {
+      const campaign = buildCampaignWithCases(3);
+      const [a, b, c] = campaign.cases;
+      assert(!isCampaignComplete(createCampaign("Vuota"), []), "una campagna senza casi non è completa");
+      assert(!isCampaignComplete(campaign, []));
+      assert(!isCampaignComplete(campaign, [a.id, b.id]));
+      assert(isCampaignComplete(campaign, [c.id, a.id, b.id]), "l'ordine non conta");
+      assert(isCampaignComplete(campaign, [a.id, b.id, c.id, "altro"]));
+    },
+  },
+  {
+    name: "storia: splitParagraphs divide sulle righe vuote, tiene gli a capo singoli e scarta i vuoti",
+    fn: () => {
+      assertEqual(JSON.stringify(splitParagraphs("uno\n\ndue\r\n \r\ntre\nquattro")), JSON.stringify(["uno", "due", "tre\nquattro"]));
+      assertEqual(splitParagraphs("").length, 0);
+      assertEqual(splitParagraphs("  \n\n  ").length, 0);
+      assertEqual(splitParagraphs(undefined).length, 0);
+      assertEqual(splitParagraphs("<b>x</b>")[0], "<b>x</b>", "nessuna interpretazione del testo");
+    },
+  },
+  {
+    name: "storia: validateCampaignShape controlla i tipi e le lunghezze dei testi e del finale",
+    fn: () => {
+      const campaign = buildCampaignWithCases(2);
+      assert(validateCampaignShape(campaign).valid, "una campagna senza testi è valida (campagne vecchie)");
+      campaign.cases[0].intro = 5;
+      assert(!validateCampaignShape(campaign).valid, "l'introduzione deve essere una stringa");
+      campaign.cases[0].intro = "x".repeat(STORY_TEXT_MAX + 1);
+      assert(!validateCampaignShape(campaign).valid, "troppo lunga");
+      campaign.cases[0].intro = "Ok";
+      campaign.cases[1].outro = { a: 1 };
+      assert(!validateCampaignShape(campaign).valid, "l'epilogo deve essere una stringa");
+      campaign.cases[1].outro = "Ok";
+      assert(validateCampaignShape(campaign).valid);
+      campaign.finale = "x";
+      assert(!validateCampaignShape(campaign).valid, "il finale deve essere un oggetto");
+      campaign.finale = { endings: [{ label: "a", text: "b" }] };
+      assert(!validateCampaignShape(campaign).valid, "servono due finali");
+      campaign.finale = {
+        endings: [
+          { label: "a", text: "b" },
+          { label: 1, text: "b" },
+        ],
+      };
+      assert(!validateCampaignShape(campaign).valid, "l'etichetta è una stringa");
+      campaign.finale = {
+        prompt: 3,
+        endings: [
+          { label: "a", text: "b" },
+          { label: "c", text: "d" },
+        ],
+      };
+      assert(!validateCampaignShape(campaign).valid, "la domanda è una stringa");
+      campaign.finale = {
+        prompt: "Che fai?",
+        endings: [
+          { label: "a", text: "b" },
+          { label: "c", text: "" },
+        ],
+      };
+      assert(validateCampaignShape(campaign).valid, "un finale a metà si può salvare");
     },
   },
 ];

@@ -7,6 +7,7 @@ import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync } from "../solver/solverClient.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
 import { createUnlockPanel } from "./unlockPanel.js";
+import { createStoryPanel, createFinalePanel } from "./storyPanel.js";
 import * as campaignStore from "./campaignStore.js";
 import { describeAuthError, renderLoginHelp } from "../auth/loginHelp.js";
 import { t } from "../i18n/i18n.js";
@@ -44,6 +45,7 @@ const newCampaignBtn = qs("#new-campaign-btn");
 const titleInput = qs("#campaign-title");
 const descriptionInput = qs("#campaign-description");
 const detailStatus = qs("#detail-status");
+const finaleEditorEl = qs("#finale-editor");
 const caseListEl = qs("#case-list");
 const addCaseUrlInput = qs("#add-case-url");
 const addCaseBtn = qs("#add-case-btn");
@@ -213,7 +215,8 @@ function renderCaseList() {
       loadPuzzle: loadCasePuzzle,
       onChange: () => persistCampaign(detailStatus),
     });
-    caseListEl.appendChild(el("div", { class: "case-block" }, [row, panel]));
+    const story = createStoryPanel({ campaign, caseEntry: c, onChange: () => persistCampaign(detailStatus) });
+    caseListEl.appendChild(el("div", { class: "case-block" }, [row, panel, story]));
   });
 }
 
@@ -238,6 +241,8 @@ async function loadDetailView(id) {
   descriptionInput.value = campaign.description || "";
   detailStatus.textContent = "";
   renderCaseList();
+  clear(finaleEditorEl);
+  finaleEditorEl.appendChild(createFinalePanel({ campaign, onChange: () => persistCampaign(detailStatus) }));
 }
 
 newCampaignBtn.addEventListener("click", async () => {

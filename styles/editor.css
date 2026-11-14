@@ -788,6 +788,16 @@
 .unlock-row .violation { grid-column: 1 / -1; }
 @media (max-width: 640px) { .unlock-row { grid-template-columns: minmax(0, 1fr); } }
 
+/* Campaign editor: story texts of a case (introduction, epilogue) and the final choice. */
+.story-panel { margin: 0 0 0.6rem; padding: 0 0.4rem; }
+.story-panel summary { cursor: pointer; font-weight: 700; color: var(--ink-soft); padding: 0.2em 0; }
+.story-body { display: grid; gap: 0.5rem; padding: 0.4rem 0 0.2rem; }
+.story-field { display: grid; gap: 0.2rem; font-weight: 700; }
+.story-field textarea, .story-field input { width: 100%; box-sizing: border-box; font-weight: 400; }
+.finale-editor { display: grid; gap: 0.6rem; }
+.finale-editor h3 { margin: 0; }
+.finale-ending { display: grid; gap: 0.4rem; padding: 0.6rem 0.8rem; border: 1px solid var(--border-soft, var(--border)); border-radius: 10px; }
+
 /* Editor palette: heading of the medieval group of props. */
 .palette-group { margin: 0.9rem 0 0.35rem; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.04em; color: var(--ink-soft); }
 

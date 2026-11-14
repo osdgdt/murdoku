@@ -128,6 +128,85 @@ export function unlocksProvidedBy(campaign, byCaseId) {
   return out;
 }
 
+// --- story texts ---------------------------------------------------------------
+// A story campaign tells its tale around the cases: every case may carry an
+// `intro` (read before the case starts) and an `outro` (shown when it is solved),
+// and the campaign may carry a `finale` with two endings the player chooses from
+// once every case is solved. All of it is the author's own text, in one language
+// (a campaign is written in one language), shown as plain text and never
+// translated or interpreted as HTML (see storyView.js). Empty texts are not
+// stored at all: Firestore refuses `undefined`, and an empty string is just noise.
+export const STORY_TEXT_MAX = 3000;
+export const STORY_LABEL_MAX = 60;
+export const FINALE_PROMPT_MAX = 200;
+
+const clean = (value, max) => (typeof value === "string" ? value.trim().slice(0, max) : "");
+
+export function setCaseStory(campaign, caseId, { intro, outro } = {}) {
+  const entry = campaign.cases.find((c) => c.id === caseId);
+  if (!entry) return;
+  for (const [key, value] of [
+    ["intro", intro],
+    ["outro", outro],
+  ]) {
+    if (value === undefined) continue;
+    const text = clean(value, STORY_TEXT_MAX);
+    if (text) entry[key] = text;
+    else delete entry[key];
+  }
+  touch(campaign);
+}
+
+// { intro, outro } of a case: always strings ("" when the case has none), so old
+// campaigns without the fields read just the same.
+export function caseStoryOf(caseEntry) {
+  return { intro: clean(caseEntry?.intro, STORY_TEXT_MAX), outro: clean(caseEntry?.outro, STORY_TEXT_MAX) };
+}
+
+// `endings` is two { label, text }. Anything incomplete is kept as typed (the
+// author is still writing); `finaleOf` decides when it is ready to be shown.
+export function setFinale(campaign, { prompt, endings } = {}) {
+  const two = [0, 1].map((i) => ({ label: clean(endings?.[i]?.label, STORY_LABEL_MAX), text: clean(endings?.[i]?.text, STORY_TEXT_MAX) }));
+  const question = clean(prompt, FINALE_PROMPT_MAX);
+  if (!question && two.every((e) => !e.label && !e.text)) delete campaign.finale;
+  else campaign.finale = question ? { prompt: question, endings: two } : { endings: two };
+  touch(campaign);
+}
+
+// The finale as the player gets it, or null when there is none or it is not
+// finished (both endings need a button label and a text).
+export function finaleOf(campaign) {
+  const finale = campaign?.finale;
+  if (!finale || !Array.isArray(finale.endings) || finale.endings.length !== 2) return null;
+  const endings = finale.endings.map((e) => ({ label: clean(e?.label, STORY_LABEL_MAX), text: clean(e?.text, STORY_TEXT_MAX) }));
+  if (endings.some((e) => !e.label || !e.text)) return null;
+  return { prompt: clean(finale.prompt, FINALE_PROMPT_MAX), endings };
+}
+
+export function isCampaignComplete(campaign, completedCaseIds = []) {
+  return campaign.cases.length > 0 && campaign.cases.every((c) => completedCaseIds.includes(c.id));
+}
+
+// Paragraphs of an author's text: separated by blank lines. (Single line breaks
+// inside a paragraph are kept and shown by the stylesheet.)
+export function splitParagraphs(text) {
+  return String(text ?? "")
+    .split(/\r?\n[ \t]*\r?\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+const textOk = (value, max) => typeof value === "string" && value.length <= max;
+function finaleShapeOk(finale) {
+  if (!finale || typeof finale !== "object" || Array.isArray(finale)) return false;
+  if (finale.prompt !== undefined && !textOk(finale.prompt, FINALE_PROMPT_MAX)) return false;
+  return (
+    Array.isArray(finale.endings) &&
+    finale.endings.length === 2 &&
+    finale.endings.every((e) => e && typeof e === "object" && textOk(e.label, STORY_LABEL_MAX) && textOk(e.text, STORY_TEXT_MAX))
+  );
+}
+
 export function validateCampaignShape(campaign) {
   const errors = [];
   if (!campaign || typeof campaign !== "object") return { valid: false, errors: [t("La campagna non è un oggetto valido.")] };
@@ -149,8 +228,15 @@ export function validateCampaignShape(campaign) {
         const ok = map && typeof map === "object" && !Array.isArray(map) && Object.values(map).every((v) => typeof v === "string" && v);
         if (!ok) errors.push(t("Caso {v}: gli indizi nascosti non sono validi.", { v: i + 1 }));
       }
+      for (const key of ["intro", "outro"]) {
+        if (c[key] !== undefined && (typeof c[key] !== "string" || c[key].length > STORY_TEXT_MAX)) {
+          errors.push(t("Caso {v}: il testo della storia non è valido.", { v: i + 1 }));
+          break;
+        }
+      }
       if (!c.puzzleId) errors.push(t("Caso {v}: manca l'id del puzzle.", { v: i + 1 }));
     });
   }
+  if (campaign.finale !== undefined && !finaleShapeOk(campaign.finale)) errors.push(t("Il finale della campagna non è valido."));
   return { valid: errors.length === 0, errors };
 }

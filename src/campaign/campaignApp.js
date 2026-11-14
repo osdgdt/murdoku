@@ -7,7 +7,8 @@ import { createBoardState, serializeBoardState, deserializeBoardState } from "..
 import { createGameScreen } from "../player/gameScreen.js";
 import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
-import { applyClueLocks } from "./campaignModel.js";
+import { applyClueLocks, caseStoryOf, finaleOf, isCampaignComplete } from "./campaignModel.js";
+import { renderIntroCard, renderOutro, renderFinale } from "./storyView.js";
 import { renderUnlockNote } from "./unlockNote.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
@@ -24,6 +25,7 @@ wireThemeToggle();
 const params = new URLSearchParams(location.search);
 const campaignIdParam = params.get("campaign");
 const caseIdParam = params.get("case");
+const finaleParam = params.get("finale");
 
 const gateEl = qs("#gate");
 const authBar = qs("#auth-bar");
@@ -39,6 +41,13 @@ const gameEl = qs("#game");
 const backToCasesLink = qs("#back-to-cases-link");
 const caseErrorPanel = qs("#case-error-panel");
 const gameContentEl = qs("#game-content");
+const storyHostEl = qs("#story-host");
+const storyRereadEl = qs("#story-reread");
+const storyRereadBtn = qs("#story-reread-btn");
+const finaleViewEl = qs("#finale-view");
+const finaleTitleEl = qs("#finale-title");
+const finaleBodyEl = qs("#finale-body");
+const finaleBackLink = qs("#finale-back-link");
 
 let currentUserState = null;
 let campaign = null;
@@ -98,6 +107,7 @@ function showView(name) {
   campaignListViewEl.classList.toggle("hidden", name !== "campaign-list");
   caseListViewEl.classList.toggle("hidden", name !== "case-list");
   gameEl.classList.toggle("hidden", name !== "game");
+  finaleViewEl.classList.toggle("hidden", name !== "finale");
   timerEl.classList.toggle("hidden", name !== "game");
 }
 
@@ -221,6 +231,63 @@ async function showCaseListView(campaignId) {
       ])
     );
   });
+  // The final choice, after the last case (only for a campaign that has one).
+  if (finaleOf(campaign)) {
+    const reached = isCampaignComplete(campaign, progress.completedCaseIds);
+    caseListEl.appendChild(
+      el("div", { class: "saved-row" }, [
+        el("div", {}, [el("span", { class: "title" }, t("🏁 Finale"))]),
+        el("div", { class: "actions" }, [
+          reached
+            ? el("a", { class: "play", href: `campaign.html?campaign=${campaign.id}&finale=1` }, t("Leggi"))
+            : el("span", { class: "muted" }, t("Da sbloccare")),
+        ]),
+      ])
+    );
+  }
+}
+
+async function showFinaleView(campaignId) {
+  showView("finale");
+  clear(finaleBodyEl);
+  finaleTitleEl.textContent = "";
+  finaleBackLink.href = `campaign.html?campaign=${campaignId}`;
+  finaleBodyEl.appendChild(el("p", { class: "muted" }, t("Caricamento…")));
+  let loadedCampaign, loadedProgress;
+  try {
+    loadedCampaign = await campaignStore.getCampaign(campaignId);
+    if (!loadedCampaign) throw new Error(t("campagna non trovata."));
+    loadedProgress = await progressStore.getCampaignProgress(currentUserState.uid, campaignId);
+  } catch (err) {
+    clear(finaleBodyEl);
+    finaleBodyEl.appendChild(el("p", { class: "violation" }, t("Impossibile caricare la campagna: ") + err.message));
+    return;
+  }
+  campaign = loadedCampaign;
+  progress = loadedProgress;
+  headerTitleEl.textContent = campaign.title;
+  finaleTitleEl.textContent = t("🏁 Finale");
+  clear(finaleBodyEl);
+  if (!finaleOf(campaign)) {
+    finaleBodyEl.appendChild(el("p", { class: "muted" }, t("Questa campagna non ha ancora un finale.")));
+    return;
+  }
+  if (!isCampaignComplete(campaign, progress.completedCaseIds)) {
+    finaleBodyEl.appendChild(el("p", { class: "muted" }, t("Il finale si sblocca quando avrai risolto tutti i casi.")));
+    return;
+  }
+  finaleBodyEl.appendChild(
+    renderFinale({
+      campaign,
+      chosen: progress.ending,
+      onChoose: (index) => {
+        progress.ending = index;
+        progressStore.saveEndingChoice(currentUserState.uid, campaign.id, index).catch((err) => {
+          console.error(t("Impossibile salvare la scelta del finale:"), err);
+        });
+      },
+    })
+  );
 }
 
 async function showGameView(campaignId, caseId) {
@@ -290,12 +357,37 @@ async function showGameView(campaignId, caseId) {
     url: `campaign.html?campaign=${campaign.id}&case=${currentCase.id}`,
   });
   state = deserializeBoardState(progressStore.boardStateFromProgress(progress, currentCase.id));
-  gameContentEl.classList.remove("hidden");
+
+  // Story: the introduction is read before the first attempt (a case already
+  // solved or already begun goes straight to the board) and can be read again.
+  const { intro } = caseStoryOf(currentCase);
+  const caseLabel = currentCase.label || currentCase.puzzleId;
+  const firstVisit = !progress.completedCaseIds.includes(currentCase.id) && !progress.cases[currentCase.id]?.board;
+  clear(storyHostEl);
+  storyRereadEl.classList.toggle("hidden", !intro || firstVisit); // on a first visit the card itself is on screen
+  storyRereadBtn.onclick = () => {
+    clear(storyHostEl);
+    storyRereadEl.classList.add("hidden");
+    storyHostEl.appendChild(
+      renderIntroCard({
+        title: caseLabel,
+        text: intro,
+        actionLabel: t("Chiudi"),
+        onAction: () => {
+          clear(storyHostEl);
+          storyRereadEl.classList.remove("hidden");
+        },
+      })
+    );
+  };
 
   const screen = createGameScreen({
     puzzle,
     answerPuzzle: locks.answerPuzzle,
-    winExtras: () => renderUnlockNote(campaign, currentCase.id),
+    winExtras: () => {
+      const parts = [renderOutro(currentCase), renderUnlockNote(campaign, currentCase.id), finaleLink()].filter(Boolean);
+      return parts.length > 0 ? el("div", { class: "story-extras" }, parts) : null;
+    },
     state,
     persistProgress,
     achievementKey: `campaign:${campaign.id}:${currentCase.id}`,
@@ -303,12 +395,37 @@ async function showGameView(campaignId, caseId) {
       boardSaver.flush();
       try {
         await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex, elapsedSeconds);
+        if (!progress.completedCaseIds.includes(currentCase.id)) progress.completedCaseIds.push(currentCase.id);
       } catch (err) {
         console.error(t("Impossibile registrare il completamento del caso:"), err);
       }
     },
   });
-  screen.start();
+  if (intro && firstVisit) {
+    gameContentEl.classList.add("hidden");
+    storyHostEl.appendChild(
+      renderIntroCard({
+        title: caseLabel,
+        text: intro,
+        actionLabel: t("Inizia il caso"),
+        onAction: () => {
+          clear(storyHostEl);
+          storyRereadEl.classList.remove("hidden");
+          gameContentEl.classList.remove("hidden");
+          screen.start();
+        },
+      })
+    );
+  } else {
+    gameContentEl.classList.remove("hidden");
+    screen.start();
+  }
+}
+
+// After the last case of a campaign with a finale: a link to it.
+function finaleLink() {
+  if (!finaleOf(campaign) || !isCampaignComplete(campaign, [...progress.completedCaseIds, currentCase.id])) return null;
+  return el("p", { class: "finale-link" }, [el("a", { href: `campaign.html?campaign=${campaign.id}&finale=1` }, t("➡ Vai al finale"))]);
 }
 
 onAuthChange((user) => {
@@ -319,7 +436,9 @@ onAuthChange((user) => {
     showView("gate");
     return;
   }
-  if (caseIdParam && campaignIdParam) {
+  if (finaleParam && campaignIdParam) {
+    showFinaleView(campaignIdParam);
+  } else if (caseIdParam && campaignIdParam) {
     showGameView(campaignIdParam, caseIdParam);
   } else if (campaignIdParam) {
     showCaseListView(campaignIdParam);

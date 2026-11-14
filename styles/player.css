@@ -439,3 +439,27 @@
   color: var(--ink);
   font-weight: 700;
 }
+
+/* Campaign story (storyView.js): the introduction of a case, its epilogue, and the
+   final choice. The author's text is plain text; line breaks inside a paragraph show. */
+.story-host { max-width: 46rem; margin: 0 auto; padding: 0 1.5rem; }
+.story-reread { padding: 0 1.5rem; margin: 0 0 0.6rem; }
+.story-card, .story-outro {
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: var(--panel);
+  border-left: 5px solid var(--gold);
+  box-shadow: var(--shadow-sm);
+}
+.story-card { margin: 0.8rem 0 1.2rem; }
+.story-outro { margin-top: 0.8rem; }
+.story-card h3, .story-outro h3 { margin: 0 0 0.5rem; }
+.story-text p { margin: 0 0 0.7rem; line-height: 1.55; white-space: pre-line; }
+.story-text p:last-child { margin-bottom: 0.2rem; }
+.story-card .primary { margin-top: 0.5rem; }
+.finale-prompt { font-weight: 800; margin: 0 0 0.6rem; }
+.finale-choices { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0.4rem 0 0.8rem; }
+.finale-choice[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); font-weight: 800; }
+.finale-epilogue .story-text { padding: 0.8rem 1rem; border-left: 5px solid var(--gold); border-radius: 10px; background: var(--panel-alt); }
+.finale-epilogue:empty { display: none; }
+.finale-link { margin: 0.8rem 0 0; font-weight: 800; }

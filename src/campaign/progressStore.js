@@ -8,19 +8,26 @@ function progressRef(uid, campaignId) {
   return doc(db, "users", uid, "campaignProgress", campaignId);
 }
 
-// { unlockedCaseIndex, completedCaseIds: [...], cases: { [caseId]: { board, updatedAt } } }
+// { unlockedCaseIndex, completedCaseIds: [...], cases: { [caseId]: { board, updatedAt } }, ending }
+// (`ending`: 0 or 1, the finale the player chose, or null)
 // A fresh default (case 0 unlocked, nothing completed) when the player has
 // never touched this campaign before — never null, so callers don't need a
 // separate "no progress yet" branch.
 export async function getCampaignProgress(uid, campaignId) {
   const snap = await getDoc(progressRef(uid, campaignId));
-  if (!snap.exists()) return { unlockedCaseIndex: 0, completedCaseIds: [], cases: {} };
+  if (!snap.exists()) return { unlockedCaseIndex: 0, completedCaseIds: [], cases: {}, ending: null };
   const data = snap.data();
   return {
     unlockedCaseIndex: data.unlockedCaseIndex || 0,
     completedCaseIds: data.completedCaseIds || [],
     cases: data.cases || {},
+    ending: data.ending === 0 || data.ending === 1 ? data.ending : null,
   };
+}
+
+// The finale the player chose (0 or 1; a scalar, as Firestore wants).
+export async function saveEndingChoice(uid, campaignId, ending) {
+  await setDoc(progressRef(uid, campaignId), { ending }, { merge: true });
 }
 
 export function boardStateFromProgress(progress, caseId) {

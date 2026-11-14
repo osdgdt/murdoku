@@ -434,6 +434,166 @@ const scenarios = [
       if (cleared.summary !== "🔒 Hidden clues") throw new Error(`the count should go away: ${cleared.summary}`);
     },
   },
+  {
+    name: "campaign story: introduction, epilogue and finale are drawn as plain text (never HTML), in paragraphs",
+    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    async run(page) {
+      await page.evaluate(async () => {
+        const model = await import("/src/campaign/campaignModel.js");
+        const view = await import("/src/campaign/storyView.js");
+        const campaign = model.createCampaign("Story");
+        const a = model.addCase(campaign, { puzzleId: "a", puzzleUrl: "a.json", label: "Alpha" });
+        const b = model.addCase(campaign, { puzzleId: "b", puzzleUrl: "b.json", label: "Beta" });
+        model.setCaseStory(campaign, a.id, {
+          intro: 'First paragraph <img src=x onerror="window.__pwned=1">\n\nSecond paragraph\nwith a line break',
+          outro: "The end <script>window.__pwned=2</script>",
+        });
+        model.setFinale(campaign, {
+          prompt: "What do you do?",
+          endings: [
+            { label: "Accuse", text: "She confesses.\n\nThe throne stays empty." },
+            { label: "Stay silent", text: "The secret stays." },
+          ],
+        });
+        window.__clicks = [];
+        window.__chosen = [];
+        const host = document.createElement("div");
+        host.id = "story-test";
+        host.appendChild(
+          view.renderIntroCard({
+            title: "Alpha",
+            text: model.caseStoryOf(a).intro,
+            actionLabel: "Start",
+            onAction: () => window.__clicks.push("start"),
+          })
+        );
+        host.appendChild(view.renderOutro(a));
+        window.__noOutro = view.renderOutro(b) === null;
+        const f1 = document.createElement("div");
+        f1.id = "finale-fresh";
+        f1.appendChild(view.renderFinale({ campaign, onChoose: (i) => window.__chosen.push(i) }));
+        const f2 = document.createElement("div");
+        f2.id = "finale-again";
+        f2.appendChild(view.renderFinale({ campaign, chosen: 0, onChoose: (i) => window.__chosen.push(`again${i}`) }));
+        host.append(f1, f2);
+        document.body.prepend(host);
+      });
+      const host = page.locator("#story-test");
+      if ((await host.locator("img, script").count()) !== 0) throw new Error("author text must never become HTML elements");
+      if (await page.evaluate(() => window.__pwned)) throw new Error("author text ran as code");
+      const card = host.locator(".story-card");
+      if ((await card.locator(".story-text p").count()) !== 2) throw new Error("a blank line should split two paragraphs");
+      if (!(await card.innerText()).includes("<img src=x")) throw new Error("the markup should be shown as text");
+      await card.locator("button").click();
+      if ((await page.evaluate(() => window.__clicks.join())) !== "start") throw new Error("the card button should call onAction");
+      if (!/📜 Epilogue/.test(await host.locator(".story-outro h3").innerText()))
+        throw new Error("the epilogue heading should be translated");
+      if (!(await page.evaluate(() => window.__noOutro))) throw new Error("a case without epilogue draws nothing");
+      // fresh finale: question and buttons, no epilogue yet; choosing shows the ending and reports it
+      const fresh = host.locator("#finale-fresh");
+      if (!/What do you do\?/.test(await fresh.locator(".finale-prompt").innerText())) throw new Error("the question is missing");
+      if ((await fresh.locator(".finale-epilogue .story-text").count()) !== 0) throw new Error("nothing is chosen yet");
+      await fresh.locator(".finale-choice").nth(0).click();
+      if ((await fresh.locator(".finale-epilogue .story-text p").count()) !== 2) throw new Error("the first ending has two paragraphs");
+      await fresh.locator(".finale-choice").nth(1).click();
+      if ((await fresh.locator(".finale-epilogue").innerText()).trim() !== "The secret stays.")
+        throw new Error("the second ending should replace the first");
+      const pressed = await fresh.locator(".finale-choice").evaluateAll((bs) => bs.map((b) => b.getAttribute("aria-pressed")));
+      if (pressed.join() !== "false,true") throw new Error(`only the chosen button is pressed: ${pressed}`);
+      if ((await page.evaluate(() => window.__chosen.join())) !== "0,1") throw new Error("onChoose should report each choice");
+      // an earlier choice is shown at once and is not reported again
+      const again = host.locator("#finale-again");
+      if (!(await again.locator(".finale-epilogue").innerText()).includes("The throne stays empty."))
+        throw new Error("the earlier choice should show");
+      if ((await again.locator(".finale-choice").first().getAttribute("aria-pressed")) !== "true") throw new Error("and be marked");
+      if ((await page.evaluate(() => window.__chosen.length)) !== 2) throw new Error("showing an earlier choice must not report it");
+    },
+  },
+  {
+    name: "campaign editor story panels: texts saved per case, summary tick, finale kept when half-written and removed when emptied",
+    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    async run(page) {
+      await page.evaluate(async () => {
+        const model = await import("/src/campaign/campaignModel.js");
+        const panels = await import("/src/campaign/storyPanel.js");
+        const campaign = model.createCampaign("Story");
+        model.addCase(campaign, { puzzleId: "a", puzzleUrl: "a.json", label: "Alpha" });
+        model.addCase(campaign, { puzzleId: "b", puzzleUrl: "b.json", label: "Beta" });
+        window.__campaign = campaign;
+        window.__saves = 0;
+        const host = document.createElement("div");
+        host.id = "editor-test";
+        const onChange = () => window.__saves++;
+        for (const caseEntry of campaign.cases) host.appendChild(panels.createStoryPanel({ campaign, caseEntry, onChange }));
+        const finale = document.createElement("div");
+        finale.id = "finale-editor-test";
+        finale.appendChild(panels.createFinalePanel({ campaign, onChange }));
+        host.appendChild(finale);
+        document.body.prepend(host);
+      });
+      const first = page.locator("#editor-test .story-panel").nth(0);
+      await first.locator("summary").click();
+      if ((await first.locator("textarea").count()) !== 2) throw new Error("a case panel has two texts");
+      await first.locator("textarea").nth(0).fill("  Intro text  ");
+      await first.locator("textarea").nth(0).blur();
+      let state = await page.evaluate(() => ({
+        saves: window.__saves,
+        intro: window.__campaign.cases[0].intro,
+        other: "intro" in window.__campaign.cases[1],
+      }));
+      if (state.saves !== 1 || state.intro !== "Intro text" || state.other)
+        throw new Error(`intro not stored as expected: ${JSON.stringify(state)}`);
+      if (!/✓/.test(await first.locator("summary").innerText())) throw new Error("the summary should show a tick once there is a text");
+      await first.locator("textarea").nth(1).fill("Outro text");
+      await first.locator("textarea").nth(1).blur();
+      await first.locator("textarea").nth(0).fill("");
+      await first.locator("textarea").nth(0).blur();
+      state = await page.evaluate(() => ({ c: window.__campaign.cases[0] }));
+      if ("intro" in state.c || state.c.outro !== "Outro text")
+        throw new Error(`emptying must remove only that field: ${JSON.stringify(state.c)}`);
+      await first.locator("textarea").nth(1).fill("");
+      await first.locator("textarea").nth(1).blur();
+      if (/✓/.test(await first.locator("summary").innerText())) throw new Error("no tick once both are empty");
+      if (await page.evaluate(() => JSON.stringify(window.__campaign).includes("undefined")))
+        throw new Error("no undefined may reach Firestore");
+      // finale
+      const finale = page.locator("#finale-editor-test");
+      const inputs = finale.locator("input[type=text]");
+      await inputs.nth(1).fill("Accuse");
+      await inputs.nth(1).blur();
+      const half = await page.evaluate(async () => {
+        const m = await import("/src/campaign/campaignModel.js");
+        return { stored: !!window.__campaign.finale, ready: m.finaleOf(window.__campaign) !== null };
+      });
+      if (!half.stored || half.ready) throw new Error(`a half-written finale is kept but not ready: ${JSON.stringify(half)}`);
+      await finale.locator("textarea").nth(0).fill("She confesses.");
+      await finale.locator("textarea").nth(0).blur();
+      await inputs.nth(2).fill("Stay silent");
+      await inputs.nth(2).blur();
+      await finale.locator("textarea").nth(1).fill("The secret stays.");
+      await finale.locator("textarea").nth(1).blur();
+      const ready = await page.evaluate(async () => {
+        const m = await import("/src/campaign/campaignModel.js");
+        return m.finaleOf(window.__campaign);
+      });
+      if (ready?.endings?.[1]?.label !== "Stay silent" || ready.endings[0].text !== "She confesses.")
+        throw new Error(`finale not ready: ${JSON.stringify(ready)}`);
+      for (const [kind, index] of [
+        ["input", 0],
+        ["input", 1],
+        ["input", 2],
+        ["textarea", 0],
+        ["textarea", 1],
+      ]) {
+        const control = kind === "input" ? inputs.nth(index) : finale.locator("textarea").nth(index);
+        await control.fill("");
+        await control.blur();
+      }
+      if (await page.evaluate(() => "finale" in window.__campaign)) throw new Error("an emptied finale must disappear");
+      if (await page.evaluate(() => JSON.stringify(window.__campaign).includes("undefined")))
+        throw new Error("no undefined may reach Firestore");
+    },
+  },
   ...["it-IT", "en-US"].map((locale) => ({
     name: `medieval assets (${locale}): object names, floor names and clue phrases are in one language`,
     options: { url: `${base}/player.html`, ready: "header.topbar", locale },

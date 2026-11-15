@@ -70,10 +70,16 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
 
   const baselineStats = {};
   const baselineMaxNodes = Math.max(0, Math.min(HINT_MAX_NODES, budget.waveNodesRemaining));
-  const baseline = solvePuzzle(puzzle, { maxSolutions: 1, maxNodes: baselineMaxNodes, stats: baselineStats, forwardCheck: true });
+  const baseline = solvePuzzle(puzzle, {
+    maxSolutions: 1,
+    maxNodes: baselineMaxNodes,
+    stats: baselineStats,
+    forwardCheck: true,
+    deadline: budget.deadline,
+  });
   budget.spendWaveNodes(baselineStats.nodesVisited);
   if (baseline.length === 0) {
-    return baselineStats.nodeCapHit
+    return baselineStats.nodeCapHit || baselineStats.timedOut
       ? { type: "contradiction", variant: "error", cause: "unknown", culprits: [], message: INCONCLUSIVE_MSG }
       : { type: "contradiction", variant: "error", cause: "clues", culprits: [], message: CLUES_CONTRADICTORY_MSG };
   }
@@ -89,7 +95,7 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
     reduced.delete(characterId);
     const stats = {};
     const maxNodes = Math.max(0, Math.min(CULPRIT_MAX_NODES, budget.waveNodesRemaining));
-    const withoutThis = solvePuzzle(puzzle, { maxSolutions: 1, fixedPlacements: reduced, maxNodes, stats });
+    const withoutThis = solvePuzzle(puzzle, { maxSolutions: 1, fixedPlacements: reduced, maxNodes, stats, deadline: budget.deadline });
     budget.spendWaveNodes(stats.nodesVisited);
     if (withoutThis.length >= 1) culprits.push(characterId);
   }
@@ -188,6 +194,7 @@ function computeWave(puzzle, confirmed, budget, candidates) {
     maxNodes: solveNodes,
     stats,
     forwardCheck: true,
+    deadline: budget.deadline,
   });
   budget.spendWaveNodes(stats.nodesVisited);
 
@@ -195,7 +202,7 @@ function computeWave(puzzle, confirmed, budget, candidates) {
   // solution space — it must NEVER be used to derive forced/eliminated facts.
   // Only propagation's facts (sound regardless of the exhaustive solve's
   // completeness) survive from a capped wave.
-  const exhaustiveUsable = !stats.nodeCapHit && solutions.length < HINT_MAX_SOLUTIONS;
+  const exhaustiveUsable = !stats.nodeCapHit && !stats.timedOut && solutions.length < HINT_MAX_SOLUTIONS;
 
   if (exhaustiveUsable && solutions.length === 0) {
     return {
@@ -291,7 +298,13 @@ function computeWave(puzzle, confirmed, budget, candidates) {
     confirmedAfter,
     contradiction: null,
     exhaustiveUsable,
-    tooComplexReason: exhaustiveUsable ? null : budget.expired() ? "budgetExhausted" : stats.nodeCapHit ? "nodeCap" : "solutionCap",
+    tooComplexReason: exhaustiveUsable
+      ? null
+      : budget.expired() || stats.timedOut
+        ? "budgetExhausted"
+        : stats.nodeCapHit
+          ? "nodeCap"
+          : "solutionCap",
   };
 }
 
@@ -306,7 +319,7 @@ export function computeHintChain(puzzle, currentPlacements, candidates = new Map
     return [{ type: "noHint", variant: "info", reason: "complete", message: ALREADY_COMPLETE_MSG }];
   }
 
-  const budget = createBudget();
+  const budget = createBudget(puzzle);
   const steps = [];
   let confirmed = new Map(currentPlacements);
 

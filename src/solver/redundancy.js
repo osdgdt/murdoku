@@ -35,16 +35,20 @@ export async function findCluesNeededWithoutVictim(puzzle, redundantIds, checkUn
 export async function findRedundantClues(puzzle, checkUnique, { onProgress } = {}) {
   const baseline = await checkUnique(puzzle);
   if (baseline.solutionCount !== 1 || baseline.truncated) {
+    // a limit (not the search's own end) means "could not tell", never "no solution"/"not unique"
+    if (baseline.exhausted === false && baseline.solutionCount < 2) return { ok: false, reason: "limit", redundant: [] };
     return { ok: false, reason: baseline.solutionCount === 0 ? "unsolvable" : "not-unique", redundant: [] };
   }
   const redundant = [];
+  let unchecked = 0; // clues whose check hit a limit: kept (not reported redundant), but not proven needed
   for (let i = 0; i < puzzle.clues.length; i++) {
     onProgress?.(i, puzzle.clues.length);
     const without = clonePuzzle(puzzle);
     without.clues = puzzle.clues.filter((_, index) => index !== i);
     const report = await checkUnique(without);
     if (report.solutionCount === 1 && !report.truncated) redundant.push(puzzle.clues[i].id);
+    else if (report.exhausted === false && report.solutionCount < 2) unchecked++;
   }
   onProgress?.(puzzle.clues.length, puzzle.clues.length);
-  return { ok: true, redundant };
+  return { ok: true, redundant, unchecked };
 }

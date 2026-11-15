@@ -21,7 +21,8 @@ import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
-import { checkUniquenessAsync, deriveSolutionAsync } from "../solver/solverClient.js";
+import { checkUniquenessAsync, deriveSolutionAsync, cancelSolver } from "../solver/solverClient.js";
+import { limitsFor } from "../solver/limits.js";
 import { findRedundantClues, findCluesNeededWithoutVictim } from "../solver/redundancy.js";
 import { describeClue } from "../model/clueTypes.js";
 import { roomColor } from "../skin/paper/rooms.js";
@@ -227,22 +228,63 @@ saveBtn.addEventListener("click", () => {
   persist();
 });
 
+// A "working…" line in the validation panel with a Cancel button: a search on a big grid can take
+// a while, and the author must be able to give up. Returns the element holding the text, so a
+// caller can update it (progress counters).
+function showProgress(text) {
+  clear(validationPanel);
+  const message = el("span", {}, text);
+  validationPanel.appendChild(
+    el("p", { class: "info-message" }, [
+      message,
+      " ",
+      el("button", { type: "button", class: "cancel-solve", onClick: () => cancelSolver("main") }, t("Annulla")),
+    ])
+  );
+  return message;
+}
+
+// What to say when a solver call failed: a cancel is not an error.
+function showSolverError(err, describe) {
+  clear(validationPanel);
+  validationPanel.appendChild(
+    err?.name === "AbortError"
+      ? el("p", { class: "info-message" }, t("Operazione annullata."))
+      : el("p", { class: "violation" }, describe(err.message))
+  );
+}
+
+// The honest wording of a uniqueness report that did NOT run to its end: the search was stopped by
+// a limit, so "no solution" and "unique" cannot be claimed.
+function limitMessage(report) {
+  return report.solutionCount === 0
+    ? t(
+        "Limite di ricerca raggiunto: finora non ho trovato nessuna soluzione, ma questo non significa che non esista. Aggiungi indizi per restringere la ricerca e riprova."
+      )
+    : t(
+        "Ho trovato una soluzione, ma il limite di ricerca è finito prima di poter escludere che ce ne siano altre: non posso garantire che sia unica. Aggiungi indizi e riprova."
+      );
+}
+
 // Before a case leaves the editor (file or link), make sure players won't get a
 // broken one: a case with no solution, several solutions, or one we couldn't
 // verify is flagged, and the author can still choose to go ahead.
 async function confirmPublishable() {
-  setStatus(t("Controllo che il caso abbia una soluzione unica…"));
+  showProgress(t("Controllo che il caso abbia una soluzione unica…"));
   let problem = null;
+  let cancelled = false;
   try {
-    const report = await checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES });
-    if (report.solutionCount === 0) problem = t("Il caso non ha nessuna soluzione: nessuno potrà risolverlo.");
-    else if (report.solutionCount > 1)
+    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: 2 }));
+    if (report.solutionCount > 1)
       problem = t("Il caso ha più di una soluzione: i giocatori potrebbero non capire quale sia quella giusta.");
-    else if (report.truncated) problem = t("Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.");
+    else if (!report.exhausted) problem = t("Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.");
+    else if (report.solutionCount === 0) problem = t("Il caso non ha nessuna soluzione: nessuno potrà risolverlo.");
   } catch (err) {
-    problem = t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message });
+    if (err?.name === "AbortError") cancelled = true;
+    else problem = t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message });
   }
-  setStatus("");
+  clear(validationPanel);
+  if (cancelled) return false;
   if (!problem) return true;
   return confirm(`${problem}\n\n${t("Vuoi procedere comunque?")}`);
 }
@@ -334,7 +376,13 @@ validateBtn.addEventListener("click", () => {
 // maxNodes is the independent safety net for puzzles that are constrained
 // enough to prune well but still have many solutions to enumerate).
 const UNIQUENESS_PREVIEW_MAX_SOLUTIONS = 24;
-const UNIQUENESS_PREVIEW_MAX_NODES = 200000;
+
+// The limits of every uniqueness check (nodes AND time, scaled with the grid: see solver/limits.js).
+// forwardCheck: it costs more per step but prunes far more, which is what decides a big grid.
+function uniquenessOptions({ maxSolutions }) {
+  const { maxNodes, timeMs } = limitsFor(puzzle).uniqueness;
+  return { maxSolutions, maxNodes, timeMs, forwardCheck: true };
+}
 
 // One small read-only grid per alternative solution, so they can be scanned
 // and compared at a glance instead of reading placements as text. Deliberately
@@ -394,15 +442,14 @@ function renderSolutionPreviews(puzzle, solutions) {
 
 uniqueBtn.addEventListener("click", async () => {
   uniqueBtn.disabled = true;
-  clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, t("Verifica unicità in corso…")));
+  showProgress(t("Verifica unicità in corso…"));
   try {
-    const report = await checkUniquenessAsync(puzzle, {
-      maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS,
-      maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
-    });
+    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS }));
     clear(validationPanel);
-    if (report.solutionCount === 0) {
+    if (report.solutionCount <= 1 && !report.exhausted) {
+      // stopped by a limit: neither "no solution" nor "unique" may be claimed
+      validationPanel.appendChild(el("p", { class: "violation" }, limitMessage(report)));
+    } else if (report.solutionCount === 0) {
       validationPanel.appendChild(
         el("p", { class: "violation" }, t("Nessuna soluzione trovata: controlla gli indizi, sono troppo restrittivi."))
       );
@@ -423,10 +470,7 @@ uniqueBtn.addEventListener("click", async () => {
       validationPanel.appendChild(renderSolutionPreviews(puzzle, report.solutions));
     }
   } catch (err) {
-    clear(validationPanel);
-    validationPanel.appendChild(
-      el("p", { class: "violation" }, t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message }))
-    );
+    showSolverError(err, (message) => t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message }));
   } finally {
     uniqueBtn.disabled = false;
   }
@@ -435,10 +479,10 @@ uniqueBtn.addEventListener("click", async () => {
 redundantBtn.addEventListener("click", async () => {
   redundantBtn.disabled = true;
   clear(validationPanel);
-  const progress = el("p", { class: "info-message" }, t("Analisi degli indizi in corso…"));
-  validationPanel.appendChild(progress);
+  const progress = showProgress(t("Analisi degli indizi in corso…"));
   try {
-    const check = (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes: UNIQUENESS_PREVIEW_MAX_NODES });
+    const { maxNodes, timeMs } = limitsFor(puzzle).redundancy;
+    const check = (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes, timeMs, forwardCheck: true });
     const result = await findRedundantClues(puzzle, check, {
       onProgress: (done, total) => {
         progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total });
@@ -450,13 +494,30 @@ redundantBtn.addEventListener("click", async () => {
         el(
           "p",
           { class: "violation" },
-          result.reason === "unsolvable"
-            ? t("Il caso non ha soluzione: non posso dire quali indizi siano superflui.")
-            : t("Il caso non ha una soluzione unica: aggiungi indizi finché è univoco, poi cerca quelli superflui.")
+          result.reason === "limit"
+            ? t(
+                "Non sono riuscito a verificare l'unicità entro il limite di ricerca: non posso dire quali indizi siano superflui. Aggiungi indizi e riprova."
+              )
+            : result.reason === "unsolvable"
+              ? t("Il caso non ha soluzione: non posso dire quali indizi siano superflui.")
+              : t("Il caso non ha una soluzione unica: aggiungi indizi finché è univoco, poi cerca quelli superflui.")
         )
       );
     } else if (result.redundant.length === 0) {
-      validationPanel.appendChild(el("p", { class: "ok-message" }, t("✓ Nessun indizio superfluo: ognuno è necessario all'unicità.")));
+      validationPanel.appendChild(
+        result.unchecked > 0
+          ? el(
+              "p",
+              { class: "info-message" },
+              t(
+                "Nessun indizio superfluo trovato, ma per {count} indizi il controllo ha raggiunto il limite di ricerca: non è provato che servano.",
+                {
+                  count: result.unchecked,
+                }
+              )
+            )
+          : el("p", { class: "ok-message" }, t("✓ Nessun indizio superfluo: ognuno è necessario all'unicità."))
+      );
     } else {
       progress.textContent = t("Analisi degli indizi in corso…");
       const neededForSuspects = new Set(await findCluesNeededWithoutVictim(puzzle, result.redundant, check));
@@ -505,8 +566,7 @@ redundantBtn.addEventListener("click", async () => {
       validationPanel.appendChild(list);
     }
   } catch (err) {
-    clear(validationPanel);
-    validationPanel.appendChild(el("p", { class: "violation" }, t("Analisi non riuscita: {message}. Riprova.", { message: err.message })));
+    showSolverError(err, (message) => t("Analisi non riuscita: {message}. Riprova.", { message }));
   } finally {
     redundantBtn.disabled = false;
   }
@@ -514,15 +574,11 @@ redundantBtn.addEventListener("click", async () => {
 
 estimateBtn.addEventListener("click", async () => {
   estimateBtn.disabled = true;
-  clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, t("Stima in corso…")));
+  showProgress(t("Stima in corso…"));
   try {
-    const report = await checkUniquenessAsync(puzzle, {
-      maxSolutions: 2,
-      maxNodes: UNIQUENESS_PREVIEW_MAX_NODES,
-    });
+    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: 2 }));
     clear(validationPanel);
-    if (report.solutionCount !== 1) {
+    if (report.solutionCount !== 1 || !report.exhausted) {
       // A stima only means something once the puzzle has exactly one solution
       // — with zero or several, "how hard was it to find" isn't a meaningful
       // question yet (fix that first, via Verifica unicità, before estimating).
@@ -543,10 +599,7 @@ estimateBtn.addEventListener("click", async () => {
       )
     );
   } catch (err) {
-    clear(validationPanel);
-    validationPanel.appendChild(
-      el("p", { class: "violation" }, t("Non sono riuscito a calcolare la stima: {message}. Riprova.", { message: err.message }))
-    );
+    showSolverError(err, (message) => t("Non sono riuscito a calcolare la stima: {message}. Riprova.", { message }));
   } finally {
     estimateBtn.disabled = false;
   }
@@ -575,10 +628,10 @@ calcSolutionBtn.addEventListener("click", async () => {
   const startedAtVersion = puzzle.updatedAt;
   const startedAtPuzzle = puzzle;
   calcSolutionBtn.disabled = true;
-  clear(validationPanel);
-  validationPanel.appendChild(el("p", { class: "info-message" }, t("Calcolo della soluzione in corso…")));
+  showProgress(t("Calcolo della soluzione in corso…"));
   try {
-    const result = await deriveSolutionAsync(puzzle);
+    const { maxNodes, timeMs } = limitsFor(puzzle).derive;
+    const result = await deriveSolutionAsync(puzzle, { maxNodes, timeMs });
     clear(validationPanel);
     if (puzzle !== startedAtPuzzle || puzzle.updatedAt !== startedAtVersion) {
       validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è stato modificato nel frattempo: riprova.")));
@@ -618,16 +671,13 @@ calcSolutionBtn.addEventListener("click", async () => {
           "p",
           { class: "violation" },
           t(
-            "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."
+            "Limite di ricerca raggiunto: il caso è troppo ampio da risolvere in tempi ragionevoli (non significa che sia irrisolvibile). Aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata."
           )
         )
       );
     }
   } catch (err) {
-    clear(validationPanel);
-    validationPanel.appendChild(
-      el("p", { class: "violation" }, t("Non sono riuscito a calcolare la soluzione: {message}. Riprova.", { message: err.message }))
-    );
+    showSolverError(err, (message) => t("Non sono riuscito a calcolare la soluzione: {message}. Riprova.", { message }));
   } finally {
     calcSolutionBtn.disabled = false;
   }

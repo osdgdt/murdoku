@@ -222,8 +222,6 @@ export default {
     "No solution found: this case's clues contradict each other. The declared solution was not changed.",
   "Il puzzle è ambiguo: esistono più soluzioni possibili, non posso scegliere quella giusta al posto tuo. Aggiungi altri indizi. La soluzione dichiarata non è stata modificata.":
     "The puzzle is ambiguous: there are several possible solutions, I can't pick the right one for you. Add more clues. The declared solution was not changed.",
-  "Il caso è troppo complesso da risolvere in tempi ragionevoli: aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata.":
-    "The case is too complex to solve in reasonable time: add tighter clues. The declared solution was not changed.",
   "Non sono riuscito a calcolare la soluzione: {message}. Riprova.": "I couldn't compute the solution: {message}. Try again.",
   "Suggerimenti passo-passo": "Step-by-step hints",
   'Se questo caso ha almeno un passo qui sotto, il pulsante "Suggerimento" nel gioco mostrerà SOLO questa sequenza scritta da te, nell\'ordine, al posto del motore di suggerimenti automatico. Lascia questa lista vuota per continuare a usare i suggerimenti automatici (comportamento invariato).':
@@ -451,4 +449,16 @@ export default {
   "✋ Muovi": "✋ Move",
   "Sposta la griglia col dito invece di segnare le caselle": "Move the board with your finger instead of marking cells",
   "Colore e note": "Colour and notes",
+  // solver limits
+  "Operazione annullata.": "Operation cancelled.",
+  "Limite di ricerca raggiunto: finora non ho trovato nessuna soluzione, ma questo non significa che non esista. Aggiungi indizi per restringere la ricerca e riprova.":
+    "Search limit reached: I have not found any solution so far, but that does not mean there is none. Add clues to narrow the search and try again.",
+  "Ho trovato una soluzione, ma il limite di ricerca è finito prima di poter escludere che ce ne siano altre: non posso garantire che sia unica. Aggiungi indizi e riprova.":
+    "I found a solution, but the search limit ran out before I could rule out others: I cannot guarantee it is the only one. Add clues and try again.",
+  "Non sono riuscito a verificare l'unicità entro il limite di ricerca: non posso dire quali indizi siano superflui. Aggiungi indizi e riprova.":
+    "I could not check uniqueness within the search limit, so I cannot tell which clues are redundant. Add clues and try again.",
+  "Nessun indizio superfluo trovato, ma per {count} indizi il controllo ha raggiunto il limite di ricerca: non è provato che servano.":
+    "No redundant clue found, but for {count} clues the check hit the search limit: they are not proven to be needed.",
+  "Limite di ricerca raggiunto: il caso è troppo ampio da risolvere in tempi ragionevoli (non significa che sia irrisolvibile). Aggiungi indizi più stringenti. La soluzione dichiarata non è stata modificata.":
+    "Search limit reached: the case is too wide to solve in a reasonable time (that does not mean it is unsolvable). Add tighter clues. The declared solution was not changed.",
 };

@@ -73,9 +73,15 @@ export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budge
     const reducedPuzzle = { ...puzzle, clues: puzzle.clues.filter((c) => c.id !== clue.id) };
     const stats = {};
     const maxNodes = Math.max(0, Math.min(INVOLVED_CLUE_TEST_MAX_NODES, budget.involvedClueNodesRemaining));
-    const solutions = solvePuzzle(reducedPuzzle, { maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS, fixedPlacements, maxNodes, stats });
+    const solutions = solvePuzzle(reducedPuzzle, {
+      maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS,
+      fixedPlacements,
+      maxNodes,
+      stats,
+      deadline: budget.deadline,
+    });
     budget.spendInvolvedClueNodes(stats.nodesVisited);
-    const inconclusive = stats.nodeCapHit || solutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
+    const inconclusive = stats.nodeCapHit || stats.timedOut || solutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
     if (inconclusive || !factStillHolds(solutions, step)) involved.push(clue);
   }
 
@@ -97,10 +103,10 @@ export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budge
     const maxNodes = Math.max(0, Math.min(INVOLVED_CLUE_TEST_MAX_NODES, budget.involvedClueNodesRemaining));
     const bareSolutions = solvePuzzle(
       { ...puzzle, clues: [] },
-      { maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS, fixedPlacements, maxNodes, stats: bareStats }
+      { maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS, fixedPlacements, maxNodes, stats: bareStats, deadline: budget.deadline }
     );
     budget.spendInvolvedClueNodes(bareStats.nodesVisited);
-    const bareInconclusive = bareStats.nodeCapHit || bareSolutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
+    const bareInconclusive = bareStats.nodeCapHit || bareStats.timedOut || bareSolutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
     if (!bareInconclusive && factStillHolds(bareSolutions, step)) {
       return { involvedClues: resolveWitnessClues(puzzle, [null]), jointlyDetermined: false };
     }

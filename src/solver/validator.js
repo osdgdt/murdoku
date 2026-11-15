@@ -68,17 +68,41 @@ export function validateSolution(puzzle) {
 // null, matching solvePuzzle's own defaults) added for deriveSolution.js's
 // upfront-propagate seeding — every other existing caller/test omits both
 // and sees byte-identical behavior.
+//
+// `timeMs` is a wall-clock limit (the search stops when it runs out, like a node cap); `shouldStop`
+// is a cooperative stop callback.
+//
+// What the report means (read `exhausted`, not just the count):
+//   exhausted: true  the search ran to its natural end under the limits, so `solutionCount` is the
+//                    whole truth (0 = no solution exists, 1 = unique), unless it stopped early
+//                    because it found `maxSolutions` (then there are AT LEAST that many)
+//   exhausted: false a limit (nodes or time, see `stoppedBy`) ended it: with `solutionCount` 0
+//                    that is "gave up", NOT "no solution"; with 1 it is "found one, could not
+//                    rule out others" and NOT "unique"
+// `truncated` (older name) is true when the list may be incomplete for either reason.
 export function checkUniqueness(
   puzzle,
-  { maxSolutions = 2, maxNodes = Infinity, forwardCheck = false, fixedPlacements = null, domains = null } = {}
+  {
+    maxSolutions = 2,
+    maxNodes = Infinity,
+    forwardCheck = false,
+    fixedPlacements = null,
+    domains = null,
+    timeMs = null,
+    shouldStop = null,
+  } = {}
 ) {
   const stats = {};
-  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats, forwardCheck, fixedPlacements, domains });
+  const deadline = timeMs == null ? null : (typeof performance !== "undefined" ? performance.now() : Date.now()) + timeMs;
+  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats, forwardCheck, fixedPlacements, domains, deadline, shouldStop });
+  const stoppedBy = stats.timedOut ? "time" : stats.nodeCapHit ? "nodes" : null;
   return {
     solutionCount: solutions.length,
-    unique: solutions.length === 1,
+    unique: solutions.length === 1 && !stoppedBy,
     solutions,
-    truncated: solutions.length >= maxSolutions || !!stats.nodeCapHit,
+    truncated: solutions.length >= maxSolutions || !!stoppedBy,
+    exhausted: !stoppedBy,
+    stoppedBy,
     nodesVisited: stats.nodesVisited,
   };
 }

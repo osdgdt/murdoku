@@ -41,9 +41,33 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // gets the full scan (safe fallback). This can only prune cells already
 // proven impossible by the same predicate contract forwardCheck relies on
 // — same "changes speed, never the answer" guarantee.
+//
+// Search strategy (this is where the 16x16 grids are won or lost):
+//  1. Unary domains: before searching, every character's cells are filtered by the clues that
+//     can be judged with that character alone on the board (a clue like "is in the Kitchen" or
+//     "is in a corner" removes cells at no search cost). Skipped when the caller supplies its
+//     own `domains` (propagate()'s fixed point already contains this and more).
+//  2. Dynamic most-constrained-variable ordering: at every node the character with the fewest
+//     cells still free (rows/columns already used are not free) is placed next, and a character
+//     left with none ends the branch at once (domain wipe-out).
+// Both are pure pruning: the SET of solutions found never changes (test-solver-differential.js
+// checks it against a plain reference search); only how fast, and in what order, they come.
+//
+// `deadline` (a performance.now() time in ms) and `shouldStop()` are wall-clock/cooperative
+// limits, polled every few hundred nodes: when either fires the search stops like a node cap
+// and `stats.timedOut` says so. Without them a pathological case can run for minutes.
 export function solvePuzzle(
   puzzle,
-  { maxSolutions = 2, fixedPlacements = null, maxNodes = Infinity, stats = null, forwardCheck = false, domains = null } = {}
+  {
+    maxSolutions = 2,
+    fixedPlacements = null,
+    maxNodes = Infinity,
+    stats = null,
+    forwardCheck = false,
+    domains = null,
+    deadline = null,
+    shouldStop = null,
+  } = {}
 ) {
   const characters = puzzle.characters;
   const { rows, cols } = puzzle.grid.size;
@@ -87,13 +111,44 @@ export function solvePuzzle(
   const placementMap = new Map();
   let nodesVisited = 0;
   let nodeCapHit = false;
+  let timedOut = false;
+  const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+  const stopped = () => nodeCapHit || timedOut;
+  // Polled every 256 nodes (a node is cheap, a clock read is not free).
+  function timeIsUp() {
+    if ((nodesVisited & 255) !== 0) return false;
+    if ((deadline != null && now() >= deadline) || (shouldStop && shouldStop())) timedOut = true;
+    return timedOut;
+  }
 
-  function isComplete() {
-    return placementMap.size === order.length;
+  // Each character's candidate cells: the caller's `domains`, else the unary domains (see the
+  // header), else every occupiable cell. Cells that cannot hold anyone are dropped once, here.
+  const allCells = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (isOccupiable(puzzle.grid, r, c)) allCells.push({ row: r, col: c });
+  const given = domains ?? unaryDomains(puzzle, characters, predicates, allCells);
+  const candidates = new Map();
+  for (const character of characters) {
+    const fixed = fixedPlacements && fixedPlacements.get(character.id);
+    const list = fixed ? [fixed] : (given.get(character.id) ?? allCells);
+    candidates.set(
+      character.id,
+      list.filter(({ row, col }) => isOccupiable(puzzle.grid, row, col))
+    );
+  }
+
+  const isFree = ({ row, col }) => !usedRows.has(row) && !usedCols.has(col);
+
+  // How many cells `character` still has (stops counting at `limit`).
+  function countFree(character, limit) {
+    let n = 0;
+    for (const cell of candidates.get(character.id)) {
+      if (isFree(cell) && ++n >= limit) return n;
+    }
+    return n;
   }
 
   function violatesAny() {
-    const complete = isComplete();
+    const complete = placementMap.size === order.length;
     for (const { predicate } of predicates) {
       const result = predicate(placementMap, complete);
       if (result === false) return true;
@@ -101,7 +156,7 @@ export function solvePuzzle(
     return false;
   }
 
-  function tryPlace(character, r, c, index) {
+  function tryPlace(character, r, c) {
     placementMap.set(character.id, { row: r, col: c });
     usedRows.add(r);
     usedCols.add(c);
@@ -114,92 +169,85 @@ export function solvePuzzle(
       // backtracking for that one node instead of risking unsoundness.
       const stillPromising =
         !forwardCheck ||
-        index + 1 >= order.length ||
+        placementMap.size >= order.length ||
         !propagate(puzzle, placementMap, {
           predicates,
           maxRounds: FORWARD_CHECK_MAX_ROUNDS,
           maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
           maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
         }).contradiction;
-      if (stillPromising) backtrack(index + 1);
+      if (stillPromising) backtrack();
     }
     usedRows.delete(r);
     usedCols.delete(c);
     placementMap.delete(character.id);
   }
 
-  function backtrack(index) {
-    if (solutions.length >= maxSolutions || nodeCapHit) return;
-    if (index === order.length) {
-      if (!violatesAny()) {
-        solutions.push(new Map(placementMap));
-      }
+  function backtrack() {
+    if (solutions.length >= maxSolutions || stopped()) return;
+    if (placementMap.size === order.length) {
+      if (!violatesAny()) solutions.push(new Map(placementMap));
       return;
     }
-    const character = order[index];
-    const fixed = fixedPlacements && fixedPlacements.get(character.id);
-
-    if (fixed) {
-      if (usedRows.has(fixed.row) || usedCols.has(fixed.col) || !isOccupiable(puzzle.grid, fixed.row, fixed.col)) {
-        return; // the fixed placement is inconsistent -> this branch is a dead end
+    // The most constrained character goes next; one with no free cell left ends the branch.
+    // Ties keep the static `order` (victim first), so the choice is deterministic.
+    let next = null;
+    let fewest = Infinity;
+    for (const character of order) {
+      if (placementMap.has(character.id)) continue;
+      const free = countFree(character, fewest);
+      if (free === 0) return;
+      if (free < fewest) {
+        fewest = free;
+        next = character;
       }
+    }
+    for (const cell of candidates.get(next.id)) {
+      if (!isFree(cell)) continue;
       nodesVisited++;
       if (nodesVisited >= maxNodes) {
         nodeCapHit = true;
         return;
       }
-      tryPlace(character, fixed.row, fixed.col, index);
-      return;
-    }
-
-    const characterDomain = domains && domains.get(character.id);
-    if (characterDomain) {
-      // Re-check usedRows/usedCols/isOccupiable live, exactly like the full
-      // scan below does — `characterDomain` may have been computed against a
-      // different confirmed-set snapshot than this search's current state,
-      // and a listed cell's row/col could have been consumed since (by
-      // another character placed earlier in `order` during this very
-      // search). An empty `characterDomain` (propagate() proved zero
-      // candidates) correctly falls straight through to `return` with
-      // nothing tried — a sound dead-end, not a bug.
-      for (const { row: r, col: c } of characterDomain) {
-        if (usedRows.has(r) || usedCols.has(c)) continue;
-        if (!isOccupiable(puzzle.grid, r, c)) continue;
-        nodesVisited++;
-        if (nodesVisited >= maxNodes) {
-          nodeCapHit = true;
-          return;
-        }
-        tryPlace(character, r, c, index);
-        if (solutions.length >= maxSolutions || nodeCapHit) return;
-      }
-      return;
-    }
-
-    for (let r = 0; r < rows; r++) {
-      if (usedRows.has(r)) continue;
-      for (let c = 0; c < cols; c++) {
-        if (usedCols.has(c)) continue;
-        if (!isOccupiable(puzzle.grid, r, c)) continue;
-        nodesVisited++;
-        if (nodesVisited >= maxNodes) {
-          nodeCapHit = true;
-          return;
-        }
-        tryPlace(character, r, c, index);
-        if (solutions.length >= maxSolutions || nodeCapHit) return;
-      }
+      if (timeIsUp()) return;
+      tryPlace(next, cell.row, cell.col);
+      if (solutions.length >= maxSolutions || stopped()) return;
     }
   }
 
   if (order.length > 0 && order.length <= rows && order.length <= cols) {
-    backtrack(0);
+    backtrack();
   }
 
   if (stats) {
     stats.nodesVisited = nodesVisited;
     stats.nodeCapHit = nodeCapHit;
+    stats.timedOut = timedOut;
   }
 
   return solutions.map((sol) => order.map((c) => ({ characterId: c.id, row: sol.get(c.id).row, col: sol.get(c.id).col })));
+}
+
+// The cells each character can take judged ALONE: a cell goes if some clue is already false
+// with just that character placed there. Sound by the predicates' own contract (a predicate
+// never rejects a partial placement that can still be completed), so no solution is lost.
+export function unaryDomains(puzzle, characters, predicates, cells) {
+  const domains = new Map();
+  const alone = characters.length === 1;
+  for (const character of characters) {
+    const list = [];
+    for (const cell of cells) {
+      const map = new Map([[character.id, cell]]);
+      let ok = true;
+      for (const { predicate } of predicates) {
+        if (predicate(map, alone) === false) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) list.push(cell);
+    }
+    domains.set(character.id, list);
+  }
+  return domains;
 }

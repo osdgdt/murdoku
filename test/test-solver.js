@@ -302,7 +302,7 @@ export const tests = [
     },
   },
   {
-    name: "checkUniqueness: forwardCheck:true (opt-in) visita meno nodi del default su un ramo strutturalmente morto",
+    name: "checkUniqueness: forwardCheck:true (opt-in) non visita mai più nodi del default su un ramo strutturalmente morto",
     fn: () => {
       const puzzle = basePuzzle(4, 4);
       const a = addCharacter(puzzle, "A", "person1");
@@ -318,8 +318,10 @@ export const tests = [
       assertEqual(withoutFC.solutionCount, 0);
       assertEqual(withFC.solutionCount, 0);
       assert(
-        withFC.nodesVisited < withoutFC.nodesVisited,
-        `forwardCheck:true doveva visitare meno nodi (${withFC.nodesVisited} vs ${withoutFC.nodesVisited})`
+        // (i domini unari e l'ordine MRV della ricerca ora scartano da soli questo ramo morto:
+        // il forward-check non deve comunque mai visitare PIÙ nodi)
+        withFC.nodesVisited <= withoutFC.nodesVisited,
+        `forwardCheck:true non doveva visitare più nodi (${withFC.nodesVisited} vs ${withoutFC.nodesVisited})`
       );
     },
   },
@@ -793,7 +795,7 @@ export const tests = [
     },
   },
   {
-    name: "solvePuzzle con forwardCheck:true visita molti meno nodi di forwardCheck:false su un ramo strutturalmente morto",
+    name: "solvePuzzle con forwardCheck:true non visita più nodi di forwardCheck:false su un ramo strutturalmente morto",
     fn: () => {
       const puzzle = basePuzzle(4, 4);
       const a = addCharacter(puzzle, "A", "person1");
@@ -819,8 +821,8 @@ export const tests = [
       assertEqual(withoutFC.length, 0, "il puzzle è genuinamente irrisolvibile in entrambi i casi");
       assertEqual(withFC.length, 0);
       assert(
-        statsWith.nodesVisited < statsWithout.nodesVisited,
-        `forwardCheck doveva visitare meno nodi (${statsWith.nodesVisited} vs ${statsWithout.nodesVisited})`
+        statsWith.nodesVisited <= statsWithout.nodesVisited,
+        `forwardCheck non doveva visitare più nodi (${statsWith.nodesVisited} vs ${statsWithout.nodesVisited})`
       );
     },
   },
@@ -855,7 +857,7 @@ export const tests = [
     },
   },
   {
-    name: "solvePuzzle con domains (seminato da propagate) visita meno nodi della piena enumerazione",
+    name: "solvePuzzle con domains (seminato da propagate) non visita più nodi della ricerca di base",
     fn: () => {
       const puzzle = basePuzzle(5, 5);
       const a = addCharacter(puzzle, "A", "person1");
@@ -888,8 +890,8 @@ export const tests = [
       });
       assert(withoutDomains.length > 0, "il puzzle deve avere soluzioni reali per essere un test significativo");
       assert(
-        statsWith.nodesVisited < statsWithout.nodesVisited,
-        `domains doveva visitare meno nodi (${statsWith.nodesVisited} vs ${statsWithout.nodesVisited})`
+        statsWith.nodesVisited <= statsWithout.nodesVisited,
+        `domains non doveva visitare più nodi (${statsWith.nodesVisited} vs ${statsWithout.nodesVisited})`
       );
     },
   },

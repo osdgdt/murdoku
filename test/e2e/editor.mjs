@@ -63,6 +63,25 @@ try {
   await page.waitForSelector("#validation-panel .ok-message", { timeout: 20000 });
   check("uniqueness check reports a unique solution", /Unique solution/.test(await page.innerText("#validation-panel")));
 
+  // A long search can be cancelled: hold the worker's messages back so the check is still running
+  // when "Cancel" is pressed, then check the editor says so and works again afterwards.
+  await page.evaluate(() => {
+    const original = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (...args) {
+      setTimeout(() => original.apply(this, args), 3000);
+    };
+    window.__restoreWorker = () => (Worker.prototype.postMessage = original);
+  });
+  await page.click("#unique-btn");
+  await page.waitForSelector("#validation-panel .cancel-solve");
+  await page.click("#validation-panel .cancel-solve");
+  await page.waitForFunction(() => /Operation cancelled/.test(document.querySelector("#validation-panel")?.innerText || ""));
+  check("Cancel stops a running check and says so", await page.locator("#unique-btn").isEnabled());
+  await page.evaluate(() => window.__restoreWorker());
+  await page.click("#unique-btn");
+  await page.waitForSelector("#validation-panel .ok-message", { timeout: 20000 });
+  check("the editor still checks uniqueness after a cancel", /Unique solution/.test(await page.innerText("#validation-panel")));
+
   await page.click("#redundant-btn");
   await page.waitForFunction(
     () => /No redundant clues|can be removed/.test(document.querySelector("#validation-panel")?.innerText || ""),

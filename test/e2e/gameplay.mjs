@@ -255,6 +255,76 @@ const scenarios = [
     },
   })),
   ...["it-IT", "en-US"].map((locale) => ({
+    name: `clue sentences (${locale}): every clue type, negated or not, in the present, past and future, is in one language`,
+    options: { url: `${base}/player.html`, ready: "header.topbar", locale },
+    async run(page) {
+      const sentences = await page.evaluate(async () => {
+        const { CLUE_TYPES, describeClue } = await import("/src/model/clueTypes.js");
+        const { createPuzzle, addCharacter } = await import("/src/model/puzzle.js");
+        const { resizeGrid, addZone, paintCellZone, placeObject } = await import("/src/model/grid.js");
+        const puzzle = createPuzzle("Lingua");
+        puzzle.grid = resizeGrid(puzzle.grid, 5, 5);
+        const zone = addZone(puzzle.grid, "Alfa", "#f4c2c2");
+        paintCellZone(puzzle.grid, 0, 0, zone.id);
+        const table = placeObject(puzzle.grid, "table", 2, 2);
+        const tv = placeObject(puzzle.grid, "tv", 3, 3);
+        const [owner, other] = ["Anna", "Bruno", "Carla"].map((name) => addCharacter(puzzle, name, "person1"));
+        const out = [];
+        const params = (def, objectId) => {
+          const p = {};
+          for (const d of def.params || []) {
+            if (d.kind === "enum") p[d.name] = d.values[d.values.length > 1 ? 1 : 0];
+            else if (d.kind === "number") p[d.name] = 2;
+            else if (d.kind === "character") p[d.name] = other.id;
+            else if (d.kind === "zone") p[d.name] = zone.id;
+            else if (d.kind === "characterOrObject") p[d.name] = objectId;
+            else if (d.kind === "characterOrObjectMulti") p[d.name] = [objectId, other.id];
+          }
+          return p;
+        };
+        for (const [id, def] of Object.entries(CLUE_TYPES)) {
+          if (def.internal) continue;
+          for (const objectId of [table.id, tv.id, other.id]) {
+            for (const negate of [false, true]) {
+              for (const tense of ["present", "past", "future"]) {
+                const clue = {
+                  id: "c",
+                  type: id,
+                  characterId: def.scope === "generic" ? null : owner.id,
+                  params: params(def, objectId),
+                  negate,
+                };
+                out.push({ id, text: describeClue(clue, { ...puzzle, tense }) });
+              }
+            }
+          }
+        }
+        // the choices offered by the clue forms (labels of types and of enum values)
+        for (const [id, def] of Object.entries(CLUE_TYPES)) {
+          if (def.internal) continue;
+          out.push({ id: id + ":label", text: def.label });
+          for (const d of def.params || []) {
+            out.push({ id: id + ":" + d.name, text: d.label });
+            for (const v of d.values || []) out.push({ id: id + ":" + d.name + "=" + v, text: (d.labels && d.labels[v]) || "" });
+          }
+        }
+        return out;
+      });
+      const italian = locale === "it-IT";
+      if (sentences.length < 400) throw new Error(`too few sentences: ${sentences.length}`);
+      // Words that only the OTHER language has (names, "TV" and the like are not in these lists).
+      const wrong = italian
+        ? /\b(is|are|was|were|will|the|and|or|not|someone|no one|exactly|column|columns|row|rows|corner|next|between|with|man|woman|person|true|cells|alone|only|south|north|east|west|room|rooms|any|choose)\b/i
+        : /\b(è|era|sarà|sono|erano|saranno|stanza|stanze|nessuno|qualcuno|esattamente|colonna|colonne|riga|righe|angolo|accanto|tra|con|uomo|donna|persona|vero|caselle|sola|solo|oppure|vuote|piene|tutte|stesso|nella|della|delle|sulla|una|uno|chiunque|scegli|bersaglio)\b/i;
+      const bad = [];
+      for (const { id, text } of sentences) {
+        if (!text || /undefined|\[object|\{[a-zA-Z]+\}/.test(text)) bad.push(`${id}: «${text}» (empty or unfilled)`);
+        else if (wrong.test(text)) bad.push(`${id}: «${text}» (${text.match(wrong)[0]})`);
+      }
+      if (bad.length) throw new Error(`${bad.length} sentences in the wrong language or incomplete, e.g.:\n${bad.slice(0, 12).join("\n")}`);
+    },
+  })),
+  ...["it-IT", "en-US"].map((locale) => ({
     name: `glossary page (${locale}): cast, rooms, clues and texts are all in one language, none from the other`,
     options: { url: `${base}/glossary.html`, ready: ".gl-card", locale },
     async run(page) {

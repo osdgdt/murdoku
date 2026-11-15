@@ -1,6 +1,7 @@
 import { el, clear } from "../util/dom.js";
 import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds, describeClue } from "../model/clueTypes.js";
 import { objectIcon, objectTypeTargetId, isEdgeObjectType, sideLabel } from "../model/icons.js";
+import { lowerLabel } from "../model/clues/shared.js";
 import { addClue, removeClue, updateClue, setClueNegate, cluesForCharacter, genericClues } from "../model/puzzle.js";
 import { t } from "../i18n/i18n.js";
 
@@ -47,9 +48,10 @@ function targetOptions(puzzle, kind, excludeCharacterId, { noZone = false } = {}
       const label = def?.label || t("Oggetto");
       options.push({
         value: o.id,
+        // the same "(R2, C3, lato Est)" the sentences use for a specific object
         label: o.side
-          ? t("{label} ({row},{col}, lato {side})", { label, row: o.row + 1, col: o.col + 1, side: sideLabel(o.side) })
-          : t("{label} ({row},{col})", { label, row: o.row + 1, col: o.col + 1 }),
+          ? t("{phrase} (R{row}, C{col}, lato {side})", { phrase: label, row: o.row + 1, col: o.col + 1, side: sideLabel(o.side) })
+          : t("{phrase} (R{row}, C{col})", { phrase: label, row: o.row + 1, col: o.col + 1 }),
       });
     }
     // "Any door", "any shelf", etc. — one option per object type actually
@@ -57,7 +59,7 @@ function targetOptions(puzzle, kind, excludeCharacterId, { noZone = false } = {}
     for (const typeId of objectTypesPresent(puzzle)) {
       const def = objectIcon(typeId);
       if (!def) continue;
-      options.push({ value: objectTypeTargetId(typeId), label: t("Qualsiasi {v}", { v: def.label.toLowerCase() }) });
+      options.push({ value: objectTypeTargetId(typeId), label: t("Qualsiasi {v}", { v: lowerLabel(def.label) }) });
     }
   }
   return options;
@@ -243,7 +245,7 @@ function renderClueRow(clue, puzzle, ownerId, onChange) {
         onChange();
       },
     }),
-    " no",
+    t(" non"),
   ]);
   const removeBtn = el(
     "button",

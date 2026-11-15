@@ -3035,7 +3035,7 @@ export const tests = [
       });
       assertEqual(
         describeClue(clue, puzzle),
-        'C\'è qualcuno a 2 righe a nord di lui/lei che verifica: Si trova in una stanza adiacente a "Bagno".'
+        'C\'è qualcuno a 2 righe a nord di lui/lei che verifica: si trova in una stanza adiacente a "Bagno".'
       );
     },
   },

@@ -49,6 +49,7 @@ import { t } from "../i18n/i18n.js";
 // markup changes. #notes-hint also exists in both pages but is a static
 // instruction paragraph now (no mode toggle to reflect) — this module never
 // touches it.
+// `challenge` ({ noHints: true }, the daily challenge): no hints at all — the button is off and the H key does nothing.
 // `answerPuzzle`: the complete case when `puzzle` is a version with some clues
 // hidden (campaigns): the answer key must come from ALL the clues, because
 // without the hidden ones the solution is not unique. `winExtras()`, when given,
@@ -62,6 +63,7 @@ export function createGameScreen({
   onStart,
   achievementKey,
   winExtras,
+  challenge = null,
 }) {
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
@@ -588,6 +590,10 @@ export function createGameScreen({
   // teardown/re-init support since both callers are full-page-navigation apps
   // where this only ever runs once per page load.
   function start() {
+    if (challenge?.noHints) {
+      hintBtn.disabled = true;
+      hintBtn.title = t("Nella sfida del giorno i suggerimenti non ci sono");
+    }
     // Regions a screen-reader user can jump to, and the keyboard help the board points at.
     hintPanel.setAttribute("role", "region");
     hintPanel.setAttribute("aria-label", t("Suggerimento"));

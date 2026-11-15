@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https:; frame-src https://*.firebaseapp.com https://accounts.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#b5493a" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#2a2230" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="description" content="Un caso al giorno, uguale per tutti, senza suggerimenti: chi lo risolve prima? / One case a day, the same for everybody, no hints: who solves it first?" />
+  <link rel="canonical" href="https://osdgdt.github.io/murdoku/daily.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Murdoku" />
+  <meta property="og:title" content="Sfida del giorno — Murdoku / Daily challenge — Murdoku" />
+  <meta property="og:description" content="Un caso al giorno, uguale per tutti, senza suggerimenti: chi lo risolve prima? / One case a day, the same for everybody, no hints: who solves it first?" />
+  <meta property="og:url" content="https://osdgdt.github.io/murdoku/daily.html" />
+  <meta property="og:image" content="https://osdgdt.github.io/murdoku/icons/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>Sfida del giorno — Murdoku</title>
+  <link rel="preload" href="fonts/nunito-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/landing.css" />
+  <link rel="stylesheet" href="styles/editor.css" />
+  <link rel="stylesheet" href="styles/player.css" />
+  <link rel="stylesheet" href="styles/skin-paper.css" />
+  <link rel="stylesheet" href="styles/contrast.css" />
+  <script>
+    try {
+      var t = localStorage.getItem("murdoku:theme");
+      var more = window.matchMedia && (matchMedia("(prefers-contrast: more)").matches || matchMedia("(forced-colors: active)").matches);
+      if (t === "contrast" || (t !== "light" && t !== "dark" && more)) document.documentElement.setAttribute("data-theme", "contrast");
+      else if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔎 Murdoku</a>
+    <h1 id="player-title" class="player-title">Sfida del giorno</h1>
+    <div class="topbar-right">
+      <span id="timer" class="timer hidden">⏱ 0:00</span>
+      <span id="auth-bar" style="display:flex;align-items:center;gap:0.6rem"></span>
+      <button type="button" data-lang-toggle class="theme-toggle" data-no-i18n>EN</button>
+      <button type="button" data-theme-toggle class="theme-toggle" title="Passa al tema scuro">🌙</button>
+      <nav><a href="index.html">Home</a></nav>
+    </div>
+  </header>
+  <main>
+
+  <div id="gate" class="hero"></div>
+
+  <div id="daily-intro" class="hidden" style="max-width:900px;margin:1.5rem auto;padding:0 1.5rem">
+    <div class="panel" id="daily-info"></div>
+    <div class="panel hidden" id="nickname-panel"></div>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="game-toolstrip">
+      <div id="player-toolbar" class="player-toolbar"></div>
+      <div class="field-row">
+        <button id="undo-btn">↶ Annulla</button>
+        <button id="clear-btn" title="Tieni premuto per cancellare tutto">🧹 Pulisci tutto (tieni premuto)</button>
+        <button id="hint-btn">💡 Suggerimento</button>
+        <button id="pan-btn" type="button" class="hidden" aria-pressed="false" title="Sposta la griglia col dito invece di segnare le caselle">✋ Muovi</button>
+        <button id="submit-btn" class="primary">✓ Verifica soluzione</button>
+      </div>
+      <p id="shortcuts-hint" class="muted">Scorciatoie: 1-9 e 0 scelgono un personaggio ([ ] scorrono) · X segna · E gomma · U annulla.</p>
+      <p class="muted"><a href="tutorial.html" target="_blank" rel="noopener">🎓 Come si gioca</a> · <a href="glossary.html" target="_blank" rel="noopener">📖 Glossario degli indizi</a></p>
+      <p id="notes-hint" class="muted">Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo su una casella per piazzarci il personaggio selezionato: le sue note esistenti verranno cancellate.</p>
+      <div id="hint-panel"></div>
+      <div id="result-panel"></div>
+    </div>
+    <div class="player-layout">
+      <div id="board"></div>
+      <div class="side-column">
+        <div id="selected-clue-panel" class="panel selected-clue" aria-live="polite"></div>
+        <div id="briefing-panel" class="panel briefing-panel hidden"></div>
+        <div id="clues-panel" class="panel"></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="leaderboard" class="hidden" style="max-width:900px;margin:1.5rem auto;padding:0 1.5rem">
+    <div class="panel" id="leaderboard-panel"></div>
+  </section>
+
+  <p class="footer-note"><a href="privacy.html">Privacy e cancellazione dati</a></p>
+  </main>
+
+  <script type="module" src="src/i18n/i18n.js"></script>
+  <script type="module" src="src/util/pwa.js"></script>
+  <script type="module" src="src/skin/paper/chrome.js"></script>
+  <script type="module" src="src/util/errorReport.js"></script>
+  <script type="module" src="src/daily/dailyApp.js"></script>
+</body>
+</html>

@@ -519,3 +519,9 @@
 /* "Muovi": the board is being moved with a finger, not marked (see gameScreen.js). */
 .board-grid.pan-mode { outline: 3px dashed var(--accent); outline-offset: 2px; touch-action: pan-x pan-y pinch-zoom; }
 .board-grid.pan-mode .board-cell { cursor: grab; }
+
+/* ---- Daily challenge board ---------------------------------------------------------------- */
+.daily-board { width: 100%; border-collapse: collapse; margin-top: 0.6rem; }
+.daily-board th, .daily-board td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border-soft); }
+.daily-board th { font-size: 0.8rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; }
+.daily-board tr.mine td { background: var(--accent-soft); font-weight: 700; }

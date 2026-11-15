@@ -4,3 +4,5 @@ Thumbs.db
 desktop.ini
 .claude/
 node_modules/
+test/rules/package-lock.json
+firestore-debug.log

@@ -222,6 +222,7 @@ const scenarios = [
       if ((await page.locator(".tt-step .tt-board").count()) !== 6) throw new Error("every step needs its board");
       const last = await page.locator(".tt-step").last().innerText();
       if (!/Clara/.test(last)) throw new Error(`the last step should name the murderer, got: ${last}`);
+      if (!/only person in the victim's room is the murderer/.test(last)) throw new Error(`step 6 should repeat the rule, got: ${last}`);
       const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
       if (!fits) throw new Error("tutorial scrolls horizontally on a 390px viewport");
     },
@@ -247,8 +248,8 @@ const scenarios = [
       const found = shown.match(wrongNames) || shown.match(wrongWords);
       if (found) throw new Error(`found «${found[0]}» in the ${italian ? "Italian" : "English"} tutorial`);
       for (const mustHave of italian
-        ? ["Anna", "Cucina", "Biblioteca", "scaffale", "tappeto"]
-        : ["Alice", "Kitchen", "Library", "shelf", "rug"]) {
+        ? ["Anna", "Cucina", "Biblioteca", "scaffale", "tappeto", "l'unica persona nella stanza della vittima è l'assassino"]
+        : ["Alice", "Kitchen", "Library", "shelf", "rug", "only person in the victim's room is the murderer"]) {
         if (!shown.includes(mustHave)) throw new Error(`«${mustHave}» is missing from the ${italian ? "Italian" : "English"} tutorial`);
       }
     },

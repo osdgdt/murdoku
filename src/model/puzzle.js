@@ -135,6 +135,38 @@ export function addCharacter(puzzle, name, iconId, isVictim = false) {
   return character;
 }
 
+// Longest character name the editor accepts (it is shown on chips, in clues and on the board).
+export const MAX_CHARACTER_NAME = 40;
+
+export function cleanCharacterName(name) {
+  return String(name ?? "")
+    .trim()
+    .slice(0, MAX_CHARACTER_NAME)
+    .trim();
+}
+
+// Whether another character (not `exceptId`) already has this name, ignoring case.
+export function characterNameTaken(puzzle, name, exceptId = null) {
+  const wanted = cleanCharacterName(name).toLowerCase();
+  return puzzle.characters.some((c) => c.id !== exceptId && String(c.name).trim().toLowerCase() === wanted);
+}
+
+// Gives a character a new name. Only the name changes: the id (which clues, the solution
+// and the players' notes refer to), colour, icon and role stay as they are, and every
+// sentence is written from the name when it is shown. Free text written by the author
+// (briefing, notes, bios) does not follow a rename. Returns "ok", or why nothing changed:
+// "unknown" (no such character), "blank", "duplicate" (another character has that name).
+export function renameCharacter(puzzle, characterId, name) {
+  const character = puzzle.characters.find((c) => c.id === characterId);
+  if (!character) return "unknown";
+  const clean = cleanCharacterName(name);
+  if (!clean) return "blank";
+  if (characterNameTaken(puzzle, clean, characterId)) return "duplicate";
+  character.name = clean;
+  touch(puzzle);
+  return "ok";
+}
+
 export function setVictim(puzzle, characterId) {
   for (const c of puzzle.characters) c.isVictim = c.id === characterId;
   touch(puzzle);
@@ -215,6 +247,14 @@ export function setSolutionPlacement(puzzle, characterId, row, col) {
   if (row !== null && col !== null) placements.push({ characterId, row, col });
   puzzle.solution.placements = placements;
   touch(puzzle);
+}
+
+// Takes a character out of the declared solution (the author may leave it incomplete and
+// let the clues derive it). Returns whether the character was placed.
+export function removeSolutionPlacement(puzzle, characterId) {
+  if (!puzzle.solution.placements.some((p) => p.characterId === characterId)) return false;
+  setSolutionPlacement(puzzle, characterId, null, null);
+  return true;
 }
 
 export function placementFor(puzzle, characterId) {

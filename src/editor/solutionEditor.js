@@ -1,7 +1,7 @@
 import { el, clear, onActivateKey } from "../util/dom.js";
 import { renderBoard } from "../util/boardRender.js";
 import { characterIcon } from "../model/icons.js";
-import { setSolutionPlacement, placementFor, characterColor } from "../model/puzzle.js";
+import { setSolutionPlacement, removeSolutionPlacement, placementFor, characterColor } from "../model/puzzle.js";
 import { isOccupiable } from "../model/grid.js";
 import { t } from "../i18n/i18n.js";
 
@@ -15,7 +15,7 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
       "p",
       { class: "muted" },
       t(
-        "Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato."
+        "Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato. Per toglierlo dalla soluzione clicca di nuovo la sua casella, oppure premi ✕ accanto al suo nome."
       )
     )
   );
@@ -43,7 +43,26 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
       },
       character.name + (character.isVictim ? " (V)" : "")
     );
-    chips.appendChild(chip);
+    if (!placed) {
+      chips.appendChild(chip);
+      continue;
+    }
+    // A placed character can be taken out of the solution: a real button next to the chip (not
+    // inside it: a button in a button is not accessible), which also works on a phone.
+    const removeBtn = el(
+      "button",
+      {
+        type: "button",
+        class: "chip-remove",
+        title: t("Togli {name} dalla soluzione", { name: character.name }),
+        "aria-label": t("Togli {name} dalla soluzione", { name: character.name }),
+        onClick: () => {
+          if (removeSolutionPlacement(puzzle, character.id)) onChange();
+        },
+      },
+      "✕"
+    );
+    chips.appendChild(el("span", { class: "chip-with-remove" }, [chip, removeBtn]));
   }
   panelEl.appendChild(chips);
 
@@ -65,6 +84,13 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
     },
     onCellClick: (row, col) => {
       if (!selectedCharacterId) return;
+      // Clicking the cell of the selected character, already placed there, takes it out.
+      const placed = placementFor(puzzle, selectedCharacterId);
+      if (placed && placed.row === row && placed.col === col) {
+        removeSolutionPlacement(puzzle, selectedCharacterId);
+        onChange();
+        return;
+      }
       if (!isOccupiable(puzzle.grid, row, col)) return;
       const conflict = puzzle.solution.placements.find((p) => p.characterId !== selectedCharacterId && (p.row === row || p.col === col));
       if (conflict) return;
@@ -73,10 +99,7 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
     },
     onCellRightClick: (row, col) => {
       const placement = puzzle.solution.placements.find((p) => p.row === row && p.col === col);
-      if (placement) {
-        setSolutionPlacement(puzzle, placement.characterId, null, null);
-        onChange();
-      }
+      if (placement && removeSolutionPlacement(puzzle, placement.characterId)) onChange();
     },
   });
 }

@@ -543,6 +543,9 @@
 .player-toolbar .char-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .player-toolbar .char-chip.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
 .player-toolbar .char-chip.used { opacity: 0.45; }
+.chip-with-remove { display: inline-flex; align-items: center; gap: 0.15rem; }
+.chip-remove { min-width: 28px; min-height: 28px; padding: 0 0.4rem; font-size: 0.8rem; line-height: 1; border-radius: 999px; }
+.character-card .character-name-input { flex: 1; min-width: 0; font-weight: 800; }
 .character-card .character-extra summary { cursor: pointer; font-size: 0.8rem; font-weight: 700; color: var(--ink-soft); padding: 0.15rem 0; }
 .character-card .bio-input {
   width: 100%;

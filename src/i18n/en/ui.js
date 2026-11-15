@@ -262,8 +262,8 @@ export default {
     "Click cells to exclude them from the map (e.g. to make L-shaped or irregular layouts). Click again to re-enable them.",
   "Gomma (attiva)": "Eraser (active)",
   "Soluzione dell'autore": "Author's solution",
-  "Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato.":
-    "Select a character and click a cell to place them. Sharing a row or column with an already placed character is not allowed.",
+  "Seleziona un personaggio e clicca una cella per piazzarlo. Non è possibile condividere riga o colonna con un altro personaggio già piazzato. Per toglierlo dalla soluzione clicca di nuovo la sua casella, oppure premi ✕ accanto al suo nome.":
+    "Select a character and click a cell to place them. Sharing a row or column with an already placed character is not allowed. To take them out of the solution, click their cell again or press ✕ next to their name.",
   // --- HTML pages ---
   "Traguardi — Murdoku": "Achievements — Murdoku",
   "← Torna alla home": "← Back to home",
@@ -451,4 +451,9 @@ export default {
   "✋ Muovi": "✋ Move",
   "Sposta la griglia col dito invece di segnare le caselle": "Move the board with your finger instead of marking cells",
   "Colore e note": "Colour and notes",
+  // character names (rename, duplicates)
+  "Esiste già un personaggio con questo nome.": "Another character already has this name.",
+  "Il nome del personaggio non può essere vuoto.": "The character's name cannot be empty.",
+  "Nome del personaggio {name}": "Name of the character {name}",
+  "Togli {name} dalla soluzione": "Take {name} out of the solution",
 };

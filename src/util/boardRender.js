@@ -115,15 +115,21 @@ export function renderBoard(
     if (!edgeSidesByCell.has(k)) edgeSidesByCell.set(k, new Set());
     edgeSidesByCell.get(k).add(side);
   };
+  const isBlocked = (cell) => !!cell && grid.cells[cell.row][cell.col].blocked;
   for (const o of grid.objects) {
     if (!isEdgeObjectType(o.typeId)) continue;
-    const k = `${o.row},${o.col}`;
-    if (!edgesByCell.has(k)) edgesByCell.set(k, []);
-    edgesByCell.get(k).push(o);
     const side = o.side || "N";
     const [own, other] = edgeCells(grid, o);
     addEdgeSide(own.row, own.col, side);
     if (other) addEdgeSide(other.row, other.col, OPPOSITE_SIDE[side]);
+    // A blocked cell is not drawn, so a piece stored under it is drawn by the other
+    // cell of its segment (from that cell's point of view: the opposite side).
+    let anchor = { cell: own, side };
+    if (isBlocked(own)) anchor = other && !isBlocked(other) ? { cell: other, side: OPPOSITE_SIDE[side] } : null;
+    if (!anchor) continue;
+    const k = `${anchor.cell.row},${anchor.cell.col}`;
+    if (!edgesByCell.has(k)) edgesByCell.set(k, []);
+    edgesByCell.get(k).push({ obj: o, side: anchor.side });
   }
   // Every cell of a room shares one floor: its style is written ONCE per room, as a
   // rule in a <style> element of the board (cells just carry the room's class), not
@@ -284,6 +290,9 @@ export function renderBoard(
         tabindex: cellData.blocked ? undefined : "0",
         onClick: (e) => onCellClick && onCellClick(r, c, e),
         onContextmenu: (e) => {
+          // A long press on a phone raises "contextmenu" too: it must not erase the cell
+          // (object, room and block), only a real right click does.
+          if (e.pointerType === "touch") return;
           if (onCellRightClick) {
             e.preventDefault();
             onCellRightClick(r, c, e);
@@ -346,7 +355,9 @@ export function renderBoard(
       }
 
       if (cellData.blocked) {
-        container.appendChild(cellNode);
+        // In its row, like every other cell: the board is laid out by DOM order, so a
+        // cell appended anywhere else drifts to the end of the row and shifts the rest.
+        rowNode.appendChild(cellNode);
         continue;
       }
 
@@ -387,12 +398,12 @@ export function renderBoard(
       const nameZone = roomName.get(`${r},${c}`);
       if (nameZone) cellNode.appendChild(el("span", { class: "room-name", title: nameZone.name, "aria-hidden": "true" }, nameZone.name));
 
-      for (const edge of edgesByCell.get(`${r},${c}`) || []) {
+      for (const { obj: edge, side } of edgesByCell.get(`${r},${c}`) || []) {
         const def = objectIcon(edge.typeId);
         if (!def || !def.edgeIcon) continue;
         const piece = el("span", {
-          class: `edge-obj edge-${edge.side || "N"}`,
-          title: t("{label} (lato {side})", { label: def.label, side: sideLabel(edge.side || "N") }),
+          class: `edge-obj edge-${side}`,
+          title: t("{label} (lato {side})", { label: def.label, side: sideLabel(side) }),
           "aria-hidden": "true",
         });
         piece.innerHTML = def.edgeIcon;

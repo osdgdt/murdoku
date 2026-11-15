@@ -56,14 +56,33 @@ function nearestSide(e) {
 
 // Erase under the pointer: the door/window on the nearest side if there is one
 // (it may be stored under the neighbouring cell: it is the same piece of wall),
-// else the whole-cell object, else any door/window left on the cell.
+// else the whole-cell object, else any door/window left on the cell. Returns
+// whether it removed something.
 function eraseObjectAt(grid, row, col, side) {
   const cell = grid.cells[row][col];
   const onSide = edgeObjectOnSide(grid, row, col, side);
-  if (onSide) return removeObject(grid, onSide.id);
-  if (cell.objectId) return removeObject(grid, cell.objectId);
+  if (onSide) {
+    removeObject(grid, onSide.id);
+    return true;
+  }
+  if (cell.objectId) {
+    removeObject(grid, cell.objectId);
+    return true;
+  }
   const edges = edgeObjectsAt(grid, row, col);
-  if (edges.length) removeObject(grid, edges[0].id);
+  if (edges.length) {
+    removeObject(grid, edges[0].id);
+    return true;
+  }
+  return false;
+}
+
+// The eraser (and the right click): first what stands on the cell (an object, a
+// door or a window), and only a cell with nothing on it loses its room: erasing a
+// chair must not also wipe the room under it.
+function eraseCell(grid, row, col, side) {
+  if (eraseObjectAt(grid, row, col, side)) return;
+  grid.cells[row][col].zoneId = null;
 }
 
 export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
@@ -369,16 +388,14 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
             ? ""
             : t("Qui non c'è un muro: porte e finestre vanno tra due stanze, tra una stanza e l'esterno, o sul bordo della mappa.");
       } else if (tool.kind === "erase") {
-        eraseObjectAt(puzzle.grid, row, col, nearestSide(e));
-        cell.zoneId = null;
+        eraseCell(puzzle.grid, row, col, nearestSide(e));
       }
       onChange();
     },
     onCellRightClick: (row, col, e) => {
       const cell = puzzle.grid.cells[row][col];
-      eraseObjectAt(puzzle.grid, row, col, nearestSide(e));
-      cell.zoneId = null;
-      setBlocked(puzzle.grid, row, col, false);
+      if (cell.blocked) setBlocked(puzzle.grid, row, col, false);
+      else eraseCell(puzzle.grid, row, col, nearestSide(e));
       onChange();
     },
   });

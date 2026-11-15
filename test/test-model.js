@@ -6,6 +6,11 @@ import {
   setSolutionPlacement,
   validatePuzzleShape,
   duplicatePuzzle,
+  renameCharacter,
+  characterNameTaken,
+  cleanCharacterName,
+  removeSolutionPlacement,
+  MAX_CHARACTER_NAME,
   pruneDanglingClueReferences,
   pruneDanglingSolutionPlacements,
   genericClues,
@@ -634,6 +639,57 @@ export const tests = [
       );
       const shown = ROOM_PALETTE.map((c) => roomColor(c.color));
       assertEqual(new Set(shown).size, shown.length, "anche sulla carta i 16 colori sono diversi");
+    },
+  },
+  {
+    name: "renameCharacter: cambia solo il nome (id, colore, icona, ruolo e indizi restano), con trim e tetto di lunghezza",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const [anna, bruno] = puzzle.characters;
+      addClue(puzzle, anna.id, "adjacent", { targetId: bruno.id });
+      const before = { id: anna.id, color: anna.color, iconId: anna.iconId, isVictim: anna.isVictim };
+      assertEqual(renameCharacter(puzzle, anna.id, "  Annabella  "), "ok");
+      assertEqual(anna.name, "Annabella");
+      assertEqual(JSON.stringify({ id: anna.id, color: anna.color, iconId: anna.iconId, isVictim: anna.isVictim }), JSON.stringify(before));
+      assertEqual(puzzle.clues.length, 1, "gli indizi restano (puntano a un id)");
+      assert(describeClue(puzzle.clues[0], puzzle).includes("Bruno"), "la frase usa il nome attuale");
+      renameCharacter(puzzle, bruno.id, "Brunone");
+      assert(describeClue(puzzle.clues[0], puzzle).includes("Brunone"), "e segue la rinomina del bersaglio");
+      renameCharacter(puzzle, anna.id, "x".repeat(MAX_CHARACTER_NAME + 20));
+      assertEqual(anna.name.length, MAX_CHARACTER_NAME, "nome troppo lungo: tagliato");
+      assertEqual(cleanCharacterName("  ciao  "), "ciao");
+    },
+  },
+  {
+    name: "renameCharacter: un nome vuoto, uno già usato (senza distinzione di maiuscole) o un personaggio inesistente non cambiano nulla",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const [anna, bruno] = puzzle.characters;
+      assertEqual(renameCharacter(puzzle, anna.id, "   "), "blank");
+      assertEqual(renameCharacter(puzzle, anna.id, ""), "blank");
+      assertEqual(renameCharacter(puzzle, anna.id, "bruno"), "duplicate");
+      assertEqual(renameCharacter(puzzle, anna.id, "  BRUNO "), "duplicate");
+      assertEqual(renameCharacter(puzzle, "non-esiste", "Carla"), "unknown");
+      assertEqual(anna.name, "Anna");
+      assertEqual(renameCharacter(puzzle, anna.id, "ANNA"), "ok", "il proprio nome (anche cambiando le maiuscole) è consentito");
+      assertEqual(anna.name, "ANNA");
+      assert(characterNameTaken(puzzle, "bruno"));
+      assert(!characterNameTaken(puzzle, "bruno", bruno.id), "il proprio nome non conta");
+      assert(!characterNameTaken(puzzle, "Carla"));
+    },
+  },
+  {
+    name: "removeSolutionPlacement: toglie un personaggio dalla soluzione dichiarata e dice se c'era; gli altri restano",
+    fn: () => {
+      const puzzle = buildValidPuzzle();
+      const [anna, bruno] = puzzle.characters;
+      assertEqual(puzzle.solution.placements.length, 2);
+      assertEqual(removeSolutionPlacement(puzzle, anna.id), true);
+      assertEqual(puzzle.solution.placements.length, 1);
+      assertEqual(puzzle.solution.placements[0].characterId, bruno.id);
+      assertEqual(removeSolutionPlacement(puzzle, anna.id), false, "già tolto");
+      assertEqual(removeSolutionPlacement(puzzle, "non-esiste"), false);
+      assert(validatePuzzleShape(puzzle).valid, "una soluzione incompleta è una forma valida (si ricava dagli indizi)");
     },
   },
 ];

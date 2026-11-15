@@ -18,6 +18,8 @@ export const tests = [
         ],
         autoXByCharacter: [["char_1", [{ row: 0, col: 2 }]]],
         hintsUsed: 3,
+        activeSeconds: 125,
+        checks: 2,
       };
       const safe = toFirestoreSafe(serialized);
       assert(

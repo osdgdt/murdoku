@@ -115,4 +115,5 @@ export default {
   "dice solo se il caso è risolto, senza rivelare quante caselle sono giuste.":
     "only says whether the case is solved, without revealing how many cells are right.",
   "Vai ai casi": "Go to the cases",
+  "Ricorda: l'unica persona nella stanza della vittima è l'assassino.": "Remember: the only person in the victim's room is the murderer.",
 };

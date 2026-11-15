@@ -126,6 +126,26 @@ const scenarios = [
     },
   },
   {
+    name: "statistics: a wrong check is counted and the playing time is kept with the board (and carries on after a reload)",
+    async run(page) {
+      await page.locator(".char-chip", { hasText: "Alice" }).first().click();
+      await hold(page, 0, 2);
+      await page.waitForTimeout(2300); // the clock is running (the page is visible)
+      await page.click("#submit-btn");
+      await page.waitForSelector(".result-banner.partial, .result-banner.hint-error, .result-banner.hint-warning");
+      const saved = await page.evaluate(() => {
+        const key = Object.keys(localStorage).find((k) => k.startsWith("murdoku:progress:"));
+        return JSON.parse(localStorage.getItem(key));
+      });
+      if (!(saved.activeSeconds >= 2)) throw new Error(`active time not saved: ${saved.activeSeconds}`);
+      if (saved.checks !== 1) throw new Error(`wrong check not counted: ${saved.checks}`);
+      await page.reload();
+      await page.waitForSelector("#hint-btn");
+      const shown = await page.textContent("#timer");
+      if (/⏱ 0:0[01]$/.test(shown.trim())) throw new Error(`the time restarted from zero after the reload: ${shown}`);
+    },
+  },
+  {
     name: "hand-written hints can be stepped through with the arrows",
     async run(page) {
       await page.click("#hint-btn");
@@ -222,6 +242,7 @@ const scenarios = [
       if ((await page.locator(".tt-step .tt-board").count()) !== 6) throw new Error("every step needs its board");
       const last = await page.locator(".tt-step").last().innerText();
       if (!/Clara/.test(last)) throw new Error(`the last step should name the murderer, got: ${last}`);
+      if (!/only person in the victim's room is the murderer/.test(last)) throw new Error(`step 6 should repeat the rule, got: ${last}`);
       const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
       if (!fits) throw new Error("tutorial scrolls horizontally on a 390px viewport");
     },
@@ -247,10 +268,80 @@ const scenarios = [
       const found = shown.match(wrongNames) || shown.match(wrongWords);
       if (found) throw new Error(`found «${found[0]}» in the ${italian ? "Italian" : "English"} tutorial`);
       for (const mustHave of italian
-        ? ["Anna", "Cucina", "Biblioteca", "scaffale", "tappeto"]
-        : ["Alice", "Kitchen", "Library", "shelf", "rug"]) {
+        ? ["Anna", "Cucina", "Biblioteca", "scaffale", "tappeto", "l'unica persona nella stanza della vittima è l'assassino"]
+        : ["Alice", "Kitchen", "Library", "shelf", "rug", "only person in the victim's room is the murderer"]) {
         if (!shown.includes(mustHave)) throw new Error(`«${mustHave}» is missing from the ${italian ? "Italian" : "English"} tutorial`);
       }
+    },
+  })),
+  ...["it-IT", "en-US"].map((locale) => ({
+    name: `clue sentences (${locale}): every clue type, negated or not, in the present, past and future, is in one language`,
+    options: { url: `${base}/player.html`, ready: "header.topbar", locale },
+    async run(page) {
+      const sentences = await page.evaluate(async () => {
+        const { CLUE_TYPES, describeClue } = await import("/src/model/clueTypes.js");
+        const { createPuzzle, addCharacter } = await import("/src/model/puzzle.js");
+        const { resizeGrid, addZone, paintCellZone, placeObject } = await import("/src/model/grid.js");
+        const puzzle = createPuzzle("Lingua");
+        puzzle.grid = resizeGrid(puzzle.grid, 5, 5);
+        const zone = addZone(puzzle.grid, "Alfa", "#f4c2c2");
+        paintCellZone(puzzle.grid, 0, 0, zone.id);
+        const table = placeObject(puzzle.grid, "table", 2, 2);
+        const tv = placeObject(puzzle.grid, "tv", 3, 3);
+        const [owner, other] = ["Anna", "Bruno", "Carla"].map((name) => addCharacter(puzzle, name, "person1"));
+        const out = [];
+        const params = (def, objectId) => {
+          const p = {};
+          for (const d of def.params || []) {
+            if (d.kind === "enum") p[d.name] = d.values[d.values.length > 1 ? 1 : 0];
+            else if (d.kind === "number") p[d.name] = 2;
+            else if (d.kind === "character") p[d.name] = other.id;
+            else if (d.kind === "zone") p[d.name] = zone.id;
+            else if (d.kind === "characterOrObject") p[d.name] = objectId;
+            else if (d.kind === "characterOrObjectMulti") p[d.name] = [objectId, other.id];
+          }
+          return p;
+        };
+        for (const [id, def] of Object.entries(CLUE_TYPES)) {
+          if (def.internal) continue;
+          for (const objectId of [table.id, tv.id, other.id]) {
+            for (const negate of [false, true]) {
+              for (const tense of ["present", "past", "future"]) {
+                const clue = {
+                  id: "c",
+                  type: id,
+                  characterId: def.scope === "generic" ? null : owner.id,
+                  params: params(def, objectId),
+                  negate,
+                };
+                out.push({ id, text: describeClue(clue, { ...puzzle, tense }) });
+              }
+            }
+          }
+        }
+        // the choices offered by the clue forms (labels of types and of enum values)
+        for (const [id, def] of Object.entries(CLUE_TYPES)) {
+          if (def.internal) continue;
+          out.push({ id: id + ":label", text: def.label });
+          for (const d of def.params || []) {
+            out.push({ id: id + ":" + d.name, text: d.label });
+            for (const v of d.values || []) out.push({ id: id + ":" + d.name + "=" + v, text: (d.labels && d.labels[v]) || "" });
+          }
+        }
+        return out;
+      });
+      const italian = locale === "it-IT";
+      if (sentences.length < 400) throw new Error(`too few sentences: ${sentences.length}`);
+      // Words that only the OTHER language has (names, "TV" and the like are not in these lists).
+      const wrong = italian
+        ? /\b(is|are|was|were|will|the|and|or|not|someone|no one|exactly|column|columns|row|rows|corner|next|between|with|man|woman|person|true|cells|alone|only|south|north|east|west|room|rooms|any|choose)\b/i
+        : /\b(è|era|sarà|sono|erano|saranno|stanza|stanze|nessuno|qualcuno|esattamente|colonna|colonne|riga|righe|angolo|accanto|tra|con|uomo|donna|persona|vero|caselle|sola|solo|oppure|vuote|piene|tutte|stesso|nella|della|delle|sulla|una|uno|chiunque|scegli|bersaglio)\b/i;
+      const bad = [];
+      for (const { id, text } of sentences) {
+        if (!text || /undefined|\[object|\{[a-zA-Z]+\}/.test(text)) bad.push(`${id}: «${text}» (empty or unfilled)`);
+        else if (wrong.test(text)) bad.push(`${id}: «${text}» (${text.match(wrong)[0]})`);
+      }
+      if (bad.length) throw new Error(`${bad.length} sentences in the wrong language or incomplete, e.g.:\n${bad.slice(0, 12).join("\n")}`);
     },
   })),
   ...["it-IT", "en-US"].map((locale) => ({

@@ -29,6 +29,7 @@ import { roomColor } from "../skin/paper/rooms.js";
 import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
+import { setupClueWizard } from "./clueWizard.js";
 import { renderSolutionEditor } from "./solutionEditor.js";
 import { renderHintsEditor } from "./hintsEditor.js";
 import { wireThemeToggle } from "../util/theme.js";
@@ -59,7 +60,7 @@ const resolutionInput = qs("#puzzle-resolution");
 const leftPanel = qs("#left-panel");
 const boardEl = qs("#board");
 const rightTop = qs("#right-panel-top");
-const rightBottom = qs("#right-panel-bottom");
+const cluePanel = qs("#clue-panel");
 const validationPanel = qs("#validation-panel");
 const tabMapBtn = qs("#tab-map");
 const tabSolutionBtn = qs("#tab-solution");
@@ -80,6 +81,9 @@ const estimateBtn = qs("#estimate-btn");
 const redundantBtn = qs("#redundant-btn");
 const calcSolutionBtn = qs("#calc-solution-btn");
 const statusEl = qs("#status");
+
+// The clue wizard reads the CURRENT puzzle through a getter (an undo swaps the object).
+setupClueWizard({ getPuzzle: () => puzzle, onChange: () => handleChange(), boardEl });
 
 // Snapshot-based undo/redo: every mutating sub-editor (mapEditor, characterEditor,
 // clueBuilder, solutionEditor) already funnels its changes through a single
@@ -181,7 +185,7 @@ function render() {
   }
 
   renderCharacterEditor(rightTop, puzzle, handleChange, persistBypassingUndo);
-  renderClueBuilder(rightBottom, puzzle, handleChange);
+  renderClueBuilder(cluePanel, puzzle, handleChange);
 }
 
 titleInput.addEventListener("input", () => {

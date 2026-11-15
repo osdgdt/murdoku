@@ -40,7 +40,23 @@ const PAGES = [
   ["player picker", "player.html"],
   ["editor (fixture case)", null], // opened via the saved case's id, below
   // the room's name and colour controls only exist while a room is selected
-  ["editor (a room selected)", null, (page) => page.locator(".swatch").first().click()],
+  ["editor (a room selected)", null, (page) => page.locator(".swatch").first().click(), "#zone-rename-input"],
+  // the clue wizard: its two steps (the type list, then the sentence with its controls)
+  [
+    "editor (clue wizard, step 1)",
+    null,
+    (page) => page.locator('#clue-panel [data-key^="new-"]').nth(1).click(),
+    "#clue-wizard .clue-family",
+  ],
+  [
+    "editor (clue wizard, step 2)",
+    null,
+    async (page) => {
+      await page.locator('#clue-panel [data-key^="new-"]').nth(1).click();
+      await page.locator("#clue-wizard .clue-type-card").first().click();
+    },
+    "#clue-wizard .clue-sentence",
+  ],
   ["privacy", "privacy.html"],
   ["tutorial", "tutorial.html"],
 ];
@@ -56,7 +72,7 @@ try {
 
   for (const theme of ["light", "dark"]) {
     await page.evaluate((t) => localStorage.setItem("murdoku:theme", t), theme);
-    for (const [pageName, url, prepare] of PAGES) {
+    for (const [pageName, url, prepare, waitFor] of PAGES) {
       const name = `${pageName} [${theme}]`;
       const target = url ?? `editor.html?id=${tutorialId}`;
       await page.goto(`${base}/${target}`);
@@ -64,7 +80,7 @@ try {
       await page.waitForTimeout(400);
       if (prepare) {
         await prepare(page);
-        await page.waitForSelector("#zone-rename-input");
+        await page.waitForSelector(waitFor);
       }
       await page.evaluate(axeSource);
       const result = await page.evaluate(() => globalThis.axe.run(document, { resultTypes: ["violations"] }));

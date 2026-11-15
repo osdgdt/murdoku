@@ -15,7 +15,7 @@ function read() {
 // `key` is the same stable identity achievementsStore uses (`puzzle:<id>` /
 // `campaign:<campaignId>:<caseId>`); `title` is stored too so the history
 // stays readable after the case itself is deleted.
-export function recordSolveEntry({ key, title, elapsedSeconds, hintsUsed, at = Date.now() }) {
+export function recordSolveEntry({ key, title, elapsedSeconds, hintsUsed, checks = 0, at = Date.now() }) {
   const entries = read();
   entries.push({
     key,
@@ -23,6 +23,7 @@ export function recordSolveEntry({ key, title, elapsedSeconds, hintsUsed, at = D
     at,
     elapsedSeconds: typeof elapsedSeconds === "number" ? elapsedSeconds : null,
     hintsUsed: hintsUsed || 0,
+    checks: checks || 0, // wrong "Verifica soluzione" attempts before this solve
   });
   tryWriteJson(KEY, entries.slice(-MAX_HISTORY_ENTRIES));
 }
@@ -97,4 +98,37 @@ export function averageSolveSeconds() {
     .map((e) => e.elapsedSeconds)
     .filter((v) => typeof v === "number");
   return times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : null;
+}
+
+// ---- cases begun (and so, those left unfinished) ----------------------------------------
+
+const STARTS_KEY = "murdoku:case-starts";
+
+function readStarts() {
+  const data = readJson(STARTS_KEY, {});
+  return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+}
+
+// A case counts as begun the first time its board is opened, once per case on this device.
+// Returns true the first time (so the caller knows it is a new start).
+export function recordStart({ key, title, at = Date.now() }) {
+  const starts = readStarts();
+  if (starts[key]) return false;
+  starts[key] = { title: String(title ?? ""), at };
+  tryWriteJson(STARTS_KEY, starts);
+  return true;
+}
+
+// Cases begun on this device and never solved (derived: begun, but no solve in the log), oldest
+// start first. A case solved only before this feature existed shows up as "begun" only if reopened.
+export function abandonedCases() {
+  const solved = new Set(read().map((e) => e.key));
+  return Object.entries(readStarts())
+    .filter(([key]) => !solved.has(key))
+    .map(([key, v]) => ({ key, title: v.title || "", startedAt: v.at }))
+    .sort((a, b) => a.startedAt - b.startedAt);
+}
+
+export function startedCount() {
+  return Object.keys(readStarts()).length;
 }

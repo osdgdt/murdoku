@@ -41,7 +41,10 @@ qs("#clear-cloud-btn").addEventListener("click", async () => {
     const current = user || (await signIn()).user;
     if (
       !confirm(
-        t("Cancellare dal cloud i progressi delle campagne e i traguardi sincronizzati dell'account {email}?", { email: current.email })
+        t(
+          "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati e i contrassegni delle statistiche dell'account {email}?",
+          { email: current.email }
+        )
       )
     )
       return;

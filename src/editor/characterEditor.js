@@ -1,5 +1,15 @@
 import { el, clear } from "../util/dom.js";
-import { addCharacter, removeCharacter, setVictim, characterColor, CHARACTER_COLORS } from "../model/puzzle.js";
+import {
+  addCharacter,
+  removeCharacter,
+  renameCharacter,
+  characterNameTaken,
+  cleanCharacterName,
+  MAX_CHARACTER_NAME,
+  setVictim,
+  characterColor,
+  CHARACTER_COLORS,
+} from "../model/puzzle.js";
 import { CHARACTER_ICONS, characterIcon, SELECTABLE_CHARACTER_ICON_IDS } from "../model/icons.js";
 import { t } from "../i18n/i18n.js";
 
@@ -18,7 +28,12 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
   clear(container);
   container.appendChild(el("h3", { "aria-level": "2" }, t("Personaggi")));
 
-  const nameInput = el("input", { type: "text", placeholder: t("Nome personaggio") });
+  const nameInput = el("input", { type: "text", placeholder: t("Nome personaggio"), maxlength: String(MAX_CHARACTER_NAME) });
+  // Why the last add/rename was refused (shown under the field; the lists are not re-drawn then).
+  const addNotice = el("p", { class: "violation", role: "alert" });
+  addNotice.hidden = true;
+  const refusal = (reason) =>
+    reason === "duplicate" ? t("Esiste già un personaggio con questo nome.") : t("Il nome del personaggio non può essere vuoto.");
   // Auto-assigned round-robin, mirroring CHARACTER_COLORS's own rotation in
   // addCharacter() — the picker simply starts on whichever profession is next
   // in rotation; choosing another from the grid fully overrides it.
@@ -61,8 +76,13 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     "button",
     {
       onClick: () => {
-        const name = nameInput.value.trim();
-        if (!name) return;
+        const name = cleanCharacterName(nameInput.value);
+        if (!name || characterNameTaken(puzzle, name)) {
+          addNotice.textContent = refusal(name ? "duplicate" : "blank");
+          addNotice.hidden = false;
+          return;
+        }
+        addNotice.hidden = true;
         addCharacter(puzzle, name, selectedIconId, puzzle.characters.length === 0);
         nameInput.value = "";
         onChange();
@@ -71,6 +91,7 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     t("+ Aggiungi")
   );
   container.appendChild(el("div", { class: "field-row" }, [nameInput, iconPickerDetails, addBtn]));
+  container.appendChild(addNotice);
 
   const list = el("div", { class: "character-list" });
   for (const character of puzzle.characters) {
@@ -161,11 +182,35 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
     // With many characters (a big grid) the colour picker and the bio fold away, so
     // the list does not run to thousands of pixels.
     const many = puzzle.characters.length > 8;
-    const row1 = el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]);
+    // The name is an input: change it and leave the field (or press Enter) to rename. A blank
+    // or already used name is refused and the old one comes back, with the reason.
+    const cardNotice = el("p", { class: "violation", role: "alert" });
+    cardNotice.hidden = true;
+    const renameInput = el("input", {
+      type: "text",
+      class: "character-name-input",
+      value: character.name,
+      maxlength: String(MAX_CHARACTER_NAME),
+      "aria-label": t("Nome del personaggio {name}", { name: character.name }),
+      onChange: (e) => {
+        const status = renameCharacter(puzzle, character.id, e.target.value);
+        if (status === "ok") {
+          onChange();
+        } else {
+          e.target.value = character.name;
+          cardNotice.textContent = refusal(status);
+          cardNotice.hidden = false;
+        }
+      },
+      onKeydown: (e) => {
+        if (e.key === "Enter") e.target.blur();
+      },
+    });
+    const row1 = el("div", { class: "row" }, [iconWrap, renameInput]);
     const row2 = el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]);
     const parts = many
-      ? [row1, row2, el("details", { class: "character-extra" }, [el("summary", {}, t("Colore e note")), colorList, bioInput])]
-      : [row1, colorList, row2, bioInput];
+      ? [row1, cardNotice, row2, el("details", { class: "character-extra" }, [el("summary", {}, t("Colore e note")), colorList, bioInput])]
+      : [row1, cardNotice, colorList, row2, bioInput];
     const card = el(
       "div",
       {

@@ -1,6 +1,30 @@
 import { t } from "../../i18n/i18n.js";
 import { targetLabel, axisNoun, describeProperty, describeNestedClue, propertyParams } from "./shared.js";
 
+// "No one [who is X] is in the room Z" and its negation ("Someone ..."), for noOneWithProperty.
+function noOneWithPropertySentence(params, puzzle, negated) {
+  const where = params.zoneId ? t(" nella stanza {zone}", { zone: targetLabel(puzzle, params.zoneId) }) : t(" sulla mappa");
+  const gender = params.property === "male" || params.property === "female" ? params.property : params.onlyGender;
+  const who = negated
+    ? gender === "male"
+      ? t("Un uomo")
+      : gender === "female"
+        ? t("Una donna")
+        : t("Qualcuno")
+    : gender === "male"
+      ? t("Nessun uomo")
+      : gender === "female"
+        ? t("Nessuna donna")
+        : t("Nessuno");
+  if (params.property === "custom") {
+    const nested = describeNestedClue(params.customClue, puzzle);
+    if (nested) return t("{who}{where} verifica: {nested}.", { who, where, nested });
+  }
+  // The property is the gender itself, or not chosen yet: nothing more to say about the person.
+  if (params.property === "male" || params.property === "female" || !params.property) return t("{who} si trova{where}.", { who, where });
+  return t("{who} che è {v} si trova{where}.", { who, v: describeProperty(params, puzzle), where });
+}
+
 export const SCENE_CLUES = {
   // --- Generic clues: puzzle-wide scene facts, not owned by a character ---
   noOneInRoom: {
@@ -66,7 +90,7 @@ export const SCENE_CLUES = {
         name: "state",
         kind: "enum",
         values: ["empty", "occupied"],
-        labels: { empty: "vuote", occupied: t("piene (almeno una persona)") },
+        labels: { empty: t("vuote"), occupied: t("piene (almeno una persona)") },
         label: t("Stato"),
       },
     ],
@@ -115,28 +139,14 @@ export const SCENE_CLUES = {
         name: "onlyGender",
         kind: "enum",
         values: ["", "male", "female"],
-        labels: { "": "chiunque", male: "solo uomini", female: "solo donne" },
+        labels: { "": t("chiunque"), male: t("solo uomini"), female: t("solo donne") },
         label: t("Genere"),
       },
       ...propertyParams,
     ],
-    describe: (params, puzzle) => {
-      const where = params.zoneId ? t(" nella stanza {zone}", { zone: targetLabel(puzzle, params.zoneId) }) : "";
-      const who = params.onlyGender === "male" ? t("Nessun uomo") : params.onlyGender === "female" ? t("Nessuna donna") : t("Nessuno");
-      if (params.property === "custom") {
-        const nested = describeNestedClue(params.customClue, puzzle);
-        if (nested) return t("{who}{where} verifica: {nested}.", { who, where, nested });
-      }
-      return t("{who} che è {v} si trova{where}.", { who, v: describeProperty(params, puzzle), where });
-    },
-    negatedDescribe: (params, puzzle) => {
-      const where = params.zoneId ? t(" nella stanza {zone}", { zone: targetLabel(puzzle, params.zoneId) }) : "";
-      const who = params.onlyGender === "male" ? t("Un uomo") : params.onlyGender === "female" ? t("Una donna") : t("Qualcuno");
-      if (params.property === "custom") {
-        const nested = describeNestedClue(params.customClue, puzzle);
-        if (nested) return t("{who}{where} verifica: {nested}.", { who, where, nested });
-      }
-      return t("{who} che è {v} si trova{where}.", { who, v: describeProperty(params, puzzle), where });
-    },
+    // A gender in `property` ("un uomo"/"una donna") already says who; the separate gender
+    // filter would repeat it ("nessuna donna che è un uomo"), so `property` wins.
+    describe: (params, puzzle) => noOneWithPropertySentence(params, puzzle, false),
+    negatedDescribe: (params, puzzle) => noOneWithPropertySentence(params, puzzle, true),
   },
 };

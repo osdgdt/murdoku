@@ -21,6 +21,8 @@ export function toFirestoreSafe(serialized) {
     lineNotes: (serialized.lineNotes || []).map(([key, ids]) => ({ key, ids })),
     autoXByCharacter: serialized.autoXByCharacter.map(([charId, cells]) => ({ charId, cells })),
     hintsUsed: serialized.hintsUsed,
+    activeSeconds: serialized.activeSeconds || 0,
+    checks: serialized.checks || 0,
   };
 }
 
@@ -35,5 +37,7 @@ export function fromFirestoreSafe(saved) {
     lineNotes: (saved.lineNotes || []).map((c) => [c.key, c.ids]),
     autoXByCharacter: (saved.autoXByCharacter || []).map((a) => [a.charId, a.cells]),
     hintsUsed: typeof saved.hintsUsed === "number" ? saved.hintsUsed : 0,
+    activeSeconds: typeof saved.activeSeconds === "number" ? saved.activeSeconds : 0,
+    checks: typeof saved.checks === "number" ? saved.checks : 0,
   };
 }

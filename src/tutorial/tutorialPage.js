@@ -338,6 +338,8 @@ function stepsSection(built) {
                 }
               )
             ),
+            // The rule again, in the sentence the whole case hangs on.
+            el("p", { class: "tt-note" }, t("Ricorda: l'unica persona nella stanza della vittima è l'assassino.")),
             el("p", { class: "tt-solved" }, t("Caso risolto!")),
           ],
           miniBoard(built.grid, stateMarks(built, step, { roomOf: step.zoneId }))

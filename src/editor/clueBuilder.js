@@ -1,345 +1,173 @@
+// The clues of the case, as a compact list under the board: one line per clue (the sentence, a
+// mark that says whether it is complete and true in the declared solution) with the actions to
+// edit, duplicate, move and remove it. Writing and editing a clue happens in the clue wizard
+// (clueWizard.js), the same on a PC and on a phone.
 import { el, clear } from "../util/dom.js";
-import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds, describeClue } from "../model/clueTypes.js";
-import { objectIcon, objectTypeTargetId, isEdgeObjectType, sideLabel } from "../model/icons.js";
-import { addClue, removeClue, updateClue, setClueNegate, cluesForCharacter, genericClues } from "../model/puzzle.js";
+import { describeClue } from "../model/clueTypes.js"; // first: clues/shared.js and clueTypes.js import each other
+import { removeClue, duplicateClue, moveClue, cluesForCharacter, genericClues } from "../model/puzzle.js";
+import { declaredPlacementMap } from "../solver/suggestions.js";
+import { buildPredicate } from "../solver/predicates/index.js";
+import { missingParams, hasDuplicateTargets } from "./clueDraft.js";
+import { openClueWizard, openClueSuggestions, refreshClueWizard } from "./clueWizard.js";
 import { t } from "../i18n/i18n.js";
 
-// Object types actually present on the current puzzle's map — shared by the
-// "Qualsiasi X" characterOrObject options below AND by the objectTypeId enum
-// controls (onObjectType, and the property family's "sittingOn") so an
-// author can never pick a type that doesn't exist anywhere on the grid and
-// accidentally write an always-false clue.
-//
-// `includeEdges: false` leaves out doors/windows, which sit on a side of a
-// cell and can't be "stood on" — right for the on-an-object-of-a-type clues
-// (onObjectType, the property family's sittingOn), while "Qualsiasi porta" as
-// a nearness target still wants them.
-function objectTypesPresent(puzzle, { includeEdges = true } = {}) {
-  const types = [...new Set(puzzle.grid.objects.map((o) => o.typeId))];
-  return includeEdges ? types : types.filter((id) => !isEdgeObjectType(id));
+// "incomplete" | "true" | "false" | "unknown" (no complete declared solution to judge with).
+function clueStatus(clue, puzzle, placementMap) {
+  if (missingParams(clue).length > 0 || hasDuplicateTargets(clue)) return "incomplete";
+  if (!placementMap) return "unknown";
+  try {
+    const result = buildPredicate(clue, puzzle)(placementMap, true);
+    return result === true ? "true" : result === false ? "false" : "unknown";
+  } catch {
+    return "unknown";
+  }
 }
 
-// The object types a "stand on…" / "sit on…" control may offer: those present
-// on the map AND allowed by the control itself (a rug can be stood on but not
-// sat on, so "seduto su…" never lists it).
-function presentChoices(puzzle, paramDef) {
-  return objectTypesPresent(puzzle, { includeEdges: false }).filter((id) => paramDef.values.includes(id));
-}
+const STATUS_BADGE = {
+  incomplete: { mark: "⚠", label: () => t("Indizio incompleto: modificalo per completarlo") },
+  true: { mark: "✓", label: () => t("Vero nella soluzione") },
+  false: { mark: "✗", label: () => t("Falso nella soluzione") },
+  unknown: { mark: "·", label: () => t("Non verificabile senza soluzione completa") },
+};
 
-function targetOptions(puzzle, kind, excludeCharacterId, { noZone = false } = {}) {
-  const options = [];
-  if (kind === "character" || kind === "characterOrObject") {
-    for (const c of puzzle.characters) {
-      if (c.id === excludeCharacterId) continue;
-      options.push({ value: c.id, label: c.name });
-    }
-  }
-  if (kind === "zone") {
-    for (const z of puzzle.grid.zones) options.push({ value: z.id, label: z.name });
-  }
-  if (kind === "characterOrObject") {
-    // A room counts as a target too — e.g. "è accanto a" a whole zone means
-    // adjacent to any one of its cells (see resolveTargetPositions).
-    // (not for clues flagged `noZone`, e.g. "è in diagonale rispetto a")
-    if (!noZone) for (const z of puzzle.grid.zones) options.push({ value: z.id, label: t("{name} (stanza)", { name: z.name }) });
-    for (const o of puzzle.grid.objects) {
-      const def = objectIcon(o.typeId);
-      const label = def?.label || t("Oggetto");
-      options.push({
-        value: o.id,
-        label: o.side
-          ? t("{label} ({row},{col}, lato {side})", { label, row: o.row + 1, col: o.col + 1, side: sideLabel(o.side) })
-          : t("{label} ({row},{col})", { label, row: o.row + 1, col: o.col + 1 }),
-      });
-    }
-    // "Any door", "any shelf", etc. — one option per object type actually
-    // present on the map, so the clue doesn't have to commit to one instance.
-    for (const typeId of objectTypesPresent(puzzle)) {
-      const def = objectIcon(typeId);
-      if (!def) continue;
-      options.push({ value: objectTypeTargetId(typeId), label: t("Qualsiasi {v}", { v: def.label.toLowerCase() }) });
-    }
-  }
-  return options;
-}
-
-// Seeds sensible defaults for enum/number params so what's shown in the
-// control matches what's actually stored from the start — otherwise a clue
-// whose dropdown/number field is never touched would keep an undefined param
-// even though the control visually shows its first option/minimum value.
-function defaultParams(typeId, puzzle) {
-  const params = {};
-  for (const p of CLUE_TYPES[typeId]?.params || []) {
-    if (p.kind === "enum") {
-      // objectTypeId is the one enum whose choices depend on the puzzle
-      // (real objects on the grid), not a fixed registry — default it to the
-      // first PRESENT type, falling back to the registry's first entry only
-      // if the map has no objects at all yet, matching renderParamControl's
-      // own fallback below so the shown default always matches what's stored.
-      params[p.name] = p.name === "objectTypeId" ? (presentChoices(puzzle, p)[0] ?? p.values[0]) : p.values[0];
-    }
-    if (p.kind === "number") params[p.name] = p.optional ? null : (p.min ?? 1);
-    if (p.kind === "characterOrObjectMulti") params[p.name] = [];
-  }
-  return params;
-}
-
-// Renders one param control against a plain `currentParams` object, telling
-// the caller about changes via `onSet(paramName, value)` instead of writing
-// to a clue directly — so the exact same control can drive either a
-// top-level clue's own params or a nested sub-clue's params (a `clueRef`
-// param, or one of the `orClue` combinator's two branches — see
-// `renderNestedClue`, which both go through).
-function renderParamControl(paramDef, currentParams, puzzle, ownerId, onSet) {
-  if (paramDef.kind === "enum") {
-    const labels = paramDef.labels || {};
-    // objectTypeId enum controls reference real objects on the map, unlike
-    // every other enum (a closed, puzzle-independent set of choices) —
-    // restrict them to types actually present so an author can't silently
-    // write an always-false clue by picking a type that doesn't exist
-    // anywhere on the grid. Falls back to the full registry only if the map
-    // has no objects at all yet (an empty <select> would be worse).
-    const presentTypes = paramDef.name === "objectTypeId" ? presentChoices(puzzle, paramDef) : null;
-    const values = presentTypes && presentTypes.length > 0 ? presentTypes : paramDef.values;
-    const select = el(
-      "select",
-      { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) },
-      values.map((v) => el("option", { value: v, selected: currentParams[paramDef.name] === v || undefined }, labels[v] ?? v))
-    );
-    return labeledControl(paramDef.label, select);
-  }
-  if (paramDef.kind === "number") {
-    const min = paramDef.min ?? 1;
-    const current = currentParams[paramDef.name];
-    const isUnset = current === undefined || current === null;
-    // Committed on "change" (blur/enter), not every keystroke, so the field
-    // doesn't lose focus mid-typing from the full re-render onChange triggers.
-    const input = el("input", {
-      type: "number",
-      "aria-label": paramDef.label,
-      min: String(min),
-      placeholder: paramDef.optional ? t("qualsiasi") : undefined,
-      value: isUnset ? (paramDef.optional ? "" : String(min)) : String(current),
-      onChange: (e) => {
-        const raw = e.target.value.trim();
-        if (raw === "" && paramDef.optional) {
-          onSet(paramDef.name, null);
-        } else {
-          const n = parseInt(raw, 10);
-          onSet(paramDef.name, Number.isFinite(n) && n >= min ? n : min);
-        }
-      },
-    });
-    return labeledControl(paramDef.label, input);
-  }
-  if (paramDef.kind === "characterOrObjectMulti") {
-    const options = targetOptions(puzzle, "characterOrObject", ownerId);
-    const selected = new Set(currentParams[paramDef.name] || []);
-    const select = el(
-      "select",
-      {
-        multiple: true,
-        title: paramDef.label,
-        onChange: (e) =>
-          onSet(
-            paramDef.name,
-            [...e.target.selectedOptions].map((o) => o.value)
-          ),
-      },
-      options.map((o) => el("option", { value: o.value, selected: selected.has(o.value) || undefined }, o.label))
-    );
-    return labeledControl(paramDef.label, select);
-  }
-  if (paramDef.kind === "clueRef") {
-    const picker = renderNestedClue(currentParams[paramDef.name], puzzle, ownerId, (spec) => onSet(paramDef.name, spec));
-    return labeledControl(paramDef.label, picker);
-  }
-  const options = targetOptions(puzzle, paramDef.kind, ownerId, { noZone: !!paramDef.noZone });
-  const select = el("select", { title: paramDef.label, onChange: (e) => onSet(paramDef.name, e.target.value) }, [
-    el("option", { value: "" }, t("-- scegli --")),
-    ...options.map((o) => el("option", { value: o.value, selected: currentParams[paramDef.name] === o.value || undefined }, o.label)),
-  ]);
-  return labeledControl(paramDef.label, select);
-}
-
-// Wraps a control with its small caption label above it, so a clue with
-// several parameters reads as a clean stack of "Field: control" pairs
-// instead of a run of unlabeled dropdowns competing for the same line.
-function labeledControl(label, control) {
-  return el("div", { class: "clue-field" }, [el("span", { class: "clue-field-label" }, label), control]);
-}
-
-// Renders a picker for one nested clue spec ({type, params}) — a type select
-// plus that type's own param controls — reporting the whole updated spec via
-// onSetSpec. Shared by the `orClue` combinator's two branches and by any
-// `clueRef`-kind param (e.g. "...who also satisfied: <condition>"). Nested
-// types exclude other combinators (no "or of or") and stay character-scoped,
-// since they're always evaluated against a specific person (the parent
-// clue's owner, or — for a clueRef property filter — whichever character is
-// being tested).
-function renderNestedClue(spec, puzzle, ownerId, onSetSpec) {
-  const current = spec || { type: "", params: {} };
-  const subTypeIds = characterClueTypeIds().filter((id) => !CLUE_TYPES[id].combinator);
-  const typeSelect = el(
-    "select",
-    {
-      "aria-label": t("Tipo di indizio"),
-      onChange: (e) => onSetSpec({ type: e.target.value, params: defaultParams(e.target.value, puzzle) }),
-    },
-    [
-      el("option", { value: "" }, t("-- scegli indizio --")),
-      ...subTypeIds.map((id) => el("option", { value: id, selected: current.type === id || undefined }, CLUE_TYPES[id].label)),
-    ]
-  );
-  const subDef = CLUE_TYPES[current.type];
-  const subControls = (subDef?.params || []).map((p) =>
-    renderParamControl(p, current.params || {}, puzzle, ownerId, (name, value) =>
-      onSetSpec({ ...current, params: { ...(current.params || {}), [name]: value } })
-    )
-  );
-  return el("div", { class: "clue-nested" }, [typeSelect, ...subControls]);
-}
-
-function renderClueRow(clue, puzzle, ownerId, onChange) {
-  const def = CLUE_TYPES[clue.type];
-
-  const controlsArea = def?.combinator
-    ? el("div", { class: "clue-branches" }, [
-        el("div", { class: "clue-branch" }, [
-          el("span", { class: "clue-branch-label" }, t("Ramo A")),
-          renderNestedClue(clue.params.a, puzzle, ownerId, (spec) => {
-            updateClue(puzzle, clue.id, { a: spec });
-            onChange();
-          }),
-        ]),
-        el("div", { class: "clue-branch-joiner" }, t("oppure")),
-        el("div", { class: "clue-branch" }, [
-          el("span", { class: "clue-branch-label" }, t("Ramo B")),
-          renderNestedClue(clue.params.b, puzzle, ownerId, (spec) => {
-            updateClue(puzzle, clue.id, { b: spec });
-            onChange();
-          }),
-        ]),
-      ])
-    : el(
-        "div",
-        { class: "clue-fields" },
-        (def?.params || []).map((p) =>
-          renderParamControl(p, clue.params, puzzle, ownerId, (name, value) => {
-            updateClue(puzzle, clue.id, { [name]: value });
-            onChange();
-          })
-        )
-      );
-
-  // Flips the clue to its negation instead of needing a mirror-image type for
-  // every "not X" — see buildPredicate()/describeClue().
-  const negateToggle = el("label", { class: "clue-negate", title: t("Inverte l'indizio nel suo opposto") }, [
-    el("input", {
-      type: "checkbox",
-      checked: clue.negate || undefined,
-      onChange: (e) => {
-        setClueNegate(puzzle, clue.id, e.target.checked);
-        onChange();
-      },
-    }),
-    " no",
-  ]);
-  const removeBtn = el(
+function iconButton(mark, label, onClick, { disabled = false, danger = false, key } = {}) {
+  return el(
     "button",
     {
-      class: "clue-remove",
-      title: t("Rimuovi indizio"),
-      onClick: () => {
-        removeClue(puzzle, clue.id);
-        onChange();
-      },
+      type: "button",
+      class: "clue-icon-btn" + (danger ? " clue-remove" : ""),
+      title: label,
+      "aria-label": label,
+      "data-key": key,
+      disabled: disabled || undefined,
+      onClick,
     },
-    t("×")
+    mark
   );
-
-  const header = el("div", { class: "clue-card-header" }, [
-    el("span", { class: "clue-text" }, describeClue(clue, puzzle)),
-    el("div", { class: "clue-card-actions" }, [negateToggle, removeBtn]),
-  ]);
-
-  return el("div", { class: "clue-card" }, [header, controlsArea]);
 }
 
-function renderGenericCluesSection(puzzle, onChange) {
-  const wrap = el("div", { class: "character-card" });
-  wrap.appendChild(el("strong", {}, t("🔎 Indizi generali del caso")));
-  wrap.appendChild(el("p", { class: "muted" }, t("Fatti sulla scena non legati a un personaggio specifico.")));
+function renderClueRow(clue, puzzle, siblings, placementMap, onChange) {
+  const status = clueStatus(clue, puzzle, placementMap);
+  const badge = STATUS_BADGE[status];
+  const index = siblings.indexOf(clue);
+  const text =
+    missingParams(clue).length > 0 ? t("(da completare) {clue}", { clue: describeClue(clue, puzzle) }) : describeClue(clue, puzzle);
+  return el("li", { class: `clue-row ${status}`, "data-clue-id": clue.id }, [
+    el("span", { class: `clue-status ${status}`, title: badge.label(), role: "img", "aria-label": badge.label() }, badge.mark),
+    el(
+      "button",
+      { type: "button", class: "clue-row-text", title: t("Modifica indizio"), onClick: () => openClueWizard({ clueId: clue.id }) },
+      text
+    ),
+    el("span", { class: "clue-row-actions" }, [
+      iconButton("✎", t("Modifica indizio"), () => openClueWizard({ clueId: clue.id })),
+      iconButton("⧉", t("Duplica indizio"), () => (duplicateClue(puzzle, clue.id), onChange())),
+      iconButton(
+        "↑",
+        t("Sposta su"),
+        () => {
+          moveClue(puzzle, clue.id, -1);
+          onChange();
+        },
+        { disabled: index <= 0 }
+      ),
+      iconButton(
+        "↓",
+        t("Sposta giù"),
+        () => {
+          moveClue(puzzle, clue.id, 1);
+          onChange();
+        },
+        { disabled: index === siblings.length - 1 }
+      ),
+      iconButton(
+        "×",
+        t("Rimuovi indizio"),
+        () => {
+          removeClue(puzzle, clue.id);
+          onChange();
+        },
+        { danger: true }
+      ),
+    ]),
+  ]);
+}
 
-  const clueList = el("div", { class: "clue-list" });
-  for (const clue of genericClues(puzzle)) {
-    clueList.appendChild(renderClueRow(clue, puzzle, null, onChange));
+function renderOwner(title, subtitle, clues, ownerId, puzzle, placementMap, onChange) {
+  const wrap = el("section", { class: "clue-owner" + (ownerId ? "" : " generic") });
+  const incomplete = clues.filter((c) => clueStatus(c, puzzle, placementMap) === "incomplete").length;
+  wrap.appendChild(
+    el("header", { class: "clue-owner-header" }, [
+      el("strong", {}, [title, el("span", { class: "muted" }, ` (${clues.length})`)]),
+      incomplete > 0 ? el("span", { class: "clue-incomplete-count", role: "status" }, t("⚠ {n} da completare", { n: incomplete })) : null,
+      el(
+        "button",
+        { type: "button", class: "clue-new-btn", "data-key": `new-${ownerId ?? "generic"}`, onClick: () => openClueWizard({ ownerId }) },
+        ownerId ? t("+ Indizio") : t("+ Indizio generale")
+      ),
+    ])
+  );
+  if (subtitle) wrap.appendChild(el("p", { class: "muted" }, subtitle));
+  if (clues.length > 0) {
+    wrap.appendChild(
+      el(
+        "ul",
+        { class: "clue-rows" },
+        clues.map((c) => renderClueRow(c, puzzle, clues, placementMap, onChange))
+      )
+    );
   }
-  wrap.appendChild(clueList);
-
-  const genericTypeIds = genericClueTypeIds();
-  if (genericTypeIds.length === 0) return wrap;
-
-  const typeSelect = el(
-    "select",
-    { "aria-label": t("Tipo di indizio") },
-    genericTypeIds.map((id) => el("option", { value: id }, CLUE_TYPES[id].label))
-  );
-  const addClueBtn = el(
-    "button",
-    {
-      onClick: () => {
-        addClue(puzzle, null, typeSelect.value, defaultParams(typeSelect.value, puzzle));
-        onChange();
-      },
-    },
-    t("+ Indizio generale")
-  );
-  wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
-
   return wrap;
 }
 
 export function renderClueBuilder(container, puzzle, onChange) {
   clear(container);
-  container.appendChild(el("h3", { "aria-level": "2" }, t("Indizi")));
+  const placementMap = declaredPlacementMap(puzzle);
+  container.appendChild(
+    el("div", { class: "clue-panel-header" }, [
+      el("h3", { "aria-level": "2" }, t("Indizi")),
+      el(
+        "button",
+        {
+          type: "button",
+          class: "clue-suggest-btn",
+          title: t("Gli indizi veri nella soluzione che hai dichiarato, da aggiungere con un tocco"),
+          onClick: () => openClueSuggestions({}),
+        },
+        t("💡 Suggerisci")
+      ),
+    ])
+  );
 
-  container.appendChild(renderGenericCluesSection(puzzle, onChange));
+  container.appendChild(
+    renderOwner(
+      t("🔎 Indizi generali del caso"),
+      t("Fatti sulla scena non legati a un personaggio specifico."),
+      genericClues(puzzle),
+      null,
+      puzzle,
+      placementMap,
+      onChange
+    )
+  );
 
   if (puzzle.characters.length === 0) {
     container.appendChild(el("p", { class: "muted" }, t("Aggiungi prima dei personaggi per aggiungere indizi a loro dedicati.")));
-    return;
-  }
-
-  const characterTypeIds = characterClueTypeIds();
-
-  for (const character of puzzle.characters) {
-    const wrap = el("div", { class: "character-card" });
-    wrap.appendChild(el("strong", {}, character.name + (character.isVictim ? t(" (vittima)") : "")));
-
-    const clueList = el("div", { class: "clue-list" });
-    for (const clue of cluesForCharacter(puzzle, character.id)) {
-      clueList.appendChild(renderClueRow(clue, puzzle, character.id, onChange));
+  } else {
+    for (const character of puzzle.characters) {
+      container.appendChild(
+        renderOwner(
+          character.name + (character.isVictim ? t(" (vittima)") : ""),
+          "",
+          cluesForCharacter(puzzle, character.id),
+          character.id,
+          puzzle,
+          placementMap,
+          onChange
+        )
+      );
     }
-    wrap.appendChild(clueList);
-
-    const typeSelect = el(
-      "select",
-      { "aria-label": t("Tipo di indizio") },
-      characterTypeIds.map((id) => el("option", { value: id }, CLUE_TYPES[id].label))
-    );
-    const addClueBtn = el(
-      "button",
-      {
-        onClick: () => {
-          addClue(puzzle, character.id, typeSelect.value, defaultParams(typeSelect.value, puzzle));
-          onChange();
-        },
-      },
-      t("+ Indizio")
-    );
-    wrap.appendChild(el("div", { class: "field-row clue-add-row" }, [typeSelect, addClueBtn]));
-
-    container.appendChild(wrap);
   }
+  // the wizard (if open) keeps its own state: redraw it against the new puzzle and the new board
+  refreshClueWizard();
 }

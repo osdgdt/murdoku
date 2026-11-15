@@ -38,22 +38,22 @@ export const ROOMS_CLUES = {
     describe: () => t("La vittima deve trovarsi in una stanza con esattamente un'altra persona: l'assassino."),
   },
   aloneWithPerson: {
-    label: t("È sola con (un personaggio)"),
+    label: t("È nella stanza solo con (un personaggio)"),
     params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],
-    describe: (params, puzzle) => t("È sola con {v} nella stanza.", { v: targetLabel(puzzle, params.targetId) }),
+    describe: (params, puzzle) => t("È nella stanza solo con {v}.", { v: targetLabel(puzzle, params.targetId) }),
   },
   aloneWithPersonProperty: {
-    label: t("È sola con qualcuno che è..."),
+    label: t("È nella stanza solo con qualcuno che è..."),
     params: propertyParams,
-    describe: (params, puzzle) => t("È sola nella stanza con qualcuno{v}.", { v: propertyClause(params, puzzle, "che è") }),
+    describe: (params, puzzle) => t("È nella stanza solo con qualcuno{v}.", { v: propertyClause(params, puzzle, "che è") }),
   },
   aloneInRoom: {
-    label: t("È sola nella stanza"),
+    label: t("È l'unica persona nella stanza"),
     params: [{ name: "zoneId", kind: "zone", optional: true, label: t("Stanza specifica (vuoto = quella in cui si trova)") }],
     describe: (params, puzzle) =>
       params.zoneId
         ? t("È l'unica persona nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) })
-        : t(`È sola nella stanza in cui si trova.`),
+        : t("È l'unica persona nella stanza in cui si trova."),
   },
   inRoomCorner: {
     label: t("Si trova in un angolo della sua stanza"),

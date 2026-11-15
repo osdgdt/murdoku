@@ -37,8 +37,18 @@ export function objectTypePhrase(typeId) {
   if (!def) return t("un oggetto");
   // "un'incudine" (no space after an elided article); English takes its own article ("an anvil").
   const article = getLanguage() === "en" && def.articleEn ? def.articleEn : t(def.article);
-  return t("{article}{joiner}{label}", { article, joiner: article.endsWith("'") ? "" : " ", label: def.label.toLowerCase() });
+  return t("{article}{joiner}{label}", { article, joiner: article.endsWith("'") ? "" : " ", label: lowerLabel(def.label) });
 }
+
+// A label in the middle of a sentence is lowercase ("una sedia"), except an acronym
+// ("a TV", not "a tv").
+export function lowerLabel(label) {
+  return /^[A-Z0-9]{2,5}$/.test(label) ? label : label.toLowerCase();
+}
+
+// The first letter of a clause lowercased/uppercased, for sentences built from other sentences.
+export const lowerFirst = (s) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
+export const upperFirst = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 // Axis nouns shared by every row/column clue. `plural` picks "righe/colonne".
 export function axisNoun(axis, plural = false) {
@@ -103,17 +113,17 @@ export function describeProperty(params, puzzle) {
     case "seated":
       return params.onlyGender === "female" ? t("seduta") : t("seduto");
     default:
-      return t("presente");
+      return "?"; // no property chosen yet
   }
 }
 
-// Strips a nested clue spec down to its own full sentence, for embedding
-// after a colon (used only by the `custom` property case, since an arbitrary
-// nested clue's own verb can't be grafted onto "...era X" the way the fixed
-// properties above can).
+// Strips a nested clue spec down to its own sentence, for embedding in another one
+// (after a colon: used by the `custom` property case, since an arbitrary nested
+// clue's own verb can't be grafted onto "...era X" the way the fixed properties
+// above can, and by orClue). It starts in lowercase: it is the middle of a sentence.
 export function describeNestedClue(spec, puzzle) {
   if (!spec?.type) return null;
-  return describeClue({ type: spec.type, params: spec.params, negate: spec.negate }, puzzle).replace(/\.\s*$/, "");
+  return lowerFirst(describeClue({ type: spec.type, params: spec.params, negate: spec.negate }, puzzle).replace(/\.\s*$/, ""));
 }
 
 // Builds the "<verb> <property>" fragment shared by every clue type built on
@@ -126,7 +136,7 @@ export function propertyClause(params, puzzle, verb) {
   const v = t(verb);
   if (params.property === "custom") {
     const nested = describeNestedClue(params.customClue, puzzle);
-    return nested ? `: ${nested}` : ` ${v} ${t("presente")}`;
+    return nested ? `: ${nested}` : ` ${v} ?`;
   }
   return ` ${v} ${describeProperty(params, puzzle)}`;
 }

@@ -31,7 +31,7 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # Only what the site needs at runtime: not test/, tools/, node_modules/.
       - name: Collect site files
         run: |

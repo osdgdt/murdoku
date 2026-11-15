@@ -8,7 +8,7 @@ import { removeClue, duplicateClue, moveClue, cluesForCharacter, genericClues } 
 import { declaredPlacementMap } from "../solver/suggestions.js";
 import { buildPredicate } from "../solver/predicates/index.js";
 import { missingParams, hasDuplicateTargets } from "./clueDraft.js";
-import { openClueWizard, openClueSuggestions, refreshClueWizard } from "./clueWizard.js";
+import { openClueWizard, openClueSuggestions, openClueGenerator, refreshClueWizard } from "./clueWizard.js";
 import { openExportDialog, openImportDialog } from "./clueSetDialog.js";
 import { t } from "../i18n/i18n.js";
 
@@ -127,6 +127,17 @@ export function renderClueBuilder(container, puzzle, onChange) {
   container.appendChild(
     el("div", { class: "clue-panel-header" }, [
       el("h3", { "aria-level": "2" }, t("Indizi")),
+      el(
+        "button",
+        {
+          type: "button",
+          class: "clue-propose-btn",
+          "data-key": "propose-set",
+          title: t("Propone un insieme di indizi che rende unica la soluzione che hai dichiarato"),
+          onClick: () => openClueGenerator(),
+        },
+        t("✨ Proponi")
+      ),
       el(
         "button",
         {

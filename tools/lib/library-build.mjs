@@ -32,15 +32,7 @@ function fingerprint(spec, pool) {
   return h.toString(16).padStart(8, "0");
 }
 
-const SIMPLE = new Set(["inRoom", "inRowOrCol", "adjacent", "diagonal", "sameRoomAs", "onObjectType", "rowOrColWith", "inCorner", "aloneInRoom", "facing", "seated", "inFrontOfWindow"]);
-const RELATIONAL = new Set([...SIMPLE, "between", "zoneAdjacentTo", "rowOrColAdjacentTo", "directionDistance", "onlyPersonNear", "inRoomCorner", "aloneWithPerson", "rowOrColParity", "someoneInRoomWithProperty"]);
-
-const MODES = {
-  easy: { allowType: (c) => SIMPLE.has(c.type) && !c.negate && !c.generic, negateChance: 0, pruneChance: 0.5, gate: (m) => m.forcedByPropagation === m.nChars && m.types >= 3 && m.nClues >= m.nChars + 1 },
-  medium: { allowType: (c) => RELATIONAL.has(c.type) && !c.generic, negateChance: 0.25, pruneChance: 1, gate: (m) => m.forcedByPropagation >= 1 && m.forcedByPropagation < m.nChars && m.types >= 4 },
-  hard: { allowType: () => true, negateChance: 0.4, pruneChance: 1, gate: (m) => m.forcedByPropagation <= 1 && m.generic >= 1 && m.types >= 5 },
-  expert: { allowType: () => true, negateChance: 0.5, pruneChance: 1, gate: (m) => m.forcedByPropagation === 0 && m.generic >= 1 && m.types >= 5 },
-};
+const { MODES } = await import("../../src/solver/composer.js");
 
 // House rule: the suspects are listed in alphabetical order (in every language)
 // and the victim's name starts with V.

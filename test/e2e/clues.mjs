@@ -245,7 +245,69 @@ async function livePreview() {
   await context.close();
 }
 
+// Proposing a whole set of clues for a case whose solution is declared.
+async function generator() {
+  const context = await browser.newContext({ locale: "it-IT", viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  await page.goto(`${base}/player.html?import=test/fixtures/faro.en.murdoku.json`);
+  await page.waitForSelector("#board [role=gridcell]");
+  const id = new URL(page.url()).searchParams.get("id");
+  await page.goto(`${base}/editor.html?id=${id}`);
+  await page.waitForSelector("#clue-panel .clue-owner");
+  while ((await page.locator("#clue-panel .clue-row").count()) > 0)
+    await page.locator('#clue-panel .clue-row [aria-label="Rimuovi indizio"]').first().click();
+
+  // cancel a slow one first (the worker's answers are held back)
+  await page.evaluate(() => {
+    const original = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (...args) {
+      setTimeout(() => original.apply(this, args), 4000);
+    };
+    window.__restoreWorker = () => (Worker.prototype.postMessage = original);
+  });
+  await page.click('[data-key="propose-set"]');
+  await page.waitForSelector('#clue-wizard [data-key="generate"]');
+  check(
+    "generator: levels and options are offered",
+    (await page.locator("#clue-wizard .clue-chip[aria-pressed]").count()) >= 3 &&
+      (await page.locator('[data-key="gen-victim"]').isChecked()) &&
+      (await page.locator('[data-key="gen-keep"]').isChecked())
+  );
+  await page.click('[data-key="generate"]');
+  await page.waitForSelector("#clue-wizard .progress-cancel");
+  await page.click("#clue-wizard .progress-cancel");
+  await page.waitForSelector('#clue-wizard [data-key="generate"]');
+  check("generator: Cancel stops a slow generation", (await page.locator("#clue-wizard .clue-gen-list").count()) === 0);
+  await page.evaluate(() => window.__restoreWorker());
+
+  await page.click('[data-key="generate"]');
+  await page.waitForSelector("#clue-wizard .clue-gen-list", { timeout: 60000 });
+  const proposed = await page.locator("#clue-wizard .clue-gen-list li").count();
+  check(
+    "generator: a set is proposed, all ticked, and it says the solution is unique",
+    proposed > 0 &&
+      (await page.locator("#clue-wizard .clue-gen-list input:checked").count()) === proposed &&
+      /la soluzione è unica/.test(await page.innerText("#clue-wizard"))
+  );
+  const victimName = "Victor";
+  check("generator: no proposed clue is about the victim", !(await page.innerText("#clue-wizard .clue-gen-list")).includes(victimName));
+  await page.click('[data-key="gen-add"]');
+  await page.waitForFunction(() => document.querySelector("#clue-wizard")?.hidden);
+  check("generator: the selected clues are added", (await page.locator("#clue-panel .clue-row").count()) === proposed);
+  await page.waitForFunction(() => /Soluzione unica/.test(document.querySelector("#difficulty-preview")?.innerText || ""), null, {
+    timeout: 30000,
+  });
+  check("generator: the live line confirms the solution is unique", true);
+  await page.click("#editor-undo-btn");
+  check("generator: adding the set is one undo step", (await page.locator("#clue-panel .clue-row").count()) === 0);
+  check("generator: no page errors", errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
 try {
+  await generator();
   await livePreview();
   await clueSets();
   await run("1280", { width: 1280, height: 900 });

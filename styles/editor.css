@@ -748,7 +748,7 @@
 .clue-owner-header { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
 .clue-owner-header strong { flex: 1 1 8em; min-width: 0; }
 .clue-incomplete-count { color: var(--danger); font-size: 0.8rem; font-weight: 600; }
-.clue-new-btn, .clue-suggest-btn, .clue-set-btn { min-height: 44px; padding: 0.3em 0.9em; }
+.clue-new-btn, .clue-suggest-btn, .clue-set-btn, .clue-propose-btn { min-height: 44px; padding: 0.3em 0.9em; }
 .clue-new-btn { background: var(--accent-soft); border: 1px dashed var(--accent); }
 .clue-rows { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
 .clue-row {
@@ -859,3 +859,9 @@
 .difficulty-line.warn { border-color: var(--gold); color: var(--ink); }
 .difficulty-line.bad { border-color: var(--danger); color: var(--danger); }
 .difficulty-line.info { color: var(--ink-soft); }
+
+/* ---- Propose a set of clues ----------------------------------------------------------- */
+.clue-generate-btn { min-height: 44px; align-self: flex-start; }
+.clue-generate-link { min-height: 44px; background: var(--accent-soft); border: 1px dashed var(--accent); }
+.clue-gen-list { list-style: none; margin: 0.4rem 0; padding: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.clue-gen-list label { display: flex; gap: 0.4rem; align-items: center; min-height: 44px; }

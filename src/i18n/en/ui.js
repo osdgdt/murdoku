@@ -575,4 +575,34 @@ export default {
     "Add characters and clues to see here how many solutions are left and how hard it is.",
   "Analisi in corso…": "Analysing…",
   "Analisi non disponibile.": "Analysis not available.",
+  // clue generator
+  "Propone un insieme di indizi che rende unica la soluzione che hai dichiarato":
+    "Proposes a set of clues that makes the solution you declared the only one",
+  "✨ Proponi": "✨ Propose",
+  "Proponi un set di indizi": "Propose a set of clues",
+  "✨ Proponi un set completo di indizi": "✨ Propose a complete set of clues",
+  Medio: "Medium",
+  "Servono tutti i personaggi piazzati nella soluzione (scheda Soluzione).":
+    "All the characters must be placed in the solution (Solution tab).",
+  "Il tempo a disposizione è finito prima di trovare un set. Riprova, o scegli un livello più facile.":
+    "Time ran out before a set was found. Try again, or pick an easier level.",
+  "Ho trovato un set ma non sono riuscito a verificare l'unicità entro il limite di ricerca.":
+    "I found a set but could not check its uniqueness within the search limit.",
+  "I set provati lasciavano più di una soluzione. Riprova (un'altra estrazione) o aggiungi qualche indizio a mano.":
+    "The sets tried left more than one solution. Try again (another draw) or add a few clues by hand.",
+  "Non sono riuscito a comporre un set con questo livello. Prova un altro livello o un'altra estrazione.":
+    "I could not compose a set at this level. Try another level or another draw.",
+  "Propongo indizi veri nella tua soluzione che la rendono l'unica. Tu scegli quali tenere.":
+    "I propose clues that are true in your solution and make it the only one. You choose which to keep.",
+  Livello: "Level",
+  "Nessun indizio sulla vittima (consigliato)": "No clue about the victim (recommended)",
+  "Parti dagli indizi che ho già": "Start from the clues I already have",
+  "Sto componendo un set di indizi…": "Composing a set of clues…",
+  "Rigenera (un'altra estrazione)": "Regenerate (another draw)",
+  Genera: "Generate",
+  "Il caso ha già una soluzione unica: non serve aggiungere indizi.": "The case already has a unique solution: no clues need adding.",
+  "✓ {count} indizi: con questi la soluzione è unica.": "✓ {count} clues: with these the solution is unique.",
+  "Senza tutti gli indizi la soluzione potrebbe non essere più unica: guarda la riga della difficoltà dopo averli aggiunti.":
+    "Without all the clues the solution may no longer be unique: check the difficulty line after adding them.",
+  "Aggiungi i selezionati": "Add the selected ones",
 };

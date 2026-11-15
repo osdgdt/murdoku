@@ -10,23 +10,10 @@ globalThis.__MURDOKU_LANG__ = "it"; // clue text isn't generated here; keep modu
 
 const { createPuzzle, addCharacter, addClue, setSolutionPlacement } = await import("../../src/model/puzzle.js");
 const { resizeGrid, addZone, paintCellZone, placeObject, setBlocked } = await import("../../src/model/grid.js");
-const { buildPredicate } = await import("../../src/solver/predicates/index.js");
 const { checkUniqueness, validateSolution } = await import("../../src/solver/validator.js");
-const { solvePuzzle } = await import("../../src/solver/solver.js");
 const { findRedundantClues } = await import("../../src/solver/redundancy.js");
 const { propagate } = await import("../../src/solver/propagation.js");
 const { suggestClues } = await import("../../src/solver/suggestions.js");
-
-export function rng(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 // --- map ------------------------------------------------------------------
 // `map` rows use one letter per zone, "#" for a blocked cell, "." for no zone.
@@ -71,85 +58,17 @@ export function trueClues(puzzle, ids, solution) {
   return clues;
 }
 
-// --- victim-free view ---------------------------------------------------------
-// Generated cases never put a clue on the victim and solve the suspects WITHOUT
-// her: she is placed last, in the one cell that is left. So the clue search runs
-// on a copy of the puzzle in which the victim does not exist.
-export function withoutVictim(puzzle) {
-  const victim = puzzle.characters.find((c) => c.isVictim);
-  const copy = JSON.parse(JSON.stringify(puzzle));
-  copy.characters = copy.characters.filter((c) => !c.isVictim);
-  copy.solution = { ...copy.solution, placements: copy.solution.placements.filter((p) => p.characterId !== victim.id) };
-  return copy;
-}
-
-// Does this clue hold for `placements` (Map characterId -> {row,col}) on `puzzle`?
-export function holdsIn(clue, puzzle, placements) {
-  try { return buildPredicate({ id: "x", ...clue }, puzzle)(placements, true) === true; } catch { return false; }
-}
-
-// How many cells can the victim take once every suspect sits in its true cell?
-export function victimCellOptions(puzzle, suspectPlacements) {
-  return solvePuzzle(puzzle, { maxSolutions: 5, fixedPlacements: suspectPlacements }).length;
-}
-
-// --- search -------------------------------------------------------------------
-function domainTotal(puzzle) {
-  const result = propagate(puzzle, new Map());
-  if (result.contradiction) return Infinity;
-  let total = 0;
-  for (const cells of result.domains.values()) total += cells.length;
-  return total - result.forced.length * 1000; // forced placements are worth a lot
-}
-
-function withClues(puzzle, clues) {
-  const copy = { ...puzzle, clues: clues.map((c, i) => ({ id: `c${i}`, ...c })) };
-  return copy;
-}
-
-function isUnique(puzzle, clues) {
-  const report = checkUniqueness(withClues(puzzle, clues), { maxSolutions: 2, forwardCheck: true, maxNodes: 3_000_000 });
-  return report.solutionCount === 1 && !report.truncated;
-}
-
-export async function composeClues(puzzle, pool, { random, allowType, negateChance, sample = 36, maxClues = 40, pruneChance = 1 }) {
-  const usable = pool.filter((c) => allowType(c) && (!c.negate || random() < negateChance));
-  const clues = [];
-  const base = { ...puzzle };
-  while (!isUnique(base, clues)) {
-    if (clues.length >= maxClues) return null;
-    let best = null;
-    let bestScore = Infinity;
-    for (let k = 0; k < sample; k++) {
-      const cand = usable[Math.floor(random() * usable.length)];
-      if (clues.some((c) => JSON.stringify([c.characterId, c.type, c.params, c.negate]) === JSON.stringify([cand.characterId, cand.type, cand.params, cand.negate]))) continue;
-      const score = domainTotal(withClues(base, [...clues, cand])) + random() * 0.5;
-      if (score < bestScore) { bestScore = score; best = cand; }
-    }
-    if (!best) return null;
-    clues.push(best);
-  }
-  // Prune clues that aren't needed (in random order; `pruneChance` < 1 keeps some
-  // redundancy on purpose, for easier cases).
-  // Fisher-Yates, not sort(() => random() - 0.5): an inconsistent comparator has an
-  // engine-dependent result, and a seed must give the same case under Node and in a browser.
-  const order = clues.map((_, i) => i);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-  let current = clues.slice();
-  for (const idx of order) {
-    const target = clues[idx];
-    if (random() > pruneChance) continue;
-    const without = current.filter((c) => c !== target);
-    if (without.length && isUnique(base, without)) current = without;
-  }
-  return current;
+// --- victim-free view and the clue search ---------------------------------------
+// The core (withoutVictim, holdsIn, victimCellOptions, composeClues, rng) lives in
+// src/solver/composer.js: the editor's "Propose a set of clues" uses the same code.
+const composer = await import("../../src/solver/composer.js");
+export const { rng, withoutVictim, holdsIn, victimCellOptions } = composer;
+export async function composeClues(puzzle, pool, options) {
+  return composer.composeClues(puzzle, pool, options);
 }
 
 export function measure(puzzle, clues, ids) {
-  const p = withClues(puzzle, clues);
+  const p = composer.withClues(puzzle, clues);
   const prop = propagate(p, new Map());
   const perChar = Object.fromEntries(Object.entries(ids).map(([key, id]) => [key, clues.filter((c) => c.characterId === id).length]));
   return { nClues: clues.length, forcedByPropagation: prop.forced.length, nChars: puzzle.characters.length, perChar, generic: clues.filter((c) => c.generic).length, types: new Set(clues.map((c) => c.type)).size };

@@ -21,6 +21,8 @@ import { FAMILIES, ENTRIES } from "../glossary/examples.js";
 import { buildPredicate } from "../solver/predicates/index.js";
 import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { declaredPlacementMap, suggestClues } from "../solver/suggestions.js";
+import { composeCluesAsync } from "../solver/solverClient.js";
+import { limitsFor } from "../solver/limits.js";
 import {
   newDraft,
   draftFromClue,
@@ -86,6 +88,31 @@ export function openClueSuggestions({ ownerId = null } = {}) {
     notice: "",
     showNegated: false,
     added: new Set(),
+  };
+  show();
+}
+
+// "Propose a set of clues": the generator panel (see renderGenerator).
+export function openClueGenerator() {
+  stopPicking();
+  session = {
+    mode: "generate",
+    ownerId: null,
+    step: 0,
+    draft: null,
+    search: "",
+    open: new Set(),
+    notice: "",
+    gen: {
+      level: "medium",
+      victimFree: true,
+      keepExisting: true,
+      seed: 1 + Math.floor(Math.random() * 100000),
+      running: false,
+      result: null,
+      selected: new Set(),
+      controller: null,
+    },
   };
   show();
 }
@@ -156,11 +183,13 @@ function render() {
   const title =
     session.mode === "suggest"
       ? t("Indizi suggeriti")
-      : session.mode === "edit"
-        ? t("Modifica indizio")
-        : owner
-          ? t("Nuovo indizio per {name}", { name: owner.name })
-          : t("Nuovo indizio generale");
+      : session.mode === "generate"
+        ? t("Proponi un set di indizi")
+        : session.mode === "edit"
+          ? t("Modifica indizio")
+          : owner
+            ? t("Nuovo indizio per {name}", { name: owner.name })
+            : t("Nuovo indizio generale");
   host.appendChild(
     el("div", { class: "clue-wizard-header" }, [
       el("h2", { id: "clue-wizard-title" }, title),
@@ -182,6 +211,7 @@ function render() {
   const footer = el("div", { class: "clue-wizard-footer" });
   host.append(body, footer);
   if (session.mode === "suggest") renderSuggestions(body, footer, puzzle);
+  else if (session.mode === "generate") renderGenerator(body, footer, puzzle);
   else if (session.step === 1) renderTypeStep(body, footer, puzzle);
   else renderSentenceStep(body, footer, puzzle);
   body.scrollTop = scroll;
@@ -770,7 +800,7 @@ function clearPreview() {
 // The cells the clue being written points at, and the owner's cell in the declared solution.
 function updatePreview() {
   clearPreview();
-  if (!session?.draft || session.mode === "suggest") return;
+  if (!session?.draft || session.mode === "suggest" || session.mode === "generate") return;
   const puzzle = ctx.getPuzzle();
   const pm =
     declaredPlacementMap(puzzle) ||
@@ -806,6 +836,13 @@ function renderSuggestions(body, footer, puzzle) {
       el("option", { value: "" }, t("Indizi generali")),
       ...puzzle.characters.map((c) => el("option", { value: c.id, selected: session.ownerId === c.id || undefined }, c.name)),
     ]
+  );
+  body.appendChild(
+    el(
+      "button",
+      { type: "button", class: "clue-generate-link", "data-key": "to-generator", onClick: () => openClueGenerator() },
+      t("✨ Proponi un set completo di indizi")
+    )
   );
   body.appendChild(el("label", { class: "clue-slot" }, [el("span", { class: "clue-slot-label" }, t("Per chi")), ownerSelect]));
   if (!pm) {
@@ -889,4 +926,217 @@ function renderSuggestions(body, footer, puzzle) {
   }
   if (truncated) body.appendChild(el("p", { class: "muted" }, t("Elenco parziale: ci sono troppi indizi possibili.")));
   footer.append(el("button", { type: "button", onClick: closeClueWizard }, t("Chiudi")));
+}
+
+// ---------------------------------------------------------------------------- propose a whole set
+
+const LEVELS = [
+  ["easy", () => t("Facile")],
+  ["medium", () => t("Medio")],
+  ["hard", () => t("Difficile")],
+];
+
+function failureText(reason) {
+  switch (reason) {
+    case "no-solution":
+      return t("Servono tutti i personaggi piazzati nella soluzione (scheda Soluzione).");
+    case "time":
+      return t("Il tempo a disposizione è finito prima di trovare un set. Riprova, o scegli un livello più facile.");
+    case "limit":
+      return t("Ho trovato un set ma non sono riuscito a verificare l'unicità entro il limite di ricerca.");
+    case "not-unique":
+      return t("I set provati lasciavano più di una soluzione. Riprova (un'altra estrazione) o aggiungi qualche indizio a mano.");
+    default:
+      return t("Non sono riuscito a comporre un set con questo livello. Prova un altro livello o un'altra estrazione.");
+  }
+}
+
+// Proposes a set of clues that makes the declared solution the only one (composer.js, on a worker of its own);
+// the author ticks the ones to keep and adds them in one step.
+function renderGenerator(body, footer, puzzle) {
+  const gen = session.gen;
+  if (!declaredPlacementMap(puzzle)) {
+    body.appendChild(el("p", { class: "muted" }, failureText("no-solution")));
+    footer.append(el("button", { type: "button", onClick: closeClueWizard }, t("Chiudi")));
+    return;
+  }
+  body.appendChild(
+    el("p", { class: "muted" }, t("Propongo indizi veri nella tua soluzione che la rendono l'unica. Tu scegli quali tenere."))
+  );
+  body.appendChild(
+    el("div", { class: "clue-slot", role: "group", "aria-label": t("Livello") }, [
+      el("span", { class: "clue-slot-label" }, t("Livello")),
+      el(
+        "div",
+        { class: "clue-chips" },
+        LEVELS.map(([id, label]) =>
+          chip(label(), gen.level === id, () => ((gen.level = id), (gen.result = null), render()), { key: `level-${id}` })
+        )
+      ),
+    ])
+  );
+  const check = (key, label, prop) =>
+    el("label", { class: "clue-check" }, [
+      el("input", {
+        type: "checkbox",
+        "data-key": key,
+        checked: gen[prop] || undefined,
+        onChange: (e) => {
+          gen[prop] = e.target.checked;
+          gen.result = null;
+          render();
+        },
+      }),
+      " ",
+      label,
+    ]);
+  body.appendChild(check("gen-victim", t("Nessun indizio sulla vittima (consigliato)"), "victimFree"));
+  body.appendChild(check("gen-keep", t("Parti dagli indizi che ho già"), "keepExisting"));
+
+  if (gen.running) {
+    const progress = generatorProgress(t("Sto componendo un set di indizi…"), gen.timeMs, () => gen.controller?.abort());
+    body.appendChild(progress.node);
+    gen.stopProgress = progress.stop;
+  } else {
+    body.appendChild(
+      el(
+        "button",
+        { type: "button", class: "primary clue-generate-btn", "data-key": "generate", onClick: () => runGenerator(gen) },
+        gen.result ? t("Rigenera (un'altra estrazione)") : t("Genera")
+      )
+    );
+  }
+
+  const result = gen.result;
+  if (result && !gen.running) {
+    if (result.status !== "ok") {
+      body.appendChild(el("p", { class: "violation", role: "alert" }, failureText(result.reason)));
+    } else if (result.clues.length === 0) {
+      body.appendChild(el("p", { class: "ok-message" }, t("Il caso ha già una soluzione unica: non serve aggiungere indizi.")));
+    } else {
+      body.appendChild(
+        el(
+          "p",
+          { class: "ok-message", "aria-live": "polite" },
+          t("✓ {count} indizi: con questi la soluzione è unica.", { count: result.clues.length })
+        )
+      );
+      body.appendChild(
+        el(
+          "ul",
+          { class: "clue-gen-list" },
+          result.clues.map((clue, i) => {
+            const owner = clue.characterId ? puzzle.characters.find((c) => c.id === clue.characterId)?.name : t("Generale");
+            return el("li", {}, [
+              el("label", {}, [
+                el("input", {
+                  type: "checkbox",
+                  "data-key": `gen-pick-${i}`,
+                  checked: gen.selected.has(i) || undefined,
+                  onChange: (e) => {
+                    if (e.target.checked) gen.selected.add(i);
+                    else gen.selected.delete(i);
+                    render();
+                  },
+                }),
+                " ",
+                `${owner}: ${describeClue({ id: "g", ...clue }, puzzle)}`,
+              ]),
+            ]);
+          })
+        )
+      );
+      if (gen.selected.size < result.clues.length) {
+        body.appendChild(
+          el(
+            "p",
+            { class: "muted" },
+            t("Senza tutti gli indizi la soluzione potrebbe non essere più unica: guarda la riga della difficoltà dopo averli aggiunti.")
+          )
+        );
+      }
+    }
+  }
+  footer.append(
+    el("button", { type: "button", onClick: closeClueWizard }, t("Chiudi")),
+    result?.status === "ok" && result.clues.length > 0
+      ? el(
+          "button",
+          {
+            type: "button",
+            class: "primary",
+            "data-key": "gen-add",
+            disabled: gen.selected.size === 0 || undefined,
+            onClick: () => {
+              const target = ctx.getPuzzle();
+              for (const i of [...gen.selected].sort((a, b) => a - b)) {
+                const c = result.clues[i];
+                const clue = addClue(target, c.characterId, c.type, JSON.parse(JSON.stringify(c.params)));
+                if (c.negate) clue.negate = true;
+              }
+              closeClueWizard();
+              ctx.onChange(); // one undo step for the whole set
+            },
+          },
+          t("Aggiungi i selezionati")
+        )
+      : null
+  );
+}
+
+async function runGenerator(gen) {
+  const puzzle = ctx.getPuzzle();
+  const limits = limitsFor(puzzle).uniqueness;
+  gen.timeMs = limits.timeMs * 2;
+  gen.running = true;
+  gen.result = null;
+  gen.controller = new AbortController();
+  const mine = session;
+  render();
+  try {
+    const result = await composeCluesAsync(
+      puzzle,
+      {
+        mode: gen.level,
+        seed: gen.seed,
+        victimFree: gen.victimFree,
+        keepExisting: gen.keepExisting,
+        maxNodes: limits.maxNodes * 5,
+        timeMs: gen.timeMs,
+      },
+      { signal: gen.controller.signal }
+    );
+    gen.seed += 1; // the next press draws a different set
+    gen.result = result;
+    gen.selected = new Set(result.status === "ok" ? result.clues.map((_, i) => i) : []);
+  } catch (err) {
+    gen.result = err?.name === "AbortError" ? null : { status: "failed", reason: "error" };
+  } finally {
+    gen.stopProgress?.();
+    gen.running = false;
+    gen.controller = null;
+    if (session === mine) render();
+  }
+}
+
+// "Composing…" with the time so far, a bar against the time allowed, and Cancel (the search can take half a minute
+// on a big grid: a still banner would look like a hang).
+function generatorProgress(label, expectedMs, onCancel) {
+  const started = performance.now();
+  const timeNode = el("span", { "aria-hidden": "true" }, "⏱ 0 s");
+  const bar = el("progress", { max: String(expectedMs), value: "0", "aria-hidden": "true" });
+  const node = el("div", { class: "result-banner hint-info progress-banner", role: "status" }, [
+    el("span", {}, label),
+    " ",
+    timeNode,
+    bar,
+    el("button", { type: "button", class: "progress-cancel", onClick: onCancel }, t("Annulla")),
+  ]);
+  const timer = setInterval(() => {
+    const elapsed = performance.now() - started;
+    timeNode.textContent = `⏱ ${Math.floor(elapsed / 1000)} s`;
+    if (elapsed < expectedMs) bar.value = elapsed;
+    else bar.removeAttribute("value");
+  }, 500);
+  return { node, stop: () => clearInterval(timer) };
 }

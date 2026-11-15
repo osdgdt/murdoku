@@ -12,8 +12,6 @@ import {
   DIFFICULTY_LEVELS,
   TENSE_OPTIONS,
   setTense,
-  difficultyLabel,
-  estimateDifficultyFromNodes,
   setSolutionPlacement,
   removeClue,
 } from "../model/puzzle.js";
@@ -30,6 +28,7 @@ import { renderMapEditor } from "./mapEditor.js";
 import { renderCharacterEditor } from "./characterEditor.js";
 import { renderClueBuilder } from "./clueBuilder.js";
 import { setupClueWizard } from "./clueWizard.js";
+import { createLivePreview } from "./livePreview.js";
 import { renderSolutionEditor } from "./solutionEditor.js";
 import { renderHintsEditor } from "./hintsEditor.js";
 import { wireThemeToggle } from "../util/theme.js";
@@ -77,13 +76,16 @@ const undoBtn = qs("#editor-undo-btn");
 const redoBtn = qs("#editor-redo-btn");
 const validateBtn = qs("#validate-btn");
 const uniqueBtn = qs("#unique-btn");
-const estimateBtn = qs("#estimate-btn");
+const previewEl = qs("#difficulty-preview");
 const redundantBtn = qs("#redundant-btn");
 const calcSolutionBtn = qs("#calc-solution-btn");
 const statusEl = qs("#status");
 
 // The clue wizard reads the CURRENT puzzle through a getter (an undo swaps the object).
 setupClueWizard({ getPuzzle: () => puzzle, onChange: () => handleChange(), boardEl });
+
+// The live difficulty line above the clues: re-analysed (debounced, on its own worker) after every change.
+const preview = createLivePreview({ container: previewEl, getPuzzle: () => puzzle });
 
 // Snapshot-based undo/redo: every mutating sub-editor (mapEditor, characterEditor,
 // clueBuilder, solutionEditor) already funnels its changes through a single
@@ -137,6 +139,7 @@ function handleChange() {
   persist();
   render();
   updateUndoRedoButtons();
+  preview.schedule();
 }
 
 function undoChange() {
@@ -147,6 +150,7 @@ function undoChange() {
   persist();
   render();
   updateUndoRedoButtons();
+  preview.schedule();
 }
 
 function redoChange() {
@@ -157,6 +161,7 @@ function redoChange() {
   persist();
   render();
   updateUndoRedoButtons();
+  preview.schedule();
 }
 
 function updateUndoRedoButtons() {
@@ -576,39 +581,6 @@ redundantBtn.addEventListener("click", async () => {
   }
 });
 
-estimateBtn.addEventListener("click", async () => {
-  estimateBtn.disabled = true;
-  showProgress(t("Stima in corso…"));
-  try {
-    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: 2 }));
-    clear(validationPanel);
-    if (report.solutionCount !== 1 || !report.exhausted) {
-      // A stima only means something once the puzzle has exactly one solution
-      // — with zero or several, "how hard was it to find" isn't a meaningful
-      // question yet (fix that first, via Verifica unicità, before estimating).
-      validationPanel.appendChild(
-        el("p", { class: "violation" }, t('La stima richiede una soluzione unica: usa prima "Verifica unicità".'))
-      );
-      return;
-    }
-    const estimate = estimateDifficultyFromNodes(report.nodesVisited);
-    validationPanel.appendChild(
-      el(
-        "p",
-        { class: "ok-message" },
-        t(
-          "Stima difficoltà: {v} (nodi esplorati dal solver: {nodesVisited}). È solo un'indicazione — il campo \"Difficoltà\" in alto resta una scelta manuale dell'autore.",
-          { v: difficultyLabel(estimate), nodesVisited: report.nodesVisited }
-        )
-      )
-    );
-  } catch (err) {
-    showSolverError(err, (message) => t("Non sono riuscito a calcolare la stima: {message}. Riprova.", { message }));
-  } finally {
-    estimateBtn.disabled = false;
-  }
-});
-
 calcSolutionBtn.addEventListener("click", async () => {
   const hasExistingSolution = puzzle.solution.placements.length > 0;
   // Confirm only when this would replace a declared solution that ISN'T
@@ -689,3 +661,4 @@ calcSolutionBtn.addEventListener("click", async () => {
 
 render();
 updateUndoRedoButtons();
+preview.schedule();

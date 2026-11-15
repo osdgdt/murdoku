@@ -9,10 +9,7 @@ export default {
   Tutorial: "Tutorial",
 
   // page
-  "Come si gioca": "How to play",
   "Come si gioca — Murdoku": "How to play — Murdoku",
-  "🎓 Come si gioca": "🎓 How to play",
-  "Un caso piccolo risolto passo per passo, per imparare le regole.": "A small case solved step by step, to learn the rules.",
   "Impara Murdoku in cinque minuti: le regole, un caso piccolo risolto passo per passo e qualche trucco.":
     "Learn Murdoku in five minutes: the rules, a small case solved step by step and a few tricks.",
 

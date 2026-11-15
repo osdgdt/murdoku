@@ -43,8 +43,20 @@ function detectLanguage() {
 let lang = detectLanguage();
 let dictionary = {};
 
+// A page loads only the areas of the dictionary it uses (areas.js); a worker or a test has no page and loads all.
 async function loadDictionary(target) {
-  dictionary = target === "en" ? (await import("./en.js")).default : {};
+  if (target !== "en") {
+    dictionary = {};
+    return;
+  }
+  const isPage = typeof document !== "undefined" && typeof location !== "undefined" && /^https?:|^file:/.test(location.protocol);
+  if (!isPage) {
+    dictionary = (await import("./en.js")).default;
+    return;
+  }
+  const { AREA_LOADERS, areasForPage } = await import("./areas.js");
+  const parts = await Promise.all(areasForPage(location.pathname).map((area) => AREA_LOADERS[area]().then((m) => m.default)));
+  dictionary = Object.assign({}, ...parts);
 }
 
 // Top-level await: any module importing this one only runs once the

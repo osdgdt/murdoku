@@ -2,7 +2,6 @@
 export default {
   // example world (the stock cast: Anna, Bruno and Carla are translated in en/tutorial.js)
   Dario: "David",
-  Cucina: "Kitchen",
   Salotto: "Lounge",
   Studio: "Study",
   Bagno: "Bathroom",
@@ -149,7 +148,6 @@ export default {
     "The window in the wall between Kitchen and Lounge counts for the two cells on its sides; the one on the top edge counts only for its own cell.",
 
   // page
-  Guida: "Guide",
   "Glossario degli indizi": "Clue glossary",
   "Ogni tipo di indizio, spiegato in parole semplici e con un piccolo esempio da guardare. Cerca un termine, o scorri per famiglia.":
     "Every clue type, explained in plain words with a small example to look at. Search for a term, or browse by family.",
@@ -180,8 +178,5 @@ export default {
   "Il bersaglio dell'indizio.": "The clue's target.",
 
   // links to the glossary elsewhere
-  "📖 Glossario degli indizi": "📖 Clue glossary",
   "Glossario degli indizi — Murdoku": "Clue glossary — Murdoku",
-  "Ogni tipo di indizio spiegato con un piccolo esempio.": "Every clue type explained with a small example.",
-  Glossario: "Glossary",
 };

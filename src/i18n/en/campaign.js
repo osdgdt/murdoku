@@ -15,12 +15,9 @@ export default {
   "Nessuna campagna disponibile ancora.": "No campaigns available yet.",
   "1 caso": "1 case",
   "{count} casi": "{count} cases",
-  Gioca: "Play",
-  Completato: "Completed",
   "campagna non trovata.": "campaign not found.",
   "Impossibile caricare la campagna: ": "Could not load the campaign: ",
   "Questa campagna non ha ancora nessun caso.": "This campaign has no cases yet.",
-  "Miglior tempo": "Best time",
   "Da sbloccare": "Locked",
   "Questo caso non fa parte della campagna.": "This case is not part of the campaign.",
   "Questo caso è ancora bloccato: completa i casi precedenti per sbloccarlo.":
@@ -58,16 +55,6 @@ export default {
   "ID caso duplicato: {id}": "Duplicate case ID: {id}",
   "Caso {v}: manca l'URL del file .murdoku.json.": "Case {v}: the .murdoku.json file URL is missing.",
   "Caso {v}: manca l'id del puzzle.": "Case {v}: the puzzle id is missing.",
-  "Primo caso archiviato": "First case closed",
-  "Hai risolto il tuo primo caso.": "You solved your first case.",
-  "Investigatore navigato": "Seasoned investigator",
-  "Hai risolto 10 casi.": "You solved 10 cases.",
-  "Detective leggendario": "Legendary detective",
-  "Hai risolto 50 casi.": "You solved 50 cases.",
-  "Intuito infallibile": "Infallible intuition",
-  "Hai risolto un caso senza usare nessun suggerimento.": "You solved a case without using any hints.",
-  "Lampo di genio": "Flash of genius",
-  "Hai risolto un caso in meno di 2 minuti.": "You solved a case in under 2 minutes.",
   "Sincronizzazione in corso…": "Syncing…",
   "Sincronizzato con il tuo account Google.": "Synced with your Google account.",
   "Sincronizzato con il tuo account Google. {found} da un altro dispositivo: {titles}.":
@@ -96,8 +83,6 @@ export default {
   "Scegli quali indizi di questo caso restano nascosti finché il giocatore non risolve uno dei casi precedenti. La soluzione del caso resta quella completa: la verifica usa sempre tutti gli indizi.":
     "Choose which clues of this case stay hidden until the player solves one of the earlier cases. The case's solution stays the complete one: the check always uses all the clues.",
   "Caso {v}: gli indizi nascosti non sono validi.": "Case {v}: the hidden clues are not valid.",
-  "🔒 Indizio nascosto: risolvi «{caso}» per scoprirlo": "🔒 Hidden clue: solve “{caso}” to discover it",
-  "🔒 Indizio nascosto": "🔒 Hidden clue",
   // story texts and finale
   "Introduzione del caso": "Case introduction",
   "📜 Epilogo": "📜 Epilogue",

@@ -62,6 +62,7 @@ Poi apri `http://localhost:8000` nel browser. Su Windows basta fare doppio clic 
 - `src/storage/` — salvataggio su localStorage, export/import JSON
 - `src/print/` — rendering della vista stampabile
 - `src/i18n/` — traduzioni: `t("testo italiano")` + dizionario inglese in `src/i18n/en/`
+- `src/i18n/areas.js` — il dizionario inglese è diviso per area (`src/i18n/en/*.js`) e **ogni pagina carica solo le sue** (es. il glossario solo nel glossario e nell'editor, il tutorial solo nel tutorial): un visitatore inglese scarica circa la metà del dizionario sulle pagine comuni; chi usa l'italiano non ne carica nessuno. `npm run i18n` e un test controllano, pagina per pagina, che nessuna stringa usata finisca in un'area non caricata (le stringhe condivise stanno in `ui.js`)
 - `examples/` — la libreria di casi inclusi (oggi vuota; `tools/make-library.mjs`, specifiche in `tools/cases/library.mjs`); ogni caso è verificato dal solver. `test/fixtures/` contiene i pochi casi che usano test ed e2e. I seed in `tools/cases/seeds.json` portano un'impronta della specifica e del generatore: se cambi una specifica o le regole del generatore, un seed scade e va rigenerato (un test lo segnala)
 - `sw.js`, `manifest.webmanifest`, `icons/` — PWA (la lista dei file in cache di `sw.js` si rigenera con `npm run build:sw`)
 - `test/` — test senza framework: apri `test/test-runner.html` nel browser, oppure `npm test` da terminale
@@ -139,7 +140,11 @@ npm run lint      # ESLint
 npm run format    # Prettier (solo controllo; `npx prettier --write` per correggere)
 npm run i18n      # elenca le stringhe senza traduzione inglese (--strict per far fallire)
 npm run e2e:all   # test nel browser (Playwright): gioca un caso di prova (`test/fixtures`) in IT/EN, controllo accessibilità (axe) su 5 pagine in tema chiaro e scuro, percorso dell'autore nell'editor, gesti di gioco (nota, pressione lunga, annulla, ripresa dopo il ricaricamento, suggerimenti graduali)
-npm run check:size  # nessun file tracciato oltre 1 MB
+npm run check:size  # nessun file tracciato oltre 1 MB, e un tetto per tipo (JS in src/ 64 KB, CSS 48 KB, HTML 40 KB, immagini 150 KB, riferimenti visivi 500 KB in tutto); stampa i 10 file più grandi
+npm run e2e:visual  # confronta pixel per pixel schermate chiave (plancia 16×16 chiara/scura, wizard degli indizi su desktop e telefono, elenco indizi) con i riferimenti in `test/visual/`; `UPDATE_VISUAL=1` li rigenera (guardali prima di fare commit: dipendono dal Chromium di chi li crea)
+npm run e2e:touch   # il telefono con eventi touch veri (CDP): plancia 16×16 (Muovi, trascinare, nota, pressione lunga) e wizard degli indizi (aprire, scegliere il tipo, bersaglio toccando la plancia, scorrere il foglio, bersagli ≥ 44 px)
+npm run e2e:i18n    # in inglese ogni pagina carica solo le aree del dizionario che le servono e mostra inglese
+npm run i18n        # stringhe senza traduzione inglese + controllo pagina per pagina che nessuna stringa usata stia in un'area che la pagina non carica
 npm run make:library  # rigenera i casi in examples/library/ e l'indice examples/library.json (oggi vuoti; ogni caso è verificato dal solver)
 npm run build:sw  # rigenera la lista di file in cache del service worker
 ```

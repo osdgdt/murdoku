@@ -26,10 +26,13 @@
   <link rel="stylesheet" href="styles/base.css" />
   <link rel="stylesheet" href="styles/landing.css" />
   <link rel="stylesheet" href="styles/skin-paper.css" />
+  <link rel="stylesheet" href="styles/contrast.css" />
   <script>
     try {
       var t = localStorage.getItem("murdoku:theme");
-      if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
+      var more = window.matchMedia && (matchMedia("(prefers-contrast: more)").matches || matchMedia("(forced-colors: active)").matches);
+      if (t === "contrast" || (t !== "light" && t !== "dark" && more)) document.documentElement.setAttribute("data-theme", "contrast");
+      else if (t === "dark" || (t !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark");
     } catch (e) {}
   </script>
 </head>
@@ -52,6 +55,7 @@
     <h2>Se accedi con Google</h2>
     <p>L'accesso serve solo per le campagne e per sincronizzare i traguardi tra dispositivi. Usa Firebase (Google): vengono trattati l'identificativo e l'indirizzo email dell'account Google e, nel database Firestore, i tuoi progressi nelle campagne e i tuoi traguardi. Solo tu puoi leggere e modificare questi dati. Senza accesso, nulla di tutto questo esiste.</p>
     <p>Per i casi delle campagne il sito raccoglie anche statistiche aggregate, per mostrare a chi sta per iniziare un caso quanto è lungo e difficile: quando apri un caso per la prima volta e quando lo risolvi per la prima volta, il tuo tempo di gioco, i suggerimenti usati e le verifiche sbagliate vengono sommati ai totali di quel caso. Nel totale (pubblico per chi ha effettuato l'accesso) non c'è nessun nome né identificativo; resta solo, nella tua area riservata, un contrassegno che impedisce di contare due volte lo stesso caso, e che puoi cancellare coi pulsanti qui sotto. Le statistiche dei casi fuori dalle campagne restano solo sul tuo dispositivo.</p>
+    <p>Per la Sfida del giorno scegli un nickname, che è l'unico nome mostrato agli altri giocatori (mai la tua email): il nickname, il tuo tempo, le verifiche sbagliate e il caso giocato finiscono in una classifica del giorno, leggibile da chi ha effettuato l'accesso. I tempi sono dichiarati dal tuo browser: nessun server li controlla, quindi la classifica è per gioco e non è una prova. Nickname e partite si cancellano coi pulsanti qui sotto.
 
     <h2>Servizi di terze parti</h2>
     <p>I caratteri tipografici sono ospitati dal sito stesso: nessuna richiesta a Google Fonts. Il sito è ospitato su GitHub Pages, che può registrare gli indirizzi IP dei visitatori nei propri log. L'accesso con Google e Firebase si caricano dai server di Google solo nelle pagine che li usano.</p>

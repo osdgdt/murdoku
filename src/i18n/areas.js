@@ -29,7 +29,7 @@ const EXTRA = {
 };
 // pages that are known to need nothing else; any other name (a renamed page, a host that serves the home at "/")
 // gets every area, which is always correct
-const PLAIN_PAGES = new Set(["", "index.html", "player.html", "print.html", "achievements.html"]);
+const PLAIN_PAGES = new Set(["", "index.html", "player.html", "print.html", "achievements.html", "daily.html"]);
 
 // The areas of the page at `pathname` (e.g. "/murdoku/glossary.html").
 export function areasForPage(pathname) {

@@ -1,6 +1,7 @@
 import { makeId } from "../util/id.js";
 import { createGrid, isOccupiable } from "./grid.js";
 import { isObjectTypeTarget } from "./icons.js";
+import { dropUnknownFromLists } from "./clueRefs.js";
 import { isSafeId, isSafeColor } from "../util/safe.js";
 
 import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
@@ -174,13 +175,13 @@ export function setVictim(puzzle, characterId) {
 
 export function removeCharacter(puzzle, characterId) {
   puzzle.characters = puzzle.characters.filter((c) => c.id !== characterId);
-  puzzle.clues = puzzle.clues.filter(
-    (cl) =>
-      cl.characterId !== characterId &&
-      cl.params?.targetId !== characterId &&
-      cl.params?.targetAId !== characterId &&
-      cl.params?.targetBId !== characterId
-  );
+  // The clues OF this character go, and those that point at them (a target, in a list of targets, or in a
+  // nested "either/or" / "who also…" clue); the others only lose them from their lists where one remains.
+  puzzle.clues = puzzle.clues.filter((cl) => {
+    if (cl.characterId === characterId) return false;
+    cl.params = cl.params || {};
+    return !dropUnknownFromLists(cl.params, (id) => id !== characterId);
+  });
   puzzle.solution.placements = puzzle.solution.placements.filter((p) => p.characterId !== characterId);
   // Un passo di suggerimento manuale che evidenziava questo personaggio perde
   // solo l'evidenziazione (characterId/row/col), non l'intero passo: il testo
@@ -484,16 +485,18 @@ export function pruneDanglingClueReferences(puzzle) {
   const objectIds = new Set(puzzle.grid.objects.map((o) => o.id));
 
   function isKnownReference(id) {
-    // not chosen yet: an incomplete clue (flagged in the editor), not a dangling one
-    if (id === undefined || id === null || id === "") return true;
     if (isObjectTypeTarget(id)) return true;
     return characterIds.has(id) || zoneIds.has(id) || objectIds.has(id);
   }
 
+  // A parameter that was never chosen ("") is an incomplete clue (flagged in the editor), not a
+  // dangling one, so only ids that are SET are checked. The walk goes into nested clues and into
+  // lists of targets (a list just loses the ids that are gone; a clue whose list ends up empty, or
+  // that still names something unknown, is dropped).
   const before = puzzle.clues.length;
   puzzle.clues = puzzle.clues.filter((clue) => {
-    const p = clue.params || {};
-    return isKnownReference(p.targetId) && isKnownReference(p.targetAId) && isKnownReference(p.targetBId) && isKnownReference(p.zoneId);
+    clue.params = clue.params || {};
+    return !dropUnknownFromLists(clue.params, (id) => id === undefined || id === null || id === "" || isKnownReference(id));
   });
   if (puzzle.clues.length !== before) touch(puzzle);
   return puzzle;

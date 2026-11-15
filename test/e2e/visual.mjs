@@ -1,5 +1,5 @@
 // `npm run e2e:visual`: screenshots of a few key screens compared, pixel by pixel, with reference images in
-// test/visual/ — a big 16×16 board (light and dark), the clue wizard on a desktop and on a phone, the clue list.
+// test/visual/ — a big 16×16 board (light, dark and high contrast), the clue wizard on a desktop and on a phone, the clue list.
 // It catches what no other test sees: a style change that squeezes, overlaps or recolours a screen.
 //
 // The references were made with the Chromium of the test machine (fonts and anti-aliasing differ between browsers
@@ -125,8 +125,8 @@ async function newPage(viewport, theme = "light") {
 const still = { animations: "disabled", caret: "hide" };
 
 try {
-  // ---- a 16×16 board (light, dark): the top-left corner, labels and room names included
-  for (const theme of ["light", "dark"]) {
+  // ---- a 16×16 board (light, dark, high contrast): the top-left corner, labels and room names included
+  for (const theme of ["light", "dark", "contrast"]) {
     const { context, page } = await newPage({ width: 1280, height: 900 }, theme);
     await page.goto(`${base}/player.html?import=/__big.murdoku.json`);
     await page.waitForSelector("#board [role=gridcell]");

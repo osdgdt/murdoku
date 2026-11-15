@@ -44,6 +44,7 @@ const PAGES = {
   "tutorial.html": [[...COMMON, "tutorial"], ["Come si gioca"]],
   "privacy.html": [[...COMMON, "privacy"], ["Cancella i dati di questo dispositivo"]],
   "campaign.html": [[...COMMON, "campaign"], ["Accedi con Google"]],
+  "daily.html": [COMMON, ["Nessuna sfida oggi"]],
   "editor.html": [
     [...COMMON, "glossary"],
     ["Nuovo puzzle", "Valida soluzione"],

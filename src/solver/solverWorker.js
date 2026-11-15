@@ -8,7 +8,7 @@
 // imported modules touch document/window).
 //
 // Protocol:
-//   request  -> { id: number, type: "computeHintChain"|"deriveSolution"|"checkUniqueness", payload }
+//   request  -> { id: number, type: "computeHintChain"|"deriveSolution"|"checkUniqueness"|"analyze"|"compose", payload }
 //   response -> { id: number, ok: true, result } | { id: number, ok: false, error: string }
 // `error` is always a plain string (not an Error instance) — reconstructed
 // as a real Error on the client side instead, avoiding any doubt about
@@ -20,15 +20,19 @@
 // real modules are loaded lazily — requests simply wait on `ready`.
 let handlers = null;
 const ready = (async () => {
-  const [{ computeHintChain }, { deriveSolution }, { checkUniqueness }] = await Promise.all([
+  const [{ computeHintChain }, { deriveSolution }, { checkUniqueness }, { analyzePuzzle }, { proposeClueSet }] = await Promise.all([
     import("./hints.js"),
     import("./deriveSolution.js"),
     import("./validator.js"),
+    import("./analysis.js"),
+    import("./composer.js"),
   ]);
   handlers = {
     computeHintChain: (payload) => computeHintChain(payload.puzzle, payload.currentPlacements, payload.candidates),
     deriveSolution: (payload) => deriveSolution(payload.puzzle, payload.options || {}),
     checkUniqueness: (payload) => checkUniqueness(payload.puzzle, payload.options || {}),
+    analyze: (payload) => analyzePuzzle(payload.puzzle, payload.options || {}),
+    compose: (payload) => proposeClueSet(payload.puzzle, payload.options || {}),
   };
 })();
 

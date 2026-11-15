@@ -20,12 +20,16 @@
     "e2e:gameplay": "node test/e2e/gameplay.mjs",
     "e2e:update": "node test/e2e/update.mjs",
     "e2e:clues": "node test/e2e/clues.mjs",
+    "e2e:a11y-keyboard": "node test/e2e/a11y-keyboard.mjs",
+    "e2e:daily": "node test/e2e/daily.mjs",
     "e2e:i18n": "node test/e2e/i18n-pages.mjs",
     "e2e:touch": "node test/e2e/touch.mjs",
     "e2e:visual": "node test/e2e/visual.mjs",
     "e2e:floors": "node test/e2e/floors.mjs",
     "e2e:bigboard": "node test/e2e/bigboard.mjs",
-    "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor && npm run e2e:gameplay && npm run e2e:clues && npm run e2e:i18n && npm run e2e:touch && npm run e2e:visual && npm run e2e:floors && npm run e2e:bigboard && npm run e2e:update",
+    "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor && npm run e2e:gameplay && npm run e2e:clues && npm run e2e:a11y-keyboard && npm run e2e:daily && npm run e2e:i18n && npm run e2e:touch && npm run e2e:visual && npm run e2e:floors && npm run e2e:bigboard && npm run e2e:update",
+    "test:rules": "node test/rules/run.mjs",
+    "bench": "node test/bench/solver-bench.mjs",
     "make:library": "node tools/make-library.mjs"
   },
   "engines": {

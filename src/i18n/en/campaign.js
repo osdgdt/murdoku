@@ -5,12 +5,9 @@ export default {
   "Sbloccato il {dateLabel}": "Unlocked on {dateLabel}",
   "Non ancora sbloccato": "Not unlocked yet",
   "Impossibile salvare il progresso della campagna:": "Could not save campaign progress:",
-  Esci: "Sign out",
   "Modalità campagna": "Campaign mode",
   "Accedi con Google per giocare le campagne a episodi e ritrovare i tuoi progressi su qualunque dispositivo.":
     "Sign in with Google to play episodic campaigns and keep your progress on any device.",
-  "Accedi con Google": "Sign in with Google",
-  "Caricamento…": "Loading…",
   "Impossibile caricare le campagne: ": "Could not load campaigns: ",
   "Nessuna campagna disponibile ancora.": "No campaigns available yet.",
   "1 caso": "1 case",

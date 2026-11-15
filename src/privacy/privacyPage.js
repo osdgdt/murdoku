@@ -42,7 +42,7 @@ qs("#clear-cloud-btn").addEventListener("click", async () => {
     if (
       !confirm(
         t(
-          "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati e i contrassegni delle statistiche dell'account {email}?",
+          "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati, i contrassegni delle statistiche e il nickname con le partite della sfida del giorno dell'account {email}?",
           { email: current.email }
         )
       )

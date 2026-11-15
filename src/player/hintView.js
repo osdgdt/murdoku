@@ -104,9 +104,9 @@ export function renderHintStep(puzzle, chain, index, { onPrev, onNext, level = H
   if (chain.length > 1) {
     nodes.push(
       el("div", { class: "hint-nav" }, [
-        el("button", { onClick: onPrev, disabled: index === 0 || undefined }, "‹"),
+        el("button", { onClick: onPrev, disabled: index === 0 || undefined, "aria-label": t("Passo precedente") }, "‹"),
         el("span", {}, t("Passo {v} di {length}", { v: index + 1, length: chain.length })),
-        el("button", { onClick: onNext, disabled: index === chain.length - 1 || undefined }, "›"),
+        el("button", { onClick: onNext, disabled: index === chain.length - 1 || undefined, "aria-label": t("Passo successivo") }, "›"),
       ])
     );
   }

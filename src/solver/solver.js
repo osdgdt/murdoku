@@ -1,4 +1,5 @@
 import { buildPredicates } from "./predicates/index.js";
+import { dependenciesOf } from "./predicates/dependencies.js";
 import { isOccupiable } from "../model/grid.js";
 import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FORWARD_CHECK_MAX_SUBSET_OPS } from "./propagation.js";
 
@@ -53,6 +54,11 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // Both are pure pruning: the SET of solutions found never changes (test-solver-differential.js
 // checks it against a plain reference search); only how fast, and in what order, they come.
 //
+// Incremental checking (`incremental`, default true): after a placement, only the clues whose
+// verdict can depend on THAT character (predicates/dependencies.js) are re-evaluated, plus the
+// ones that watch everybody; with `incremental: false` every clue is checked every time (the
+// differential test runs both and compares).
+//
 // `deadline` (a performance.now() time in ms) and `shouldStop()` are wall-clock/cooperative
 // limits, polled every few hundred nodes: when either fires the search stops like a node cap
 // and `stats.timedOut` says so. Without them a pathological case can run for minutes.
@@ -67,6 +73,7 @@ export function solvePuzzle(
     domains = null,
     deadline = null,
     shouldStop = null,
+    incremental = true,
   } = {}
 ) {
   const characters = puzzle.characters;
@@ -156,11 +163,36 @@ export function solvePuzzle(
     return false;
   }
 
+  // Which clues to re-check after placing a given character: those that depend on it and those
+  // that watch everybody. (A clue with a fixed set of dependencies cannot change otherwise: its
+  // verdict was already not "violated" when the branch got here.)
+  const alwaysChecked = [];
+  const checkedAfter = new Map(); // characterId -> predicates
+  const entryDependencies = predicates.map((entry) => dependenciesOf(entry.clue, puzzle));
+  for (const [index, entry] of predicates.entries()) {
+    const deps = entryDependencies[index];
+    if (deps.all) {
+      alwaysChecked.push(entry.predicate);
+      continue;
+    }
+    for (const id of deps.ids) {
+      if (!checkedAfter.has(id)) checkedAfter.set(id, []);
+      checkedAfter.get(id).push(entry.predicate);
+    }
+  }
+  function violatesAfterPlacing(characterId) {
+    const complete = placementMap.size === order.length;
+    for (const predicate of alwaysChecked) if (predicate(placementMap, complete) === false) return true;
+    const own = checkedAfter.get(characterId);
+    if (own) for (const predicate of own) if (predicate(placementMap, complete) === false) return true;
+    return false;
+  }
+
   function tryPlace(character, r, c) {
     placementMap.set(character.id, { row: r, col: c });
     usedRows.add(r);
     usedCols.add(c);
-    if (!violatesAny()) {
+    if (!(incremental ? violatesAfterPlacing(character.id) : violatesAny())) {
       // Forward-check: does everyone still unplaced after this placement
       // still have at least one viable candidate cell? A CAPPED propagate()
       // result is treated exactly like "found nothing" — it must never be
@@ -172,6 +204,8 @@ export function solvePuzzle(
         placementMap.size >= order.length ||
         !propagate(puzzle, placementMap, {
           predicates,
+          dependencies: incremental ? entryDependencies : null,
+          incremental,
           maxRounds: FORWARD_CHECK_MAX_ROUNDS,
           maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
           maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,

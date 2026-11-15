@@ -131,7 +131,82 @@ async function run(label, viewport) {
   await context.close();
 }
 
+// Taking clues from one case to another: export from the lighthouse case, import into the tutorial case,
+// linking people by hand (the names differ).
+async function clueSets() {
+  const context = await browser.newContext({
+    locale: "it-IT",
+    viewport: { width: 1280, height: 900 },
+    serviceWorkers: "block",
+    acceptDownloads: true,
+  });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  const open = async (fixture) => {
+    await page.goto(`${base}/player.html?import=test/fixtures/${fixture}`);
+    await page.waitForSelector("#board [role=gridcell]");
+    const id = new URL(page.url()).searchParams.get("id");
+    await page.goto(`${base}/editor.html?id=${id}`);
+    await page.waitForSelector("#clue-panel .clue-owner");
+  };
+  await open("faro.en.murdoku.json");
+  const total = await page.locator("#clue-panel .clue-row").count();
+  await page.click('[data-key="export-clues"]');
+  await page.waitForSelector("dialog.clueset-dialog[open]");
+  check("clue sets: the export window lists every clue", (await page.locator("dialog .clueset-list input").count()) === total);
+  await page.locator("dialog .clueset-list input").last().uncheck();
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click('[data-key="export-go"]')]);
+  const file = `${process.env.TMPDIR || "/tmp"}/clues-e2e.murdoku-clues.json`;
+  await download.saveAs(file);
+  const exported = JSON.parse(await readFile(file, "utf8"));
+  check(
+    "clue sets: the file holds names, not ids",
+    exported.format === "murdoku-clues" && exported.clues.length === total - 1 && exported.characters.some((c) => c.name === "Arthur")
+  );
+  check("clue sets: the window closes", (await page.locator("dialog[open]").count()) === 0);
+
+  await open("tutorial.en.murdoku.json");
+  const before = await page.locator("#clue-panel .clue-row").count();
+  await page.click('[data-key="import-clues"]');
+  await page.waitForSelector("dialog.clueset-dialog[open]");
+  await page.setInputFiles('[data-key="import-file"]', file);
+  await page.waitForSelector("dialog .clueset-mapping select");
+  const summary = () => page.innerText("dialog .clueset-summary");
+  check(
+    "clue sets: nothing is linked by itself (the names differ), so nothing would be added",
+    /0 indizi su/.test(await summary()),
+    await summary()
+  );
+  const selects = page.locator("dialog .clueset-mapping select");
+  const tutorialPeople = ["Alice", "Ben", "Clara", "Victor"];
+  for (let i = 0; i < Math.min(await selects.count(), 4); i++) {
+    const options = await selects.nth(i).locator("option").allInnerTexts();
+    if (options.includes(tutorialPeople[i])) await selects.nth(i).selectOption({ label: tutorialPeople[i] });
+  }
+  await page.waitForFunction(() => !/ 0 indizi su/.test(document.querySelector("dialog .clueset-summary")?.innerText || ""));
+  check(
+    "clue sets: after linking people the summary counts what will be added",
+    /Verranno aggiunti \d+ indizi/.test(await summary()),
+    await summary()
+  );
+  await page.click('[data-key="import-go"]');
+  await page.waitForFunction(() => document.querySelectorAll("dialog[open]").length === 0);
+  const after = await page.locator("#clue-panel .clue-row").count();
+  check("clue sets: the imported clues are in the list", after > before, `${before} -> ${after}`);
+  check(
+    "clue sets: the editor says how many came in",
+    /Importati \d+ indizi/.test(await page.innerText("#status")),
+    await page.innerText("#status")
+  );
+  await page.click("#editor-undo-btn");
+  check("clue sets: the whole import is one undo step", (await page.locator("#clue-panel .clue-row").count()) === before);
+  check("clue sets: no page errors", errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
 try {
+  await clueSets();
   await run("1280", { width: 1280, height: 900 });
   await run("390", { width: 390, height: 844 });
 } finally {

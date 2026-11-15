@@ -741,13 +741,14 @@
 /* ---- Clue list (under the board) ---------------------------------------------------- */
 .clue-panel { margin-bottom: 1rem; }
 #right-panel-top { margin-bottom: 1rem; }
-.clue-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.clue-panel-header { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.clue-panel-header h3 { flex: 1 1 auto; }
 .clue-panel-header h3 { margin: 0; padding: 0; border: none; }
 .clue-owner { margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px dashed var(--border-soft); }
 .clue-owner-header { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
 .clue-owner-header strong { flex: 1 1 8em; min-width: 0; }
 .clue-incomplete-count { color: var(--danger); font-size: 0.8rem; font-weight: 600; }
-.clue-new-btn, .clue-suggest-btn { min-height: 44px; padding: 0.3em 0.9em; }
+.clue-new-btn, .clue-suggest-btn, .clue-set-btn { min-height: 44px; padding: 0.3em 0.9em; }
 .clue-new-btn { background: var(--accent-soft); border: 1px dashed var(--accent); }
 .clue-rows { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
 .clue-row {
@@ -837,3 +838,15 @@
   .clue-wizard.picking { height: auto; max-height: 45vh; }
   body.clue-wizard-open main { padding-bottom: 50vh; }
 }
+
+/* ---- Export / import of clue sets ------------------------------------------------------ */
+.clueset-dialog { width: min(560px, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); overflow: auto; background: var(--panel); color: var(--ink); border: 2px solid var(--ink); border-radius: var(--radius); padding: 1rem 1.2rem; }
+.clueset-dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+.clueset-dialog h2 { margin: 0 0 0.6rem; font-size: 1.1rem; }
+.clueset-list { list-style: none; margin: 0.5rem 0; padding: 0; max-height: 40vh; overflow: auto; display: flex; flex-direction: column; gap: 0.3rem; }
+.clueset-list label { display: flex; gap: 0.4rem; align-items: flex-start; min-height: 44px; align-items: center; }
+.clueset-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 0.8rem; }
+.clueset-actions button, .clueset-dialog .field-row button { min-height: 44px; }
+.clueset-mapping { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.6rem 0; }
+.clueset-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem; align-items: center; }
+.clueset-row select { min-height: 44px; max-width: 100%; }

@@ -52,13 +52,15 @@
     import { tests as loginHelpTests } from "./test-login-help.js";
     import { tests as solverDifferentialTests } from "./test-solver-differential.js";
     import { tests as solverLimitsTests } from "./test-solver-limits.js";
+    import { tests as dependenciesTests } from "./test-dependencies.js";
+    import { tests as solverBenchTests } from "./test-solver-bench.js";
     import { tests as clueDraftTests } from "./test-clue-draft.js";
     import { tests as statsTests } from "./test-stats.js";
     import { tests as announcementsTests } from "./test-announcements.js";
     import { tests as contrastTests } from "./test-contrast.js";
     import { tests as themeHeadsTests } from "./test-theme-heads.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...texturesTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...glossaryTests, ...tenseTests, ...tutorialTests, ...medievalTests, ...loginHelpTests, ...clueDraftTests, ...statsTests, ...announcementsTests, ...contrastTests, ...themeHeadsTests, ...solverDifferentialTests, ...solverLimitsTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...texturesTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...glossaryTests, ...tenseTests, ...tutorialTests, ...medievalTests, ...loginHelpTests, ...clueDraftTests, ...statsTests, ...announcementsTests, ...contrastTests, ...themeHeadsTests, ...solverDifferentialTests, ...solverLimitsTests, ...dependenciesTests, ...solverBenchTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

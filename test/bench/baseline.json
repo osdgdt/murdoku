@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "nodeCap": 20000,
+  "cases": [
+    {
+      "n": 10,
+      "seed": 1,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 13,
+      "ms": 41
+    },
+    {
+      "n": 10,
+      "seed": 3,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 190,
+      "ms": 99
+    },
+    {
+      "n": 10,
+      "seed": 4,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 3382,
+      "ms": 405
+    },
+    {
+      "n": 10,
+      "seed": 5,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 508,
+      "ms": 61
+    },
+    {
+      "n": 10,
+      "seed": 6,
+      "solutions": 0,
+      "capped": true,
+      "nodes": 20000,
+      "ms": 3960
+    },
+    {
+      "n": 12,
+      "seed": 1,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 7318,
+      "ms": 1732
+    },
+    {
+      "n": 12,
+      "seed": 2,
+      "solutions": 0,
+      "capped": true,
+      "nodes": 20000,
+      "ms": 9363
+    },
+    {
+      "n": 12,
+      "seed": 3,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 58,
+      "ms": 115
+    },
+    {
+      "n": 12,
+      "seed": 4,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 24,
+      "ms": 63
+    },
+    {
+      "n": 12,
+      "seed": 5,
+      "solutions": 0,
+      "capped": true,
+      "nodes": 20000,
+      "ms": 1640
+    },
+    {
+      "n": 14,
+      "seed": 1,
+      "solutions": 0,
+      "capped": true,
+      "nodes": 20000,
+      "ms": 4773
+    },
+    {
+      "n": 14,
+      "seed": 2,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 14461,
+      "ms": 2171
+    },
+    {
+      "n": 14,
+      "seed": 3,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 1762,
+      "ms": 331
+    },
+    {
+      "n": 14,
+      "seed": 4,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 7429,
+      "ms": 861
+    },
+    {
+      "n": 16,
+      "seed": 1,
+      "solutions": 0,
+      "capped": true,
+      "nodes": 20000,
+      "ms": 3117
+    },
+    {
+      "n": 16,
+      "seed": 2,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 51,
+      "ms": 692
+    },
+    {
+      "n": 16,
+      "seed": 3,
+      "solutions": 0,
+      "capped": true,
+      "nodes": 20000,
+      "ms": 6816
+    },
+    {
+      "n": 16,
+      "seed": 4,
+      "solutions": 2,
+      "capped": false,
+      "nodes": 14379,
+      "ms": 5104
+    }
+  ]
+}

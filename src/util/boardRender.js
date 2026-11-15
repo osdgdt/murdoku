@@ -44,6 +44,156 @@ function trackDensity(container) {
   applyDensity(container);
 }
 
+// Keyboard navigation (roving tabindex): the board is ONE tab stop, whatever its size. Tab lands on the
+// cell that was last current, the arrow keys move between cells (skipping blocked ones, and going on up
+// into the row/column labels when they can be tapped), Home/End jump along the row, PageUp/PageDown
+// along the column, Ctrl+Home/End to the first/last cell. The board is rebuilt on every change, so the
+// current position is remembered per container and focus is put back after a rebuild.
+const navConfig = new WeakMap(); // container -> { grid, hasLabelNav, activateCell, activateCellHold, roving }
+
+const cellNodeAt = (container, r, c) => container.querySelector(`.board-cell[data-row="${r}"][data-col="${c}"]`);
+const labelNodeAt = (container, kind, index) => container.querySelector(`.board-label-${kind}[data-nav-index="${index}"]`);
+
+// The grid position of a focusable node: cells are (row, col), a column label (-1, col), a row label (row, -1).
+function navPositionOf(node) {
+  if (!node || !node.dataset) return null;
+  if (node.dataset.row !== undefined) return { r: Number(node.dataset.row), c: Number(node.dataset.col) };
+  if (node.dataset.navKind === "col") return { r: -1, c: Number(node.dataset.navIndex) };
+  if (node.dataset.navKind === "row") return { r: Number(node.dataset.navIndex), c: -1 };
+  return null;
+}
+
+function navNodeAt(container, r, c) {
+  const cfg = navConfig.get(container);
+  if (!cfg) return null;
+  const { rows, cols } = cfg.grid.size;
+  if (r >= 0 && c >= 0) {
+    if (r >= rows || c >= cols) return null;
+    const node = cellNodeAt(container, r, c);
+    return node && !node.classList.contains("blocked") ? node : null;
+  }
+  if (!cfg.hasLabelNav) return null;
+  if (r === -1 && c >= 0 && c < cols) return labelNodeAt(container, "col", c);
+  if (c === -1 && r >= 0 && r < rows) return labelNodeAt(container, "row", r);
+  return null;
+}
+
+function setRoving(container, node) {
+  const cfg = navConfig.get(container);
+  if (!cfg || !node) return;
+  if (cfg.roving && cfg.roving !== node && cfg.roving.isConnected) cfg.roving.tabIndex = -1;
+  node.tabIndex = 0;
+  cfg.roving = node;
+}
+
+function focusNav(container, r, c) {
+  const node = navNodeAt(container, r, c);
+  if (!node) return false;
+  setRoving(container, node);
+  node.focus();
+  return true;
+}
+
+// The next focusable position from (r, c) going in direction (dr, dc), or null.
+function stepFrom(container, r, c, dr, dc) {
+  const cfg = navConfig.get(container);
+  const { rows, cols } = cfg.grid.size;
+  const min = cfg.hasLabelNav ? -1 : 0;
+  let nr = r + dr;
+  let nc = c + dc;
+  while (nr >= min && nc >= min && nr < rows && nc < cols) {
+    if (navNodeAt(container, nr, nc)) return { r: nr, c: nc };
+    nr += dr;
+    nc += dc;
+  }
+  return null;
+}
+
+// First/last focusable cell of a line (not its label), from the start or the end.
+function endOfLine(container, r, c, horizontal, last) {
+  const { rows, cols } = navConfig.get(container).grid.size;
+  const length = horizontal ? cols : rows;
+  for (let i = 0; i < length; i++) {
+    const k = last ? length - 1 - i : i;
+    const pr = horizontal ? r : k;
+    const pc = horizontal ? k : c;
+    if (pr >= 0 && pc >= 0 && navNodeAt(container, pr, pc)) return { r: pr, c: pc };
+  }
+  return null;
+}
+
+function handleNavKey(container, e) {
+  const cfg = navConfig.get(container);
+  const here = navPositionOf(e.target);
+  if (!cfg || !here) return;
+  let next = null;
+  switch (e.key) {
+    case "ArrowUp":
+      next = stepFrom(container, here.r, here.c, -1, 0);
+      break;
+    case "ArrowDown":
+      next = stepFrom(container, here.r, here.c, 1, 0);
+      break;
+    case "ArrowLeft":
+      next = stepFrom(container, here.r, here.c, 0, -1);
+      break;
+    case "ArrowRight":
+      next = stepFrom(container, here.r, here.c, 0, 1);
+      break;
+    case "Home":
+      if (e.ctrlKey || e.metaKey) {
+        const { rows } = cfg.grid.size;
+        for (let r = 0; r < rows && !next; r++) next = endOfLine(container, r, 0, true, false);
+      } else next = endOfLine(container, Math.max(here.r, 0), here.c, true, false);
+      break;
+    case "End":
+      if (e.ctrlKey || e.metaKey) {
+        const { rows } = cfg.grid.size;
+        for (let r = rows - 1; r >= 0 && !next; r--) next = endOfLine(container, r, 0, true, true);
+      } else next = endOfLine(container, Math.max(here.r, 0), here.c, true, true);
+      break;
+    case "PageUp":
+      next = endOfLine(container, 0, Math.max(here.c, 0), false, false);
+      break;
+    case "PageDown":
+      next = endOfLine(container, 0, Math.max(here.c, 0), false, true);
+      break;
+    default:
+      return;
+  }
+  e.preventDefault();
+  if (next) focusNav(container, next.r, next.c);
+}
+
+function wireNavigation(container) {
+  if (container.dataset.navWired) return;
+  container.dataset.navWired = "1";
+  container.addEventListener("keydown", (e) => {
+    const cfg = navConfig.get(container);
+    if (!cfg || e.altKey) return;
+    if (e.target.classList?.contains("board-cell")) {
+      const r = Number(e.target.dataset.row);
+      const c = Number(e.target.dataset.col);
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (e.shiftKey) cfg.activateCellHold(r, c);
+        else cfg.activateCell(r, c);
+        return;
+      }
+      if (e.key === " ") {
+        e.preventDefault();
+        cfg.activateCell(r, c);
+        return;
+      }
+    }
+    handleNavKey(container, e);
+  });
+  // A cell or label that gets focus any other way (a click, a screen reader's own cursor) becomes the current one.
+  container.addEventListener("focusin", (e) => {
+    if (navPositionOf(e.target)) setRoving(container, e.target);
+  });
+}
+
 export function renderBoard(
   container,
   grid,
@@ -60,6 +210,12 @@ export function renderBoard(
     showLabels = true,
   } = {}
 ) {
+  // The board is rebuilt from scratch on every change: remember where the keyboard focus (and the
+  // current cell) was, to put it back afterwards.
+  const previousNav = navConfig.get(container);
+  const hadFocus = typeof document !== "undefined" && container.contains(document.activeElement);
+  const focusedAt = hadFocus ? navPositionOf(document.activeElement) : null;
+  const rememberedAt = previousNav?.roving?.isConnected ? navPositionOf(previousNav.roving) : null;
   clear(container);
   container.classList.add("board-grid");
   container.setAttribute("role", "grid");
@@ -80,16 +236,8 @@ export function renderBoard(
   function activateCellHold(r, c) {
     if (onCellHold) onCellHold(r, c);
   }
-
-  // Arrow-key navigation between cells. Silently does nothing when the
-  // target is out of bounds, blocked (not focusable, see below), or absent
-  // for any other reason — a rough edge accepted for this first pass rather
-  // than adding logic to skip over blocked cells to the next usable one.
-  function focusCell(r, c) {
-    if (r < 0 || r >= grid.size.rows || c < 0 || c >= grid.size.cols) return;
-    const node = container.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-    if (node && node.tabIndex >= 0) node.focus();
-  }
+  navConfig.set(container, { grid, hasLabelNav: !!(showLabels && onLabelTap), activateCell, activateCellHold, roving: null });
+  wireNavigation(container);
 
   // The label gutters size themselves ("auto"): a row/column label can grow
   // to hold the notes drawn on it (see decorateLabel).
@@ -207,9 +355,11 @@ export function renderBoard(
     const node = el("div", { class: `board-label board-label-${kind}`, role: kind === "col" ? "columnheader" : "rowheader" }, [
       el("span", { class: "label-text" }, text),
     ]);
+    node.dataset.navKind = kind;
+    node.dataset.navIndex = String(index);
     if (onLabelTap) {
       node.classList.add("board-label-tappable");
-      node.tabIndex = 0;
+      node.tabIndex = -1; // reached with the arrow keys from the cells (see handleNavKey)
       node.setAttribute(
         "aria-label",
         kind === "col" ? t("Note sulla colonna {n}", { n: index + 1 }) : t("Note sulla riga {n}", { n: index + 1 })
@@ -287,7 +437,7 @@ export function renderBoard(
         // are deliberately left out of the tab order — a "wall" cell has
         // nothing useful to land keyboard focus on, and skipping it here is
         // simpler than adding tab-order logic that jumps over it.
-        tabindex: cellData.blocked ? undefined : "0",
+        tabindex: cellData.blocked ? undefined : "-1",
         onClick: (e) => onCellClick && onCellClick(r, c, e),
         onContextmenu: (e) => {
           // A long press on a phone raises "contextmenu" too: it must not erase the cell
@@ -303,37 +453,6 @@ export function renderBoard(
           e.preventDefault();
           startPress(r, c, cellNode, pressHooks);
         },
-        onKeydown: cellData.blocked
-          ? undefined
-          : (e) => {
-              switch (e.key) {
-                case "ArrowUp":
-                  e.preventDefault();
-                  focusCell(r - 1, c);
-                  break;
-                case "ArrowDown":
-                  e.preventDefault();
-                  focusCell(r + 1, c);
-                  break;
-                case "ArrowLeft":
-                  e.preventDefault();
-                  focusCell(r, c - 1);
-                  break;
-                case "ArrowRight":
-                  e.preventDefault();
-                  focusCell(r, c + 1);
-                  break;
-                case "Enter":
-                  e.preventDefault();
-                  if (e.shiftKey) activateCellHold(r, c);
-                  else activateCell(r, c);
-                  break;
-                case " ":
-                  e.preventDefault();
-                  activateCell(r, c);
-                  break;
-              }
-            },
         onMouseenter: () => enterCell(r, c),
       });
 
@@ -444,4 +563,18 @@ export function renderBoard(
   if (floorRules.length > 0) container.appendChild(el("style", {}, floorRules.join("\n")));
   container.toggleAttribute("data-big", grid.size.cols > 12);
   trackDensity(container);
+
+  // The one tab stop: where the keyboard focus was, else the current cell, else the first free cell.
+  const wanted = focusedAt ?? rememberedAt;
+  let landing = wanted ? navNodeAt(container, wanted.r, wanted.c) : null;
+  if (!landing) {
+    for (let r = 0; r < grid.size.rows && !landing; r++) {
+      const first = endOfLine(container, r, 0, true, false);
+      if (first) landing = navNodeAt(container, first.r, first.c);
+    }
+  }
+  if (landing) {
+    setRoving(container, landing);
+    if (hadFocus) landing.focus({ preventScroll: true });
+  }
 }

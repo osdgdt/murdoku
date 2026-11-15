@@ -1,5 +1,5 @@
 // Character / X / eraser chips above the board.
-import { el, clear, onActivateKey } from "../util/dom.js";
+import { el, clear, onActivateKey, keepFocus } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
 import { characterKey } from "./characterKeys.js";
@@ -7,7 +7,34 @@ import { t } from "../i18n/i18n.js";
 
 // `handlers`: { selectTool(tool), showCharacterHover(id), clearHover() }.
 export function renderToolbar(toolbarEl, puzzle, state, handlers) {
+  keepFocus(toolbarEl, ".char-chip", () => buildToolbar(toolbarEl, puzzle, state, handlers));
+}
+
+// The toolbar pattern: one tab stop (the selected tool, or the first), Left/Right/Home/End move between the chips.
+function wireToolbarKeys(toolbarEl) {
+  if (toolbarEl.dataset.keysWired) return;
+  toolbarEl.dataset.keysWired = "1";
+  toolbarEl.setAttribute("role", "toolbar");
+  toolbarEl.setAttribute("aria-label", t("Personaggi e strumenti"));
+  toolbarEl.addEventListener("keydown", (e) => {
+    const chips = [...toolbarEl.querySelectorAll(".char-chip")];
+    const at = chips.indexOf(document.activeElement);
+    if (at < 0) return;
+    let next = at;
+    if (e.key === "ArrowRight") next = (at + 1) % chips.length;
+    else if (e.key === "ArrowLeft") next = (at - 1 + chips.length) % chips.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = chips.length - 1;
+    else return;
+    e.preventDefault();
+    chips.forEach((c, i) => (c.tabIndex = i === next ? 0 : -1));
+    chips[next].focus();
+  });
+}
+
+function buildToolbar(toolbarEl, puzzle, state, handlers) {
   clear(toolbarEl);
+  wireToolbarKeys(toolbarEl);
   const { selectTool, showCharacterHover, clearHover } = handlers;
   puzzle.characters.forEach((character, index) => {
     const placed = state.placements.has(character.id);
@@ -17,9 +44,10 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
         "char-chip" +
         (state.selectedTool?.kind === "character" && state.selectedTool.id === character.id ? " selected" : "") +
         (placed ? " used" : ""),
-      tabindex: "0",
+      tabindex: "-1",
       role: "button",
-      "aria-label": character.name + (character.isVictim ? t(" (vittima)") : ""),
+      "aria-pressed": String(state.selectedTool?.kind === "character" && state.selectedTool.id === character.id),
+      "aria-label": character.name + (character.isVictim ? t(" (vittima)") : "") + (placed ? t(", già piazzato") : ""),
       "aria-keyshortcuts": characterKey(index) || undefined,
       // The key is drawn by CSS (::after) so the chip's visible text stays the name,
       // which is exactly its accessible name.
@@ -47,8 +75,9 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
       "div",
       {
         class: "char-chip" + (state.selectedTool?.kind === "x" ? " selected" : ""),
-        tabindex: "0",
+        tabindex: "-1",
         role: "button",
+        "aria-pressed": String(state.selectedTool?.kind === "x"),
         "aria-label": t("Segna X"),
         onClick: selectX,
         onKeydown: onActivateKey(selectX),
@@ -61,8 +90,9 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
       "div",
       {
         class: "char-chip" + (state.selectedTool?.kind === "erase" ? " selected" : ""),
-        tabindex: "0",
+        tabindex: "-1",
         role: "button",
+        "aria-pressed": String(state.selectedTool?.kind === "erase"),
         "aria-label": t("Gomma"),
         onClick: selectErase,
         onKeydown: onActivateKey(selectErase),
@@ -70,4 +100,8 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
       t("🧹 Gomma")
     )
   );
+  // the one tab stop of the toolbar: the selected tool, else the first
+  const chips = [...toolbarEl.querySelectorAll(".char-chip")];
+  const current = chips.find((c) => c.classList.contains("selected")) || chips[0];
+  if (current) current.tabIndex = 0;
 }

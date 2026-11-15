@@ -1,0 +1,134 @@
+/* High-contrast theme — `data-theme="contrast"` on <html> (chosen with the theme button, or picked by
+   itself when the device asks for more contrast / forced colors and nothing was chosen: see util/theme.js).
+   Loaded after the skin. Black on white, heavy lines, the same layout.
+
+   What it does differently from light and dark:
+   - Text and lines are black on white (every text pair is checked to be at least 7:1 by test/test-contrast.js).
+   - A character is told apart by its icon, its name and its initial, not by its colour: the colours are
+     forced to ink. (Colours stay on in light and dark.)
+   - Highlights differ by SHAPE as well as colour: a hint is a solid frame, a piece of information a dashed one,
+     a conflict a double one; messages start with a symbol.
+   - The keyboard focus is a thick black frame with a white halo. No animations on the board. */
+:root[data-theme="contrast"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-alt: #f0f0f0;
+  --ink: #000000;
+  --ink-soft: #262626;
+  --ink-faint: #404040;
+  --accent: #6b0016;
+  --accent-dark: #3f000d;
+  --accent-soft: #ffe0e6;
+  --gold: #5c3f00;
+  --gold-soft: #ffe7a0;
+  --border: #000000;
+  --border-soft: #404040;
+  --cell-bg: #ffffff;
+  --cell-border: #000000;
+  --danger: #8f0000;
+  --danger-soft: #ffd3d3;
+  --success: #004d1c;
+  --success-soft: #cdf3d9;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --btn-edge: #000000;
+  --topbar-bg: #000000;
+  --topbar-ink: #ffffff;
+  --paper-gap: #ffffff;
+  --hole: #000000;
+  --grain: transparent;
+  --room-darken: transparent;
+  --floor-wash: rgba(255, 255, 255, 0.62);
+  --grid-ink: #000000;
+}
+
+/* Everything that takes a character's colour from an inline style: ink instead. */
+:root[data-theme="contrast"] .char-token,
+:root[data-theme="contrast"] .char-chip svg,
+:root[data-theme="contrast"] .char-chip > span,
+:root[data-theme="contrast"] .clue-card .row > span,
+:root[data-theme="contrast"] .selected-clue-icon,
+:root[data-theme="contrast"] .character-card .row > span {
+  color: #000000 !important;
+}
+:root[data-theme="contrast"] .candidate-mark { --mark-color: #000000 !important; }
+:root[data-theme="contrast"] .char-chip { border-left-color: #000000 !important; border: 2px solid #000000; }
+:root[data-theme="contrast"] .char-chip.selected { background: #000000; color: #ffffff; }
+:root[data-theme="contrast"] .char-chip.selected svg,
+:root[data-theme="contrast"] .char-chip.selected > span { color: #ffffff !important; }
+:root[data-theme="contrast"] .clue-card { --clue-accent: #000000 !important; border: 2px solid #000000; }
+
+/* Controls: a plain, heavy border. */
+:root[data-theme="contrast"] button,
+:root[data-theme="contrast"] select,
+:root[data-theme="contrast"] input,
+:root[data-theme="contrast"] textarea { border: 2px solid #000000; box-shadow: none; }
+:root[data-theme="contrast"] button.primary,
+:root[data-theme="contrast"] .primary { background: #000000; color: #ffffff; }
+:root[data-theme="contrast"] main a:not(.play):not(.button):not(.tt-button) { color: #00007a; text-decoration: underline; }
+:root[data-theme="contrast"] .topbar, :root[data-theme="contrast"] .topbar a, :root[data-theme="contrast"] .topbar span { color: #ffffff; }
+
+/* The board: heavier lines, quiet floors. */
+:root[data-theme="contrast"] .board-cell { border-width: 2px; }
+:root[data-theme="contrast"] .board-cell.wall-t { border-top-width: 5px; }
+:root[data-theme="contrast"] .board-cell.wall-r { border-right-width: 5px; }
+:root[data-theme="contrast"] .board-cell.wall-b { border-bottom-width: 5px; }
+:root[data-theme="contrast"] .board-cell.wall-l { border-left-width: 5px; }
+:root[data-theme="contrast"] .board-cell.x-mark::before,
+:root[data-theme="contrast"] .board-cell.x-mark::after { background: #000000; }
+
+/* Focus: black frame + white halo, on everything. */
+:root[data-theme="contrast"] :focus-visible {
+  outline: 4px solid #000000 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #ffffff !important;
+}
+:root[data-theme="contrast"] .board-cell:focus-visible { outline-offset: -4px; box-shadow: inset 0 0 0 2px #ffffff !important; }
+
+/* Highlights by shape (no colour needed, no animation). */
+:root[data-theme="contrast"] .board-cell.hint-target,
+:root[data-theme="contrast"] .board-cell.hint-info,
+:root[data-theme="contrast"] .board-cell.hint-culprit {
+  animation: none;
+  box-shadow: none;
+  outline-offset: -5px;
+  z-index: 3;
+}
+:root[data-theme="contrast"] .board-cell.hint-target { outline: 6px solid #000000; }
+:root[data-theme="contrast"] .board-cell.hint-info { outline: 6px dashed #000000; }
+:root[data-theme="contrast"] .board-cell.hint-culprit { outline: 8px double #000000; }
+:root[data-theme="contrast"] .board-cell.hover-target { box-shadow: inset 0 0 0 4px #000000; }
+:root[data-theme="contrast"] .board-cell.char-target,
+:root[data-theme="contrast"] .board-cell.zoned.char-target { box-shadow: inset 0 0 0 4px #000000, inset 0 0 0 7px #ffffff; }
+:root[data-theme="contrast"] .board-cell.clue-pin,
+:root[data-theme="contrast"] .board-cell.clue-pin.char-target { box-shadow: inset 0 0 0 5px #000000, inset 0 0 0 8px #ffffff, inset 0 0 0 10px #000000; }
+:root[data-theme="contrast"] .board-grid.hint-active .board-cell:not(.hint-target):not(.hint-info):not(.hint-culprit) { opacity: 0.55; filter: none; }
+
+/* Messages: a symbol up front, a black frame, white ground. */
+:root[data-theme="contrast"] .result-banner {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 3px solid #000000;
+  box-shadow: none;
+}
+:root[data-theme="contrast"] .result-banner::before { font-weight: 900; margin-right: 0.35em; }
+:root[data-theme="contrast"] .result-banner.hint-success::before,
+:root[data-theme="contrast"] .result-banner.success::before { content: "✓"; }
+:root[data-theme="contrast"] .result-banner.hint-info::before { content: "ⓘ"; }
+:root[data-theme="contrast"] .result-banner.hint-warning::before,
+:root[data-theme="contrast"] .result-banner.partial::before { content: "▲"; }
+:root[data-theme="contrast"] .result-banner.hint-error::before { content: "✕"; }
+:root[data-theme="contrast"] .progress-banner progress { width: 100%; accent-color: #000000; }
+
+/* Forced colors (Windows "high contrast"): let the system's palette win, but keep the structure visible. */
+@media (forced-colors: active) {
+  .board-cell { border: 1px solid CanvasText; }
+  .char-chip, button, select, input { border: 1px solid ButtonText; }
+  .char-chip.selected { outline: 3px solid Highlight; }
+  .board-cell.hint-target { outline: 4px solid Highlight; }
+  .board-cell.hint-info { outline: 4px dashed Highlight; }
+  .board-cell.hint-culprit { outline: 6px double Highlight; }
+  .board-cell:focus-visible { outline: 3px solid Highlight; }
+}

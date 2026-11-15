@@ -220,6 +220,47 @@ export function setClueNegate(puzzle, clueId, negate) {
   touch(puzzle);
 }
 
+// Replaces the type, parameters and negation of a clue, keeping its id and its owner and its
+// place in the list (what editing a clue in the clue wizard does).
+export function replaceClue(puzzle, clueId, { type, params, negate }) {
+  const clue = puzzle.clues.find((c) => c.id === clueId);
+  if (!clue) return false;
+  clue.type = type;
+  clue.params = JSON.parse(JSON.stringify(params || {}));
+  if (negate) clue.negate = true;
+  else delete clue.negate;
+  touch(puzzle);
+  return true;
+}
+
+// A copy of a clue, right after it, with a new id. Returns the copy (or null).
+export function duplicateClue(puzzle, clueId) {
+  const index = puzzle.clues.findIndex((c) => c.id === clueId);
+  if (index === -1) return null;
+  const copy = JSON.parse(JSON.stringify(puzzle.clues[index]));
+  copy.id = makeId("clue");
+  puzzle.clues.splice(index + 1, 0, copy);
+  touch(puzzle);
+  return copy;
+}
+
+// Moves a clue one place up (-1) or down (+1) among the clues of the same owner (a character, or
+// the general ones). Returns whether it moved.
+export function moveClue(puzzle, clueId, delta) {
+  const index = puzzle.clues.findIndex((c) => c.id === clueId);
+  if (index === -1) return false;
+  const owner = puzzle.clues[index].characterId;
+  const step = delta < 0 ? -1 : 1;
+  for (let i = index + step; i >= 0 && i < puzzle.clues.length; i += step) {
+    if (puzzle.clues[i].characterId === owner) {
+      [puzzle.clues[index], puzzle.clues[i]] = [puzzle.clues[i], puzzle.clues[index]];
+      touch(puzzle);
+      return true;
+    }
+  }
+  return false;
+}
+
 export function removeClue(puzzle, clueId) {
   puzzle.clues = puzzle.clues.filter((c) => c.id !== clueId);
   touch(puzzle);
@@ -443,7 +484,8 @@ export function pruneDanglingClueReferences(puzzle) {
   const objectIds = new Set(puzzle.grid.objects.map((o) => o.id));
 
   function isKnownReference(id) {
-    if (id === undefined || id === null) return true;
+    // not chosen yet: an incomplete clue (flagged in the editor), not a dangling one
+    if (id === undefined || id === null || id === "") return true;
     if (isObjectTypeTarget(id)) return true;
     return characterIds.has(id) || zoneIds.has(id) || objectIds.has(id);
   }

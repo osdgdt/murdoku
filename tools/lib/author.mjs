@@ -10,13 +10,12 @@ globalThis.__MURDOKU_LANG__ = "it"; // clue text isn't generated here; keep modu
 
 const { createPuzzle, addCharacter, addClue, setSolutionPlacement } = await import("../../src/model/puzzle.js");
 const { resizeGrid, addZone, paintCellZone, placeObject, setBlocked } = await import("../../src/model/grid.js");
-const { CLUE_TYPES } = await import("../../src/model/clueTypes.js");
 const { buildPredicate } = await import("../../src/solver/predicates/index.js");
 const { checkUniqueness, validateSolution } = await import("../../src/solver/validator.js");
 const { solvePuzzle } = await import("../../src/solver/solver.js");
 const { findRedundantClues } = await import("../../src/solver/redundancy.js");
 const { propagate } = await import("../../src/solver/propagation.js");
-const { objectTypeTargetId } = await import("../../src/model/icons.js");
+const { suggestClues } = await import("../../src/solver/suggestions.js");
 
 export function rng(seed) {
   let a = seed >>> 0;
@@ -28,8 +27,6 @@ export function rng(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-
-const SKIP_TYPES = new Set(["orClue", "victimRoomRule"]);
 
 // --- map ------------------------------------------------------------------
 // `map` rows use one letter per zone, "#" for a blocked cell, "." for no zone.
@@ -66,76 +63,12 @@ export function buildBase(spec, lang) {
 }
 
 // --- candidate clues --------------------------------------------------------
-function enumerateParams(def, ctx, owner) {
-  const { puzzle, presentObjectTypes } = ctx;
-  const targetsChar = puzzle.characters.filter((c) => c.id !== owner).map((c) => c.id);
-  const targetsAny = [
-    ...targetsChar,
-    ...puzzle.grid.objects.map((o) => o.id),
-    ...presentObjectTypes.map(objectTypeTargetId),
-    ...puzzle.grid.zones.map((z) => z.id),
-  ];
-  const maxIndex = Math.max(puzzle.grid.size.rows, puzzle.grid.size.cols);
-  const isProperty = def.params.some((p) => p.name === "property");
-  const hasGender = puzzle.characters.some((c) => c.gender);
-
-  function valuesFor(p, chosen) {
-    if (p.name === "customClue") return [undefined];
-    if (isProperty) {
-      if (p.name === "property") return ["adjacentTo", "seated", "sittingOn", ...(hasGender ? ["male", "female"] : []), ...(p.values.includes("") ? [""] : [])];
-      if (p.name === "targetId") return chosen.property === "adjacentTo" ? targetsAny : [undefined];
-      if (p.name === "objectTypeId") return chosen.property === "sittingOn" ? presentObjectTypes : [undefined];
-    }
-    switch (p.kind) {
-      case "characterOrObject": return p.noZone ? targetsAny.filter((id) => !puzzle.grid.zones.some((z) => z.id === id)) : targetsAny;
-      case "character": return targetsChar;
-      case "zone": return puzzle.grid.zones.map((z) => z.id);
-      case "number": return [...Array.from({ length: maxIndex }, (_, i) => i + (p.min ?? 1)), ...(p.optional ? [undefined] : [])];
-      case "enum": return p.values.filter((v) => v !== "" && v !== "custom");
-      default: return null; // multi / clueRef: unsupported
-    }
-  }
-
-  const out = [];
-  (function rec(i, chosen) {
-    if (i === def.params.length) { out.push({ ...chosen }); return; }
-    const p = def.params[i];
-    const values = valuesFor(p, chosen);
-    if (values === null) return;
-    for (const v of values) {
-      const next = { ...chosen };
-      if (v !== undefined) next[p.name] = v;
-      rec(i + 1, next);
-    }
-  })(0, {});
-  return out;
-}
-
+// The enumeration and the "is it true here" filter live in src/solver/suggestions.js (the
+// editor's "suggested clues" use the same code).
 export function trueClues(puzzle, ids, solution) {
   const pm = new Map(Object.entries(solution).map(([key, [row, col]]) => [ids[key], { row, col }]));
-  const presentObjectTypes = [...new Set(puzzle.grid.objects.map((o) => o.typeId))];
-  const ctx = { puzzle, presentObjectTypes };
-  const seen = new Set();
-  const pool = [];
-  for (const [type, def] of Object.entries(CLUE_TYPES)) {
-    if (def.internal || SKIP_TYPES.has(type)) continue;
-    const owners = def.scope === "generic" ? [null] : puzzle.characters.map((c) => c.id);
-    for (const owner of owners) {
-      for (const params of enumerateParams(def, ctx, owner)) {
-        for (const negate of [false, true]) {
-          const clue = { id: "x", type, characterId: owner, params, negate };
-          let result;
-          try { result = buildPredicate(clue, puzzle)(pm, true); } catch { continue; }
-          if (result !== true) continue;
-          const key = JSON.stringify([owner, type, params, negate]);
-          if (seen.has(key)) continue;
-          seen.add(key);
-          pool.push({ type, characterId: owner, params, negate, generic: def.scope === "generic" });
-        }
-      }
-    }
-  }
-  return pool;
+  const { clues } = suggestClues(puzzle, pm, { limit: Infinity, maxEvaluations: Infinity });
+  return clues;
 }
 
 // --- victim-free view ---------------------------------------------------------

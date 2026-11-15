@@ -606,108 +606,6 @@
 }
 .clue-remove:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-/* The clue's own parameters, as a wrapping row of labeled fields instead of
-   a run of bare dropdowns — each field shrinks (min-width:0) and wraps onto
-   its own line rather than pushing the card wider than its container. */
-.clue-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-.clue-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-  max-width: 100%;
-}
-.clue-field-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--ink-soft);
-  text-transform: uppercase;
-}
-
-/* The "+ Indizio"/"+ Indizio generale" add-row — styled as a clear call to
-   action (dashed accent border) instead of blending in with every other
-   plain .field-row on the page. Additive class, not an override of
-   .field-row itself (base.css), so no other .field-row usage is affected. */
-.clue-add-row {
-  background: var(--accent-soft);
-  border: 1px dashed var(--accent);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.6rem;
-}
-.clue-add-row select { flex: 1 1 auto; min-width: 0; }
-
-/* The "orClue" combinator: two branches stacked full-width (not side by
-   side) so each has room to lay out its own fields without competing for
-   horizontal space with the other. */
-.clue-branches {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-}
-.clue-branch {
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--panel);
-  padding: 0.4rem 0.5rem;
-}
-.clue-branch-label {
-  display: block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 0.3rem;
-}
-.clue-branch-joiner {
-  align-self: center;
-  font-family: var(--font-display);
-  font-style: italic;
-  color: var(--ink-soft);
-  font-size: 0.85rem;
-}
-
-/* A nested clue picker — the `orClue` branches above, or any `clueRef` param
-   ("...who also satisfied: <condition>") — reuses .clue-fields styling for
-   whatever params the chosen sub-type needs. */
-.clue-nested { display: flex; flex-direction: column; gap: 0.4rem; }
-.clue-nested > .clue-fields { margin-top: 0; }
-
-/* Multi-target picker (e.g. "condivide riga/colonna con uno tra più
-   bersagli") — tall enough to show several options without scrolling. */
-.clue-card select[multiple] { min-height: 4.4em; }
-
-/* The actual overflow fix: no select or number input anywhere in the clue
-   builder — a clue card's own fields, or the plain "+ Indizio" type picker
-   sitting below the list — may ever grow past its container, however long
-   its longest option's label is (some clue-type labels are full sentences).
-   Long labels truncate with an ellipsis; the field's own title/hover still
-   shows the full text for the field ones (see labeledControl in
-   clueBuilder.js), and the browser's native tooltip covers the plain
-   type-picker selects. */
-.character-card select,
-.character-card input[type="number"] {
-  max-width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-}
-.character-card select:not([multiple]) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.clue-card select,
-.clue-card input[type="number"] {
-  width: 100%;
-}
-
 .validation-panel {
   margin-top: 1.1rem;
   padding: 0.9rem 1rem;
@@ -839,3 +737,103 @@
 .room-color-chip:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .room-color-custom { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--ink-soft); }
 .room-color-custom input[type="color"] { width: 40px; height: 30px; padding: 0; border: 2px solid var(--border); border-radius: 8px; background: none; cursor: pointer; }
+
+/* ---- Clue list (under the board) ---------------------------------------------------- */
+.clue-panel { margin-bottom: 1rem; }
+#right-panel-top { margin-bottom: 1rem; }
+.clue-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.clue-panel-header h3 { margin: 0; padding: 0; border: none; }
+.clue-owner { margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px dashed var(--border-soft); }
+.clue-owner-header { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.clue-owner-header strong { flex: 1 1 8em; min-width: 0; }
+.clue-incomplete-count { color: var(--danger); font-size: 0.8rem; font-weight: 600; }
+.clue-new-btn, .clue-suggest-btn { min-height: 44px; padding: 0.3em 0.9em; }
+.clue-new-btn { background: var(--accent-soft); border: 1px dashed var(--accent); }
+.clue-rows { list-style: none; margin: 0.4rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.clue-row {
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+  padding: 0.3rem 0.45rem; border: 1px solid var(--border-soft); border-radius: var(--radius-sm); background: var(--panel-alt);
+  font-size: 0.85rem;
+}
+.clue-row.incomplete { border-color: var(--danger); }
+.clue-row.false { border-color: var(--danger-soft); }
+.clue-status { flex: none; width: 1.4em; text-align: center; font-weight: 700; }
+.clue-status.true { color: var(--success); }
+.clue-status.false, .clue-status.incomplete { color: var(--danger); }
+.clue-status.unknown { color: var(--ink-faint); }
+.clue-row-text {
+  flex: 1 1 12em; min-width: 0; text-align: left; background: none; border: none; box-shadow: none;
+  font: inherit; font-style: italic; color: var(--ink-soft); line-height: 1.35; padding: 0.35rem 0.2rem; min-height: 44px; cursor: pointer;
+}
+.clue-row-actions { flex: none; display: flex; gap: 0.25rem; margin-left: auto; }
+.clue-icon-btn { min-width: 44px; min-height: 44px; padding: 0; font-size: 1.05rem; line-height: 1; }
+.clue-icon-btn:disabled { opacity: 0.35; }
+
+/* ---- Clue wizard: a drawer on a PC, a bottom sheet on a phone ------------------------- */
+.clue-wizard {
+  position: fixed; z-index: 60; top: 0; right: 0; bottom: 0; width: min(440px, 100vw);
+  display: flex; flex-direction: column;
+  background: var(--panel); color: var(--ink); border-left: 2px solid var(--ink); box-shadow: var(--shadow-lg);
+}
+.clue-wizard[hidden] { display: none; }
+.clue-wizard-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); }
+.clue-wizard-header h2 { margin: 0; font-size: 1.05rem; }
+.clue-wizard-close { min-width: 44px; min-height: 44px; }
+.clue-wizard-body { flex: 1 1 auto; overflow-y: auto; padding: 0.8rem 0.9rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.clue-wizard-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; padding: 0.6rem 0.9rem; border-top: 1px solid var(--border); }
+.clue-wizard-footer button { min-height: 44px; }
+.clue-wizard.picking { top: auto; height: auto; max-height: 45vh; border-left: none; border-top: 2px solid var(--ink); width: 100%; left: 0; }
+.clue-search { width: 100%; min-height: 44px; box-sizing: border-box; }
+.clue-family h3 { margin: 0.4rem 0 0.2rem; padding: 0; border: none; font-size: 0.95rem; }
+.clue-types { display: flex; flex-direction: column; gap: 0.4rem; }
+.clue-type-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; width: 100%; text-align: left;
+  min-height: 44px; padding: 0.5rem 0.7rem; margin-top: 0.3rem;
+}
+.clue-type-card.current { border-color: var(--accent); background: var(--accent-soft); }
+.clue-type-explain { font-size: 0.78rem; color: var(--ink-soft); font-weight: 400; }
+.clue-sentence-box { padding: 0.6rem 0.7rem; background: var(--accent-soft); border-radius: var(--radius-sm); border: 1px solid var(--accent); }
+.clue-sentence { margin: 0 0 0.4rem; font-family: var(--font-display); font-size: 1.05rem; line-height: 1.4; }
+.clue-change-type { min-height: 44px; }
+.clue-verdict { margin: 0; font-weight: 600; }
+.clue-verdict.ok { color: var(--success); }
+.clue-verdict.bad { color: var(--danger); }
+.clue-verdict.incomplete { color: var(--ink); }
+.clue-slots { display: flex; flex-direction: column; gap: 0.7rem; }
+.clue-slot { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.clue-slot-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-soft); }
+.clue-slot.nested { padding: 0.5rem; border: 1px dashed var(--border); border-radius: var(--radius-sm); }
+.clue-nested { display: flex; flex-direction: column; gap: 0.5rem; }
+.clue-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.clue-chip { min-height: 44px; padding: 0.3em 0.85em; border-radius: 999px; }
+.clue-chip[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.clue-chip.room { border-style: dashed; }
+.clue-wizard select, .clue-wizard input[type="number"] { min-height: 44px; max-width: 100%; box-sizing: border-box; }
+.clue-stepper { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.clue-stepper button { min-width: 44px; min-height: 44px; }
+.clue-number { width: 5em; text-align: center; }
+.clue-target { display: flex; flex-direction: column; gap: 0.5rem; }
+.clue-target-current { min-height: 44px; text-align: left; }
+.clue-target-current.empty { color: var(--ink-soft); font-style: italic; }
+.clue-pick-btn { min-height: 44px; background: var(--accent-soft); border: 1px dashed var(--accent); }
+.clue-group-title { display: block; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 0.2rem; }
+.clue-pick-bar { padding: 0.7rem 0.9rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.clue-pick-text { margin: 0; font-weight: 600; }
+.clue-suggest-type summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.clue-suggest-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.2rem 0; border-top: 1px solid var(--border-soft); font-size: 0.85rem; }
+.clue-add { min-width: 44px; min-height: 44px; font-weight: 700; }
+.clue-check { display: flex; align-items: center; gap: 0.4rem; min-height: 44px; }
+
+/* On the board while the wizard works */
+.clue-preview-target { outline: 3px solid var(--accent); outline-offset: -3px; }
+.clue-preview-owner { box-shadow: inset 0 0 0 3px var(--gold); }
+.clue-pick-eligible { outline: 3px dashed var(--accent); outline-offset: -3px; cursor: pointer; }
+
+@media (max-width: 1100px) {
+  .clue-wizard {
+    top: auto; left: 0; width: 100%; height: 72vh; border-left: none; border-top: 2px solid var(--ink);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .clue-wizard.picking { height: auto; max-height: 45vh; }
+  body.clue-wizard-open main { padding-bottom: 50vh; }
+}

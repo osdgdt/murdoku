@@ -52,6 +52,9 @@ export function onActivateKey(onActivate) {
 // Requires a press-and-hold (not a plain click) before firing `onConfirm` —
 // friction against accidental taps on destructive actions. Adds a `holding`
 // class for the duration so CSS can animate a fill/progress cue.
+//
+// Also works from the keyboard (hold Enter or Space down for the same time), so it is not a
+// mouse-and-touch-only control.
 export function attachHoldToConfirm(button, durationMs, onConfirm) {
   let timer = null;
   const start = (e) => {
@@ -70,7 +73,28 @@ export function attachHoldToConfirm(button, durationMs, onConfirm) {
   };
   button.addEventListener("mousedown", start);
   button.addEventListener("touchstart", start, { passive: false });
-  for (const ev of ["mouseup", "mouseleave", "touchend", "touchcancel"]) {
+  for (const ev of ["mouseup", "mouseleave", "touchend", "touchcancel", "blur"]) {
     button.addEventListener(ev, cancel);
+  }
+  button.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && !e.repeat && !timer) start(e);
+    else if (e.key === "Enter" || e.key === " ") e.preventDefault();
+  });
+  button.addEventListener("keyup", (e) => {
+    if (e.key === "Enter" || e.key === " ") cancel();
+  });
+}
+
+// Runs `render()` (which rebuilds the content of `container`) and puts the keyboard focus back on the
+// element that had it: the same position among `selector` matches. Without this, pressing Enter on a
+// chip or a clue line that triggers a re-render leaves the focus on the page body, and a keyboard or
+// screen-reader user has to find their place again after every action.
+export function keepFocus(container, selector, render) {
+  const active = typeof document !== "undefined" ? document.activeElement : null;
+  const index = active && container.contains(active) ? [...container.querySelectorAll(selector)].indexOf(active) : -1;
+  render();
+  if (index >= 0) {
+    const again = container.querySelectorAll(selector)[index];
+    if (again) again.focus({ preventScroll: true });
   }
 }

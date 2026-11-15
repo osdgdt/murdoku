@@ -98,5 +98,64 @@ service cloud.firestore {
       allow create, update: if isSignedIn() && knownCase() && onlyCounters() && (newPlayer() || playerSolved());
       allow delete: if false;
     }
+
+    // ---- Daily challenge (see src/daily/dailyStore.js and dailyMath.js) ----------------------------------
+    // One scored run per player per day, ranked by time. Entries are created once and never changed; the day must
+    // be today (UTC) as the SERVER sees it, the time is bounded, and the nickname must be the one the player
+    // reserved. What rules cannot know is whether the case was really solved or how long it really took: the
+    // numbers are self-reported, so the board is a friendly one, not a proof (stated on the Privacy page).
+    // Keep the bounds in step with LIMITS in src/daily/dailyMath.js.
+    function nicknameOk(n) {
+      return n is string && n.size() >= 3 && n.size() <= 20 && n.matches('^[\\p{L}\\p{N} ._\'-]+$') && n.matches('.*[\\p{L}\\p{N}].*');
+    }
+    function two(n) { return n < 10 ? '0' + string(n) : string(n); }
+    function todayKey() { return string(request.time.year()) + '-' + two(request.time.month()) + '-' + two(request.time.day()); }
+    function validRun(d) {
+      return d.keys().hasOnly(['nickname', 'seconds', 'checks', 'caseId', 'createdAt'])
+        && nicknameOk(d.nickname)
+        && d.seconds is int && d.seconds >= 20 && d.seconds <= 86400
+        && d.checks is int && d.checks >= 0 && d.checks <= 200
+        && d.caseId is string && d.caseId.size() <= 100
+        && d.createdAt == request.time;
+    }
+
+    // A player's nickname: their profile, and a reservation named after it (lower case) so that two players cannot
+    // take the same one. Both are written together; renaming deletes the old reservation.
+    match /profiles/{userId} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['nickname', 'key'])
+        && nicknameOk(request.resource.data.nickname)
+        && request.resource.data.key == request.resource.data.nickname.lower()
+        && existsAfter(/databases/$(database)/documents/nicknames/$(request.resource.data.key))
+        && getAfter(/databases/$(database)/documents/nicknames/$(request.resource.data.key)).data.uid == request.auth.uid;
+    }
+    match /nicknames/{key} {
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid
+        && nicknameOk(key) && key == key.lower();
+      allow update: if false;
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // The player's own copy of each run (lets them see it, and delete the public one with "delete my data").
+    match /users/{userId}/dailyEntries/{dateKey} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId && dateKey == todayKey() && validRun(request.resource.data);
+      allow update: if false;
+    }
+
+    // The public board of a day.
+    match /daily/{dateKey}/entries/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && request.query.limit <= 50;
+      allow create: if isSignedIn() && request.auth.uid == userId && dateKey == todayKey() && validRun(request.resource.data)
+        && request.resource.data.nickname == get(/databases/$(database)/documents/profiles/$(userId)).data.nickname
+        && existsAfter(/databases/$(database)/documents/users/$(userId)/dailyEntries/$(dateKey));
+      allow update: if false;
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
   }
 }

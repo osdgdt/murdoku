@@ -394,8 +394,8 @@ export default {
   qualsiasi: "any",
   "Ordina i casi": "Sort cases",
   "Tipo di indizio": "Clue type",
-  "Scorciatoie: 1-9 scelgono un personaggio · X segna · E gomma · U annulla · H suggerimento.":
-    "Shortcuts: 1-9 pick a character · X mark · E eraser · U undo · H hint.",
+  "Scorciatoie: 1-9 e 0 scelgono un personaggio ([ ] scorrono) · X segna · E gomma · U annulla · H suggerimento.":
+    "Shortcuts: 1-9 and 0 pick a character ([ ] step through) · X mark · E eraser · U undo · H hint.",
   "📅 Caso del giorno": "📅 Case of the day",
   "Controllo che il caso abbia una soluzione unica…": "Checking that the case has a unique solution…",
   "Il caso non ha nessuna soluzione: nessuno potrà risolverlo.": "The case has no solution: nobody will be able to solve it.",
@@ -447,4 +447,8 @@ export default {
   "Note sulla colonna {n}": "Notes on column {n}",
   "È disponibile una nuova versione del sito.": "A new version of the site is available.",
   Ricarica: "Reload",
+  // big boards (more than 9 columns)
+  "✋ Muovi": "✋ Move",
+  "Sposta la griglia col dito invece di segnare le caselle": "Move the board with your finger instead of marking cells",
+  "Colore e note": "Colour and notes",
 };

@@ -158,18 +158,21 @@ export function renderCharacterEditor(container, puzzle, onChange, onPersistOnly
       character.bio || ""
     );
 
+    // With many characters (a big grid) the colour picker and the bio fold away, so
+    // the list does not run to thousands of pixels.
+    const many = puzzle.characters.length > 8;
+    const row1 = el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]);
+    const row2 = el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]);
+    const parts = many
+      ? [row1, row2, el("details", { class: "character-extra" }, [el("summary", {}, t("Colore e note")), colorList, bioInput])]
+      : [row1, colorList, row2, bioInput];
     const card = el(
       "div",
       {
         class: "character-card" + (character.isVictim ? " victim" : ""),
         style: character.isVictim ? "" : `border-left: 3px solid ${characterColor(character)}`,
       },
-      [
-        el("div", { class: "row" }, [iconWrap, el("strong", {}, character.name)]),
-        colorList,
-        el("div", { class: "row" }, [victimToggle, genderSelect, removeBtn]),
-        bioInput,
-      ]
+      parts
     );
     list.appendChild(card);
   }

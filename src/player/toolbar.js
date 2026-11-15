@@ -2,13 +2,14 @@
 import { el, clear, onActivateKey } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
+import { characterKey } from "./characterKeys.js";
 import { t } from "../i18n/i18n.js";
 
 // `handlers`: { selectTool(tool), showCharacterHover(id), clearHover() }.
 export function renderToolbar(toolbarEl, puzzle, state, handlers) {
   clear(toolbarEl);
   const { selectTool, showCharacterHover, clearHover } = handlers;
-  for (const character of puzzle.characters) {
+  puzzle.characters.forEach((character, index) => {
     const placed = state.placements.has(character.id);
     const selectThis = () => selectTool({ kind: "character", id: character.id });
     const chip = el("div", {
@@ -19,6 +20,10 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
       tabindex: "0",
       role: "button",
       "aria-label": character.name + (character.isVictim ? t(" (vittima)") : ""),
+      "aria-keyshortcuts": characterKey(index) || undefined,
+      // The key is drawn by CSS (::after) so the chip's visible text stays the name,
+      // which is exactly its accessible name.
+      "data-key": characterKey(index) || undefined,
       onClick: selectThis,
       onKeydown: onActivateKey(selectThis),
       // Focus is the keyboard equivalent of hover: tabbing to a chip previews
@@ -34,7 +39,7 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
     if (!character.isVictim) chip.style.borderLeft = `3px solid ${characterColor(character)}`;
     chip.appendChild(document.createTextNode(character.name + (character.isVictim ? t(" (V)") : "")));
     toolbarEl.appendChild(chip);
-  }
+  });
   const selectX = () => selectTool({ kind: "x" });
   const selectErase = () => selectTool({ kind: "erase" });
   toolbarEl.appendChild(

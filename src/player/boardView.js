@@ -19,8 +19,9 @@ function makeMark(character, highlightId) {
 }
 
 // Fixed "box cell" position (like Sudoku pencil marks): each character keeps
-// the same slot (0-8, laid out 3x3) in every cell's candidate grid, based on
-// its order in the roster. Grids have at most 9 characters, so it always fits.
+// the same slot in every cell's candidate grid, based on its order in the
+// roster. Up to 9 characters the slots are a 3x3 box, from 10 to 16 a 4x4 box
+// (a case has at most 16 characters, one per row and column), so it always fits.
 // `highlightId`, when set, marks that character's own notes across the whole
 // board — e.g. while their toolbar chip is selected — so you can spot every
 // cell you've already suspected them in at a glance.
@@ -28,19 +29,21 @@ function makeMark(character, highlightId) {
 // A cell that holds an object (a rug, a chair, a stool) gets the COMPACT
 // layout instead: the object is drawn smaller on top and the notes sit in a
 // band below it, so a note never lands on the drawing.
+// Columns of the note box: 3 for up to 9 characters, 4 for 10 to 16.
+export const noteColumns = (characterCount) => (characterCount > 9 ? 4 : 3);
+
 function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId, compact) {
   const grid = document.createElement("div");
-  grid.className = "candidate-grid" + (compact ? " compact" : "");
+  const cols = noteColumns(puzzle.characters.length);
+  grid.className = "candidate-grid" + (compact ? " compact" : "") + (cols === 4 ? " notes-4" : "");
   if (compact) {
-    puzzle.characters.slice(0, 9).forEach((character) => {
+    puzzle.characters.forEach((character) => {
       if (candidateSet.has(character.id)) grid.appendChild(makeMark(character, highlightId));
     });
   } else {
-    const slots = new Array(9).fill(null);
-    puzzle.characters.forEach((character, index) => {
-      if (index < 9) slots[index] = character;
-    });
-    for (const character of slots) {
+    grid.style.setProperty("--note-cols", String(cols));
+    for (let i = 0; i < cols * cols; i++) {
+      const character = puzzle.characters[i];
       const slot = document.createElement("div");
       slot.className = "candidate-slot";
       if (character && candidateSet.has(character.id)) slot.appendChild(makeMark(character, highlightId));
@@ -54,8 +57,8 @@ function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId, compac
 function renderLineNotes(labelNode, puzzle, set, highlightId) {
   if (!set || set.size === 0) return;
   const box = document.createElement("span");
-  box.className = "line-notes";
-  puzzle.characters.slice(0, 9).forEach((character) => {
+  box.className = "line-notes" + (noteColumns(puzzle.characters.length) === 4 ? " notes-4" : "");
+  puzzle.characters.forEach((character) => {
     if (set.has(character.id)) box.appendChild(makeMark(character, highlightId));
   });
   labelNode.appendChild(box);

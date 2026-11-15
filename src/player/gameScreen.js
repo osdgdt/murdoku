@@ -18,6 +18,7 @@ import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTar
 import { formatElapsed } from "../util/time.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import * as solveHistory from "../storage/solveHistoryStore.js";
+import { characterIndexForKey, stepForKey, steppedCharacter } from "./characterKeys.js";
 import { t } from "../i18n/i18n.js";
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
@@ -55,6 +56,7 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
   const undoBtn = qs("#undo-btn");
   const clearBtn = qs("#clear-btn");
   const hintBtn = qs("#hint-btn");
+  const panBtn = qs("#pan-btn");
   const hintPanel = qs("#hint-panel");
   const submitBtn = qs("#submit-btn");
   const timerEl = qs("#timer");
@@ -192,6 +194,17 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
     renderBoardAndClues();
   }
 
+  // A drag across many cells marks one cell per event; rebuilding the board for each
+  // is what makes a big grid janky, so those renders are batched to one per frame.
+  let dragRenderFrame = null;
+  function scheduleBoardRender() {
+    if (dragRenderFrame !== null) return;
+    dragRenderFrame = requestAnimationFrame(() => {
+      dragRenderFrame = null;
+      renderBoardAndClues();
+    });
+  }
+
   function renderBoardAndClues() {
     // Snapshotted at the instant a press begins and read back — instead of the
     // live state.selectedTool — when the hold timer fires: selectedTool can be
@@ -210,7 +223,7 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
         handleCellDrag(state, puzzle.grid, row, col);
         markUnsolved();
         persistProgress();
-        renderBoardAndClues();
+        scheduleBoardRender();
       },
       () => {
         pressStartTool = state.selectedTool;
@@ -388,7 +401,24 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
     }
   }
 
+  // "Muovi" (pan mode): only offered when the board is wider than its area. While it
+  // is on, a finger on the board moves it instead of marking cells (the cells' own
+  // touch handling would otherwise swallow the swipe).
+  function setPanMode(on) {
+    boardEl.classList.toggle("pan-mode", on);
+    panBtn?.setAttribute("aria-pressed", String(on));
+  }
+  function updatePanButton() {
+    if (!panBtn) return;
+    const overflows = boardEl.scrollWidth > boardEl.clientWidth + 1;
+    panBtn.classList.toggle("hidden", !overflows);
+    if (!overflows && boardEl.classList.contains("pan-mode")) setPanMode(false);
+  }
+
   function wireControls() {
+    panBtn?.addEventListener("click", () => setPanMode(!boardEl.classList.contains("pan-mode")));
+    if (typeof ResizeObserver !== "undefined") new ResizeObserver(updatePanButton).observe(boardEl);
+    updatePanButton();
     undoBtn.addEventListener("click", () => applyBoardChange(() => undo(state)));
     attachHoldToConfirm(clearBtn, 700, () => {
       applyBoardChange(() => clearAll(state));
@@ -399,22 +429,34 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
     document.addEventListener("keydown", onShortcut);
   }
 
-  // Keyboard shortcuts: 1-9 pick a character, X = cross, E = eraser,
-  // U (or Ctrl/Cmd+Z) = undo, H = hint. Ignored while typing in a form
-  // control or with a modifier held (so browser shortcuts keep working).
+  // Keyboard shortcuts: 1-9 and 0 pick a character (the 1st to the 10th), [ ] (or
+  // , .) the previous/next one, X = cross, E = eraser, U (or Ctrl/Cmd+Z) = undo,
+  // H = hint. Ignored while typing in a form control or with a modifier held (so
+  // browser shortcuts keep working; AltGr, which some keyboards need for [ and ],
+  // is not a modifier here).
   function onShortcut(e) {
     const target = e.target;
     if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
-    if (e.altKey) return;
+    const altGr = typeof e.getModifierState === "function" && e.getModifierState("AltGraph");
+    if (e.altKey && !altGr) return;
     const key = e.key.toLowerCase();
-    if ((e.ctrlKey || e.metaKey) && key === "z") {
+    if (!altGr && (e.ctrlKey || e.metaKey) && key === "z") {
       e.preventDefault();
       undoBtn.click();
       return;
     }
-    if (e.ctrlKey || e.metaKey) return;
-    if (/^[1-9]$/.test(key)) {
-      const character = puzzle.characters[Number(key) - 1];
+    if (!altGr && (e.ctrlKey || e.metaKey)) return;
+    const index = characterIndexForKey(key);
+    const step = stepForKey(key);
+    if (index !== null) {
+      const character = puzzle.characters[index];
+      if (character) {
+        e.preventDefault();
+        selectTool({ kind: "character", id: character.id });
+      }
+    } else if (step !== 0) {
+      const selected = state.selectedTool?.kind === "character" ? state.selectedTool.id : null;
+      const character = steppedCharacter(puzzle.characters, selected, step);
       if (character) {
         e.preventDefault();
         selectTool({ kind: "character", id: character.id });

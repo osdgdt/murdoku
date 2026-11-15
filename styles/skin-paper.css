@@ -321,7 +321,10 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:foc
    grow with the available space (never past 84px, never below the phone size). */
 @media (min-width: 861px) {
   .board-grid {
-    --cell-size: clamp(56px, min(calc((100vw - 460px) / (var(--cols, 6) + 0.6)), calc((100vh - 330px) / var(--rows, 6))), 84px);
+    /* Up to 9 columns the floor is 56px as always; a bigger grid gets a smaller one
+       (40px at 16 columns) and the board scrolls inside its area beyond that. */
+    --min-cell: clamp(40px, calc(56px - (var(--cols, 6) - 9) * 2.3px), 56px);
+    --cell-size: clamp(var(--min-cell), min(calc((100vw - 460px) / (var(--cols, 6) + 0.6)), calc((100vh - 330px) / var(--rows, 6))), 84px);
   }
 }
 

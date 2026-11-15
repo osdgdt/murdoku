@@ -70,7 +70,7 @@ try {
   await page.waitForSelector("#board [role=gridcell]");
   const tutorialId = new URL(page.url()).searchParams.get("id");
 
-  for (const theme of ["light", "dark"]) {
+  for (const theme of ["light", "dark", "contrast"]) {
     await page.evaluate((t) => localStorage.setItem("murdoku:theme", t), theme);
     for (const [pageName, url, prepare, waitFor] of PAGES) {
       const name = `${pageName} [${theme}]`;

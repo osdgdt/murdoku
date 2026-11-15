@@ -20,6 +20,12 @@ import { createActiveClock } from "./activeClock.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import * as solveHistory from "../storage/solveHistoryStore.js";
 import { characterIndexForKey, stepForKey, steppedCharacter } from "./characterKeys.js";
+import { announce } from "../util/announcer.js";
+import { snapshotBoard, describeBoardChange, describeSelection } from "./announcements.js";
+import { describeClue } from "../model/clueTypes.js";
+import { limitsFor } from "../solver/limits.js";
+import { startProgress } from "./progressBanner.js";
+import { notifyInTitle } from "../util/tabTitle.js";
 import { t } from "../i18n/i18n.js";
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
@@ -87,7 +93,9 @@ export function createGameScreen({
     saveBoard();
   };
   const effectiveSolution = createEffectiveSolution(answerPuzzle);
-  const getEffectiveSolution = () => effectiveSolution.get();
+  const limits = limitsFor(answerPuzzle);
+  let hintAbort = null; // AbortController of the hint being worked out, if any
+  let submitAbort = null; // ... and of the solution check
 
   const isVisible = () => typeof document === "undefined" || document.visibilityState !== "hidden";
   const showTime = () => {
@@ -111,6 +119,14 @@ export function createGameScreen({
   // re-render both whenever the active tool changes.
   function selectTool(tool) {
     state.selectedTool = tool;
+    if (tool?.kind === "character") {
+      const character = puzzle.characters.find((c) => c.id === tool.id);
+      if (character) {
+        const texts = puzzle.clues.filter((c) => c.characterId === character.id).map((c) => describeClue(c, puzzle));
+        announce(describeSelection(puzzle, character, texts));
+      }
+    } else if (tool?.kind === "x") announce(t("Strumento: segna X"));
+    else if (tool?.kind === "erase") announce(t("Strumento: gomma"));
     const pinned = puzzle.clues.find((c) => c.id === pinnedClueId);
     if (pinned && pinned.characterId && !(tool?.kind === "character" && tool.id === pinned.characterId)) pinnedClueId = null; // the pin follows its character
     renderToolbar();
@@ -150,9 +166,17 @@ export function createGameScreen({
   function applyHintHighlight() {
     boardEl.classList.toggle("hint-active", !!hintHighlight);
     if (!hintHighlight) return;
+    const spoken = {
+      "hint-target": t("suggerimento: qui"),
+      "hint-info": t("suggerimento: informazione"),
+      "hint-culprit": t("suggerimento: in conflitto"),
+    };
     for (const { row, col, cls } of hintHighlight.cells) {
       const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-      if (node) node.classList.add(cls);
+      if (node) {
+        node.classList.add(cls);
+        node.setAttribute("aria-label", `${node.getAttribute("aria-label")}, ${spoken[cls] ?? t("suggerimento")}`);
+      }
     }
   }
 
@@ -205,12 +229,15 @@ export function createGameScreen({
 
   // One board mutation = clear any hint, apply it, re-arm submit, save, redraw.
   function applyBoardChange(mutate, { rerenderToolbar = true } = {}) {
+    const before = snapshotBoard(state);
     clearHint();
     mutate();
     markUnsolved();
     persistProgress();
     if (rerenderToolbar) renderToolbar();
     renderBoardAndClues();
+    // said aloud for screen-reader users: what the move did (a note, a cross, a placement…)
+    announce(describeBoardChange(puzzle, before, snapshotBoard(state)));
   }
 
   // A drag across many cells marks one cell per event; rebuilding the board for each
@@ -236,10 +263,15 @@ export function createGameScreen({
       puzzle,
       state,
       (row, col) => applyBoardChange(() => handleCellTap(state, puzzle.grid, row, col)), // tap: nota (o X/gomma)
-      (row, col) => applyBoardChange(() => handleCellHold(state, puzzle.grid, row, col, pressStartTool)), // hold: conferma il personaggio selezionato all'inizio della pressione
+      (row, col) =>
+        // hold: conferma il personaggio selezionato all'inizio della pressione; da tastiera
+        // (Maiusc+Invio) non c'è nessuna pressione: vale lo strumento selezionato ora
+        applyBoardChange(() => handleCellHold(state, puzzle.grid, row, col, pressStartTool ?? state.selectedTool)),
       (row, col) => {
         // drag: note su più caselle (non azzera l'eventuale suggerimento)
+        const before = snapshotBoard(state);
         handleCellDrag(state, puzzle.grid, row, col);
+        announce(describeBoardChange(puzzle, before, snapshotBoard(state)));
         markUnsolved();
         persistProgress();
         scheduleBoardRender();
@@ -300,6 +332,7 @@ export function createGameScreen({
       hintPanel.appendChild(node);
     renderToolbar();
     renderBoardAndClues();
+    announce(hintPanel.innerText.replace(/\s+/g, " "));
   }
 
   // Counts once per click that discloses something real — never for the ‹ ›
@@ -329,23 +362,44 @@ export function createGameScreen({
       return;
     }
 
-    hintPanel.appendChild(el("div", { class: "result-banner hint-info" }, t("Sto calcolando un suggerimento…")));
+    // Worked out in a worker: show the time passing and let the player give up.
+    hintAbort = new AbortController();
+    const mine = hintAbort;
+    const progress = startProgress({
+      label: t("Sto calcolando un suggerimento…"),
+      expectedMs: limits.hints.timeMs,
+      onCancel: () => mine.abort(),
+    });
+    hintPanel.appendChild(progress.node);
+    hintPanel.setAttribute("aria-busy", "true");
     try {
-      hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates);
-      await extendChainWithOracleStep(hintChain, { puzzle, placements: state.placements, getEffectiveSolution });
+      hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates, {
+        signal: mine.signal,
+        timeMs: limits.hints.timeMs,
+      });
+      await extendChainWithOracleStep(hintChain, {
+        puzzle,
+        placements: state.placements,
+        getEffectiveSolution: () => effectiveSolution.get({ signal: mine.signal }),
+      });
       countHintIfReal();
       hintChainIndex = 0;
       showHintStep(); // already clears and re-renders hintPanel
+      notifyInTitle(t("Suggerimento pronto"));
     } catch (err) {
       clear(hintPanel);
-      hintPanel.appendChild(
-        el(
-          "div",
-          { class: "result-banner hint-error" },
-          t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message })
-        )
-      );
+      if (err?.name === "AbortError") {
+        hintPanel.appendChild(el("div", { class: "result-banner hint-warning" }, t("Suggerimento annullato.")));
+        announce(t("Suggerimento annullato."));
+      } else {
+        const message = t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message });
+        hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, message));
+        announce(message, "assertive");
+      }
     } finally {
+      progress.stop();
+      hintPanel.removeAttribute("aria-busy");
+      if (hintAbort === mine) hintAbort = null;
       hintBtn.disabled = false;
     }
   }
@@ -353,9 +407,17 @@ export function createGameScreen({
   async function onSubmit() {
     clear(resultEl);
     submitBtn.disabled = true;
-    resultEl.appendChild(el("div", { class: "result-banner hint-info" }, t("Sto verificando la soluzione…")));
+    submitAbort = new AbortController();
+    const mine = submitAbort;
+    const progress = startProgress({
+      label: t("Sto verificando la soluzione…"),
+      expectedMs: limits.confirm.timeMs,
+      onCancel: () => mine.abort(),
+    });
+    resultEl.appendChild(progress.node);
+    resultEl.setAttribute("aria-busy", "true");
     try {
-      const effective = await getEffectiveSolution();
+      const effective = await effectiveSolution.get({ signal: mine.signal });
       clear(resultEl);
       if (effective.status !== "unique") {
         const message =
@@ -366,6 +428,8 @@ export function createGameScreen({
               : SOLUTION_INCONCLUSIVE_MSG;
         const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
         resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
+        announce(message, "assertive");
+        notifyInTitle(t("Verifica terminata"));
         return;
       }
 
@@ -387,30 +451,54 @@ export function createGameScreen({
         await onSolved(elapsed, { hintsUsed, checks });
         const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed });
         solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed, checks });
-        resultEl.appendChild(
-          renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked })
-        );
+        const winNode = renderWinPanel({
+          puzzle,
+          murderer: murdererName(puzzle, effective),
+          elapsed,
+          previousBest,
+          hintsUsed,
+          newlyUnlocked,
+        });
+        resultEl.appendChild(winNode);
         const extras = winExtras?.();
         if (extras) resultEl.appendChild(extras);
+        // The case is closed: say so, and bring a keyboard/screen-reader user to the result.
+        winNode.setAttribute("role", "region");
+        winNode.setAttribute("aria-label", t("Caso risolto"));
+        winNode.tabIndex = -1;
+        announce(
+          t("Caso risolto! {murderer} Tempo: {time}.", {
+            murderer: murdererName(puzzle, effective) ? t("L'assassino è: {murderer}", { murderer: murdererName(puzzle, effective) }) : "",
+            time: formatElapsed(elapsed),
+          }),
+          "assertive"
+        );
+        winNode.focus({ preventScroll: false });
+        notifyInTitle(t("Caso risolto"));
       } else {
         // Deliberately doesn't say how many are right — that would let you brute
         // force it by trial and error instead of reasoning from the clues.
         state.checks++; // counted for the statistics: a wrong "Verifica soluzione"
         persistProgress();
-        resultEl.appendChild(
-          el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi."))
-        );
+        const message = t("Non è ancora tutto corretto. Continua a dedurre dagli indizi.");
+        resultEl.appendChild(el("div", { class: "result-banner partial" }, message));
+        announce(message);
+        notifyInTitle(t("Verifica terminata"));
       }
     } catch (err) {
       clear(resultEl);
-      resultEl.appendChild(
-        el(
-          "div",
-          { class: "result-banner hint-error" },
-          t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message })
-        )
-      );
+      if (err?.name === "AbortError") {
+        resultEl.appendChild(el("div", { class: "result-banner hint-warning" }, t("Verifica annullata.")));
+        announce(t("Verifica annullata."));
+      } else {
+        const message = t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message });
+        resultEl.appendChild(el("div", { class: "result-banner hint-error" }, message));
+        announce(message, "assertive");
+      }
     } finally {
+      progress.stop();
+      resultEl.removeAttribute("aria-busy");
+      if (submitAbort === mine) submitAbort = null;
       submitBtn.disabled = solved;
     }
   }
@@ -500,6 +588,23 @@ export function createGameScreen({
   // teardown/re-init support since both callers are full-page-navigation apps
   // where this only ever runs once per page load.
   function start() {
+    // Regions a screen-reader user can jump to, and the keyboard help the board points at.
+    hintPanel.setAttribute("role", "region");
+    hintPanel.setAttribute("aria-label", t("Suggerimento"));
+    resultEl.setAttribute("role", "region");
+    resultEl.setAttribute("aria-label", t("Esito"));
+    boardEl.setAttribute("aria-label", t("Griglia di gioco"));
+    if (!document.getElementById("board-help")) {
+      const help = el(
+        "p",
+        { id: "board-help", class: "visually-hidden" },
+        t(
+          "Frecce per muoversi tra le caselle, Invio per segnare una nota, Maiusc+Invio per piazzare il personaggio selezionato. Tasti 1-9 e 0 scelgono un personaggio, X segna una X, E gomma, U annulla, H suggerimento."
+        )
+      );
+      boardEl.parentNode.insertBefore(help, boardEl);
+    }
+    boardEl.setAttribute("aria-describedby", "board-help");
     renderToolbar();
     renderBoardAndClues();
     renderBriefing();

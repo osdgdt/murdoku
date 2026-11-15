@@ -19,7 +19,8 @@ export const AREA_LOADERS = {
 const COMMON = ["ui", "clues", "medieval"];
 // what a page needs on top of the common areas
 const EXTRA = {
-  "glossary.html": ["glossary"],
+  // (the glossary examples are little cases whose cast and rooms are translated in the tutorial's area)
+  "glossary.html": ["glossary", "tutorial"],
   "editor.html": ["glossary"],
   "tutorial.html": ["tutorial"],
   "privacy.html": ["privacy"],
@@ -32,6 +33,8 @@ const PLAIN_PAGES = new Set(["", "index.html", "player.html", "print.html", "ach
 
 // The areas of the page at `pathname` (e.g. "/murdoku/glossary.html").
 export function areasForPage(pathname) {
+  // Escape hatch for the browser tests that load a page only as a host for modules of OTHER pages (set before load).
+  if (globalThis.__MURDOKU_ALL_AREAS__) return Object.keys(AREA_LOADERS);
   const page = String(pathname ?? "")
     .split("/")
     .pop();

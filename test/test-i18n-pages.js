@@ -9,7 +9,7 @@ export const tests = [
   {
     name: "dizionario per pagina: ogni pagina carica le aree comuni e le sue; una pagina sconosciuta le carica tutte",
     fn: () => {
-      assertEqual(areasForPage("/murdoku/glossary.html").join(), "ui,clues,medieval,glossary");
+      assertEqual(areasForPage("/murdoku/glossary.html").join(), "ui,clues,medieval,glossary,tutorial");
       assertEqual(areasForPage("/x/editor.html").includes("glossary"), true, "il wizard degli indizi mostra i testi del glossario");
       assertEqual(areasForPage("/x/player.html").join(), "ui,clues,medieval");
       assertEqual(areasForPage("/x/").join(), "ui,clues,medieval", "la home servita come cartella");

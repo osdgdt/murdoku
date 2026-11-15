@@ -40,7 +40,7 @@ const COMMON = ["ui", "clues", "medieval"];
 const PAGES = {
   "index.html": [COMMON, ["Crea e gioca i tuoi casi Murdoku"]],
   "player.html": [COMMON, ["Scegli un caso da giocare"]],
-  "glossary.html": [[...COMMON, "glossary"], ["Glossario degli indizi"]],
+  "glossary.html": [[...COMMON, "glossary", "tutorial"], ["Glossario degli indizi"]],
   "tutorial.html": [[...COMMON, "tutorial"], ["Come si gioca"]],
   "privacy.html": [[...COMMON, "privacy"], ["Cancella i dati di questo dispositivo"]],
   "campaign.html": [[...COMMON, "campaign"], ["Accedi con Google"]],

@@ -20,12 +20,15 @@ export const tests = [
     },
   },
   {
-    name: "CI: il job visivo gira solo sulle pull request, così un pixel diverso non può fermare la pubblicazione di main",
+    name: "CI: il job visivo non gira mai su main, così un pixel diverso non può fermare la pubblicazione di main",
     fn: async () => {
       const ci = await readRepoFile(".github/workflows/ci.yml");
       const job = ci.slice(ci.indexOf("\n  visual:"));
       assert(job.includes("\n  visual:"), "ci.yml: manca il job visual");
-      assert(/if:\s*github\.event_name == 'pull_request'/.test(job), "ci.yml: il job visual deve essere limitato alle pull request");
+      assert(
+        /if:\s*github\.ref != 'refs\/heads\/main'/.test(job),
+        "ci.yml: il job visual deve saltare main (la pubblicazione chiama questo workflow)"
+      );
       const pkg = JSON.parse(await readRepoFile("package.json"));
       assert(
         !pkg.scripts["e2e:all"].includes("e2e:visual"),

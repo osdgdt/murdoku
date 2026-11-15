@@ -31,12 +31,12 @@ jobs:
       - run: npm run e2e:all
   # Pixel comparison of key screens (test/e2e/visual.mjs against test/visual/*.png). It runs in Playwright's own
   # container image, whose version must match the installed Playwright (test/test-ci-config.js checks it), so
-  # fonts and the renderer are the same here and on the machine that wrote the references. Only on pull requests:
+  # fonts and the renderer are the same here and on the machine that wrote the references. Never on main:
   # a pixel difference is a thing to look at, never a reason to stop main from being published (pages.yml calls
-  # this workflow for every push to main). To accept an intended change: npm run e2e:visual:docker -- --update
+  # this workflow for every push to main, with github.ref = refs/heads/main). To accept an intended change: npm run e2e:visual:docker -- --update
   # (needs Docker), look at the new images, commit them.
   visual:
-    if: github.event_name == 'pull_request'
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble

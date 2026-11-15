@@ -32,5 +32,71 @@ service cloud.firestore {
     match /users/{userId}/achievements/{docId} {
       allow read, write: if isSignedIn() && request.auth.uid == userId;
     }
+
+    // ---- Statistics of the campaign cases (see src/campaign/statsStore.js) ----------------
+    // `caseStats/{campaignId__caseId}` holds the totals over all the players of a case. A player
+    // may change it only together with THEIR OWN marker `users/{uid}/caseStats/{caseKey}` being
+    // created (a player starting a case) or flipped to solved (the same player solving it), in the
+    // same batch: so each player counts once per case, and one batch moves the totals by at most
+    // one player and by bounded amounts. The numbers remain self-reported (indicative, not exact).
+    // Keep the bounds in step with LIMITS in src/campaign/statsMath.js.
+    match /users/{userId}/caseStats/{caseKey} {
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['started', 'solved'])
+        && request.resource.data.started == true
+        && request.resource.data.solved is bool;
+      // only ever from "not solved" to "solved"
+      allow update: if isSignedIn() && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['solved'])
+        && resource.data.solved != true
+        && request.resource.data.solved == true;
+    }
+
+    match /caseStats/{caseKey} {
+      function markerPath() {
+        return /databases/$(database)/documents/users/$(request.auth.uid)/caseStats/$(caseKey);
+      }
+      function before(field) { return resource == null ? 0 : resource.data.get(field, 0); }
+      function delta(field) { return request.resource.data.get(field, 0) - before(field); }
+      function knownCase() {
+        return caseKey.matches('^[A-Za-z0-9_]{1,100}__[A-Za-z0-9_]{1,100}$')
+          && exists(/databases/$(database)/documents/campaigns/$(caseKey.split('__')[0]));
+      }
+      function onlyCounters() {
+        return request.resource.data.keys().hasOnly(['starts', 'solves', 'totalSeconds', 'totalHints', 'totalChecks']);
+      }
+      function noSolve() {
+        return delta('solves') == 0 && delta('totalSeconds') == 0 && delta('totalHints') == 0 && delta('totalChecks') == 0;
+      }
+      function oneSolve() {
+        return delta('solves') == 1
+          && delta('totalSeconds') >= 1 && delta('totalSeconds') <= 86400
+          && delta('totalHints') >= 0 && delta('totalHints') <= 50
+          && delta('totalChecks') >= 0 && delta('totalChecks') <= 200;
+      }
+      function markerCreated() {
+        return !exists(markerPath()) && existsAfter(markerPath());
+      }
+      function markerSolvedNow() {
+        return exists(markerPath()) && existsAfter(markerPath())
+          && get(markerPath()).data.solved != true && getAfter(markerPath()).data.solved == true;
+      }
+      // a new player: one more start (and, if they come in already solved, their solve too)
+      function newPlayer() {
+        return markerCreated() && delta('starts') == 1
+          && (noSolve() || (getAfter(markerPath()).data.solved == true && oneSolve()));
+      }
+      // a known player solving: one solve, no new start
+      function playerSolved() {
+        return markerSolvedNow() && delta('starts') == 0 && oneSolve();
+      }
+
+      // one case at a time, by its key: no listing of the collection
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow create, update: if isSignedIn() && knownCase() && onlyCounters() && (newPlayer() || playerSolved());
+      allow delete: if false;
+    }
   }
 }

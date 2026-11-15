@@ -7,7 +7,9 @@ import { getAuth, deleteUser } from "https://www.gstatic.com/firebasejs/12.18.0/
 import { firebaseApp } from "../firebaseConfig.js";
 
 const db = getFirestore(firebaseApp);
-const SUBCOLLECTIONS = ["campaignProgress", "achievements"];
+// (`caseStats`: the markers that stop a case being counted twice in the global statistics; the
+// aggregates in the top-level `caseStats` collection hold no personal data and stay.)
+const SUBCOLLECTIONS = ["campaignProgress", "achievements", "caseStats"];
 
 // Returns the number of documents removed.
 export async function deleteCloudData(uid) {

@@ -126,6 +126,26 @@ const scenarios = [
     },
   },
   {
+    name: "statistics: a wrong check is counted and the playing time is kept with the board (and carries on after a reload)",
+    async run(page) {
+      await page.locator(".char-chip", { hasText: "Alice" }).first().click();
+      await hold(page, 0, 2);
+      await page.waitForTimeout(2300); // the clock is running (the page is visible)
+      await page.click("#submit-btn");
+      await page.waitForSelector(".result-banner.partial, .result-banner.hint-error, .result-banner.hint-warning");
+      const saved = await page.evaluate(() => {
+        const key = Object.keys(localStorage).find((k) => k.startsWith("murdoku:progress:"));
+        return JSON.parse(localStorage.getItem(key));
+      });
+      if (!(saved.activeSeconds >= 2)) throw new Error(`active time not saved: ${saved.activeSeconds}`);
+      if (saved.checks !== 1) throw new Error(`wrong check not counted: ${saved.checks}`);
+      await page.reload();
+      await page.waitForSelector("#hint-btn");
+      const shown = await page.textContent("#timer");
+      if (/⏱ 0:0[01]$/.test(shown.trim())) throw new Error(`the time restarted from zero after the reload: ${shown}`);
+    },
+  },
+  {
     name: "hand-written hints can be stepped through with the arrows",
     async run(page) {
       await page.click("#hint-btn");

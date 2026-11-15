@@ -519,4 +519,11 @@ export default {
   "Aggiungi: {clue}": "Add: {clue}",
   "Mostra tutti ({n})": "Show all ({n})",
   "Elenco parziale: ci sono troppi indizi possibili.": "Partial list: there are too many possible clues.",
+  // statistics
+  "⏱ Tempo: {v}": "⏱ Time: {v}",
+  "⏱ tempo medio {time}": "⏱ average time {time}",
+  "💡 {count} suggerimenti in media": "💡 {count} hints on average",
+  "{percent}% lo completa": "{percent}% finish it",
+  "{count} giocatori": "{count} players",
+  "Casi iniziati: {started} · lasciati a metà: {abandoned}": "Cases begun: {started} · left unfinished: {abandoned}",
 };

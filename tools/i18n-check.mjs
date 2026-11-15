@@ -3,6 +3,8 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import en from "../src/i18n/en.js";
+import { checkPageAreas, knownPages } from "./lib/i18n-pages.mjs";
+import { PAGE_AREAS } from "../src/i18n/areas.js";
 
 const root = path.resolve(import.meta.dirname, "..");
 const IGNORED = new Set(["EN", "IT", "🔎 Murdoku", "github.com/osdgdt/murdoku/issues"]);
@@ -40,4 +42,12 @@ for (const file of readdirSync(root).filter((f) => f.endsWith(".html"))) {
 
 for (const [key, file] of missing) console.log(`${file}: ${JSON.stringify(key)}`);
 console.log(`\n${missing.size} stringhe senza traduzione inglese.`);
-process.exit(process.argv.includes("--strict") && missing.size ? 1 : 0);
+
+// Each page loads only some areas of the dictionary (src/i18n/areas.js): a string used by a page but translated
+// only in an area the page does not load would show in Italian. That is an error, not a listing.
+const pageProblems = await checkPageAreas();
+for (const p of pageProblems) console.log(`${p.page}: ${JSON.stringify(p.key)} (usato in ${p.file}) è solo nell'area «${p.area}», che questa pagina non carica`);
+const unlisted = knownPages().filter((page) => !(page in PAGE_AREAS));
+if (unlisted.length) console.log(`Pagine non elencate in src/i18n/areas.js (caricano tutto, va bene ma non sono verificate): ${unlisted.join(", ")}`);
+console.log(`${pageProblems.length} stringhe fuori dalle aree della loro pagina.`);
+process.exit((process.argv.includes("--strict") && missing.size) || pageProblems.length ? 1 : 0);

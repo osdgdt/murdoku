@@ -62,13 +62,18 @@ async function touchOn(page) {
   };
 }
 
-async function open(browser, { stripManualHints = false, touch = false, url = CASE_URL, ready = "#hint-btn", locale = "en-US" } = {}) {
+async function open(
+  browser,
+  { stripManualHints = false, touch = false, url = CASE_URL, ready = "#hint-btn", locale = "en-US", allAreas = false } = {}
+) {
   const context = await browser.newContext({
     locale,
     viewport: touch ? { width: 390, height: 844 } : { width: 900, height: 900 },
     hasTouch: touch,
     serviceWorkers: "block",
   });
+  // a page used only as a host for the modules of other pages needs the whole English dictionary (src/i18n/areas.js)
+  if (allAreas) await context.addInitScript(() => (globalThis.__MURDOKU_ALL_AREAS__ = true));
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
@@ -380,7 +385,7 @@ const scenarios = [
   })),
   {
     name: "campaign hidden clues: a padlock replaces the hidden clue, and the case is still solved against the complete answer key",
-    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    options: { url: `${base}/player.html`, ready: "header.topbar", allAreas: true },
     async run(page) {
       // Drive the real game screen the way campaign.html does (that page needs Firebase, this does not).
       const hiddenText = await page.evaluate(async () => {
@@ -427,7 +432,7 @@ const scenarios = [
   },
   {
     name: "campaign hidden clues: solving a case announces the clues it revealed in later cases",
-    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    options: { url: `${base}/player.html`, ready: "header.topbar", allAreas: true },
     async run(page) {
       const text = await page.evaluate(async () => {
         const model = await import("/src/campaign/campaignModel.js");
@@ -452,7 +457,7 @@ const scenarios = [
   },
   {
     name: "campaign editor panel: pick which earlier case reveals a clue; saved, counted, and a stale choice is flagged",
-    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    options: { url: `${base}/player.html`, ready: "header.topbar", allAreas: true },
     async run(page) {
       await page.evaluate(async () => {
         const model = await import("/src/campaign/campaignModel.js");
@@ -527,7 +532,7 @@ const scenarios = [
   },
   {
     name: "campaign story: introduction, epilogue and finale are drawn as plain text (never HTML), in paragraphs",
-    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    options: { url: `${base}/player.html`, ready: "header.topbar", allAreas: true },
     async run(page) {
       await page.evaluate(async () => {
         const model = await import("/src/campaign/campaignModel.js");
@@ -602,7 +607,7 @@ const scenarios = [
   },
   {
     name: "campaign editor story panels: texts saved per case, summary tick, finale kept when half-written and removed when emptied",
-    options: { url: `${base}/player.html`, ready: "header.topbar" },
+    options: { url: `${base}/player.html`, ready: "header.topbar", allAreas: true },
     async run(page) {
       await page.evaluate(async () => {
         const model = await import("/src/campaign/campaignModel.js");

@@ -16,6 +16,7 @@
 import { zoneOfCell } from "../model/grid.js";
 import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
+import { limitsFor } from "../solver/limits.js";
 import { t } from "../i18n/i18n.js";
 
 export const SOLUTION_UNSATISFIABLE_MSG = t(
@@ -28,12 +29,9 @@ export const SOLUTION_INCONCLUSIVE_MSG = t(
   "Non riesco a stabilire con certezza la soluzione di questo caso: gli indizi lasciano lo spazio di ricerca troppo ampio anche per un'analisi approfondita. Se sei l'autore, aggiungi indizi più stringenti."
 );
 
-// Budget for confirming an already clue-consistent declared solution is also
-// the UNIQUE one — well under deriveSolution.js's cap (10,000,000): with
-// forwardCheck:true this is still ~5x deeper than the editor's own "Verifica
-// unicità" click, while staying an order of magnitude cheaper than the full
-// from-scratch derive it escalates to on the rare puzzle this can't settle.
-const DECLARED_SOLUTION_CHECK_MAX_NODES = 1_000_000;
+// The budgets (limits.js, scaled with the size of the grid) for confirming an already
+// clue-consistent declared solution is also the UNIQUE one — well under the full from-scratch
+// derive it escalates to on the rare puzzle this cheaper check can't settle.
 
 // `deps` is injectable so the logic is unit-testable without a Web Worker.
 export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, checkUniquenessAsync, validateSolution }) {
@@ -50,21 +48,30 @@ export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, ch
   // checkUniqueness has no fixedPlacements support: it re-searches the clues
   // from scratch under a smaller node cap. solutionCount can never be 0 here —
   // validateSolution() already proved the declared solution is one valid solution.
+  const limits = limitsFor(puzzle);
+  const derive = () => deps.deriveSolutionAsync(puzzle, { maxNodes: limits.derive.maxNodes, timeMs: limits.derive.timeMs });
+
   function confirmDeclaredSolutionUnique() {
     return deps
-      .checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, maxNodes: DECLARED_SOLUTION_CHECK_MAX_NODES })
+      .checkUniquenessAsync(puzzle, {
+        maxSolutions: 2,
+        forwardCheck: true,
+        maxNodes: limits.confirm.maxNodes,
+        timeMs: limits.confirm.timeMs,
+      })
       .then((report) => {
         if (report.solutionCount >= 2) return { status: "ambiguous", placements: null };
-        if (report.solutionCount === 1 && !report.truncated) return { status: "unique", placements: puzzle.solution.placements };
+        const complete = report.exhausted ?? !report.truncated;
+        if (report.solutionCount === 1 && complete) return { status: "unique", placements: puzzle.solution.placements };
         // The cheap tier couldn't settle it — escalate instead of guessing.
-        return deps.deriveSolutionAsync(puzzle);
+        return derive();
       });
   }
 
   return {
     get() {
       if (!promise) {
-        promise = retryable(deps.validateSolution(puzzle).valid ? confirmDeclaredSolutionUnique() : deps.deriveSolutionAsync(puzzle));
+        promise = retryable(deps.validateSolution(puzzle).valid ? confirmDeclaredSolutionUnique() : derive());
       }
       return promise;
     },

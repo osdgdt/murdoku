@@ -52,11 +52,11 @@ export const DERIVE_SOLUTION_MAX_NODES = 10_000_000;
 //                     proof of non-uniqueness, whether or not the search was
 //                     then capped before looking for still more of them
 //                     -> { status: "ambiguous", placements: null }
-//   "inconclusive"  the node budget ran out before proving EITHER "zero" or
+//   "inconclusive"  the node or time budget ran out before proving EITHER "zero" or
 //                     "exactly one" — genuinely unknown; must never be
 //                     treated as solved or as unsolvable
 //                     -> { status: "inconclusive", placements: null }
-export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES } = {}) {
+export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES, timeMs = null } = {}) {
   const prop = propagate(puzzle, new Map());
   if (prop.contradiction) {
     return { status: "unsatisfiable", placements: null };
@@ -65,6 +65,7 @@ export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES } 
   const report = checkUniqueness(puzzle, {
     maxSolutions: 2,
     maxNodes,
+    timeMs,
     forwardCheck: true,
     fixedPlacements: prop.confirmed,
     domains: prop.domains,
@@ -72,8 +73,13 @@ export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES } 
   if (report.solutionCount >= 2) {
     return { status: "ambiguous", placements: null };
   }
+  // `stoppedBy` ("nodes" | "time") tells the caller WHY it is inconclusive.
   if (report.solutionCount === 1) {
-    return report.truncated ? { status: "inconclusive", placements: null } : { status: "unique", placements: report.solutions[0] };
+    return report.exhausted
+      ? { status: "unique", placements: report.solutions[0] }
+      : { status: "inconclusive", placements: null, stoppedBy: report.stoppedBy };
   }
-  return report.truncated ? { status: "inconclusive", placements: null } : { status: "unsatisfiable", placements: null };
+  return report.exhausted
+    ? { status: "unsatisfiable", placements: null }
+    : { status: "inconclusive", placements: null, stoppedBy: report.stoppedBy };
 }

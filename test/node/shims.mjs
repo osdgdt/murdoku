@@ -33,13 +33,18 @@ export function installLocalStorage() {
 export function installWorkerShim() {
   let ready = null;
   const workerScope = { onmessage: null, postMessage: null };
+  // The real page has one worker per job kind ("main", "hints"); here they all share this one
+  // in-process scope, so a reply is routed back to whichever fake worker sent that request.
+  const senders = new Map(); // request id -> FakeWorker
+  workerScope.postMessage = (data) => {
+    const sender = senders.get(data?.id);
+    senders.delete(data?.id);
+    queueMicrotask(() => sender?.onmessage?.({ data: structuredClone(data) }));
+  };
   globalThis.Worker = class FakeWorker {
     constructor() {
       this.onmessage = null;
       this.onerror = null;
-      workerScope.postMessage = (data) => {
-        queueMicrotask(() => this.onmessage?.({ data: structuredClone(data) }));
-      };
       if (!ready) {
         globalThis.self = workerScope;
         ready = import("../../src/solver/solverWorker.js");
@@ -47,6 +52,7 @@ export function installWorkerShim() {
     }
     postMessage(data) {
       const clone = structuredClone(data);
+      senders.set(clone.id, this);
       ready.then(() => workerScope.onmessage({ data: clone }));
     }
     terminate() {}

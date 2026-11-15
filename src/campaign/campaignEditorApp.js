@@ -5,6 +5,7 @@ import { onAuthChange, signIn, signOutUser } from "../auth/googleAuth.js";
 import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync } from "../solver/solverClient.js";
+import { limitsFor } from "../solver/limits.js";
 import { createCampaign, addCase, removeCase, reorderCases, touch as touchCampaign } from "./campaignModel.js";
 import { createUnlockPanel } from "./unlockPanel.js";
 import { createStoryPanel, createFinalePanel } from "./storyPanel.js";
@@ -280,7 +281,8 @@ addCaseBtn.addEventListener("click", async () => {
     addCaseStatus.className = "info-message";
     let solutionStatus = "unique";
     if (!validateSolution(puzzle).valid) {
-      solutionStatus = (await deriveSolutionAsync(puzzle)).status;
+      const { maxNodes, timeMs } = limitsFor(puzzle).derive;
+      solutionStatus = (await deriveSolutionAsync(puzzle, { maxNodes, timeMs })).status;
     }
     if (solutionStatus !== "unique") {
       const ok = confirm(t("{v} Aggiungerlo comunque alla campagna?", { v: SOLUTION_STATUS_WARNINGS[solutionStatus] }));

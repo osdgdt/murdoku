@@ -1,3 +1,5 @@
+import { limitsFor } from "./limits.js";
+
 // Budgets and caps shared by the hint computation (hints.js) and the clue
 // explanation (hintExplain.js).
 
@@ -49,11 +51,17 @@ export const HINT_MAX_ELIMINATIONS_PER_WAVE = 8;
 // a chain naturally terminates.
 export const HINT_CHAIN_MAX_STEPS = 120;
 
-export function createBudget() {
+// `puzzle` (optional) scales the time and node budgets to the size of the grid (limits.js): a
+// 16x16 case gets about three times what a 9x9 one does. Without it, the 9x9 numbers above.
+export function createBudget(puzzle = null) {
   const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
-  const deadline = now() + HINT_TOTAL_TIME_BUDGET_MS;
+  const limits = puzzle ? limitsFor(puzzle).hints : { maxNodes: HINT_MAX_NODES, timeMs: HINT_TOTAL_TIME_BUDGET_MS };
+  const deadline = now() + limits.timeMs;
   return {
-    waveNodesRemaining: HINT_MAX_NODES,
+    // The same deadline stops a search that is running (solvePuzzle polls it), not just the
+    // loops that check `expired()` between searches.
+    deadline,
+    waveNodesRemaining: limits.maxNodes,
     involvedClueNodesRemaining: INVOLVED_CLUE_TEST_MAX_NODES,
     expired() {
       return now() >= deadline;

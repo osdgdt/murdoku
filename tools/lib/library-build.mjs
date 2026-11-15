@@ -8,7 +8,7 @@
 //   io.writeIndex(index)      -> examples/library.json content
 import { buildBase, trueClues, composeClues, measure, verify, rng, addClue, withoutVictim, holdsIn, victimCellOptions } from "./author.mjs";
 import { LIBRARY } from "../cases/library.mjs";
-const { estimateDifficultyFromNodes, setTense } = await import("../../src/model/puzzle.js");
+const { setTense } = await import("../../src/model/puzzle.js");
 const { checkUniqueness } = await import("../../src/solver/validator.js");
 const { zoneOfCell } = await import("../../src/model/grid.js");
 
@@ -147,7 +147,7 @@ export async function buildLibrary({ io, only = [], ids = null, log = console.lo
       const puzzle = finish(spec, lang, base.puzzle, chosen.clues);
       const { redundant } = await verify(puzzle);
       const stats = { nodes: checkUniqueness(puzzle, { maxSolutions: 2 }).nodesVisited };
-      info = { redundant, nodes: stats.nodes, estimate: estimateDifficultyFromNodes(stats.nodes) };
+      info = { redundant, nodes: stats.nodes };
       await io.writeCase(lang, spec.id, puzzle);
       files[lang] = `examples/library/${spec.id}.${lang}.murdoku.json`;
     }

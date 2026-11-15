@@ -59,6 +59,7 @@ npm run e2e:visual:docker  # pixel comparison of key screens (16×16 board light
 npm run e2e:touch   # the phone with real touch events (CDP): the 16×16 board (Move, dragging, a note, a long press) and the clue wizard (open, pick a type, pick a target by tapping the board, scroll the sheet, targets ≥ 44 px)
 npm run e2e:i18n    # in English each page loads only the dictionary areas it needs and shows English
 npm run i18n        # strings missing in English + a page-by-page check that no string a page uses sits in an area the page does not load
+npm run check:case -- case.murdoku.json [other.murdoku.json]  # checks a case before it goes into the library (or the daily challenge): one solution, the declared solution agrees with the clues, superfluous clues, declared vs estimated difficulty, the house rules of library cases; given the `.it.` and `.en.` files of one case it also checks they are the same case. `--library` checks the whole library. Exits 1 on an error (warnings do not fail)
 ```
 
 The English dictionary is split by area (`src/i18n/en/*.js`) and **each page loads only its own** (`src/i18n/areas.js`: e.g. the glossary strings only on the glossary and the editor, the tutorial's only on the tutorial): an English visitor downloads about half the dictionary on the common pages, and Italian visitors load none. `npm run i18n` and a test check, page by page, that no string a page uses ends up in an area it does not load (shared strings live in `ui.js`).

@@ -147,6 +147,7 @@ npm run e2e:visual:docker  # confronta pixel per pixel schermate chiave (plancia
 npm run e2e:touch   # il telefono con eventi touch veri (CDP): plancia 16×16 (Muovi, trascinare, nota, pressione lunga) e wizard degli indizi (aprire, scegliere il tipo, bersaglio toccando la plancia, scorrere il foglio, bersagli ≥ 44 px)
 npm run e2e:i18n    # in inglese ogni pagina carica solo le aree del dizionario che le servono e mostra inglese
 npm run i18n        # stringhe senza traduzione inglese + controllo pagina per pagina che nessuna stringa usata stia in un'area che la pagina non carica
+npm run check:case -- file.murdoku.json [altro.murdoku.json]  # controlla un caso prima di metterlo in libreria (o nella sfida del giorno): soluzione unica, soluzione dichiarata coerente con gli indizi, indizi superflui, difficoltà dichiarata contro quella stimata, regole della casa dei casi di libreria; con i file `.it.` e `.en.` di uno stesso caso controlla anche che siano lo stesso caso. `--library` controlla tutta la libreria. Esce con 1 se c'è un errore (gli avvisi non fanno fallire)
 npm run make:library  # rigenera i casi in examples/library/ e l'indice examples/library.json (oggi vuoti; ogni caso è verificato dal solver)
 npm run build:sw  # rigenera la lista di file in cache del service worker
 ```

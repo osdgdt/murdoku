@@ -16,7 +16,7 @@ import {
   genericClues,
   cluesForCharacter,
   difficultyLabel,
-  estimateDifficultyFromNodes,
+  estimateDifficulty,
   addManualHintStep,
   updateManualHintStep,
   removeManualHintStep,
@@ -340,18 +340,23 @@ export const tests = [
     },
   },
   {
-    name: "estimateDifficultyFromNodes mappa il conteggio dei nodi in una fascia di difficoltà crescente",
+    name: "estimateDifficulty parte da quanti personaggi si deducono subito (come i livelli della libreria); i nodi possono solo alzare il livello",
     fn: () => {
-      assertEqual(estimateDifficultyFromNodes(5), "very-easy");
-      assertEqual(estimateDifficultyFromNodes(29), "very-easy");
-      assertEqual(estimateDifficultyFromNodes(30), "easy");
-      assertEqual(estimateDifficultyFromNodes(149), "easy");
-      assertEqual(estimateDifficultyFromNodes(150), "medium");
-      assertEqual(estimateDifficultyFromNodes(799), "medium");
-      assertEqual(estimateDifficultyFromNodes(800), "hard");
-      assertEqual(estimateDifficultyFromNodes(3999), "hard");
-      assertEqual(estimateDifficultyFromNodes(4000), "expert");
-      assertEqual(estimateDifficultyFromNodes(1000000), "expert");
+      // tutto dedotto: «molto facile» se il cast è piccolo, «facile» altrimenti
+      assertEqual(estimateDifficulty({ forced: 4, total: 4, nodes: 7 }), "very-easy");
+      assertEqual(estimateDifficulty({ forced: 5, total: 5, nodes: 5 }), "very-easy");
+      assertEqual(estimateDifficulty({ forced: 8, total: 8, nodes: 12 }), "easy");
+      // almeno metà: media; qualcuno: difficile; nessuno: esperto
+      assertEqual(estimateDifficulty({ forced: 4, total: 8, nodes: 10 }), "medium");
+      assertEqual(estimateDifficulty({ forced: 7, total: 8, nodes: 10 }), "medium");
+      assertEqual(estimateDifficulty({ forced: 3, total: 8, nodes: 10 }), "hard");
+      assertEqual(estimateDifficulty({ forced: 1, total: 7, nodes: 9 }), "hard");
+      assertEqual(estimateDifficulty({ forced: 0, total: 7, nodes: 9 }), "expert");
+      // una ricerca pesante alza il livello, mai lo abbassa
+      assertEqual(estimateDifficulty({ forced: 8, total: 8, nodes: 800 }), "hard");
+      assertEqual(estimateDifficulty({ forced: 8, total: 8, nodes: 4000 }), "expert");
+      assertEqual(estimateDifficulty({ forced: 0, total: 8, nodes: 800 }), "expert");
+      assertEqual(estimateDifficulty({ forced: 0, total: 0 }), "very-easy", "caso vuoto: nessun errore");
     },
   },
   {

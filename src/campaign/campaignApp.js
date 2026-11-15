@@ -7,13 +7,15 @@ import { createBoardState, serializeBoardState, deserializeBoardState } from "..
 import { createGameScreen } from "../player/gameScreen.js";
 import * as campaignStore from "./campaignStore.js";
 import * as progressStore from "./progressStore.js";
+import * as statsStore from "./statsStore.js";
+import { summarizeCaseStats } from "./statsMath.js";
 import { applyClueLocks, caseStoryOf, finaleOf, isCampaignComplete } from "./campaignModel.js";
 import { renderIntroCard, renderOutro, renderFinale } from "./storyView.js";
 import { renderUnlockNote } from "./unlockNote.js";
 import { formatElapsed } from "../util/time.js";
 import * as recentActivity from "../storage/recentActivityStore.js";
 import { describeAuthError, renderLoginHelp } from "../auth/loginHelp.js";
-import { t } from "../i18n/i18n.js";
+import { t, intlLocale } from "../i18n/i18n.js";
 
 wireThemeToggle();
 
@@ -209,9 +211,14 @@ async function showCaseListView(campaignId) {
     caseListEl.appendChild(el("p", { class: "muted" }, t("Questa campagna non ha ancora nessun caso.")));
     return;
   }
+  // What other players found, shown under each case once there are enough of them (read after
+  // the list is drawn, so a slow or refused read never delays it).
+  const statsLines = new Map();
   campaign.cases.forEach((c, index) => {
     const unlocked = index <= progress.unlockedCaseIndex;
     const bestTime = progress.cases[c.id]?.bestTimeSeconds;
+    const statsLine = el("span", { class: "meta case-stats hidden" });
+    statsLines.set(c.id, statsLine);
     caseListEl.appendChild(
       el("div", { class: "saved-row" }, [
         el("div", {}, [
@@ -222,6 +229,7 @@ async function showCaseListView(campaignId) {
               ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(bestTime)}`)
               : null,
           ]),
+          statsLine,
         ]),
         el("div", { class: "actions" }, [
           unlocked
@@ -245,6 +253,32 @@ async function showCaseListView(campaignId) {
       ])
     );
   }
+  showCaseStats(campaign.id, campaign.cases, statsLines);
+}
+
+const numberFormat = () => new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 1 });
+
+// Fills the "what other players found" line of each case from the global statistics.
+async function showCaseStats(campaignId, cases, statsLines) {
+  await Promise.all(
+    cases.map(async (c) => {
+      try {
+        const summary = summarizeCaseStats(await statsStore.getCaseStats(campaignId, c.id));
+        const line = statsLines.get(c.id);
+        if (!summary || !line) return;
+        const n = numberFormat();
+        line.textContent = [
+          t("⏱ tempo medio {time}", { time: formatElapsed(summary.avgSeconds) }),
+          t("💡 {count} suggerimenti in media", { count: n.format(summary.avgHints) }),
+          t("{percent}% lo completa", { percent: Math.round(summary.completionRate * 100) }),
+          t("{count} giocatori", { count: summary.players }),
+        ].join(" · ");
+        line.classList.remove("hidden");
+      } catch (err) {
+        console.warn("statistiche globali non disponibili:", err);
+      }
+    })
+  );
 }
 
 async function showFinaleView(campaignId) {
@@ -391,8 +425,17 @@ async function showGameView(campaignId, caseId) {
     state,
     persistProgress,
     achievementKey: `campaign:${campaign.id}:${currentCase.id}`,
-    onSolved: async (elapsedSeconds) => {
+    // Global statistics: best-effort, never in the way of playing (see statsStore.js).
+    onStart: () => {
+      statsStore
+        .recordCaseStart(currentUserState.uid, campaign.id, currentCase.id)
+        .catch((err) => console.warn("statistiche globali non registrate:", err));
+    },
+    onSolved: async (elapsedSeconds, { hintsUsed = 0, checks = 0 } = {}) => {
       boardSaver.flush();
+      statsStore
+        .recordCaseSolved(currentUserState.uid, campaign.id, currentCase.id, { seconds: elapsedSeconds, hints: hintsUsed, checks })
+        .catch((err) => console.warn("statistiche globali non registrate:", err));
       try {
         await progressStore.markCaseCompleted(currentUserState.uid, campaign.id, currentCase.id, currentCaseIndex, elapsedSeconds);
         if (!progress.completedCaseIds.includes(currentCase.id)) progress.completedCaseIds.push(currentCase.id);

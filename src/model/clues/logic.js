@@ -1,4 +1,4 @@
-import { describeNestedClue } from "./shared.js";
+import { describeNestedClue, upperFirst } from "./shared.js";
 import { t } from "../../i18n/i18n.js";
 
 export const LOGIC_CLUES = {
@@ -14,10 +14,16 @@ export const LOGIC_CLUES = {
     label: t("O uno o l'altro (indizio composto)"),
     params: [],
     describe: (params, puzzle) => {
-      const lower = (s) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
-      const descA = describeNestedClue(params.a, puzzle) ?? "?";
-      const descB = params.b?.type ? lower(describeNestedClue(params.b, puzzle)) : "?";
+      const descA = upperFirst(describeNestedClue(params.a, puzzle) ?? "?");
+      const descB = params.b?.type ? describeNestedClue(params.b, puzzle) : "?";
       return t("{descA}, oppure {descB}.", { descA, descB });
+    },
+    // "Not (A or B)" is "neither A nor B": a plain "Non ..." in front of the sentence would only
+    // deny A, so it is said as a whole.
+    negatedDescribe: (params, puzzle) => {
+      const descA = describeNestedClue(params.a, puzzle) ?? "?";
+      const descB = params.b?.type ? describeNestedClue(params.b, puzzle) : "?";
+      return t("Non è vero che {descA}, oppure {descB}.", { descA, descB });
     },
   },
 };

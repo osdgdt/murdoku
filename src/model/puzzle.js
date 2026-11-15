@@ -135,6 +135,38 @@ export function addCharacter(puzzle, name, iconId, isVictim = false) {
   return character;
 }
 
+// Longest character name the editor accepts (it is shown on chips, in clues and on the board).
+export const MAX_CHARACTER_NAME = 40;
+
+export function cleanCharacterName(name) {
+  return String(name ?? "")
+    .trim()
+    .slice(0, MAX_CHARACTER_NAME)
+    .trim();
+}
+
+// Whether another character (not `exceptId`) already has this name, ignoring case.
+export function characterNameTaken(puzzle, name, exceptId = null) {
+  const wanted = cleanCharacterName(name).toLowerCase();
+  return puzzle.characters.some((c) => c.id !== exceptId && String(c.name).trim().toLowerCase() === wanted);
+}
+
+// Gives a character a new name. Only the name changes: the id (which clues, the solution
+// and the players' notes refer to), colour, icon and role stay as they are, and every
+// sentence is written from the name when it is shown. Free text written by the author
+// (briefing, notes, bios) does not follow a rename. Returns "ok", or why nothing changed:
+// "unknown" (no such character), "blank", "duplicate" (another character has that name).
+export function renameCharacter(puzzle, characterId, name) {
+  const character = puzzle.characters.find((c) => c.id === characterId);
+  if (!character) return "unknown";
+  const clean = cleanCharacterName(name);
+  if (!clean) return "blank";
+  if (characterNameTaken(puzzle, clean, characterId)) return "duplicate";
+  character.name = clean;
+  touch(puzzle);
+  return "ok";
+}
+
 export function setVictim(puzzle, characterId) {
   for (const c of puzzle.characters) c.isVictim = c.id === characterId;
   touch(puzzle);
@@ -188,6 +220,47 @@ export function setClueNegate(puzzle, clueId, negate) {
   touch(puzzle);
 }
 
+// Replaces the type, parameters and negation of a clue, keeping its id and its owner and its
+// place in the list (what editing a clue in the clue wizard does).
+export function replaceClue(puzzle, clueId, { type, params, negate }) {
+  const clue = puzzle.clues.find((c) => c.id === clueId);
+  if (!clue) return false;
+  clue.type = type;
+  clue.params = JSON.parse(JSON.stringify(params || {}));
+  if (negate) clue.negate = true;
+  else delete clue.negate;
+  touch(puzzle);
+  return true;
+}
+
+// A copy of a clue, right after it, with a new id. Returns the copy (or null).
+export function duplicateClue(puzzle, clueId) {
+  const index = puzzle.clues.findIndex((c) => c.id === clueId);
+  if (index === -1) return null;
+  const copy = JSON.parse(JSON.stringify(puzzle.clues[index]));
+  copy.id = makeId("clue");
+  puzzle.clues.splice(index + 1, 0, copy);
+  touch(puzzle);
+  return copy;
+}
+
+// Moves a clue one place up (-1) or down (+1) among the clues of the same owner (a character, or
+// the general ones). Returns whether it moved.
+export function moveClue(puzzle, clueId, delta) {
+  const index = puzzle.clues.findIndex((c) => c.id === clueId);
+  if (index === -1) return false;
+  const owner = puzzle.clues[index].characterId;
+  const step = delta < 0 ? -1 : 1;
+  for (let i = index + step; i >= 0 && i < puzzle.clues.length; i += step) {
+    if (puzzle.clues[i].characterId === owner) {
+      [puzzle.clues[index], puzzle.clues[i]] = [puzzle.clues[i], puzzle.clues[index]];
+      touch(puzzle);
+      return true;
+    }
+  }
+  return false;
+}
+
 export function removeClue(puzzle, clueId) {
   puzzle.clues = puzzle.clues.filter((c) => c.id !== clueId);
   touch(puzzle);
@@ -215,6 +288,14 @@ export function setSolutionPlacement(puzzle, characterId, row, col) {
   if (row !== null && col !== null) placements.push({ characterId, row, col });
   puzzle.solution.placements = placements;
   touch(puzzle);
+}
+
+// Takes a character out of the declared solution (the author may leave it incomplete and
+// let the clues derive it). Returns whether the character was placed.
+export function removeSolutionPlacement(puzzle, characterId) {
+  if (!puzzle.solution.placements.some((p) => p.characterId === characterId)) return false;
+  setSolutionPlacement(puzzle, characterId, null, null);
+  return true;
 }
 
 export function placementFor(puzzle, characterId) {
@@ -403,7 +484,8 @@ export function pruneDanglingClueReferences(puzzle) {
   const objectIds = new Set(puzzle.grid.objects.map((o) => o.id));
 
   function isKnownReference(id) {
-    if (id === undefined || id === null) return true;
+    // not chosen yet: an incomplete clue (flagged in the editor), not a dangling one
+    if (id === undefined || id === null || id === "") return true;
     if (isObjectTypeTarget(id)) return true;
     return characterIds.has(id) || zoneIds.has(id) || objectIds.has(id);
   }

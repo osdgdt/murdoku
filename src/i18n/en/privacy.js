@@ -26,8 +26,6 @@ export default {
   "Cancellare tutti i dati salvati su questo dispositivo ({count} voci)? Casi, progressi, traguardi e preferenze andranno persi.":
     "Delete all data saved on this device ({count} entries)? Cases, progress, achievements and preferences will be lost.",
   "Fatto: i dati locali sono stati cancellati.": "Done: local data has been deleted.",
-  "Cancellare dal cloud i progressi delle campagne e i traguardi sincronizzati dell'account {email}?":
-    "Delete from the cloud the campaign progress and synced achievements of the account {email}?",
   "Fatto: {count} elementi cancellati dal cloud.": "Done: {count} items deleted from the cloud.",
   "Vuoi anche eliminare l'accesso con Google a questo sito (l'account Google resta invariato)?":
     "Do you also want to delete your Google sign-in for this site (your Google account itself is unchanged)?",
@@ -52,4 +50,8 @@ export default {
   "📋 Copia il link": "📋 Copy the link",
   "✓ Link copiato: incollalo in Chrome": "✓ Link copied: paste it into Chrome",
   "Impossibile copiare: selezionalo dalla barra degli indirizzi": "Could not copy: select it from the address bar",
+  "Per i casi delle campagne il sito raccoglie anche statistiche aggregate, per mostrare a chi sta per iniziare un caso quanto è lungo e difficile: quando apri un caso per la prima volta e quando lo risolvi per la prima volta, il tuo tempo di gioco, i suggerimenti usati e le verifiche sbagliate vengono sommati ai totali di quel caso. Nel totale (pubblico per chi ha effettuato l'accesso) non c'è nessun nome né identificativo; resta solo, nella tua area riservata, un contrassegno che impedisce di contare due volte lo stesso caso, e che puoi cancellare coi pulsanti qui sotto. Le statistiche dei casi fuori dalle campagne restano solo sul tuo dispositivo.":
+    "For the cases of the campaigns the site also gathers aggregate statistics, to show someone about to start a case how long and how hard it is: when you open a case for the first time and when you solve it for the first time, your playing time, the hints you used and your wrong checks are added to the totals of that case. The total (public to signed-in players) holds no name and no identifier; the only thing left, in your private area, is a marker that stops the same case being counted twice, and that you can delete with the buttons below. The statistics of cases outside campaigns stay only on your device.",
+  "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati e i contrassegni delle statistiche dell'account {email}?":
+    "Delete from the cloud the campaign progress, the synced achievements and the statistics markers of the account {email}?",
 };

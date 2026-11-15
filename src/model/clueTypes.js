@@ -43,6 +43,11 @@ export function genericClueTypeIds() {
 function negateText(text) {
   if (!text) return text;
   if (getLanguage() === "en") return negateEnglish(text);
+  // A sentence that opens with a quantity ("Esattamente una persona...", "2 stanze...")
+  // cannot take a bare "Non" ("Non esattamente..."): it is denied as a whole.
+  const first = text.split(" ")[0].toLowerCase();
+  if (first === "esattamente" || /^\d/.test(first))
+    return t("Non è vero che {text}", { text: text.charAt(0).toLowerCase() + text.slice(1) });
   return "Non " + text.charAt(0).toLowerCase() + text.slice(1);
 }
 

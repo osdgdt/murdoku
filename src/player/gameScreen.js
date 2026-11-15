@@ -16,6 +16,7 @@ import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleSte
 import { computeHintChainAsync } from "../solver/solverClient.js";
 import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTargetCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
+import { createActiveClock } from "./activeClock.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
 import * as solveHistory from "../storage/solveHistoryStore.js";
 import { characterIndexForKey, stepForKey, steppedCharacter } from "./characterKeys.js";
@@ -46,7 +47,16 @@ import { t } from "../i18n/i18n.js";
 // hidden (campaigns): the answer key must come from ALL the clues, because
 // without the hidden ones the solution is not unique. `winExtras()`, when given,
 // returns an extra node shown under the "case solved" panel.
-export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persistProgress, onSolved, achievementKey, winExtras }) {
+export function createGameScreen({
+  puzzle,
+  answerPuzzle = puzzle,
+  state,
+  persistProgress: saveBoard,
+  onSolved,
+  onStart,
+  achievementKey,
+  winExtras,
+}) {
   const toolbarEl = qs("#player-toolbar");
   const boardEl = qs("#board");
   const cluesEl = qs("#clues-panel");
@@ -67,17 +77,26 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
   let pinnedClueId = null; // a clue whose cells stay highlighted until it is clicked again
   let hintLevels = []; // per chain step: how much of a graded hint is revealed (hintLogic.js)
   let timerInterval = null;
-  let startedAt = null; // read by onSubmit too, for the elapsed time passed to onSolved
   let solved = false; // true once onSubmit's win branch has fired — keeps "Verifica soluzione" disabled until a placement/note actually changes again
+  // The time really spent on the case: runs only while the page is visible and carries over from
+  // earlier visits (the seconds are saved with the board).
+  const clock = createActiveClock({ initialSeconds: state.activeSeconds });
+  // Every save of the board also records the time so far.
+  const persistProgress = () => {
+    state.activeSeconds = clock.seconds();
+    saveBoard();
+  };
   const effectiveSolution = createEffectiveSolution(answerPuzzle);
   const getEffectiveSolution = () => effectiveSolution.get();
 
+  const isVisible = () => typeof document === "undefined" || document.visibilityState !== "hidden";
+  const showTime = () => {
+    timerEl.textContent = `⏱ ${formatElapsed(clock.tick(isVisible()))}`;
+  };
+
   function startTimer() {
-    startedAt = Date.now();
-    timerEl.textContent = "⏱ 0:00";
-    timerInterval = setInterval(() => {
-      timerEl.textContent = `⏱ ${formatElapsed(Math.floor((Date.now() - startedAt) / 1000))}`;
-    }, 1000);
+    showTime();
+    timerInterval = setInterval(showTime, 1000);
   }
 
   function stopTimer() {
@@ -359,13 +378,15 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
 
       if (correct === total && state.placements.size === total) {
         solved = true;
-        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        const elapsed = Math.max(1, clock.tick(isVisible()));
         const previousBest = puzzle.bestTimeSeconds;
         stopTimer();
-        await onSolved(elapsed);
+        state.activeSeconds = elapsed;
         const hintsUsed = state.hintsUsed;
+        const checks = state.checks;
+        await onSolved(elapsed, { hintsUsed, checks });
         const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed });
-        solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed });
+        solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed, checks });
         resultEl.appendChild(
           renderWinPanel({ puzzle, murderer: murdererName(puzzle, effective), elapsed, previousBest, hintsUsed, newlyUnlocked })
         );
@@ -374,6 +395,8 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
       } else {
         // Deliberately doesn't say how many are right — that would let you brute
         // force it by trial and error instead of reasoning from the clues.
+        state.checks++; // counted for the statistics: a wrong "Verifica soluzione"
+        persistProgress();
         resultEl.appendChild(
           el("div", { class: "result-banner partial" }, t("Non è ancora tutto corretto. Continua a dedurre dagli indizi."))
         );
@@ -483,6 +506,12 @@ export function createGameScreen({ puzzle, answerPuzzle = puzzle, state, persist
     clear(resultEl);
     startTimer();
     wireControls();
+    // leaving the page (or the tab) saves the time so far
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden" && !solved) persistProgress();
+    });
+    solveHistory.recordStart({ key: achievementKey, title: puzzle.title });
+    onStart?.();
   }
 
   return { start };

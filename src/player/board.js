@@ -15,6 +15,10 @@ export function createBoardState() {
     // without hints" achievement must stay honest even if the player
     // reloads mid-solve after already using a hint.
     hintsUsed: 0,
+    // Seconds really spent on this case (only while the page is visible, across visits) and how many
+    // times "Verifica soluzione" said it was not right yet: kept with the board, for the statistics.
+    activeSeconds: 0,
+    checks: 0,
   };
 }
 
@@ -34,6 +38,8 @@ export function serializeBoardState(state) {
     lineNotes: [...state.lineNotes.entries()].map(([k, set]) => [k, [...set]]),
     autoXByCharacter: [...state.autoXByCharacter.entries()],
     hintsUsed: state.hintsUsed,
+    activeSeconds: state.activeSeconds,
+    checks: state.checks,
   };
 }
 
@@ -53,6 +59,8 @@ export function deserializeBoardState(saved) {
     // Progress saved before this feature existed lacks `hintsUsed` — fall
     // back to 0 (assume hint-free) instead of leaving it undefined.
     state.hintsUsed = Number.isFinite(saved.hintsUsed) && saved.hintsUsed >= 0 ? saved.hintsUsed : 0;
+    state.activeSeconds = Number.isFinite(saved.activeSeconds) && saved.activeSeconds >= 0 ? Math.floor(saved.activeSeconds) : 0;
+    state.checks = Number.isFinite(saved.checks) && saved.checks >= 0 ? Math.floor(saved.checks) : 0;
   } catch {
     return createBoardState();
   }

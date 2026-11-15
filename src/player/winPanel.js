@@ -6,8 +6,8 @@ import { buildShareText, shareResult } from "../util/shareResult.js";
 import { t } from "../i18n/i18n.js";
 
 // `previousBest` is the best time BEFORE this solve. `puzzle.bestTimeSeconds`
-// only exists on puzzles whose onSolved tracks it (single-puzzle play) —
-// campaign mode doesn't, so the time line then simply isn't rendered.
+// only exists on puzzles whose onSolved tracks it (single-puzzle play); in a
+// campaign the time is shown without a comparison.
 export function renderWinPanel({ puzzle, murderer, elapsed, previousBest, hintsUsed, newlyUnlocked }) {
   let timeLine = null;
   if (typeof puzzle.bestTimeSeconds === "number") {
@@ -19,7 +19,7 @@ export function renderWinPanel({ puzzle, murderer, elapsed, previousBest, hintsU
         ? t("⏱ Tempo: {v} — nuovo record personale!", { v: formatElapsed(elapsed) })
         : t("⏱ Tempo: {v} (miglior tempo: {v2})", { v: formatElapsed(elapsed), v2: formatElapsed(puzzle.bestTimeSeconds) })
     );
-  }
+  } else timeLine = el("div", { class: "time-result" }, t("⏱ Tempo: {v}", { v: formatElapsed(elapsed) }));
   const hintLine = el(
     "div",
     { class: "hint-result" },

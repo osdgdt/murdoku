@@ -14,6 +14,25 @@ import {
 } from "./shared.js";
 import { DIRECTIONS, DIRECTION_LABELS } from "../../util/geometry.js";
 
+// Who "the westernmost ..." is about, with the right article and agreement: "l'uomo", "la
+// donna", "la persona accanto a X", "la persona seduta su una sedia", "la persona".
+function extremePerson(params, puzzle) {
+  switch (params.property) {
+    case "male":
+      return t("l'uomo");
+    case "female":
+      return t("la donna");
+    case "adjacentTo":
+      return t("la persona accanto a {target}", { target: targetLabel(puzzle, params.targetId) });
+    case "sittingOn":
+      return t("la persona seduta su {object}", { object: objectTypePhrase(params.objectTypeId) });
+    case "seated":
+      return t("la persona seduta");
+    default:
+      return t("la persona");
+  }
+}
+
 export const PLACEMENT_CLUES = {
   adjacent: {
     label: t("È accanto a"),
@@ -205,8 +224,7 @@ export const PLACEMENT_CLUES = {
         const nested = describeNestedClue(params.customClue, puzzle);
         if (nested) return t("È la persona più {superlative}{where} tra chi verifica: {nested}.", { superlative, where, nested });
       }
-      const who = params.property ? t("la persona {property}", { property: describeProperty(params, puzzle) }) : t("la persona");
-      return t("È {who} più {superlative}{where}.", { who, superlative, where });
+      return t("È {who} più {superlative}{where}.", { who: extremePerson(params, puzzle), superlative, where });
     },
   },
 };

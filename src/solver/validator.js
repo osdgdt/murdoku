@@ -39,11 +39,10 @@ export function validateSolution(puzzle) {
     const result = predicate(pm, true);
     if (result === false) {
       const owner = clue.characterId && puzzle.characters.find((c) => c.id === clue.characterId);
-      const ownerLabel = owner ? owner.name : "Indizio generale";
       violations.push({
         clueId: clue.id,
         characterId: clue.characterId,
-        message: `${ownerLabel}: ${describeClue(clue, puzzle)}`,
+        message: t("{owner}: {clue}", { owner: owner ? owner.name : t("Indizio generale"), clue: describeClue(clue, puzzle) }),
       });
     }
   }

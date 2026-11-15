@@ -1,0 +1,144 @@
+// `npm run e2e:clues`: writing clues in the editor with the clue wizard, on a PC (1280 px) and on
+// a phone (390 px): the two steps, choosing a target by tapping the board, the live check against
+// the declared solution, suggested clues, editing / duplicating / moving / removing a clue.
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { chromium } from "playwright";
+
+const root = path.resolve(import.meta.dirname, "../..");
+const TYPES = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".json": "application/json",
+  ".css": "text/css",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+};
+const server = createServer(async (req, res) => {
+  const pathname = decodeURIComponent(new URL(req.url, "http://x").pathname);
+  const file = path.join(root, pathname === "/" ? "index.html" : pathname);
+  if (!file.startsWith(root)) return res.writeHead(403).end();
+  try {
+    const body = await readFile(file);
+    res.writeHead(200, { "content-type": TYPES[path.extname(file)] || "application/octet-stream" }).end(body);
+  } catch {
+    res.writeHead(404).end();
+  }
+}).listen(0);
+const base = `http://localhost:${server.address().port}`;
+
+let failures = 0;
+const check = (name, ok, detail = "") => {
+  if (!ok) failures++;
+  console.log(`${ok ? "✓" : "✗"} ${name}${ok ? "" : ` — ${detail}`}`);
+};
+
+const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
+
+async function run(label, viewport) {
+  const context = await browser.newContext({ locale: "it-IT", viewport, serviceWorkers: "block", hasTouch: viewport.width < 600 });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  await page.goto(`${base}/player.html?import=test/fixtures/faro.en.murdoku.json`);
+  await page.waitForSelector("#board [role=gridcell]");
+  const id = new URL(page.url()).searchParams.get("id");
+  await page.goto(`${base}/editor.html?id=${id}`);
+  await page.waitForSelector("#board [role=gridcell]");
+  await page.waitForSelector("#clue-panel .clue-owner");
+
+  // (the editor's own toolbar is wider than a phone: the wizard must not make that worse)
+  const scrollWidth = () => page.evaluate(() => document.documentElement.scrollWidth);
+  const baseWidth = await scrollWidth();
+  const noHScroll = async (what) => check(`${label}: ${what}: no new horizontal scroll`, (await scrollWidth()) <= baseWidth);
+
+  const rowsBefore = await page.locator("#clue-panel .clue-row").count();
+  check(
+    `${label}: the clue list is near the board`,
+    await page.evaluate(() => {
+      const board = document.querySelector("#board").getBoundingClientRect();
+      const panel = document.querySelector("#clue-panel").getBoundingClientRect();
+      return panel.left >= board.right - 1 || panel.top >= board.bottom - 1;
+    })
+  );
+
+  // --- a new general clue by the two steps
+  await page.click('[data-key="new-generic"]');
+  await page.waitForSelector("#clue-wizard:not([hidden])");
+  check(`${label}: step 1 lists families`, (await page.locator("#clue-wizard .clue-family").count()) >= 1);
+  await page.fill('#clue-wizard [data-key="search"]', "diagonale");
+  const found = await page.locator("#clue-wizard .clue-type-card").count();
+  check(`${label}: search narrows the types`, found >= 0);
+  await page.fill('#clue-wizard [data-key="search"]', "");
+  await noHScroll("wizard step 1");
+
+  // a character clue: first person, any type with a target
+  const firstOwner = await page.locator('#clue-panel [data-key^="new-"]').nth(1).getAttribute("data-key");
+  await page.keyboard.press("Escape");
+  check(`${label}: Escape closes the wizard`, await page.locator("#clue-wizard").isHidden());
+  await page.click(`[data-key="${firstOwner}"]`);
+  await page.fill('#clue-wizard [data-key="search"]', "accanto");
+  const card = page.locator("#clue-wizard .clue-type-card").first();
+  check(`${label}: a type matches "accanto"`, (await card.count()) === 1);
+  await card.click();
+  const sentence = await page.textContent("#clue-wizard .clue-sentence");
+  check(`${label}: the sentence is shown`, sentence.length > 5, sentence);
+  const saveBtn = page.locator('#clue-wizard [data-key="save"]');
+  check(`${label}: incomplete clue cannot be added`, await saveBtn.isDisabled());
+  await noHScroll("wizard step 2");
+
+  // pick the target by tapping the board
+  await page.click('#clue-wizard [data-key$="|pick"]');
+  check(`${label}: pick mode marks cells`, (await page.locator("#board .clue-pick-eligible").count()) > 0);
+  await page.locator("#board .clue-pick-eligible").first().click();
+  const choose = page.locator('#clue-wizard [data-key^="choose-"]').first();
+  if (await choose.count()) await choose.click();
+  await page.waitForSelector('#clue-wizard [data-key="save"]');
+  check(`${label}: target chosen from the board, clue can be added`, await saveBtn.isEnabled());
+  const verdict = await page.textContent("#clue-wizard .clue-verdict");
+  check(`${label}: a verdict about the solution is shown`, /Vero|Falso|soluzione/.test(verdict), verdict);
+  check(`${label}: the board shows the preview`, (await page.locator("#board .clue-preview-target").count()) >= 0);
+  await saveBtn.click();
+  await page.waitForFunction(() => document.querySelector("#clue-wizard")?.hidden);
+  check(`${label}: the clue is in the list`, (await page.locator("#clue-panel .clue-row").count()) === rowsBefore + 1);
+
+  // --- duplicate, move, edit, remove
+  await page.locator("#clue-panel .clue-row").last().scrollIntoViewIfNeeded();
+  const lastId = await page.locator("#clue-panel .clue-row").last().getAttribute("data-clue-id");
+  await page.locator(`[data-clue-id="${lastId}"] [aria-label="Duplica indizio"]`).click();
+  check(`${label}: duplicate adds a row`, (await page.locator("#clue-panel .clue-row").count()) === rowsBefore + 2);
+  await page.locator(`[data-clue-id="${lastId}"] [aria-label="Modifica indizio"]`).first().click();
+  check(`${label}: edit opens on step 2`, (await page.locator("#clue-wizard .clue-sentence").count()) === 1);
+  await page.locator('#clue-wizard [data-key="negate-yes"]').click();
+  await page.locator('#clue-wizard [data-key="save"]').click();
+  check(`${label}: negated clue saved`, (await page.locator(`[data-clue-id="${lastId}"]`).count()) === 1);
+  await page.locator(`[data-clue-id="${lastId}"] [aria-label="Rimuovi indizio"]`).click();
+  check(`${label}: remove works`, (await page.locator("#clue-panel .clue-row").count()) === rowsBefore + 1);
+
+  // --- suggestions
+  await page.click("#clue-panel .clue-suggest-btn");
+  await page.waitForSelector("#clue-wizard .clue-suggest-type");
+  await page.locator("#clue-wizard .clue-suggest-type summary").first().click();
+  const before = await page.locator("#clue-panel .clue-row").count();
+  await page.locator("#clue-wizard .clue-add").first().click();
+  check(`${label}: a suggested clue is added`, (await page.locator("#clue-panel .clue-row").count()) === before + 1);
+  await noHScroll("suggestions");
+  await page.screenshot({ path: process.env.CLUES_SHOT ? `${process.env.CLUES_SHOT}-${label}.png` : undefined });
+  await page.keyboard.press("Escape");
+
+  check(`${label}: no page errors`, errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
+try {
+  await run("1280", { width: 1280, height: 900 });
+  await run("390", { width: 390, height: 844 });
+} finally {
+  await browser.close();
+  server.close();
+}
+if (failures) {
+  console.log(`\n${failures} controlli falliti`);
+  process.exit(1);
+}

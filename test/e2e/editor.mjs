@@ -140,6 +140,106 @@ try {
   await page.click('#board [data-row="2"][data-col="1"]', { button: "right", position: { x: 28, y: 3 } });
   check("erasing from the other cell removes the shared piece", (await pieces()) === 3, String(await pieces()));
 
+  // ---- blocking cells: the board keeps its order (a blocked cell stays where it is drawn)
+  const aligned = (r, c) =>
+    page.evaluate(
+      ([row, col]) => {
+        const rect = (a, b) => document.querySelector(`#board [data-row="${a}"][data-col="${b}"]`)?.getBoundingClientRect();
+        const me = rect(row, col);
+        const left = rect(row, col - 1);
+        const right = rect(row, col + 1);
+        const above = rect(row - 1, col);
+        const near = (x, y) => x === undefined || y === undefined || Math.abs(x - y) < 2;
+        return near(left && left.right, me.left) && near(right && right.left, me.right) && near(above && above.bottom, me.top);
+      },
+      [r, c]
+    );
+  await page.click('button:has-text("Block/unblock cell")');
+  await page.click('#board [data-row="2"][data-col="2"]');
+  check(
+    "a blocked cell is where its row and column say, and so are the cells next to it",
+    (await aligned(2, 2)) && (await aligned(2, 3)) && (await aligned(2, 4))
+  );
+  check(
+    "the cell that was tapped is the one blocked",
+    await page
+      .locator('#board [data-row="2"][data-col="2"].blocked')
+      .count()
+      .then((n) => n === 1)
+  );
+  check(
+    "blocking a cell does not move the objects of the others (the plant stays in its cell)",
+    (await page.locator('#board [data-row="0"][data-col="4"] .obj-icon').count()) === 1 &&
+      (await page.locator("#board .blocked").count()) === 1
+  );
+  await page.click('#board [data-row="2"][data-col="2"]');
+  check("tapping it again unblocks that same cell", (await page.locator("#board .blocked").count()) === 0 && (await aligned(2, 2)));
+  await page.click('#board [data-row="1"][data-col="2"]'); // the window on its east side is stored under this cell
+  check("a window on the wall of a blocked cell is still drawn (by the cell next to it)", (await pieces()) === 3, String(await pieces()));
+  await page.click('#board [data-row="1"][data-col="2"]');
+
+  // ---- the eraser: first the object, then the room
+  await page.locator('button:text-is("Eraser")').click();
+  await page.click('#board [data-row="1"][data-col="0"]'); // a lamp in the Lighthouse
+  check(
+    "the eraser takes the object and leaves the room",
+    (await page.locator('#board [data-row="1"][data-col="0"] .obj-icon').count()) === 0 &&
+      (await page.locator('#board [data-row="1"][data-col="0"].zoned').count()) === 1
+  );
+  await page.click('#board [data-row="1"][data-col="0"]');
+  check(
+    "a second erase, on the empty cell, takes the room",
+    (await page.locator('#board [data-row="1"][data-col="0"].zoned').count()) === 0
+  );
+
+  // ---- characters: rename, refused names
+  const nameInputs = page.locator(".character-name-input");
+  const first = await nameInputs.nth(0).inputValue();
+  await nameInputs.nth(0).fill("Arthur II");
+  await nameInputs.nth(0).press("Enter");
+  await page.waitForFunction(() => document.querySelector(".character-name-input")?.value === "Arthur II");
+  check(
+    "a character can be renamed (the card and the clues show the new name)",
+    (await page.innerText("body")).includes("Arthur II") && first !== "Arthur II"
+  );
+  const second = await nameInputs.nth(1).inputValue();
+  await nameInputs.nth(1).fill("arthur ii");
+  await nameInputs.nth(1).press("Enter");
+  check(
+    "a name already in use (ignoring case) is refused and the old one comes back, with the reason",
+    (await nameInputs.nth(1).inputValue()) === second &&
+      /already has this name/.test(await page.locator(".character-list p.violation:not([hidden])").first().innerText())
+  );
+  const third = await nameInputs.nth(2).inputValue();
+  await nameInputs.nth(2).fill("   ");
+  await nameInputs.nth(2).press("Enter");
+  check("a blank name is refused", (await nameInputs.nth(2).inputValue()) === third);
+
+  // ---- the solution tab: a placed character can be taken out (on a phone too: a button, or a tap on its cell)
+  await page.click("#tab-solution");
+  await page.waitForSelector(".chip-with-remove");
+  const placedBefore = await page.locator(".chip-with-remove").count();
+  await page.locator(".chip-remove").first().click();
+  check(
+    "the ✕ next to a placed character takes it out of the solution",
+    (await page.locator(".chip-with-remove").count()) === placedBefore - 1 && placedBefore > 0,
+    String(placedBefore)
+  );
+  const token = page.locator("#board .char-token").first();
+  const tokenName = await token.getAttribute("title");
+  const cellOfToken = await token.evaluate(
+    (node) => `[data-row="${node.closest(".board-cell").dataset.row}"][data-col="${node.closest(".board-cell").dataset.col}"]`
+  );
+  await page.locator(".char-chip", { hasText: tokenName }).first().click();
+  await page.click(`#board ${cellOfToken}`);
+  check(
+    "tapping the cell of the selected, placed character takes it out",
+    (await page.locator(`#board ${cellOfToken} .char-token`).count()) === 0
+  );
+  await page.click(`#board ${cellOfToken}`);
+  check("and tapping it again places the character back", (await page.locator(`#board ${cellOfToken} .char-token`).count()) === 1);
+  await page.click("#tab-map");
+
   // The map editor's own tools: add a room, paint a cell, place a prop, resize the grid.
   await page.fill('input[placeholder="Room name"]', "Test room");
   await page.click("text=+ Add room");

@@ -107,6 +107,16 @@ function renderHistory(root) {
           t("Ultimi 7 giorni: {count} risolti", { count: solveHistory.solvesInLastDays(7) }),
         ].join("")
       ),
+      solveHistory.startedCount() > 0
+        ? el(
+            "p",
+            { class: "muted" },
+            t("Casi iniziati: {started} · lasciati a metà: {abandoned}", {
+              started: solveHistory.startedCount(),
+              abandoned: solveHistory.abandonedCases().length,
+            })
+          )
+        : null,
       el("h4", {}, t("Per caso")),
       el("ul", { class: "history-list" }, caseRows),
       el("h4", {}, t("Ultime risoluzioni")),

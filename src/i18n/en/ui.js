@@ -206,12 +206,6 @@ export default {
   "Il puzzle è ambiguo: esistono {countLabel} soluzioni possibili. Aggiungi altri indizi.":
     "The puzzle is ambiguous: there are {countLabel} possible solutions. Add more clues.",
   "Non sono riuscito a verificare l'unicità: {message}. Riprova.": "I couldn't check uniqueness: {message}. Try again.",
-  "Stima in corso…": "Estimating…",
-  'La stima richiede una soluzione unica: usa prima "Verifica unicità".':
-    'The estimate needs a unique solution: use "Check uniqueness" first.',
-  "Stima difficoltà: {v} (nodi esplorati dal solver: {nodesVisited}). È solo un'indicazione — il campo \"Difficoltà\" in alto resta una scelta manuale dell'autore.":
-    'Estimated difficulty: {v} (nodes explored by the solver: {nodesVisited}). This is only a hint — the "Difficulty" field above remains the author\'s manual choice.',
-  "Non sono riuscito a calcolare la stima: {message}. Riprova.": "I couldn't compute the estimate: {message}. Try again.",
   "Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?":
     "A declared solution already exists (incomplete or invalid): computing a new one will replace it. Continue?",
   "Calcolo della soluzione in corso…": "Computing the solution…",
@@ -305,7 +299,6 @@ export default {
   "💡 Suggerimenti": "💡 Hints",
   "✓ Valida soluzione": "✓ Validate solution",
   "? Verifica unicità": "? Check uniqueness",
-  "📊 Stima difficoltà": "📊 Estimate difficulty",
   "🧮 Calcola soluzione": "🧮 Compute solution",
   "📖 Dossier del caso": "📖 Case dossier",
   "Testo introduttivo (mostrato al giocatore prima degli indizi)": "Introduction (shown to the player before the clues)",
@@ -316,7 +309,6 @@ export default {
   "Elimina questo caso": "Delete this case",
   Annulla: "Undo",
   Ripeti: "Redo",
-  "Stima la difficoltà dal numero di nodi esplorati dal solver": "Estimates the difficulty from the number of nodes the solver explored",
   "Deduce la soluzione dagli indizi con una ricerca esaustiva, quando è unica, e la compila automaticamente nella scheda Soluzione":
     "Deduces the solution from the clues with an exhaustive search, when it is unique, and fills it into the Solution tab",
   "Es. La sera del 12 ottobre, il corpo di Lord Ashford viene trovato nella biblioteca...":
@@ -572,4 +564,15 @@ export default {
   "già presente": "already there",
   "⬇ Esporta indizi": "⬇ Export clues",
   "⬆ Importa indizi": "⬆ Import clues",
+  // live difficulty
+  "✓ Soluzione unica · Difficoltà stimata: {level} · {nodes} nodi · dedotti subito: {forced} su {total}":
+    "✓ Unique solution · Estimated difficulty: {level} · {nodes} nodes · deduced at once: {forced} of {total}",
+  "⚠ Più di una soluzione: servono altri indizi per renderla unica": "⚠ More than one solution: more clues are needed to make it unique",
+  "✗ Nessuna soluzione: gli indizi si contraddicono": "✗ No solution: the clues contradict each other",
+  "… Analisi non conclusa entro il limite: aggiungi indizi per restringere la ricerca":
+    "… Analysis not finished within the limit: add clues to narrow the search",
+  "Aggiungi personaggi e indizi per vedere qui quante soluzioni restano e quanto è difficile.":
+    "Add characters and clues to see here how many solutions are left and how hard it is.",
+  "Analisi in corso…": "Analysing…",
+  "Analisi non disponibile.": "Analysis not available.",
 };

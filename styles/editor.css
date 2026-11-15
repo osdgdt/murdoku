@@ -850,3 +850,12 @@
 .clueset-mapping { display: flex; flex-direction: column; gap: 0.4rem; margin: 0.6rem 0; }
 .clueset-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem; align-items: center; }
 .clueset-row select { min-height: 44px; max-width: 100%; }
+
+/* ---- Live difficulty line ------------------------------------------------------------- */
+.difficulty-preview { margin-top: 0.8rem; min-height: 1.5rem; }
+.difficulty-preview:empty { display: none; }
+.difficulty-line { display: block; padding: 0.45rem 0.7rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--panel); font-size: 0.85rem; line-height: 1.35; }
+.difficulty-line.ok { border-color: var(--success); color: var(--success); }
+.difficulty-line.warn { border-color: var(--gold); color: var(--ink); }
+.difficulty-line.bad { border-color: var(--danger); color: var(--danger); }
+.difficulty-line.info { color: var(--ink-soft); }

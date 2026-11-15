@@ -205,7 +205,48 @@ async function clueSets() {
   await context.close();
 }
 
+// The difficulty line above the clues follows the edits by itself.
+async function livePreview() {
+  const context = await browser.newContext({ locale: "it-IT", viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  await page.goto(`${base}/player.html?import=test/fixtures/faro.en.murdoku.json`);
+  await page.waitForSelector("#board [role=gridcell]");
+  const id = new URL(page.url()).searchParams.get("id");
+  await page.goto(`${base}/editor.html?id=${id}`);
+  await page.waitForSelector("#clue-panel .clue-owner");
+  await page.waitForSelector("#difficulty-preview .difficulty-line.ok", { timeout: 30000 });
+  const text = await page.innerText("#difficulty-preview");
+  check(
+    "live preview: a unique case says so, with the difficulty and the deductions",
+    /Soluzione unica/.test(text) && /Difficoltà stimata/.test(text) && /dedotti subito/.test(text),
+    text
+  );
+  check("live preview: it is a polite live region", (await page.getAttribute("#difficulty-preview", "aria-live")) === "polite");
+  check("live preview: the old estimate button is gone", (await page.locator("#estimate-btn").count()) === 0);
+  // drop clues one by one: the line changes by itself, and with none left it asks for clues
+  while ((await page.locator("#clue-panel .clue-row").count()) > 0)
+    await page.locator('#clue-panel .clue-row [aria-label="Rimuovi indizio"]').first().click();
+  await page.waitForFunction(
+    () => /Aggiungi personaggi e indizi/.test(document.querySelector("#difficulty-preview")?.innerText || ""),
+    null,
+    { timeout: 15000 }
+  );
+  check("live preview: with no clues it asks for clues", true);
+  await page.click("#editor-undo-btn");
+  await page.waitForFunction(
+    () => /Soluzione unica|Più di una soluzione|Analisi/.test(document.querySelector("#difficulty-preview")?.innerText || ""),
+    null,
+    { timeout: 30000 }
+  );
+  check("live preview: undo brings the analysis back", true);
+  check("live preview: no page errors", errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
 try {
+  await livePreview();
   await clueSets();
   await run("1280", { width: 1280, height: 900 });
   await run("390", { width: 390, height: 844 });

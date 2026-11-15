@@ -1,5 +1,6 @@
 // `npm run e2e:visual`: screenshots of a few key screens compared, pixel by pixel, with reference images in
 // test/visual/ — a big 16×16 board (light, dark and high contrast), the clue wizard on a desktop and on a phone, the clue list.
+// Local only: it is not part of e2e:all or the CI, because the references depend on the Chromium and OS that made them.
 // It catches what no other test sees: a style change that squeezes, overlaps or recolours a screen.
 //
 // The references were made with the Chromium of the test machine (fonts and anti-aliasing differ between browsers

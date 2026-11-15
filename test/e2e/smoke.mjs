@@ -58,7 +58,9 @@ try {
     await page.waitForSelector("#hint-panel *");
     for (const [name, [r, c]] of Object.entries(spec.names)) {
       await page.locator(".char-chip", { hasText: name }).first().click();
-      const box = await page.locator(`[data-row="${r}"][data-col="${c}"]`).first().boundingBox();
+      const cell = page.locator(`[data-row="${r}"][data-col="${c}"]`).first();
+      await cell.scrollIntoViewIfNeeded(); // the mouse can only reach what is on screen
+      const box = await cell.boundingBox();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await page.mouse.down();
       await page.waitForTimeout(1300); // press-and-hold places the character

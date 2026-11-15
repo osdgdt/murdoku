@@ -41,6 +41,7 @@
 .print-blank-heading::after { left: 50%; transform: translateX(-50%); }
 
 .print-board {
+  break-inside: avoid;
   display: grid;
   gap: 1px;
   background: #1a1a1a;
@@ -66,7 +67,7 @@
 }
 
 .print-cell {
-  width: 42px; height: 42px;
+  width: var(--print-cell, 42px); height: var(--print-cell, 42px);
   background: #fff;
   display: flex; align-items: center; justify-content: center;
   position: relative;

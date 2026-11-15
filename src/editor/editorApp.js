@@ -347,6 +347,10 @@ function renderSolutionPreview(puzzle, placements, index) {
   const grid = el("div", { class: "solution-preview-grid" });
   grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
   grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  // 96px is plenty up to 12 cells a side; a bigger grid grows so a cell stays about 8px.
+  const side = Math.max(96, 8 * Math.max(rows, cols));
+  grid.style.width = `${side}px`;
+  grid.style.height = `${side}px`;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const cellData = puzzle.grid.cells[r][c];

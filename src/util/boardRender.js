@@ -22,6 +22,28 @@ const CELL_SIZE = 56;
 // and `onCellEnter` fires again for every new cell the pointer enters while
 // dragging (a drag is what a press becomes the moment it leaves the pressed
 // cell before the hold timer fires — see convertToDrag above).
+// How crowded a cell is, as an attribute of the board (`data-density`: "normal",
+// "small" under 50px, "tiny" under 44px), so the stylesheet can drop what does not
+// fit: with 10 to 16 characters the notes lose their letter and the room-name tab
+// goes (the legend has the names). The cell size comes from CSS (it depends on the
+// number of columns and the window), so it is measured, and re-measured whenever
+// the board changes size.
+let boardCounter = 0;
+const densityObservers = new WeakMap();
+function applyDensity(container) {
+  const cell = container.querySelector(".board-cell");
+  const px = cell ? cell.getBoundingClientRect().width : CELL_SIZE;
+  container.dataset.density = px < 44 ? "tiny" : px < 50 ? "small" : "normal";
+}
+function trackDensity(container) {
+  if (typeof ResizeObserver === "undefined") return;
+  if (densityObservers.has(container)) return;
+  const observer = new ResizeObserver(() => applyDensity(container));
+  observer.observe(container);
+  densityObservers.set(container, observer);
+  applyDensity(container);
+}
+
 export function renderBoard(
   container,
   grid,
@@ -103,15 +125,22 @@ export function renderBoard(
     addEdgeSide(own.row, own.col, side);
     if (other) addEdgeSide(other.row, other.col, OPPOSITE_SIDE[side]);
   }
-  // Every cell of a room shares one floor style: build it once per zone.
+  // Every cell of a room shares one floor: its style is written ONCE per room, as a
+  // rule in a <style> element of the board (cells just carry the room's class), not
+  // copied into every cell: a textured floor is several KB of CSS, and on a 16x16
+  // board that was megabytes of inline style rebuilt on every render.
+  // `data-bid` scopes the rules to this board (a page may hold many).
+  container.dataset.bid = `b${++boardCounter}`;
+  const floorRules = [];
   const floorCache = new Map();
   const floorOf = (zone) => {
     if (!floorCache.has(zone.id)) {
       const { image, size, pos, own } = floorStyle(zone.textureId, roomColor(zone.color));
-      floorCache.set(zone.id, {
-        own,
-        style: `--room:${roomColor(zone.color)};--zone-texture:${image};--zone-texture-size:${size};--zone-texture-pos:${pos}`,
-      });
+      const cls = `zr${floorCache.size}`;
+      floorRules.push(
+        `[data-bid="${container.dataset.bid}"] .${cls}{--room:${roomColor(zone.color)};--zone-texture:${image};--zone-texture-size:${size};--zone-texture-pos:${pos}}`
+      );
+      floorCache.set(zone.id, { own, cls });
     }
     return floorCache.get(zone.id);
   };
@@ -214,7 +243,7 @@ export function renderBoard(
 
       let classes = "board-cell";
       if (cellData.blocked) classes += " blocked";
-      if (zone) classes += floorOf(zone).own ? " zoned floored" : " zoned";
+      if (zone) classes += (floorOf(zone).own ? " zoned floored " : " zoned ") + floorOf(zone).cls;
       if (roomName.has(`${r},${c}`)) classes += " has-room-name";
       for (const side of edgeSidesByCell.get(`${r},${c}`) || []) classes += ` has-edge-${side}`;
       if (wallBetween(r, c, r - 1, c)) classes += " wall-t";
@@ -244,7 +273,7 @@ export function renderBoard(
         draggable: "false",
         // --r/--c: the cell's place on the board, so a room's floor pattern runs
         // on from cell to cell (see --tile-pos in editor.css).
-        style: zone ? `${floorOf(zone).style};--r:${r};--c:${c}` : "",
+        style: zone ? `--r:${r};--c:${c}` : "",
         role: "gridcell",
         "aria-label": cellLabel,
         // Blocked cells still get onClick/onMousedown wired below (callers
@@ -401,4 +430,7 @@ export function renderBoard(
       )
     );
   }
+  if (floorRules.length > 0) container.appendChild(el("style", {}, floorRules.join("\n")));
+  container.toggleAttribute("data-big", grid.size.cols > 12);
+  trackDensity(container);
 }

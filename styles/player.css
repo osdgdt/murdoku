@@ -38,6 +38,13 @@
     grid-template-columns: 1fr;
   }
 }
+/* A big board (more than 12 columns, data-big set by boardRender.js) takes the whole
+   width up to 1100px too: next to the 340px clue column it would get under 700px. */
+@media (max-width: 1100px) {
+  .player-layout:has(> #board[data-big]) {
+    grid-template-columns: 1fr;
+  }
+}
 
 .player-toolbar { display: flex; gap: 0.5rem; margin-bottom: 0.85rem; flex-wrap: wrap; }
 .player-toolbar .char-chip {
@@ -57,13 +64,38 @@
 .player-toolbar .char-chip svg { width: 24px; height: 24px; }
 .player-toolbar .char-chip.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
 .player-toolbar .char-chip.used { opacity: 0.45; }
+/* Ten or more characters on a phone: one row that scrolls sideways instead of a
+   toolbar that fills a third of the screen. */
+@media (max-width: 640px) {
+  .player-toolbar:has(.char-chip:nth-child(12)) { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.3rem; }
+  .player-toolbar:has(.char-chip:nth-child(12)) .char-chip { flex: none; }
+}
+/* The key that picks the character (data-key, set by toolbar.js), small, at the end of its
+   chip; the 11th and later have none ([ and ] step through). */
+.player-toolbar .char-chip[data-key]::after {
+  content: attr(data-key);
+  margin-left: 0.3rem;
+  min-width: 1.1em;
+  padding: 0 0.25em;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--panel-alt);
+}
 
 .candidate-grid {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  /* 3x3 slots up to 9 characters, 4x4 from 10 to 16 (--note-cols, set by boardView.js) */
+  grid-template-columns: repeat(var(--note-cols, 3), 1fr);
+  grid-template-rows: repeat(var(--note-cols, 3), 1fr);
+  /* A note's size: the cell split into --note-cols boxes (0.27 of the cell for 3). */
+  --note-size: max(12px, calc(var(--cell-size, 56px) * 0.81 / var(--note-cols, 3)));
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -81,9 +113,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: max(12px, calc(var(--cell-size, 56px) * 0.27));
-  height: max(12px, calc(var(--cell-size, 56px) * 0.27));
-  font-size: max(8px, calc(var(--cell-size, 56px) * 0.165));
+  width: var(--note-size, max(12px, calc(var(--cell-size, 56px) * 0.27)));
+  height: var(--note-size, max(12px, calc(var(--cell-size, 56px) * 0.27)));
+  font-size: max(8px, calc(var(--note-size, calc(var(--cell-size, 56px) * 0.27)) * 0.61));
   font-weight: 800;
   line-height: 1;
   font-family: var(--font-ui);
@@ -140,6 +172,26 @@
   font-size: max(6px, calc(var(--cell-size, 56px) * 0.12));
   border-width: 1.5px;
 }
+/* With 10 to 16 characters (4x4 slots) the marks are smaller; where the cell is too
+   small for a legible letter (data-density "small"/"tiny", set by boardRender.js)
+   they become plain coloured dots, in their fixed slot. */
+.candidate-grid.compact.notes-4 .candidate-mark {
+  width: max(6px, calc(var(--cell-size, 56px) * 0.13));
+  height: max(6px, calc(var(--cell-size, 56px) * 0.13));
+  font-size: max(5px, calc(var(--cell-size, 56px) * 0.085));
+  border-width: 1px;
+}
+.board-grid[data-density="small"] .notes-4 .candidate-mark,
+.board-grid[data-density="tiny"] .notes-4 .candidate-mark,
+.board-grid[data-density="small"] .notes-4.line-notes .candidate-mark,
+.board-grid[data-density="tiny"] .notes-4.line-notes .candidate-mark {
+  font-size: 0;
+  background: var(--mark-color, var(--accent));
+}
+.board-grid[data-density="small"] .notes-4:not(.compact) { --note-size: max(7px, calc(var(--cell-size, 56px) * 0.21)); }
+.board-grid[data-density="tiny"] .notes-4:not(.compact) { --note-size: max(6px, calc(var(--cell-size, 56px) * 0.21)); }
+.board-grid[data-density="tiny"] .board-cell.has-room-name .candidate-grid { padding-top: 0; }
+
 
 /* Beside the board: first a box of its own with the selected character's
    clues, which sticks to the top of the window while the page scrolls, then
@@ -463,3 +515,7 @@
 .finale-epilogue .story-text { padding: 0.8rem 1rem; border-left: 5px solid var(--gold); border-radius: 10px; background: var(--panel-alt); }
 .finale-epilogue:empty { display: none; }
 .finale-link { margin: 0.8rem 0 0; font-weight: 800; }
+
+/* "Muovi": the board is being moved with a finger, not marked (see gameScreen.js). */
+.board-grid.pan-mode { outline: 3px dashed var(--accent); outline-offset: 2px; touch-action: pan-x pan-y pinch-zoom; }
+.board-grid.pan-mode .board-cell { cursor: grab; }

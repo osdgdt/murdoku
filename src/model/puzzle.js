@@ -62,8 +62,12 @@ export function estimateDifficultyFromNodes(nodesVisited) {
 // with both the light and dark cell backgrounds (tools/find-palette.mjs,
 // checked by test/test-palette.js). The order matters: any prefix of it is
 // also well separated, so small casts (the common case) get the most distinct
-// colours. Colour is never the ONLY cue anyway — tokens carry a distinct icon
-// and candidate marks carry the character's initial.
+// colours. The first 10 are the original palette (minimum ΔE ≥ 8, never
+// changed: saved cases keep their colours); the last 6, for the 11th to 16th
+// character of a big grid, are the most distinct ones that still fit the band
+// (minimum ΔE ≈ 5.7, a lower bar the test states). Colour is never the ONLY cue
+// anyway — tokens carry a distinct icon, and candidate marks sit in a fixed
+// slot per character (and carry the initial where the cell is big enough).
 export const CHARACTER_COLORS = [
   "#608aea",
   "#ea558a",
@@ -75,6 +79,13 @@ export const CHARACTER_COLORS = [
   "#6a9560",
   "#2b9f95",
   "#9f6a0b",
+  // 11th to 16th (found with `node tools/find-palette.mjs --extend 16`)
+  "#cc3c4d",
+  "#b35e6f",
+  "#5e7744",
+  "#8077c4",
+  "#809944",
+  "#448877",
 ];
 
 // Puzzles saved before this field existed lack `character.color` — fall back
@@ -213,14 +224,16 @@ export function placementFor(puzzle, characterId) {
 // --- Shape validation -------------------------------------------------
 
 // Same bound the editor's own grid-size inputs already clamp to
-// (src/editor/mapEditor.js) — enforced here too because that clamp is UI-only
+// (src/editor/mapEditor.js; 16 is also the most characters a case can have:
+// one per row and column, and the player's note grid has 16 slots) — enforced
+// here too because that clamp is UI-only
 // and never runs on an imported/shared puzzle (editor "Importa", player.html
 // ?import=, campaign editor's "aggiungi caso"). Outside this range,
 // renderBoard (src/util/boardRender.js) builds one real DOM node per cell
 // with no virtualization, so an oversized grid can hang or crash the tab
 // well before the solver ever runs.
 const MIN_GRID_SIZE = 3;
-const MAX_GRID_SIZE = 9;
+const MAX_GRID_SIZE = 16;
 
 // Everything below is about *safety*, not game rules: ids and colors from an
 // imported puzzle flow into attributes, URLs and inline styles, so anything
@@ -325,11 +338,10 @@ export function validatePuzzleShape(puzzle) {
     }
     // Mirrors solvePuzzle's own guard (src/solver/solver.js) — one character
     // per row AND per column means more characters than rows/cols can never
-    // have a valid solution. Also closes a real bug: board.js's candidate-note
-    // grid has exactly 9 fixed slots and silently drops any character past
-    // the 9th with no warning, so this keeps that invariant true at the
-    // validation boundary instead of relying on the editor's own 3-9 UI
-    // clamp (which never runs on an imported puzzle).
+    // have a valid solution. It also keeps the player's note grid (a 3x3 or
+    // 4x4 box of fixed slots, see player/boardView.js) able to show every
+    // character, at the validation boundary instead of relying on the editor's
+    // own 3-16 UI clamp (which never runs on an imported puzzle).
     if (puzzle.grid?.size) {
       const { rows, cols } = puzzle.grid.size;
       if (puzzle.characters.length > rows || puzzle.characters.length > cols) {

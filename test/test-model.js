@@ -89,16 +89,37 @@ export const tests = [
     },
   },
   {
-    name: "una griglia fuori dai limiti 3-9 viene rifiutata",
+    name: "una griglia fuori dai limiti 3-16 viene rifiutata (17×17 e 2×2), 16×16 e 3×3 sono valide",
     fn: () => {
-      const puzzle = buildValidPuzzle();
-      puzzle.grid = resizeGrid(puzzle.grid, 12, 12);
-      const { valid, errors } = validatePuzzleShape(puzzle);
-      assert(!valid, "atteso non valido");
-      assert(
-        errors.some((e) => e.includes("dimensioni della griglia")),
-        "errore atteso sulle dimensioni della griglia"
-      );
+      for (const size of [17, 2]) {
+        const puzzle = buildValidPuzzle();
+        puzzle.grid = resizeGrid(puzzle.grid, size, size);
+        const { valid, errors } = validatePuzzleShape(puzzle);
+        assert(!valid, `atteso non valido a ${size}×${size}`);
+        assert(
+          errors.some((e) => e.includes("dimensioni della griglia")),
+          "errore atteso sulle dimensioni della griglia"
+        );
+      }
+      const big = buildValidPuzzle();
+      big.grid = resizeGrid(big.grid, 16, 16);
+      const { valid, errors } = validatePuzzleShape(big);
+      assert(valid, "una griglia 16×16 è valida: " + errors.join(", "));
+    },
+  },
+  {
+    name: "16 personaggi stanno in una griglia 16×16 (uno per riga e colonna), il 17° no; 10 personaggi non stanno in una 9×9",
+    fn: () => {
+      const make = (size, count) => {
+        const puzzle = createPuzzle("Grande");
+        puzzle.grid = resizeGrid(puzzle.grid, size, size);
+        for (let i = 0; i < count; i++) addCharacter(puzzle, `P${i}`, "person1", i === 0);
+        return puzzle;
+      };
+      assert(validatePuzzleShape(make(16, 16)).valid, "16 personaggi su 16×16");
+      const tooMany = validatePuzzleShape(make(16, 17));
+      assert(!tooMany.valid && tooMany.errors.some((e) => e.includes("Troppi personaggi")), "17 su 16×16");
+      assert(!validatePuzzleShape(make(9, 10)).valid, "10 su 9×9");
     },
   },
   {

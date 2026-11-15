@@ -76,7 +76,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     type: "number",
     "aria-label": t("Righe"),
     min: "3",
-    max: "9",
+    max: "16",
     value: String(puzzle.grid.size.rows),
     style: "width:4em",
   });
@@ -84,7 +84,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     type: "number",
     "aria-label": t("Colonne"),
     min: "3",
-    max: "9",
+    max: "16",
     value: String(puzzle.grid.size.cols),
     style: "width:4em",
   });
@@ -92,8 +92,8 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     "button",
     {
       onClick: () => {
-        const rows = Math.max(3, Math.min(9, parseInt(rowsInput.value, 10) || 6));
-        const cols = Math.max(3, Math.min(9, parseInt(colsInput.value, 10) || 6));
+        const rows = Math.max(3, Math.min(16, parseInt(rowsInput.value, 10) || 6));
+        const cols = Math.max(3, Math.min(16, parseInt(colsInput.value, 10) || 6));
         puzzle.grid = resizeGrid(puzzle.grid, rows, cols);
         onChange();
       },

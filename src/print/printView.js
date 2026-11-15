@@ -11,11 +11,19 @@ function addPrintLabels(board, grid) {
   }
 }
 
+// Cells are 42px; from 13 columns they shrink (34px) so a 16-column board still fits the width
+// of an A4 page (20px label + 16 x 34px + gaps is about 580px, against about 700px of paper).
+function sizePrintBoard(board, grid) {
+  const cell = grid.size.cols > 12 || grid.size.rows > 12 ? 34 : 42;
+  board.style.setProperty("--print-cell", `${cell}px`);
+  board.style.gridTemplateColumns = `20px repeat(${grid.size.cols}, ${cell}px)`;
+  board.style.gridTemplateRows = `20px repeat(${grid.size.rows}, ${cell}px)`;
+}
+
 function renderMapGrid(puzzle) {
   const grid = puzzle.grid;
   const board = el("div", { class: "print-board" });
-  board.style.gridTemplateColumns = `20px repeat(${grid.size.cols}, 42px)`;
-  board.style.gridTemplateRows = `20px repeat(${grid.size.rows}, 42px)`;
+  sizePrintBoard(board, grid);
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
 
   addPrintLabels(board, grid);
@@ -88,8 +96,7 @@ function renderClueCards(puzzle) {
 function renderBlankGrid(puzzle) {
   const grid = puzzle.grid;
   const board = el("div", { class: "print-board" });
-  board.style.gridTemplateColumns = `20px repeat(${grid.size.cols}, 42px)`;
-  board.style.gridTemplateRows = `20px repeat(${grid.size.rows}, 42px)`;
+  sizePrintBoard(board, grid);
   addPrintLabels(board, grid);
   for (let r = 0; r < grid.size.rows; r++) {
     board.appendChild(el("div", { class: "print-label" }, `R${r + 1}`));

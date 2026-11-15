@@ -7,16 +7,25 @@ const DANGER = "#a83a2e"; // the victim's fixed color (--danger in base.css)
 
 export const tests = [
   {
-    name: "palette: la copia nelle migrazioni coincide con CHARACTER_COLORS",
+    name: "palette: i primi 10 colori non cambiano mai e la copia nelle migrazioni coincide con loro (i casi salvati li conservano)",
     fn: () => {
-      assertEqual(JSON.stringify(MIGRATED_CHARACTER_COLORS), JSON.stringify(CHARACTER_COLORS));
+      assertEqual(JSON.stringify(MIGRATED_CHARACTER_COLORS), JSON.stringify(CHARACTER_COLORS.slice(0, 10)));
+      assertEqual(CHARACTER_COLORS.length, 16, "uno per ogni personaggio di una griglia 16×16");
+      assertEqual(new Set(CHARACTER_COLORS).size, 16, "tutti diversi");
     },
   },
   {
-    name: "palette: i colori restano distinguibili per protanopia, deuteranopia e tritanopia (ΔE2000 ≥ 8, vittima inclusa)",
+    name: "palette: i primi 10 colori restano distinguibili per protanopia, deuteranopia e tritanopia (ΔE2000 ≥ 8, vittima inclusa)",
+    fn: () => {
+      const worst = minPair([DANGER, ...CHARACTER_COLORS.slice(0, 10)]);
+      assert(worst.d >= 8, `coppia troppo vicina (${worst.type || "visione normale"}): ${worst.i}-${worst.j}, ΔE=${worst.d.toFixed(1)}`);
+    },
+  },
+  {
+    name: "palette: tutti e 16 i colori (per le griglie grandi) restano distinguibili con ΔE2000 ≥ 5, vittima inclusa; l'icona e la posizione fissa delle note fanno il resto",
     fn: () => {
       const worst = minPair([DANGER, ...CHARACTER_COLORS]);
-      assert(worst.d >= 8, `coppia troppo vicina (${worst.type || "visione normale"}): ${worst.i}-${worst.j}, ΔE=${worst.d.toFixed(1)}`);
+      assert(worst.d >= 5, `coppia troppo vicina (${worst.type || "visione normale"}): ${worst.i}-${worst.j}, ΔE=${worst.d.toFixed(1)}`);
     },
   },
   {
@@ -39,13 +48,15 @@ export const tests = [
     },
   },
   {
-    name: "palette: i nuovi personaggi ricevono i colori nell'ordine della palette",
+    name: "palette: i nuovi personaggi ricevono i colori nell'ordine della palette (16 personaggi: tutti i 16 colori)",
     fn: () => {
       const p = createPuzzle("P");
       const a = addCharacter(p, "A", "person1", true);
       const b = addCharacter(p, "B", "person2");
       assertEqual(a.color, CHARACTER_COLORS[0]);
       assertEqual(b.color, CHARACTER_COLORS[1]);
+      for (let i = 2; i < 16; i++) addCharacter(p, `P${i}`, "person1");
+      assertEqual(p.characters.map((c) => c.color).join(), CHARACTER_COLORS.join());
     },
   },
   {

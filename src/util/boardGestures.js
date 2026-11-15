@@ -188,6 +188,7 @@ export function isPressActive() {
 // activeTouchId for the touch-identity side of this.
 export function startPress(r, c, node, { onPressStart, onCellHold }) {
   if (dragActive) return;
+  if (node.closest?.(".board-grid.pan-mode")) return; // "Muovi": a press only moves the board
   dragActive = true;
   dragDownCell = { row: r, col: c };
   holdFired = false;
@@ -230,6 +231,8 @@ export function enterCell(r, c) {
 // listeners handle everything, so these forward only once it is detached.
 export function beginTouchPress(e, r, c, node, hooks) {
   if (dragActive) return; // a second, unrelated finger — ignore
+  // "Muovi" (pan mode): the finger moves the board, so the browser must scroll/zoom it.
+  if (node.closest?.(".board-grid.pan-mode")) return;
   e.preventDefault();
   activeTouchId = e.changedTouches[0]?.identifier ?? null;
   lastTouchCell = { row: r, col: c };

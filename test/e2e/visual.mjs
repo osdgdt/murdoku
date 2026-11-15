@@ -1,12 +1,11 @@
 // `npm run e2e:visual`: screenshots of a few key screens compared, pixel by pixel, with reference images in
 // test/visual/ — a big 16×16 board (light, dark and high contrast), the clue wizard on a desktop and on a phone, the clue list.
-// Local only: it is not part of e2e:all or the CI, because the references depend on the Chromium and OS that made them.
+// The references are only comparable inside Playwright's container image (fonts, emoji and renderer): run this through
+// `npm run e2e:visual:docker`, which is also how the CI job runs it. It is not part of e2e:all.
 // It catches what no other test sees: a style change that squeezes, overlaps or recolours a screen.
 //
-// The references were made with the Chromium of the test machine (fonts and anti-aliasing differ between browsers
-// and operating systems): on another one, expect to regenerate them. A difference up to 0.3% of the pixels (and
-// small colour differences) is tolerated. When a change SHOULD change a screen:
-//     UPDATE_VISUAL=1 npm run e2e:visual      and look at the new images before committing them.
+// A difference up to 0.3% of the pixels (and small colour differences) is tolerated. When a change SHOULD change a screen:
+//     npm run e2e:visual:docker -- --update      and look at the new images before committing them.
 // A failing comparison writes the actual image to $TMPDIR/murdoku-visual/ so it can be looked at.
 import { createServer } from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
@@ -90,7 +89,11 @@ async function verify(name, buffer) {
   const file = path.join(REFERENCE_DIR, `${name}.png`);
   if (UPDATE || !existsSync(file)) {
     if (!UPDATE) {
-      check(`visual: ${name}`, false, `no reference image yet: run UPDATE_VISUAL=1 npm run e2e:visual and look at test/visual/${name}.png`);
+      check(
+        `visual: ${name}`,
+        false,
+        `no reference image yet: run npm run e2e:visual:docker -- --update and look at test/visual/${name}.png`
+      );
       return;
     }
     await mkdir(REFERENCE_DIR, { recursive: true });

@@ -8,8 +8,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -21,11 +21,34 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e:all
+  # Pixel comparison of key screens (test/e2e/visual.mjs against test/visual/*.png). It runs in Playwright's own
+  # container image, whose version must match the installed Playwright (test/test-ci-config.js checks it), so
+  # fonts and the renderer are the same here and on the machine that wrote the references. Never on main:
+  # a pixel difference is a thing to look at, never a reason to stop main from being published (pages.yml calls
+  # this workflow for every push to main, with github.ref = refs/heads/main). To accept an intended change: npm run e2e:visual:docker -- --update
+  # (needs Docker), look at the new images, commit them.
+  visual:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@v6
+      - run: npm ci
+      - run: node test/e2e/visual.mjs
+      - name: Keep the images that differ
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: visual-actual
+          path: /tmp/murdoku-visual
+          if-no-files-found: ignore

@@ -36,20 +36,27 @@ export function difficultyLabel(value) {
   return DIFFICULTY_LEVELS.find((d) => d.value === value)?.label || DIFFICULTY_LEVELS[0].label;
 }
 
-// Rough, informational-only proxy for the editor's "estimate difficulty"
-// button — never overwrites the author's own manual rating. Nodes visited
-// by the plain backtracking search (see solvePuzzle's `stats.nodesVisited`)
-// isn't a precise measure of how hard a human would find the puzzle (search
-// order affects it independently of clue quality), but a well-clued puzzle
-// prunes dead branches fast while an underconstrained one takes many nodes
-// to pin down, so it's a reasonable at-a-glance signal at zero extra
-// computation cost (the search already runs for "Verifica unicità").
-export function estimateDifficultyFromNodes(nodesVisited) {
-  if (nodesVisited < 30) return "very-easy";
-  if (nodesVisited < 150) return "easy";
-  if (nodesVisited < 800) return "medium";
-  if (nodesVisited < 4000) return "hard";
-  return "expert";
+// Rough, informational-only estimate of how hard a case is — never overwrites the author's own rating.
+//
+// It starts from how many characters plain deduction pins down by itself (`forced` of `total`, from
+// solver/propagation.js), the yardstick the library's difficulty levels are built on (solver/composer.js MODES), with
+// rounder cut-offs: all of them = easy, at least half = medium, some = hard, none = expert (a small cast that is fully
+// forced is "very easy"). It is a rough signal, not a measurement: generated cases of one level spread over
+// neighbouring estimates.
+// The cost of the search (`nodes`) can only RAISE the level: since the solver prunes with unary domains and
+// forward checking, a hard case is typically settled in a handful of nodes, so the node count alone says almost
+// nothing (measured on generated cases: 49 of 55 looked "very easy", hard ones included). A heavy search still
+// means a hard case, whatever propagation says.
+const LEVEL_ORDER = ["very-easy", "easy", "medium", "hard", "expert"];
+export function estimateDifficulty({ forced, total, nodes = 0 }) {
+  let level;
+  if (!(total > 0)) level = "very-easy";
+  else if (forced >= total) level = total <= 5 ? "very-easy" : "easy";
+  else if (forced * 2 >= total) level = "medium";
+  else if (forced > 0) level = "hard";
+  else level = "expert";
+  const byNodes = nodes >= 4000 ? "expert" : nodes >= 800 ? "hard" : level;
+  return LEVEL_ORDER[Math.max(LEVEL_ORDER.indexOf(level), LEVEL_ORDER.indexOf(byNodes))];
 }
 
 // Distinct, saturated per-character colors (token backgrounds, clue-card

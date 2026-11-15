@@ -8,6 +8,7 @@ import { describeLibraryEntry, isLibraryPuzzleId, caseOfTheDay } from "../src/pl
 import { CLUE_TYPES } from "../src/model/clueTypes.js";
 import { findRedundantClues, findCluesNeededWithoutVictim } from "../src/solver/redundancy.js";
 import { addClue } from "../src/model/puzzle.js";
+import { houseRuleProblems, pairProblems } from "../tools/lib/case-report.mjs";
 import { assert, assertEqual } from "./assert.js";
 
 const isNode = !!globalThis.process?.versions?.node;
@@ -61,14 +62,8 @@ export const tests = [
     fn: async () => {
       const { cases } = await loadJson("examples/library.json");
       for (const c of cases.filter((x) => x.id !== "tutorial")) {
-        const it = await loadJson(c.files.it);
-        const en = await loadJson(c.files.en);
-        assertEqual(JSON.stringify(it.grid.cells), JSON.stringify(en.grid.cells), `${c.id}: celle`);
-        assertEqual(JSON.stringify(it.clues), JSON.stringify(en.clues), `${c.id}: indizi`);
-        assertEqual(JSON.stringify(it.solution), JSON.stringify(en.solution), `${c.id}: soluzione`);
-        assertEqual(it.characters.map((x) => x.id).join(), en.characters.map((x) => x.id).join(), `${c.id}: id personaggi`);
-        assert(it.title && en.title, `${c.id}: titolo mancante`);
-        assert(!/\{(victimRoom|murderer|room)\}/.test(JSON.stringify(it) + JSON.stringify(en)), `${c.id}: segnaposto non sostituiti`);
+        const problems = pairProblems(await loadJson(c.files.it), await loadJson(c.files.en));
+        assertEqual(problems.join("; "), "", `${c.id}: ${problems.join("; ")}`);
       }
     },
   },
@@ -78,25 +73,8 @@ export const tests = [
       const { cases } = await loadJson("examples/library.json");
       for (const c of cases.filter((x) => x.id !== "tutorial")) {
         for (const lang of ["it", "en"]) {
-          const p = await loadJson(c.files[lang]);
-          const id = `${c.id}/${lang}`;
-          const victim = p.characters[p.characters.length - 1];
-          assert(victim.isVictim && p.characters.filter((x) => x.isVictim).length === 1, `${id}: la vittima è l'ultima della lista`);
-          assert(/^V/i.test(victim.name), `${id}: il nome della vittima (${victim.name}) inizia con la V`);
-          const suspects = p.characters.slice(0, -1).map((x) => x.name);
-          for (let i = 1; i < suspects.length; i++)
-            assert(
-              suspects[i - 1].localeCompare(suspects[i], lang) < 0,
-              `${id}: ${suspects[i - 1]} prima di ${suspects[i]} (ordine alfabetico)`
-            );
-          assertEqual(p.grid.size.rows, p.characters.length, `${id}: un personaggio per riga, così alla vittima resta una sola casella`);
-          const zones = new Set(p.grid.zones.map((z) => z.id));
-          for (const k of p.clues) {
-            assert(k.characterId !== victim.id && !JSON.stringify(k.params).includes(victim.id), `${id}: ${k.id} riguarda la vittima`);
-            assert(k.type !== "closerTo", `${id}: ${k.id} usa "è più vicino a"`);
-            assert(!(k.type === "diagonal" && zones.has(k.params.targetId)), `${id}: ${k.id} è una diagonale rispetto a una stanza`);
-          }
-          for (const z of p.grid.zones) assert(!p.briefing.includes(z.name), `${id}: il briefing nomina la stanza «${z.name}»`);
+          const problems = houseRuleProblems(await loadJson(c.files[lang]), lang);
+          assertEqual(problems.join("; "), "", `${c.id}/${lang}: ${problems.join("; ")}`);
         }
       }
     },

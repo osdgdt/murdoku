@@ -25,11 +25,13 @@
     "e2e:i18n": "node test/e2e/i18n-pages.mjs",
     "e2e:touch": "node test/e2e/touch.mjs",
     "e2e:visual": "node test/e2e/visual.mjs",
+    "e2e:visual:docker": "node tools/visual-docker.mjs",
     "e2e:floors": "node test/e2e/floors.mjs",
     "e2e:bigboard": "node test/e2e/bigboard.mjs",
     "e2e:all": "npm run e2e && npm run e2e:a11y && npm run e2e:editor && npm run e2e:gameplay && npm run e2e:clues && npm run e2e:a11y-keyboard && npm run e2e:daily && npm run e2e:i18n && npm run e2e:touch && npm run e2e:floors && npm run e2e:bigboard && npm run e2e:update",
     "test:rules": "node test/rules/run.mjs",
     "bench": "node test/bench/solver-bench.mjs",
+    "check:case": "node tools/check-case.mjs",
     "make:library": "node tools/make-library.mjs"
   },
   "engines": {

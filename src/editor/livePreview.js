@@ -6,7 +6,7 @@
 // slow one on a big grid never piles up. The words say exactly what is known: "limit reached" is not
 // "no solution".
 import { el, clear } from "../util/dom.js";
-import { estimateDifficultyFromNodes, difficultyLabel } from "../model/puzzle.js";
+import { estimateDifficulty, difficultyLabel } from "../model/puzzle.js";
 import { analyzePuzzleAsync } from "../solver/solverClient.js";
 import { limitsFor } from "../solver/limits.js";
 import { t } from "../i18n/i18n.js";
@@ -17,7 +17,7 @@ const DEBOUNCE_MS = 700;
 export function describeAnalysis(result) {
   const { status, forced, total, nodes } = result;
   if (status === "unique") {
-    const label = difficultyLabel(estimateDifficultyFromNodes(nodes));
+    const label = difficultyLabel(estimateDifficulty({ forced, total, nodes }));
     return {
       tone: "ok",
       text: t("✓ Soluzione unica · Difficoltà stimata: {level} · {nodes} nodi · dedotti subito: {forced} su {total}", {

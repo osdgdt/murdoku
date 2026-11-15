@@ -31,15 +31,15 @@ jobs:
     needs: ci
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # Only what the site needs at runtime: not test/, tools/, node_modules/.
       - name: Collect site files
         run: |
           mkdir _site
           cp *.html manifest.webmanifest sw.js robots.txt sitemap.xml _site/
           cp -r fonts icons src styles examples _site/
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -51,4 +51,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

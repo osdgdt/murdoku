@@ -576,4 +576,5 @@ export default {
   "Ancora in calcolo: {seconds} secondi": "Still working: {seconds} seconds",
   "Personaggi e strumenti": "Characters and tools",
   ", già piazzato": ", already placed",
+  "Passa al tema ad alto contrasto": "Switch to the high-contrast theme",
 };

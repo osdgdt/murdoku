@@ -131,7 +131,185 @@ async function run(label, viewport) {
   await context.close();
 }
 
+// Taking clues from one case to another: export from the lighthouse case, import into the tutorial case,
+// linking people by hand (the names differ).
+async function clueSets() {
+  const context = await browser.newContext({
+    locale: "it-IT",
+    viewport: { width: 1280, height: 900 },
+    serviceWorkers: "block",
+    acceptDownloads: true,
+  });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  const open = async (fixture) => {
+    await page.goto(`${base}/player.html?import=test/fixtures/${fixture}`);
+    await page.waitForSelector("#board [role=gridcell]");
+    const id = new URL(page.url()).searchParams.get("id");
+    await page.goto(`${base}/editor.html?id=${id}`);
+    await page.waitForSelector("#clue-panel .clue-owner");
+  };
+  await open("faro.en.murdoku.json");
+  const total = await page.locator("#clue-panel .clue-row").count();
+  await page.click('[data-key="export-clues"]');
+  await page.waitForSelector("dialog.clueset-dialog[open]");
+  check("clue sets: the export window lists every clue", (await page.locator("dialog .clueset-list input").count()) === total);
+  await page.locator("dialog .clueset-list input").last().uncheck();
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click('[data-key="export-go"]')]);
+  const file = `${process.env.TMPDIR || "/tmp"}/clues-e2e.murdoku-clues.json`;
+  await download.saveAs(file);
+  const exported = JSON.parse(await readFile(file, "utf8"));
+  check(
+    "clue sets: the file holds names, not ids",
+    exported.format === "murdoku-clues" && exported.clues.length === total - 1 && exported.characters.some((c) => c.name === "Arthur")
+  );
+  check("clue sets: the window closes", (await page.locator("dialog[open]").count()) === 0);
+
+  await open("tutorial.en.murdoku.json");
+  const before = await page.locator("#clue-panel .clue-row").count();
+  await page.click('[data-key="import-clues"]');
+  await page.waitForSelector("dialog.clueset-dialog[open]");
+  await page.setInputFiles('[data-key="import-file"]', file);
+  await page.waitForSelector("dialog .clueset-mapping select");
+  const summary = () => page.innerText("dialog .clueset-summary");
+  check(
+    "clue sets: nothing is linked by itself (the names differ), so nothing would be added",
+    /0 indizi su/.test(await summary()),
+    await summary()
+  );
+  const selects = page.locator("dialog .clueset-mapping select");
+  const tutorialPeople = ["Alice", "Ben", "Clara", "Victor"];
+  for (let i = 0; i < Math.min(await selects.count(), 4); i++) {
+    const options = await selects.nth(i).locator("option").allInnerTexts();
+    if (options.includes(tutorialPeople[i])) await selects.nth(i).selectOption({ label: tutorialPeople[i] });
+  }
+  await page.waitForFunction(() => !/ 0 indizi su/.test(document.querySelector("dialog .clueset-summary")?.innerText || ""));
+  check(
+    "clue sets: after linking people the summary counts what will be added",
+    /Verranno aggiunti \d+ indizi/.test(await summary()),
+    await summary()
+  );
+  await page.click('[data-key="import-go"]');
+  await page.waitForFunction(() => document.querySelectorAll("dialog[open]").length === 0);
+  const after = await page.locator("#clue-panel .clue-row").count();
+  check("clue sets: the imported clues are in the list", after > before, `${before} -> ${after}`);
+  check(
+    "clue sets: the editor says how many came in",
+    /Importati \d+ indizi/.test(await page.innerText("#status")),
+    await page.innerText("#status")
+  );
+  await page.click("#editor-undo-btn");
+  check("clue sets: the whole import is one undo step", (await page.locator("#clue-panel .clue-row").count()) === before);
+  check("clue sets: no page errors", errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
+// The difficulty line above the clues follows the edits by itself.
+async function livePreview() {
+  const context = await browser.newContext({ locale: "it-IT", viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  await page.goto(`${base}/player.html?import=test/fixtures/faro.en.murdoku.json`);
+  await page.waitForSelector("#board [role=gridcell]");
+  const id = new URL(page.url()).searchParams.get("id");
+  await page.goto(`${base}/editor.html?id=${id}`);
+  await page.waitForSelector("#clue-panel .clue-owner");
+  await page.waitForSelector("#difficulty-preview .difficulty-line.ok", { timeout: 30000 });
+  const text = await page.innerText("#difficulty-preview");
+  check(
+    "live preview: a unique case says so, with the difficulty and the deductions",
+    /Soluzione unica/.test(text) && /Difficoltà stimata/.test(text) && /dedotti subito/.test(text),
+    text
+  );
+  check("live preview: it is a polite live region", (await page.getAttribute("#difficulty-preview", "aria-live")) === "polite");
+  check("live preview: the old estimate button is gone", (await page.locator("#estimate-btn").count()) === 0);
+  // drop clues one by one: the line changes by itself, and with none left it asks for clues
+  while ((await page.locator("#clue-panel .clue-row").count()) > 0)
+    await page.locator('#clue-panel .clue-row [aria-label="Rimuovi indizio"]').first().click();
+  await page.waitForFunction(
+    () => /Aggiungi personaggi e indizi/.test(document.querySelector("#difficulty-preview")?.innerText || ""),
+    null,
+    { timeout: 15000 }
+  );
+  check("live preview: with no clues it asks for clues", true);
+  await page.click("#editor-undo-btn");
+  await page.waitForFunction(
+    () => /Soluzione unica|Più di una soluzione|Analisi/.test(document.querySelector("#difficulty-preview")?.innerText || ""),
+    null,
+    { timeout: 30000 }
+  );
+  check("live preview: undo brings the analysis back", true);
+  check("live preview: no page errors", errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
+// Proposing a whole set of clues for a case whose solution is declared.
+async function generator() {
+  const context = await browser.newContext({ locale: "it-IT", viewport: { width: 1280, height: 900 }, serviceWorkers: "block" });
+  const page = await context.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(String(e)));
+  await page.goto(`${base}/player.html?import=test/fixtures/faro.en.murdoku.json`);
+  await page.waitForSelector("#board [role=gridcell]");
+  const id = new URL(page.url()).searchParams.get("id");
+  await page.goto(`${base}/editor.html?id=${id}`);
+  await page.waitForSelector("#clue-panel .clue-owner");
+  while ((await page.locator("#clue-panel .clue-row").count()) > 0)
+    await page.locator('#clue-panel .clue-row [aria-label="Rimuovi indizio"]').first().click();
+
+  // cancel a slow one first (the worker's answers are held back)
+  await page.evaluate(() => {
+    const original = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (...args) {
+      setTimeout(() => original.apply(this, args), 4000);
+    };
+    window.__restoreWorker = () => (Worker.prototype.postMessage = original);
+  });
+  await page.click('[data-key="propose-set"]');
+  await page.waitForSelector('#clue-wizard [data-key="generate"]');
+  check(
+    "generator: levels and options are offered",
+    (await page.locator("#clue-wizard .clue-chip[aria-pressed]").count()) >= 3 &&
+      (await page.locator('[data-key="gen-victim"]').isChecked()) &&
+      (await page.locator('[data-key="gen-keep"]').isChecked())
+  );
+  await page.click('[data-key="generate"]');
+  await page.waitForSelector("#clue-wizard .progress-cancel");
+  await page.click("#clue-wizard .progress-cancel");
+  await page.waitForSelector('#clue-wizard [data-key="generate"]');
+  check("generator: Cancel stops a slow generation", (await page.locator("#clue-wizard .clue-gen-list").count()) === 0);
+  await page.evaluate(() => window.__restoreWorker());
+
+  await page.click('[data-key="generate"]');
+  await page.waitForSelector("#clue-wizard .clue-gen-list", { timeout: 60000 });
+  const proposed = await page.locator("#clue-wizard .clue-gen-list li").count();
+  check(
+    "generator: a set is proposed, all ticked, and it says the solution is unique",
+    proposed > 0 &&
+      (await page.locator("#clue-wizard .clue-gen-list input:checked").count()) === proposed &&
+      /la soluzione è unica/.test(await page.innerText("#clue-wizard"))
+  );
+  const victimName = "Victor";
+  check("generator: no proposed clue is about the victim", !(await page.innerText("#clue-wizard .clue-gen-list")).includes(victimName));
+  await page.click('[data-key="gen-add"]');
+  await page.waitForFunction(() => document.querySelector("#clue-wizard")?.hidden);
+  check("generator: the selected clues are added", (await page.locator("#clue-panel .clue-row").count()) === proposed);
+  await page.waitForFunction(() => /Soluzione unica/.test(document.querySelector("#difficulty-preview")?.innerText || ""), null, {
+    timeout: 30000,
+  });
+  check("generator: the live line confirms the solution is unique", true);
+  await page.click("#editor-undo-btn");
+  check("generator: adding the set is one undo step", (await page.locator("#clue-panel .clue-row").count()) === 0);
+  check("generator: no page errors", errors.length === 0, errors.join("; "));
+  await context.close();
+}
+
 try {
+  await generator();
+  await livePreview();
+  await clueSets();
   await run("1280", { width: 1280, height: 900 });
   await run("390", { width: 390, height: 844 });
 } finally {

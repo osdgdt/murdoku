@@ -1,4 +1,4 @@
-import { el, clear, onActivateKey } from "../util/dom.js";
+import { el, clear, onActivateKey, keepFocus } from "../util/dom.js";
 import { characterIcon } from "../model/icons.js";
 import { describeClue } from "../model/clueTypes.js";
 import { cluesForCharacter, genericClues, lockedCluesFor, characterColor } from "../model/puzzle.js";
@@ -14,6 +14,10 @@ import { t } from "../i18n/i18n.js";
 // click keeps that clue's cells highlighted on the board until it is clicked
 // again (the hover only lasts while the pointer is over the line).
 export function renderClueCards(container, puzzle, state, onClueHover, onClueHoverEnd, pin) {
+  keepFocus(container, ".clue-line", () => buildClueCards(container, puzzle, state, onClueHover, onClueHoverEnd, pin));
+}
+
+function buildClueCards(container, puzzle, state, onClueHover, onClueHoverEnd, pin) {
   clear(container);
   container.appendChild(el("h3", { "aria-level": "2" }, t("Personaggi e indizi")));
 
@@ -104,6 +108,10 @@ function clueLine(clue, puzzle, onClueHover, onClueHoverEnd, pin) {
 // the selected character's clues, big and alone, so there is nothing to hunt
 // for in the full list below. With nobody selected it says how to get one.
 export function renderSelectedClue(container, puzzle, state, onClueHover, onClueHoverEnd, pin) {
+  keepFocus(container, ".clue-line", () => buildSelectedClue(container, puzzle, state, onClueHover, onClueHoverEnd, pin));
+}
+
+function buildSelectedClue(container, puzzle, state, onClueHover, onClueHoverEnd, pin) {
   clear(container);
   const tool = state?.selectedTool;
   const character = tool?.kind === "character" ? puzzle.characters.find((c) => c.id === tool.id) : null;

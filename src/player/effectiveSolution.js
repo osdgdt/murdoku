@@ -34,46 +34,76 @@ export const SOLUTION_INCONCLUSIVE_MSG = t(
 // derive it escalates to on the rare puzzle this cheaper check can't settle.
 
 // `deps` is injectable so the logic is unit-testable without a Web Worker.
+// `get({ signal })` can be cancelled: when the last person waiting for the answer gives up, the computation
+// itself is stopped (the worker is terminated) and the next `get()` starts it afresh. Waiting on it while
+// somebody else is too (a hint and a check at the same time) only stops YOUR wait.
 export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, checkUniquenessAsync, validateSolution }) {
   let promise = null;
+  let controller = null;
+  let waiters = 0;
 
   // Don't freeze a transient failure (e.g. a worker hiccup) into a permanent
   // one for the rest of the page's life: the next attempt retries.
   const retryable = (p) =>
     p.catch((err) => {
       promise = null;
+      controller = null;
       throw err;
     });
+
+  const limits = limitsFor(puzzle);
+  const derive = (signal) =>
+    deps.deriveSolutionAsync(puzzle, { maxNodes: limits.derive.maxNodes, timeMs: limits.derive.timeMs }, { signal });
 
   // checkUniqueness has no fixedPlacements support: it re-searches the clues
   // from scratch under a smaller node cap. solutionCount can never be 0 here —
   // validateSolution() already proved the declared solution is one valid solution.
-  const limits = limitsFor(puzzle);
-  const derive = () => deps.deriveSolutionAsync(puzzle, { maxNodes: limits.derive.maxNodes, timeMs: limits.derive.timeMs });
-
-  function confirmDeclaredSolutionUnique() {
+  function confirmDeclaredSolutionUnique(signal) {
     return deps
-      .checkUniquenessAsync(puzzle, {
-        maxSolutions: 2,
-        forwardCheck: true,
-        maxNodes: limits.confirm.maxNodes,
-        timeMs: limits.confirm.timeMs,
-      })
+      .checkUniquenessAsync(
+        puzzle,
+        { maxSolutions: 2, forwardCheck: true, maxNodes: limits.confirm.maxNodes, timeMs: limits.confirm.timeMs },
+        { signal }
+      )
       .then((report) => {
         if (report.solutionCount >= 2) return { status: "ambiguous", placements: null };
         const complete = report.exhausted ?? !report.truncated;
         if (report.solutionCount === 1 && complete) return { status: "unique", placements: puzzle.solution.placements };
         // The cheap tier couldn't settle it — escalate instead of guessing.
-        return derive();
+        return derive(signal);
       });
   }
 
   return {
-    get() {
+    get({ signal = null } = {}) {
+      if (signal?.aborted) return Promise.reject(Object.assign(new Error("Operazione annullata."), { name: "AbortError" }));
       if (!promise) {
-        promise = retryable(deps.validateSolution(puzzle).valid ? confirmDeclaredSolutionUnique() : derive());
+        controller = new AbortController();
+        const own = controller.signal;
+        promise = retryable(deps.validateSolution(puzzle).valid ? confirmDeclaredSolutionUnique(own) : derive(own));
       }
-      return promise;
+      const shared = promise;
+      waiters++;
+      return new Promise((resolve, reject) => {
+        let finished = false;
+        const leave = () => {
+          if (finished) return false;
+          finished = true;
+          waiters--;
+          signal?.removeEventListener("abort", onAbort);
+          return true;
+        };
+        const onAbort = () => {
+          if (!leave()) return;
+          if (waiters === 0) controller?.abort(); // nobody is waiting any more: stop the work itself
+          reject(Object.assign(new Error("Operazione annullata."), { name: "AbortError" }));
+        };
+        signal?.addEventListener("abort", onAbort, { once: true });
+        shared.then(
+          (value) => leave() && resolve(value),
+          (err) => leave() && reject(err)
+        );
+      });
     },
   };
 }

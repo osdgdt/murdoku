@@ -1,4 +1,5 @@
 import { buildPredicates } from "./predicates/index.js";
+import { dependenciesOf } from "./predicates/dependencies.js";
 import { isOccupiable } from "../model/grid.js";
 
 // Lightweight, non-exhaustive deduction engine — a fallback for when a full
@@ -254,10 +255,20 @@ export function propagate(
     // (including every existing standalone use of propagate()) leaves this
     // unset and gets the exact same behavior as before.
     predicates: predicatesOverride = null,
+    // Which characters each predicate depends on (predicates/dependencies.js), parallel to
+    // `predicates`: lets the cell loop below re-evaluate only the clues that can change when THIS
+    // character is tentatively placed, reusing the round's baseline verdict for the others. Same
+    // results as long as the budget is not the limit; only faster. Built
+    // here when not given; `incremental: false` evaluates everything everywhere (used by tests).
+    // With it, `evaluations` counts only the predicate calls really made, so the evaluation budget
+    // goes much further on big grids (a 16x16 round used to exceed the default budget on its own).
+    dependencies: dependenciesOverride = null,
+    incremental = true,
   } = {}
 ) {
   const { rows, cols } = puzzle.grid.size;
   const predicates = predicatesOverride || buildPredicates(puzzle);
+  const dependencies = !incremental ? null : dependenciesOverride || predicates.map(({ clue }) => dependenciesOf(clue, puzzle));
   const opsBudget = createOpsBudget(maxSubsetOps);
   const confirmed = new Map(currentPlacements);
   const forced = [];
@@ -291,23 +302,40 @@ export function propagate(
     const domains = new Map(); // characterId -> [{row,col}] survivors
     const witnessOf = new Map(); // "characterId,row,col" -> witnessClueIds[] (excluded cells only)
 
+    // Verdict of every "local" clue on the board as it stands: the answer for any cell, for a
+    // character the clue does not depend on (adding them changes nothing).
+    const baseline = dependencies
+      ? predicates.map(({ predicate }, i) => {
+          if (dependencies[i].all) return undefined;
+          evaluations++;
+          return predicate(confirmed, isCompleteIfPlaced);
+        })
+      : null;
+
     outer: for (const character of unplaced) {
       const survivors = [];
+      const tentative = new Map(confirmed);
       for (let r = 0; r < rows; r++) {
         if (usedRows.has(r)) continue;
         for (let c = 0; c < cols; c++) {
           if (usedCols.has(c)) continue;
           if (!isOccupiable(puzzle.grid, r, c)) continue;
-          const tentative = new Map(confirmed);
           tentative.set(character.id, { row: r, col: c });
           const witnesses = [];
-          for (const { clue, predicate } of predicates) {
-            evaluations++;
-            if (evaluations > maxEvaluations) {
-              capped = true;
-              break outer;
+          for (let i = 0; i < predicates.length; i++) {
+            const dep = dependencies && dependencies[i];
+            let result;
+            if (dep && !dep.all && !dep.ids.has(character.id)) {
+              result = baseline[i]; // not affected by this character: no evaluation, no budget spent
+            } else {
+              evaluations++;
+              if (evaluations > maxEvaluations) {
+                capped = true;
+                break outer;
+              }
+              result = predicates[i].predicate(tentative, isCompleteIfPlaced);
             }
-            if (predicate(tentative, isCompleteIfPlaced) === false) witnesses.push(clue.id);
+            if (result === false) witnesses.push(predicates[i].clue.id);
           }
           if (witnesses.length > 0)
             witnessOf.set(key(character.id, r, c), { characterId: character.id, row: r, col: c, witnessClueIds: witnesses });

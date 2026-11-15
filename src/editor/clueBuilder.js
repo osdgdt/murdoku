@@ -8,7 +8,8 @@ import { removeClue, duplicateClue, moveClue, cluesForCharacter, genericClues } 
 import { declaredPlacementMap } from "../solver/suggestions.js";
 import { buildPredicate } from "../solver/predicates/index.js";
 import { missingParams, hasDuplicateTargets } from "./clueDraft.js";
-import { openClueWizard, openClueSuggestions, refreshClueWizard } from "./clueWizard.js";
+import { openClueWizard, openClueSuggestions, openClueGenerator, refreshClueWizard } from "./clueWizard.js";
+import { openExportDialog, openImportDialog } from "./clueSetDialog.js";
 import { t } from "../i18n/i18n.js";
 
 // "incomplete" | "true" | "false" | "unknown" (no complete declared solution to judge with).
@@ -130,11 +131,49 @@ export function renderClueBuilder(container, puzzle, onChange) {
         "button",
         {
           type: "button",
+          class: "clue-propose-btn",
+          "data-key": "propose-set",
+          title: t("Propone un insieme di indizi che rende unica la soluzione che hai dichiarato"),
+          onClick: () => openClueGenerator(),
+        },
+        t("✨ Proponi")
+      ),
+      el(
+        "button",
+        {
+          type: "button",
           class: "clue-suggest-btn",
           title: t("Gli indizi veri nella soluzione che hai dichiarato, da aggiungere con un tocco"),
           onClick: () => openClueSuggestions({}),
         },
         t("💡 Suggerisci")
+      ),
+      el(
+        "button",
+        {
+          type: "button",
+          class: "clue-set-btn",
+          "data-key": "export-clues",
+          title: t("Salva degli indizi in un file, per usarli in un altro caso"),
+          onClick: () => openExportDialog(puzzle),
+        },
+        t("⬇ Esporta indizi")
+      ),
+      el(
+        "button",
+        {
+          type: "button",
+          class: "clue-set-btn",
+          "data-key": "import-clues",
+          title: t("Aggiungi a questo caso gli indizi di un file"),
+          onClick: () =>
+            openImportDialog(puzzle, (added, skipped) => {
+              onChange(); // one undo step for the whole import
+              const status = document.getElementById("status");
+              if (status) status.textContent = t("Importati {added} indizi ({skipped} esclusi).", { added, skipped });
+            }),
+        },
+        t("⬆ Importa indizi")
       ),
     ])
   );

@@ -5,6 +5,7 @@ import { renderBoard } from "../util/boardRender.js";
 import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
 import { key, occupiedBy } from "./board.js";
+import { cellAriaLabel } from "./announcements.js";
 
 // One note badge: a paper-colored disc ringed in the character's own color with
 // their initial on it, so it reads on ANY floor (the old bare colored letter
@@ -84,6 +85,8 @@ export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHol
     onCellEnter,
     onPressStart,
     decorateCell: (cellNode, row, col) => {
+      // What is in the cell, for a screen reader (the board renderer only knew its place and room).
+      cellNode.setAttribute("aria-label", cellAriaLabel(cellNode.getAttribute("aria-label"), puzzle, state, row, col));
       const occupant = occupiedBy(state, row, col);
       if (occupant) {
         const character = puzzle.characters.find((c) => c.id === occupant);

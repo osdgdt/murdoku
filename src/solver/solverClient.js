@@ -4,8 +4,11 @@ import { WORKER_GRACE_MS } from "./limits.js";
 // returns a Promise that resolves with the callee's normal return value or rejects with a real
 // Error, so a slow or pathological search runs off the main thread and can never freeze the page.
 //
-// Two workers, so one slow job never blocks an unrelated one:
+// Four workers, so one slow job never blocks an unrelated one:
 //   "main"  — what the editor and the answer key need: uniqueness checks, deriving the solution
+//   "preview" — the editor's live difficulty preview (cancelled and restarted on every edit, so it must
+//             never share a worker with a check the author asked for)
+//   "compose" — the editor's "Propose a set of clues" (can run for many seconds; cancellable)
 //   "hints" — a player's hint clicks (the answer key can take long to compute on a big grid, and a
 //             hint must not wait behind it)
 // A worker runs one job at a time, so a job that must stop (the author pressed Cancel, or it did
@@ -112,4 +115,14 @@ export function deriveSolutionAsync(puzzle, options = {}, callOptions = {}) {
 
 export function checkUniquenessAsync(puzzle, options = {}, callOptions = {}) {
   return callWorker("main", "checkUniqueness", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions });
+}
+
+// The editor's live preview: a quick analysis of the case (see analysis.js), on its own worker.
+export function analyzePuzzleAsync(puzzle, options = {}, callOptions = {}) {
+  return callWorker("preview", "analyze", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions });
+}
+
+// The editor's "Propose a set of clues" (see composer.js), on its own worker; cancellable with a signal.
+export function composeCluesAsync(puzzle, options = {}, callOptions = {}) {
+  return callWorker("compose", "compose", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions });
 }

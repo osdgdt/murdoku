@@ -206,12 +206,6 @@ export default {
   "Il puzzle è ambiguo: esistono {countLabel} soluzioni possibili. Aggiungi altri indizi.":
     "The puzzle is ambiguous: there are {countLabel} possible solutions. Add more clues.",
   "Non sono riuscito a verificare l'unicità: {message}. Riprova.": "I couldn't check uniqueness: {message}. Try again.",
-  "Stima in corso…": "Estimating…",
-  'La stima richiede una soluzione unica: usa prima "Verifica unicità".':
-    'The estimate needs a unique solution: use "Check uniqueness" first.',
-  "Stima difficoltà: {v} (nodi esplorati dal solver: {nodesVisited}). È solo un'indicazione — il campo \"Difficoltà\" in alto resta una scelta manuale dell'autore.":
-    'Estimated difficulty: {v} (nodes explored by the solver: {nodesVisited}). This is only a hint — the "Difficulty" field above remains the author\'s manual choice.',
-  "Non sono riuscito a calcolare la stima: {message}. Riprova.": "I couldn't compute the estimate: {message}. Try again.",
   "Esiste già una soluzione dichiarata (incompleta o non valida): calcolarne una nuova la sostituirà. Continuare?":
     "A declared solution already exists (incomplete or invalid): computing a new one will replace it. Continue?",
   "Calcolo della soluzione in corso…": "Computing the solution…",
@@ -305,7 +299,6 @@ export default {
   "💡 Suggerimenti": "💡 Hints",
   "✓ Valida soluzione": "✓ Validate solution",
   "? Verifica unicità": "? Check uniqueness",
-  "📊 Stima difficoltà": "📊 Estimate difficulty",
   "🧮 Calcola soluzione": "🧮 Compute solution",
   "📖 Dossier del caso": "📖 Case dossier",
   "Testo introduttivo (mostrato al giocatore prima degli indizi)": "Introduction (shown to the player before the clues)",
@@ -316,7 +309,6 @@ export default {
   "Elimina questo caso": "Delete this case",
   Annulla: "Undo",
   Ripeti: "Redo",
-  "Stima la difficoltà dal numero di nodi esplorati dal solver": "Estimates the difficulty from the number of nodes the solver explored",
   "Deduce la soluzione dagli indizi con una ricerca esaustiva, quando è unica, e la compila automaticamente nella scheda Soluzione":
     "Deduces the solution from the clues with an exhaustive search, when it is unique, and fills it into the Solution tab",
   "Es. La sera del 12 ottobre, il corpo di Lord Ashford viene trovato nella biblioteca...":
@@ -593,4 +585,122 @@ export default {
     "Shortcuts: 1-9 and 0 pick a character ([ ] step through) · X mark · E eraser · U undo.",
   "Un caso al giorno, uguale per tutti, senza suggerimenti: chi lo risolve prima?":
     "One case a day, the same for everybody, no hints: who solves it first?",
+  // clue sets
+  "Salva degli indizi in un file, per usarli in un altro caso": "Save clues to a file, to use them in another case",
+  "Aggiungi a questo caso gli indizi di un file": "Add the clues of a file to this case",
+  "Importati {added} indizi ({skipped} esclusi).": "Imported {added} clues ({skipped} left out).",
+  Generale: "General",
+  "Esporta indizi": "Export clues",
+  "Non ci sono ancora indizi da esportare.": "There are no clues to export yet.",
+  "Scegli gli indizi da portare in un altro caso. Nel file personaggi e stanze sono indicati per nome.":
+    "Choose the clues to take to another case. In the file, characters and rooms are given by name.",
+  Tutti: "All",
+  Scarica: "Download",
+  "Questo file non è un set di indizi di Murdoku.": "This file is not a Murdoku clue set.",
+  "Questo set di indizi è di una versione che non conosco.": "This clue set is from a version I do not know.",
+  "Il file non contiene indizi.": "The file contains no clues.",
+  "Il file contiene troppi indizi.": "The file contains too many clues.",
+  "Il file contiene un indizio malformato.": "The file contains a malformed clue.",
+  "— nessuno —": "— none —",
+  "Verranno aggiunti {added} indizi su {total}.": "{added} of {total} clues will be added.",
+  "Non verranno aggiunti:": "These will not be added:",
+  "Personaggio «{name}» è…": "Character “{name}” is…",
+  "Stanza «{name}» è…": "Room “{name}” is…",
+  "Oggetto «{name}» è…": "Object “{name}” is…",
+  "File di indizi da importare": "Clue file to import",
+  "Il file non è un JSON valido o è troppo grande.": "The file is not valid JSON or is too large.",
+  "Scegli un file di indizi (.murdoku-clues.json). Personaggi e stanze con lo stesso nome si collegano da soli: correggi gli altri qui sotto.":
+    "Choose a clue file (.murdoku-clues.json). Characters and rooms with the same name link by themselves: fix the others below.",
+  "Importa indizi": "Import clues",
+  Importa: "Import",
+  "tipo di indizio sconosciuto": "unknown clue type",
+  "il tipo non va bene per questo titolare": "the type does not fit this owner",
+  "personaggio, stanza od oggetto non collegato": "character, room or object not linked",
+  "riga o colonna fuori dalla griglia": "row or column outside the grid",
+  "indizio incompleto": "incomplete clue",
+  "già presente": "already there",
+  "⬇ Esporta indizi": "⬇ Export clues",
+  "⬆ Importa indizi": "⬆ Import clues",
+  // live difficulty
+  "✓ Soluzione unica · Difficoltà stimata: {level} · {nodes} nodi · dedotti subito: {forced} su {total}":
+    "✓ Unique solution · Estimated difficulty: {level} · {nodes} nodes · deduced at once: {forced} of {total}",
+  "⚠ Più di una soluzione: servono altri indizi per renderla unica": "⚠ More than one solution: more clues are needed to make it unique",
+  "✗ Nessuna soluzione: gli indizi si contraddicono": "✗ No solution: the clues contradict each other",
+  "… Analisi non conclusa entro il limite: aggiungi indizi per restringere la ricerca":
+    "… Analysis not finished within the limit: add clues to narrow the search",
+  "Aggiungi personaggi e indizi per vedere qui quante soluzioni restano e quanto è difficile.":
+    "Add characters and clues to see here how many solutions are left and how hard it is.",
+  "Analisi in corso…": "Analysing…",
+  "Analisi non disponibile.": "Analysis not available.",
+  // clue generator
+  "Propone un insieme di indizi che rende unica la soluzione che hai dichiarato":
+    "Proposes a set of clues that makes the solution you declared the only one",
+  "✨ Proponi": "✨ Propose",
+  "Proponi un set di indizi": "Propose a set of clues",
+  "✨ Proponi un set completo di indizi": "✨ Propose a complete set of clues",
+  Medio: "Medium",
+  "Servono tutti i personaggi piazzati nella soluzione (scheda Soluzione).":
+    "All the characters must be placed in the solution (Solution tab).",
+  "Il tempo a disposizione è finito prima di trovare un set. Riprova, o scegli un livello più facile.":
+    "Time ran out before a set was found. Try again, or pick an easier level.",
+  "Ho trovato un set ma non sono riuscito a verificare l'unicità entro il limite di ricerca.":
+    "I found a set but could not check its uniqueness within the search limit.",
+  "I set provati lasciavano più di una soluzione. Riprova (un'altra estrazione) o aggiungi qualche indizio a mano.":
+    "The sets tried left more than one solution. Try again (another draw) or add a few clues by hand.",
+  "Non sono riuscito a comporre un set con questo livello. Prova un altro livello o un'altra estrazione.":
+    "I could not compose a set at this level. Try another level or another draw.",
+  "Propongo indizi veri nella tua soluzione che la rendono l'unica. Tu scegli quali tenere.":
+    "I propose clues that are true in your solution and make it the only one. You choose which to keep.",
+  Livello: "Level",
+  "Nessun indizio sulla vittima (consigliato)": "No clue about the victim (recommended)",
+  "Parti dagli indizi che ho già": "Start from the clues I already have",
+  "Sto componendo un set di indizi…": "Composing a set of clues…",
+  "Rigenera (un'altra estrazione)": "Regenerate (another draw)",
+  Genera: "Generate",
+  "Il caso ha già una soluzione unica: non serve aggiungere indizi.": "The case already has a unique solution: no clues need adding.",
+  "✓ {count} indizi: con questi la soluzione è unica.": "✓ {count} clues: with these the solution is unique.",
+  "Senza tutti gli indizi la soluzione potrebbe non essere più unica: guarda la riga della difficoltà dopo averli aggiunti.":
+    "Without all the clues the solution may no longer be unique: check the difficulty line after adding them.",
+  "Aggiungi i selezionati": "Add the selected ones",
+  // screen reader and slow work
+  " piazzato": " placed",
+  "segnata con una X": "marked with a cross",
+  "note: {names}": "notes: {names}",
+  vuota: "empty",
+  "riga {row}, colonna {col}": "row {row}, column {col}",
+  "{name} piazzato in {place}": "{name} placed at {place}",
+  "{name} spostato in {place}": "{name} moved to {place}",
+  "{name} tolto dalla griglia": "{name} taken off the grid",
+  "{count} personaggi modificati": "{count} characters changed",
+  "Nota su una riga o colonna aggiornata": "Note on a row or column updated",
+  "{count} caselle modificate": "{count} cells changed",
+  "X segnata in {place}": "Cross marked at {place}",
+  "X tolta da {place}": "Cross removed from {place}",
+  "Nota {name} aggiunta in {place}": "Note {name} added at {place}",
+  "Nota {name} tolta da {place}": "Note {name} removed from {place}",
+  "{name} selezionato. Nessun indizio.": "{name} selected. No clues.",
+  "{name} selezionato. Indizi: {clues}": "{name} selected. Clues: {clues}",
+  "Strumento: segna X": "Tool: mark X",
+  "Strumento: gomma": "Tool: eraser",
+  "suggerimento: qui": "hint: here",
+  "suggerimento: informazione": "hint: information",
+  "suggerimento: in conflitto": "hint: in conflict",
+  suggerimento: "hint",
+  "Suggerimento pronto": "Hint ready",
+  "Suggerimento annullato.": "Hint cancelled.",
+  "Verifica terminata": "Check finished",
+  "Caso risolto": "Case solved",
+  "Caso risolto! {murderer} Tempo: {time}.": "Case solved! {murderer} Time: {time}.",
+  "Verifica annullata.": "Check cancelled.",
+  Suggerimento: "Hint",
+  Esito: "Result",
+  "Griglia di gioco": "Game board",
+  "Frecce per muoversi tra le caselle, Invio per segnare una nota, Maiusc+Invio per piazzare il personaggio selezionato. Tasti 1-9 e 0 scelgono un personaggio, X segna una X, E gomma, U annulla, H suggerimento.":
+    "Arrow keys move between cells, Enter marks a note, Shift+Enter places the selected character. Keys 1-9 and 0 pick a character, X marks a cross, E is the eraser, U undoes, H gives a hint.",
+  "Passo precedente": "Previous step",
+  "Passo successivo": "Next step",
+  "Ancora in calcolo: {seconds} secondi": "Still working: {seconds} seconds",
+  "Personaggi e strumenti": "Characters and tools",
+  ", già piazzato": ", already placed",
+  "Passa al tema ad alto contrasto": "Switch to the high-contrast theme",
 };

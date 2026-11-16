@@ -88,12 +88,20 @@ export const builders = {
   },
 
   emptyRoomsSameSize: ({ clue, puzzle, ownerId, params }) => {
+    const zones = puzzle.grid.zones;
+    // computed once, not on every call: this predicate runs thousands of times per search node
+    const sizes = zones.map((z) => zoneCellCount(puzzle.grid, z.id));
+    const distinctSizes = [...new Set(sizes)];
+    const sizeIndex = sizes.map((size) => distinctSizes.indexOf(size));
+    const freeBySize = new Int32Array(distinctSizes.length); // scratch space, reset on every call
+    const total = puzzle.characters.length;
     return (pm, isComplete) => {
-      const zones = puzzle.grid.zones;
       const occupiedZones = new Set();
+      let placed = 0;
       for (const c of puzzle.characters) {
         const pos = posOfCharacter(pm, c.id);
         if (!pos) continue;
+        placed++;
         const z = zoneAt(puzzle, pos);
         if (z !== null) occupiedZones.add(z);
       }
@@ -102,11 +110,28 @@ export const builders = {
       // `count` empty zones stays too tight regardless of what follows.
       const guaranteedEmpty = zones.length - occupiedZones.size;
       if (guaranteedEmpty < params.count) return false;
-      if (!isComplete) return undefined;
+      // The clue says EXACTLY `count` rooms stay empty, so exactly `zones.length - count` rooms must end up occupied.
+      // Every character still to place fills at most one more room: if the rooms still to fill outnumber them, no
+      // completion can work. (Before this the check only fired once the placement was complete, so a case whose other
+      // clues leave many solutions made the search visit hundreds of thousands of nodes.)
+      if (guaranteedEmpty - params.count > total - placed) return false;
+      if (!isComplete) {
+        // The rooms that end up empty are among the ones still unoccupied and must all have the same size: some size
+        // has to be shared by at least `count` of them (this is the check that prunes most).
+        if (params.count > 1) {
+          freeBySize.fill(0);
+          let enough = false;
+          for (let i = 0; i < zones.length && !enough; i++) {
+            if (!occupiedZones.has(zones[i].id) && ++freeBySize[sizeIndex[i]] >= params.count) enough = true;
+          }
+          if (!enough) return false;
+        }
+        return undefined;
+      }
       const emptyZones = zones.filter((z) => !occupiedZones.has(z.id));
       if (emptyZones.length !== params.count) return false;
-      const sizes = new Set(emptyZones.map((z) => zoneCellCount(puzzle.grid, z.id)));
-      return sizes.size <= 1;
+      const emptySizes = new Set(emptyZones.map((z) => zoneCellCount(puzzle.grid, z.id)));
+      return emptySizes.size <= 1;
     };
   },
 

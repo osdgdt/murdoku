@@ -2908,6 +2908,86 @@ export const tests = [
     },
   },
   {
+    name: "emptyRoomsSameSize: la potatura sui piazzamenti parziali non scarta mai una soluzione (prova esaustiva su una griglia piccola)",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const people = ["A", "B", "C"].map((name) => addCharacter(puzzle, name, "person1"));
+      const zone = (name, cells) => {
+        const z = addZone(puzzle.grid, name, "#fff");
+        for (const [r, c] of cells) paintCellZone(puzzle.grid, r, c, z.id);
+      };
+      zone("Z1", [[0, 0]]);
+      zone("Z2", [[1, 1]]);
+      zone("Z3", [
+        [2, 2],
+        [2, 3],
+      ]);
+      zone("Z4", [
+        [3, 2],
+        [3, 3],
+      ]);
+      for (const count of [1, 2, 3]) {
+        const predicate = buildPredicate(addClue(puzzle, null, "emptyRoomsSameSize", { count }), puzzle);
+        const cells = [];
+        for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) cells.push({ row: r, col: c });
+        let pruned = 0;
+        for (const a of cells)
+          for (const b of cells)
+            for (const c of cells) {
+              const full = [a, b, c];
+              const complete = predicate(mapOf(people.map((p, i) => [p.id, full[i]])), true);
+              for (let mask = 0; mask < 7; mask++) {
+                // a partial placement: the characters whose bit is set are placed, the others are still to place
+                const partial = mapOf(people.flatMap((p, i) => (mask & (1 << i) ? [[p.id, full[i]]] : [])));
+                if (predicate(partial, false) === false) {
+                  pruned++;
+                  assert(complete !== true, `count ${count}: un piazzamento parziale potato ha un completamento valido`);
+                }
+              }
+            }
+        assert(pruned > 0, `count ${count}: la potatura deve scattare almeno qualche volta`);
+      }
+    },
+  },
+  {
+    name: "emptyRoomsSameSize: scarta subito i casi impossibili (troppe stanze da riempire per i personaggi, o nessuna grandezza condivisa)",
+    fn: () => {
+      // due personaggi non possono occupare 3 stanze: «esattamente 1 stanza vuota» su 4 stanze è impossibile fin dall'inizio
+      const few = basePuzzle(4, 4);
+      addCharacter(few, "A", "person1");
+      addCharacter(few, "B", "person2");
+      for (const [r, c] of [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [3, 3],
+      ])
+        paintCellZone(few.grid, r, c, addZone(few.grid, `Z${r}`, "#fff").id);
+      const tooMany = buildPredicate(addClue(few, null, "emptyRoomsSameSize", { count: 1 }), few);
+      assertEqual(tooMany(mapOf([]), false), false, "2 personaggi non riempiono 3 stanze");
+      // tre stanze di grandezze tutte diverse (1, 2, 3 caselle): due stanze vuote della stessa grandezza non esistono
+      const sizes = basePuzzle(4, 4);
+      addCharacter(sizes, "A", "person1");
+      const z1 = addZone(sizes.grid, "S1", "#fff");
+      const z2 = addZone(sizes.grid, "S2", "#eee");
+      const z3 = addZone(sizes.grid, "S3", "#ddd");
+      paintCellZone(sizes.grid, 0, 0, z1.id);
+      for (const [r, c] of [
+        [1, 0],
+        [1, 1],
+      ])
+        paintCellZone(sizes.grid, r, c, z2.id);
+      for (const [r, c] of [
+        [2, 0],
+        [2, 1],
+        [2, 2],
+      ])
+        paintCellZone(sizes.grid, r, c, z3.id);
+      const noSameSize = buildPredicate(addClue(sizes, null, "emptyRoomsSameSize", { count: 2 }), sizes);
+      assertEqual(noSameSize(mapOf([]), false), false, "nessuna grandezza condivisa da due stanze");
+    },
+  },
+  {
     name: "solvePuzzle rispetta un indizio emptyRoomsSameSize durante la ricerca reale",
     fn: () => {
       const puzzle = basePuzzle(4, 4);

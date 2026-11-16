@@ -445,6 +445,8 @@ export default {
   "Operazione annullata.": "Operation cancelled.",
   "Limite di ricerca raggiunto: finora non ho trovato nessuna soluzione, ma questo non significa che non esista. Aggiungi indizi per restringere la ricerca e riprova.":
     "Search limit reached: I have not found any solution so far, but that does not mean there is none. Add clues to narrow the search and try again.",
+  "Limite di ricerca raggiunto: la soluzione dichiarata è valida, ma non sono riuscito a verificare che sia l'unica. Riprova, oppure aggiungi indizi per restringere la ricerca.":
+    "Search limit reached: the declared solution is valid, but I could not verify that it is the only one. Try again, or add clues to narrow the search.",
   "Ho trovato una soluzione, ma il limite di ricerca è finito prima di poter escludere che ce ne siano altre: non posso garantire che sia unica. Aggiungi indizi e riprova.":
     "I found a solution, but the search limit ran out before I could rule out others: I cannot guarantee it is the only one. Add clues and try again.",
   "Non sono riuscito a verificare l'unicità entro il limite di ricerca: non posso dire quali indizi siano superflui. Aggiungi indizi e riprova.":

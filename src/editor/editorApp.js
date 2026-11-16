@@ -265,7 +265,18 @@ function showSolverError(err, describe) {
 
 // The honest wording of a uniqueness report that did NOT run to its end: the search was stopped by
 // a limit, so "no solution" and "unique" cannot be claimed.
+// Does the author's declared solution already obey every clue? (A cheap, exact check: it does not search.)
+function declaredSolutionHolds() {
+  return puzzle.solution.placements.length === puzzle.characters.length && validateSolution(puzzle).valid;
+}
+
 function limitMessage(report) {
+  if (report.solutionCount === 0 && declaredSolutionHolds()) {
+    // The search had not reached it yet, but we KNOW this case has a solution: the one declared, which is valid.
+    return t(
+      "Limite di ricerca raggiunto: la soluzione dichiarata è valida, ma non sono riuscito a verificare che sia l'unica. Riprova, oppure aggiungi indizi per restringere la ricerca."
+    );
+  }
   return report.solutionCount === 0
     ? t(
         "Limite di ricerca raggiunto: finora non ho trovato nessuna soluzione, ma questo non significa che non esista. Aggiungi indizi per restringere la ricerca e riprova."

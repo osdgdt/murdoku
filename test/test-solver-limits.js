@@ -69,13 +69,14 @@ export const tests = [
     },
   },
   {
-    name: "limiti: invariati fino a 9x9, crescono con la griglia (16x16 ~ 3,2 volte)",
+    name: "limiti: uguali fino a 9x9, crescono con la griglia (16x16 ~ 3,2 volte)",
     fn: () => {
       assertEqual(sizeFactor(open(3, 2)), 1);
       assertEqual(sizeFactor(open(9, 2)), 1);
       const nine = limitsFor(open(9, 2));
-      assertEqual(nine.uniqueness.maxNodes, 200_000, "i numeri di sempre");
-      assertEqual(nine.uniqueness.timeMs, 10_000);
+      assertEqual(nine.uniqueness.maxNodes, 600_000);
+      assertEqual(nine.uniqueness.timeMs, 30_000);
+      assertEqual(nine.redundancy.maxNodes, 200_000, "gli altri numeri restano quelli di sempre");
       const big = limitsFor(open(16, 2));
       assert(Math.abs(sizeFactor(open(16, 2)) - (16 / 9) ** 2) < 1e-9);
       for (const key of Object.keys(nine)) {

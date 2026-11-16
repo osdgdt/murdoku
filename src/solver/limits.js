@@ -20,8 +20,11 @@ const scaled = (base, factor) => Math.round(base * factor);
 export function limitsFor(puzzle) {
   const f = sizeFactor(puzzle);
   return {
-    // "Verifica unicità" and the check before sharing/exporting a case
-    uniqueness: { maxNodes: scaled(200_000, f), timeMs: scaled(10_000, f) },
+    // "Verifica unicità" and the check before sharing/exporting a case. A hard 9x9 case whose clues exclude little
+    // (mostly "global" ones that only decide once everybody is placed) can need ~350k nodes and 20 s: the budget has to
+    // cover that, or the author is told "limit reached" about a case that is perfectly fine. The screen shows
+    // progress and a Cancel button.
+    uniqueness: { maxNodes: scaled(600_000, f), timeMs: scaled(30_000, f) },
     // one step of the "redundant clues" analysis (it runs one check per clue)
     redundancy: { maxNodes: scaled(200_000, f), timeMs: scaled(5_000, f) },
     // a player's first look at whether the declared solution is the only one

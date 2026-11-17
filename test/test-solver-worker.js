@@ -9,6 +9,8 @@ import {
   mergeSliceReports,
   forgetSettledResults,
   SolverCancelled,
+  cancelSolver,
+  laneCountFor,
 } from "../src/solver/solverClient.js";
 import { checkUniqueness } from "../src/solver/validator.js";
 import { randomPuzzle } from "./helpers/random-puzzle.js";
@@ -256,6 +258,56 @@ export const tests = [
       forgetSettledResults();
       const limited = await deriveSolutionAsync(wide, { parallel: true, parallelism: 3, timeMs: 60000, maxWork: 1e9, maxSolutions: 2 });
       assert(limited.status === "ambiguous" || limited.status === "inconclusive", "mai «unique» per un caso largo");
+    },
+  },
+  {
+    name: "corsie (indizi superflui): due controlli insieme su worker diversi rispondono ciascuno per il proprio caso; annullare «main» ferma anche le corsie e dopo lavorano ancora",
+    fn: async () => {
+      const mk = (withClue) => {
+        const puzzle = createPuzzle("corsia");
+        puzzle.grid = resizeGrid(puzzle.grid, 3, 3);
+        const a = addCharacter(puzzle, "A", "person1");
+        const z = addZone(puzzle.grid, "Uno", "#fff");
+        paintCellZone(puzzle.grid, 1, 1, z.id);
+        if (withClue) addClue(puzzle, a.id, "inRoom", { zoneId: z.id });
+        return puzzle;
+      };
+      forgetSettledResults();
+      const [unique, many] = await Promise.all([
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane0" }),
+        checkUniquenessAsync(mk(false), { maxSolutions: 2 }, { worker: "lane1" }),
+      ]);
+      assertEqual(unique.solutionCount, 1, "con l'indizio: una sola soluzione");
+      assertEqual(many.solutionCount, 2, "senza: ambiguo (due soluzioni bastano)");
+
+      // three searches in flight (two lanes and the main worker), cancelled at once: every one must be rejected
+      // (a search is never already over here: the request has not even reached its worker yet)
+      const outcomes = [
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane0" }),
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane1" }),
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }),
+      ].map((promise) =>
+        promise.then(
+          () => "finita",
+          (e) => e
+        )
+      );
+      cancelSolver("main");
+      for (const outcome of await Promise.all(outcomes))
+        assert(outcome instanceof SolverCancelled, `ogni ricerca in corso, anche sulle corsie, viene annullata (${outcome})`);
+      forgetSettledResults();
+      const again = await Promise.all([
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane0" }),
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }),
+      ]);
+      forgetSettledResults();
+      assert(
+        again.every((r) => r.solutionCount === 1),
+        "dopo l'annullamento le corsie e il worker principale lavorano ancora"
+      );
+      const lanes = laneCountFor();
+      assert(Number.isInteger(lanes) && lanes >= 1 && lanes <= 4, `numero di corsie ragionevole (${lanes})`);
+      assertEqual(laneCountFor({ parallelism: 2 }), 2, "si può forzare (test)");
     },
   },
   {

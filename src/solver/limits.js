@@ -38,11 +38,14 @@ export function limitsFor(puzzle) {
       forwardCheckMinRemaining: SETTLE_MIN_REMAINING,
       parallel: true,
     },
-    // one step of the "redundant clues" analysis (it runs one check per clue)
+    // one step of the "redundant clues" analysis (it runs one check per clue, several at once: solverClient.laneCountFor).
+    // The checks that matter are the slow ones: a clue that IS redundant leaves the case unique, so its check runs to
+    // the end of the search (6-8 s on the hard 9x9 benchmark case) and one that gave up at the limit is reported as
+    // "not proven needed". Each check is a single search (no slices: the parallelism is across the clues).
     redundancy: {
       maxNodes: scaled(200_000, f),
-      maxWork: scaled(20_000_000, f),
-      timeMs: scaled(5_000, f),
+      maxWork: scaled(80_000_000, f),
+      timeMs: scaled(20_000, f),
       forwardCheckMinRemaining: SETTLE_MIN_REMAINING,
     },
     // a player's first look at whether the declared solution is the only one

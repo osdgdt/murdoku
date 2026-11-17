@@ -19,7 +19,7 @@ import * as store from "../storage/puzzleStore.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
-import { checkUniquenessAsync, deriveSolutionAsync, cancelSolver } from "../solver/solverClient.js";
+import { checkUniquenessAsync, deriveSolutionAsync, cancelSolver, laneCountFor } from "../solver/solverClient.js";
 import { limitsFor, searchBudget } from "../solver/limits.js";
 import { findRedundantClues, findCluesNeededWithoutVictim } from "../solver/redundancy.js";
 import { describeClue } from "../model/clueTypes.js";
@@ -501,8 +501,16 @@ redundantBtn.addEventListener("click", async () => {
   const progress = showProgress(t("Analisi degli indizi in corso…"));
   try {
     const budget = searchBudget(limitsFor(puzzle).redundancy);
-    const check = (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, ...budget, forwardCheck: true });
+    // one check per clue, several at once when the machine has the cores for it (each on its own worker)
+    const lanes = laneCountFor();
+    const check = (candidate, { lane = null } = {}) =>
+      checkUniquenessAsync(
+        candidate,
+        { maxSolutions: 2, ...budget, forwardCheck: true },
+        lanes > 1 && lane !== null ? { worker: `lane${lane}` } : {}
+      );
     const result = await findRedundantClues(puzzle, check, {
+      concurrency: lanes,
       onProgress: (done, total) => {
         progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total });
       },

@@ -103,8 +103,10 @@ function callWorker(name, type, payload, { signal = null, timeMs = null } = {}) 
 // Stops everything the editor's worker is doing (its pending calls reject with SolverCancelled).
 export function cancelSolver(name = "main") {
   dropWorker(name, new SolverCancelled());
+  // what the editor's worker was doing may be spread over the slice workers and the lanes of the clue analysis
   if (name === "main")
-    for (const sliceName of [...workers.keys()].filter((n) => n.startsWith("slice"))) dropWorker(sliceName, new SolverCancelled());
+    for (const helper of [...workers.keys()].filter((n) => n.startsWith("slice") || n.startsWith("lane")))
+      dropWorker(helper, new SolverCancelled());
 }
 
 export function computeHintChainAsync(puzzle, currentPlacements, candidates = new Map(), callOptions = {}) {
@@ -129,6 +131,10 @@ function sliceCountFor(options) {
   const cores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency || 1 : 1;
   return cores >= 3 ? Math.min(MAX_SLICES, cores - 1) : 1;
 }
+
+// How many independent searches may run at the same time (the redundant-clue analysis runs one per clue, each on its
+// own worker: callOptions.worker = "lane<n>"): the same rule as for the slices. 1 means one after the other.
+export const laneCountFor = (options = {}) => sliceCountFor(options);
 
 // One uniqueness report for the whole search, from the reports of its slices (exported for tests).
 export function mergeSliceReports(reports, maxSolutions) {
@@ -285,10 +291,11 @@ export function checkUniquenessAsync(puzzle, options = {}, callOptions = {}) {
       evaluations: 0,
     });
   }
+  const { worker = "main", ...callRest } = callOptions; // `worker`: which of the client's workers runs a plain search
   const search =
     plain && options.parallel
-      ? uniquenessMaybeParallel(puzzle, options, callOptions)
-      : callWorker("main", "checkUniqueness", { puzzle, options: forWorker(options) }, { timeMs: options.timeMs ?? null, ...callOptions });
+      ? uniquenessMaybeParallel(puzzle, options, callRest)
+      : callWorker(worker, "checkUniqueness", { puzzle, options: forWorker(options) }, { timeMs: options.timeMs ?? null, ...callRest });
   return search.then((report) => {
     if (plain && report.exhausted && report.solutionCount === 1) remember(key, "unique", report.solutions[0]);
     else if (plain && report.exhausted && report.solutionCount === 0) remember(key, "unsatisfiable", null);

@@ -264,6 +264,18 @@ export function propagate(
     // goes much further on big grids (a 16x16 round used to exceed the default budget on its own).
     dependencies: dependenciesOverride = null,
     incremental = true,
+    // For the search's forward check, which only wants to know whether the board is already dead (a character with
+    // no cell left). It skips everything the hints need but a dead-end check does not, with the SAME pruning power:
+    //  - a cell is dropped at the first clue that is false, instead of collecting every witness;
+    //  - cells outside `startDomains` (what the caller already proved impossible: the unary domains) are not retried.
+    //    (Carrying a round's survivors into the next round was tried: it saves almost nothing and weakens the check,
+    //    because two characters can then become forced in the same round and their compatibility is never tested.)
+    //  - clues that depend on the character are tried before the ones that watch everybody (cheaper, and they
+    //    exclude far more cells);
+    //  - the answer comes as soon as one character runs out of cells.
+    // `eliminated`/`forced` details and `domains` are not meant to be read in this mode, only `contradiction`.
+    contradictionOnly = false,
+    startDomains = null,
   } = {}
 ) {
   const { rows, cols } = puzzle.grid.size;
@@ -286,6 +298,23 @@ export function propagate(
   let lastWitnessOf = new Map();
   let lastUnplacedIds = new Set();
   let lastDomains = new Map();
+  const evaluationOrder = new Map(); // characterId -> predicate indexes to evaluate, dependent clues first
+  function evaluationListFor(characterId) {
+    let list = evaluationOrder.get(characterId);
+    if (!list) {
+      const own = [];
+      const watchers = [];
+      predicates.forEach((_, i) => {
+        const dep = dependencies && dependencies[i];
+        if (!dep) own.push(i);
+        else if (dep.all) watchers.push(i);
+        else if (dep.ids.has(characterId)) own.push(i);
+      });
+      list = [...own, ...watchers];
+      evaluationOrder.set(characterId, list);
+    }
+    return list;
+  }
 
   for (let round = 0; round < maxRounds; round++) {
     const unplaced = puzzle.characters.filter((c) => !confirmed.has(c.id));
@@ -313,6 +342,48 @@ export function propagate(
       : null;
 
     outer: for (const character of unplaced) {
+      if (contradictionOnly) {
+        let blocked = false; // a clue the character does not affect is already false on the board as it stands
+        if (dependencies) {
+          for (let i = 0; i < predicates.length && !blocked; i++) {
+            const dep = dependencies[i];
+            if (!dep.all && !dep.ids.has(character.id) && baseline[i] === false) blocked = true;
+          }
+        }
+        const alive = [];
+        if (!blocked) {
+          const list = evaluationListFor(character.id);
+          const tentative = new Map(confirmed);
+          const tryCell = (r, c) => {
+            if (usedRows.has(r) || usedCols.has(c)) return true;
+            tentative.set(character.id, { row: r, col: c });
+            for (const i of list) {
+              evaluations++;
+              if (evaluations > maxEvaluations) return null;
+              if (predicates[i].predicate(tentative, isCompleteIfPlaced) === false) return true;
+            }
+            alive.push({ row: r, col: c });
+            return true;
+          };
+          const known = startDomains && startDomains.get(character.id);
+          if (known) {
+            for (const { row, col } of known) if (tryCell(row, col) === null) capped = true;
+          } else {
+            for (let r = 0; r < rows && !capped; r++) {
+              if (usedRows.has(r)) continue;
+              for (let c = 0; c < cols && !capped; c++) {
+                if (isOccupiable(puzzle.grid, r, c) && tryCell(r, c) === null) capped = true;
+              }
+            }
+          }
+          if (capped) break outer;
+        }
+        domains.set(character.id, alive);
+        if (alive.length === 0) {
+          return { confirmed, forced, eliminated: [], domains, contradiction: { characterId: character.id }, evaluationsUsed: evaluations };
+        }
+        continue;
+      }
       const survivors = [];
       const tentative = new Map(confirmed);
       for (let r = 0; r < rows; r++) {
@@ -391,6 +462,13 @@ export function propagate(
     const newlyForced = unplaced.filter((c) => domains.get(c.id).length === 1);
     if (newlyForced.length === 0) break; // fixed point reached
 
+    if (contradictionOnly) {
+      for (const character of newlyForced) {
+        confirmed.set(character.id, domains.get(character.id)[0]);
+        lastUnplacedIds.delete(character.id);
+      }
+      continue;
+    }
     for (const character of newlyForced) {
       const cell = domains.get(character.id)[0];
       // Witnesses for the forced fact = union of witnesses for every OTHER

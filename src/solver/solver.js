@@ -223,6 +223,8 @@ export function solvePuzzle(
           maxRounds: FORWARD_CHECK_MAX_ROUNDS,
           maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
           maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
+          contradictionOnly: true,
+          startDomains: candidates,
         });
         evaluations += checked.evaluationsUsed ?? 0;
         stillPromising = !checked.contradiction;

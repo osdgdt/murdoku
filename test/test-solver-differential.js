@@ -1,7 +1,9 @@
 // The optimised solver (unary domains, dynamic most-constrained ordering, incremental clue checks,
 // optional forward checking) must find EXACTLY the solutions of the plain reference search, on cases
 // of every kind: no clue, a few, contradictory, with rooms, objects and a victim. Seeded, so reproducible.
-import { solvePuzzle } from "../src/solver/solver.js";
+import { solvePuzzle, unaryDomains } from "../src/solver/solver.js";
+import { buildPredicates } from "../src/solver/predicates/index.js";
+import { isOccupiable } from "../src/model/grid.js";
 import { propagate } from "../src/solver/propagation.js";
 import { referenceSolutions } from "./reference-solver.js";
 import { randomPuzzle, rng } from "./helpers/random-puzzle.js";
@@ -87,6 +89,47 @@ export const tests = [
         if (parsed.forced.length) forced++;
       }
       assert(contradictions >= 5 && forced >= 5, `serve un mix di esiti (${contradictions} contraddizioni, ${forced} forzati)`);
+    },
+  },
+  {
+    name: "propagate in modalità solo-contraddizione (controllo in avanti): stessa contraddizione di quello normale, con meno valutazioni (300 casi casuali)",
+    fn: () => {
+      let contradictions = 0;
+      let consistent = 0;
+      let saved = 0;
+      let total = 0;
+      for (let seed = 1; seed <= 300; seed++) {
+        const puzzle = randomPuzzle(seed, { maxClues: 8 });
+        const random = rng(seed * 17);
+        const { rows, cols } = puzzle.grid.size;
+        const confirmed = new Map();
+        for (const c of puzzle.characters)
+          if (random() < 0.3) confirmed.set(c.id, { row: Math.floor(random() * rows), col: Math.floor(random() * cols) });
+        const big = { maxEvaluations: Infinity, maxRounds: 50, maxSubsetOps: Infinity };
+        const normal = propagate(puzzle, confirmed, big);
+        // what the solver hands over: the cells each character can take judged alone
+        const cells = [];
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (isOccupiable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
+        const unary = unaryDomains(puzzle, puzzle.characters, buildPredicates(puzzle), cells);
+        for (const startDomains of [null, unary]) {
+          const fast = propagate(puzzle, confirmed, { ...big, contradictionOnly: true, startDomains });
+          assertEqual(
+            JSON.stringify(fast.contradiction),
+            JSON.stringify(normal.contradiction),
+            `caso ${seed}${startDomains ? " (con domini unari)" : ""}: la modalità solo-contraddizione dà un verdetto diverso`
+          );
+          assert(
+            fast.evaluationsUsed <= normal.evaluationsUsed,
+            `caso ${seed}: la modalità solo-contraddizione non può usare più valutazioni`
+          );
+          saved += normal.evaluationsUsed - fast.evaluationsUsed;
+          total += normal.evaluationsUsed;
+        }
+        if (normal.contradiction) contradictions++;
+        else consistent++;
+      }
+      assert(contradictions >= 20 && consistent >= 20, `serve un mix di esiti (${contradictions} contraddizioni, ${consistent} no)`);
+      assert(saved > 0.15 * total, `deve risparmiare valutazioni (${saved} su ${total})`);
     },
   },
 ];

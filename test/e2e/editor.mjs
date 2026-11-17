@@ -64,7 +64,9 @@ try {
   check("uniqueness check reports a unique solution", /Unique solution/.test(await page.innerText("#validation-panel")));
 
   // A long search can be cancelled: hold the worker's messages back so the check is still running
-  // when "Cancel" is pressed, then check the editor says so and works again afterwards.
+  // when "Cancel" is pressed, then check the editor says so and works again afterwards. (The check just made is
+  // remembered, and a second one on the same case would be answered at once: forget it so there is a real search.)
+  await page.evaluate(async () => (await import("/src/solver/solverClient.js")).forgetSettledResults());
   await page.evaluate(() => {
     const original = Worker.prototype.postMessage;
     Worker.prototype.postMessage = function (...args) {

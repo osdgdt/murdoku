@@ -1,7 +1,7 @@
 import { createPuzzle, addCharacter, addClue } from "../src/model/puzzle.js";
 import { addZone, paintCellZone, resizeGrid } from "../src/model/grid.js";
 import { computeHintChain } from "../src/solver/hints.js";
-import { computeHintChainAsync, checkUniquenessAsync } from "../src/solver/solverClient.js";
+import { computeHintChainAsync, checkUniquenessAsync, deriveSolutionAsync } from "../src/solver/solverClient.js";
 import { assertEqual } from "./assert.js";
 
 export const tests = [
@@ -66,6 +66,77 @@ export const tests = [
       ]);
       assertEqual(reportA.solutionCount, 4, "il report di A deve riflettere il puzzle A (4 soluzioni), non essersi scambiato con B");
       assertEqual(reportB.solutionCount, 1, "il report di B deve riflettere il puzzle B (1 soluzione), non essersi scambiato con A");
+    },
+  },
+  {
+    name: "solverClient: un verdetto conclusivo (unica / nessuna soluzione) si ricorda e non si rifà; un limite non si ricorda; modificare un indizio svuota la memoria",
+    fn: async () => {
+      const posted = [];
+      const original = Worker.prototype.postMessage;
+      Worker.prototype.postMessage = function (data) {
+        posted.push(data.type);
+        return original.call(this, data);
+      };
+      try {
+        const puzzle = createPuzzle("memoria dei risultati");
+        puzzle.grid = resizeGrid(puzzle.grid, 3, 3);
+        const a = addCharacter(puzzle, "A", "person1");
+        const b = addCharacter(puzzle, "B", "person2");
+        const z1 = addZone(puzzle.grid, "Uno", "#fff");
+        const z2 = addZone(puzzle.grid, "Due", "#eee");
+        paintCellZone(puzzle.grid, 1, 1, z1.id);
+        paintCellZone(puzzle.grid, 0, 0, z2.id);
+        addClue(puzzle, a.id, "inRoom", { zoneId: z1.id });
+        addClue(puzzle, b.id, "inRoom", { zoneId: z2.id });
+
+        const first = await checkUniquenessAsync(puzzle, { maxSolutions: 2 });
+        assertEqual(first.solutionCount, 1);
+        assertEqual(posted.length, 1, "la prima richiesta va al Worker");
+        const again = await checkUniquenessAsync(puzzle, { maxSolutions: 24, forwardCheck: true });
+        assertEqual(JSON.stringify(again.solutions), JSON.stringify(first.solutions), "stesso verdetto e stessa soluzione");
+        assertEqual(again.unique, true);
+        assertEqual(again.exhausted, true);
+        const derived = await deriveSolutionAsync(puzzle, {});
+        assertEqual(derived.status, "unique");
+        assertEqual(
+          JSON.stringify(derived.placements),
+          JSON.stringify(first.solutions[0]),
+          "«Calcola soluzione» si serve della verifica già fatta"
+        );
+        assertEqual(posted.length, 1, "nessuna nuova ricerca per lo stesso caso");
+
+        puzzle.title = "un altro titolo";
+        puzzle.solution.placements = [];
+        await checkUniquenessAsync(puzzle, { maxSolutions: 2 });
+        assertEqual(posted.length, 1, "titolo e soluzione dichiarata non entrano nella chiave: il solutore non li legge");
+
+        // a steered search (placements fixed by the caller) is a different question: never answered from memory
+        await checkUniquenessAsync(puzzle, { maxSolutions: 2, fixedPlacements: new Map([[a.id, { row: 1, col: 1 }]]) });
+        assertEqual(posted.length, 2, "una ricerca con piazzamenti fissati va al Worker");
+
+        addClue(puzzle, b.id, "inRoom", { zoneId: z1.id }); // B cannot be in both rooms: no solution
+        const none = await checkUniquenessAsync(puzzle, { maxSolutions: 2 });
+        assertEqual(none.solutionCount, 0);
+        assertEqual(none.exhausted, true);
+        assertEqual(posted.length, 3, "cambiare un indizio svuota la memoria");
+        await checkUniquenessAsync(puzzle, { maxSolutions: 2 });
+        assertEqual(posted.length, 3, "anche «nessuna soluzione» conclusivo si ricorda");
+
+        // a limit never becomes a verdict: asking again searches again
+        const wide = createPuzzle("limite");
+        wide.grid = resizeGrid(wide.grid, 6, 6);
+        for (let i = 0; i < 5; i++) addCharacter(wide, `P${i}`);
+        // so tight that the search stops before it has found anything: "no solution found" here is not a verdict
+        const cut = await checkUniquenessAsync(wide, { maxSolutions: 2, maxWork: 50 });
+        assertEqual(cut.exhausted, false);
+        assertEqual(cut.solutionCount, 0, "fermata prima di trovare qualcosa");
+        const before = posted.length;
+        const retry = await checkUniquenessAsync(wide, { maxSolutions: 2, maxWork: 50 });
+        assertEqual(posted.length, before + 1, "un risultato fermato da un limite non si ricorda");
+        assertEqual(retry.exhausted, false);
+      } finally {
+        Worker.prototype.postMessage = original;
+      }
     },
   },
 ];

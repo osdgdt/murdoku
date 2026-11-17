@@ -109,12 +109,76 @@ export function computeHintChainAsync(puzzle, currentPlacements, candidates = ne
   return callWorker("hints", "computeHintChain", { puzzle, currentPlacements, candidates }, callOptions);
 }
 
+// ---- remembering what was settled -----------------------------------------------------------------------------
+// "Verifica unicità", the check before sharing or exporting and "Calcola soluzione" all search the same case to the end,
+// and an author runs them one after the other on a case that has not changed. Whenever a search ENDS in a verdict
+// ("exactly one solution" / "none"), it is remembered, and the next such request for the same case is answered from it
+// without a search; a result a limit cut short is never remembered. Only what the solver reads takes part in the key
+// (map, cast, clues), so editing a title or the declared solution keeps it, and changing a clue drops it.
+const settled = new Map(); // key -> { status: "unique" | "unsatisfiable", placements: [{characterId,row,col}] | null }
+const SETTLED_MAX = 16;
+
+function settledKey(puzzle) {
+  const { size, cells, zones, objects } = puzzle.grid;
+  return JSON.stringify([
+    size,
+    cells.map((row) => row.map((c) => [c.zoneId, c.objectId, !!c.blocked])),
+    zones.map((z) => z.id),
+    objects.map((o) => [o.id, o.typeId, o.row, o.col, o.side ?? null]),
+    puzzle.characters.map((c) => [c.id, c.gender ?? null, !!c.isVictim]),
+    puzzle.clues.map((c) => [c.id, c.characterId, c.type, c.params ?? null, !!c.negate]),
+  ]);
+}
+
+// Forgets everything settled so far (tests that need a real search to cancel, or a changed rule of the solver).
+export function forgetSettledResults() {
+  settled.clear();
+}
+
+function remember(key, status, placements) {
+  settled.delete(key); // re-inserted last, so the oldest goes first
+  settled.set(key, { status, placements });
+  if (settled.size > SETTLED_MAX) settled.delete(settled.keys().next().value);
+}
+
+// A search that was not steered by a caller's own placements/domains and that ran to its end with at least room for two
+// solutions (so "one found" really means "one exists").
+const plainUniquenessRequest = (options) =>
+  !options.fixedPlacements && !options.domains && !options.shouldStop && (options.maxSolutions ?? 2) >= 2;
+
 export function deriveSolutionAsync(puzzle, options = {}, callOptions = {}) {
-  return callWorker("main", "deriveSolution", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions });
+  const key = settledKey(puzzle);
+  const known = settled.get(key);
+  if (known && !callOptions.signal?.aborted)
+    return Promise.resolve(structuredClone({ status: known.status, placements: known.placements }));
+  return callWorker("main", "deriveSolution", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions }).then((result) => {
+    if (result.status === "unique" || result.status === "unsatisfiable") remember(key, result.status, result.placements ?? null);
+    return result;
+  });
 }
 
 export function checkUniquenessAsync(puzzle, options = {}, callOptions = {}) {
-  return callWorker("main", "checkUniqueness", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions });
+  const plain = plainUniquenessRequest(options);
+  const key = plain ? settledKey(puzzle) : null;
+  const known = plain ? settled.get(key) : null;
+  if (known && !callOptions.signal?.aborted) {
+    const solutions = known.status === "unique" ? [structuredClone(known.placements)] : [];
+    return Promise.resolve({
+      solutionCount: solutions.length,
+      unique: solutions.length === 1,
+      solutions,
+      truncated: false,
+      exhausted: true,
+      stoppedBy: null,
+      nodesVisited: 0,
+      evaluations: 0,
+    });
+  }
+  return callWorker("main", "checkUniqueness", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions }).then((report) => {
+    if (plain && report.exhausted && report.solutionCount === 1) remember(key, "unique", report.solutions[0]);
+    else if (plain && report.exhausted && report.solutionCount === 0) remember(key, "unsatisfiable", null);
+    return report;
+  });
 }
 
 // The editor's live preview: a quick analysis of the case (see analysis.js), on its own worker.

@@ -36,7 +36,7 @@ const ready = (async () => {
       computeHintChain(payload.puzzle, payload.currentPlacements, payload.candidates, { unlimited: true, onProgress: report }),
     deriveSolution: (payload, report) => deriveSolution(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
     checkUniqueness: (payload, report) => checkUniqueness(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
-    analyze: (payload) => analyzePuzzle(payload.puzzle, payload.options || {}),
+    analyze: (payload, report) => analyzePuzzle(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
     compose: (payload, report) => proposeClueSet(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
   };
 })();

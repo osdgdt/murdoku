@@ -2,6 +2,7 @@ import { createPuzzle, addCharacter, addClue } from "../src/model/puzzle.js";
 import { resizeGrid, addZone, paintCellZone } from "../src/model/grid.js";
 import { analyzePuzzle } from "../src/solver/analysis.js";
 import { describeAnalysis } from "../src/editor/livePreview.js";
+import { benchCase } from "./bench/lib.mjs";
 import { readRepoFile } from "./helpers/read-file.js";
 import { assertEqual, assert } from "./assert.js";
 
@@ -15,6 +16,19 @@ function open(n, people) {
 }
 
 export const tests = [
+  {
+    name: "analisi: segnala l'avanzamento (crescente, tra 0 e 1) senza cambiare il risultato, e senza limiti non si ferma mai da sola",
+    fn: () => {
+      const puzzle = benchCase(10, 5);
+      const seen = [];
+      const heard = analyzePuzzle(puzzle, { onProgress: (f) => seen.push(f), progressIntervalMs: 0 });
+      const plain = analyzePuzzle(puzzle, {});
+      assertEqual(JSON.stringify(heard), JSON.stringify(plain), "stesso risultato");
+      assert(seen.length > 0 && seen.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= seen[i - 1])), `crescente (${seen.length})`);
+      assertEqual(plain.stoppedBy, null, "nessun limite: finisce con una risposta, mai «limit»");
+      assert(plain.status !== "limit");
+    },
+  },
   {
     name: "analisi: un caso con una sola soluzione è «unique», con i nodi e le deduzioni immediate",
     fn: async () => {

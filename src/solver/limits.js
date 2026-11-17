@@ -4,10 +4,11 @@
 //  - the ones a person starts and WATCHES (the editor's uniqueness check, redundant clues, computing the solution,
 //    proposing clues; the player's hints and answer check): they show a progress bar and a Cancel button, so they have NO
 //    limit: the search always runs to its end, and the person decides how long to wait. They run in workers, so the page
-//    stays alive; the only way they end without an answer is the person pressing Cancel.
-//  - the ones that run by themselves, with nobody to press Cancel (the live difficulty line under the clues, the
-//    campaign editor's check of each case): they stay bounded, in work AND time, scaled with the size of the grid, and say
-//    "limit reached" (never "no solution" or "unique") when they stop.
+//    stays alive; the only way they end without an answer is the person pressing Cancel. (The live difficulty line under
+//    the clues is one of them: it shows its bar and Cancel when it takes more than a second.)
+//  - the ones that run by themselves, with nobody to press Cancel (the campaign editor's check of each case): they stay
+//    bounded, in work AND time, scaled with the size of the grid, and say "limit reached" (never "no solution" or
+//    "unique") when they stop.
 //
 // A 16x16 case has about three times the cells of a 9x9 one, more characters to place, and every search step costs more,
 // so the bounded limits tuned for 9x9 would give up long before an honest answer. The factor is 1 up to 9x9 (nothing
@@ -44,13 +45,11 @@ export function limitsFor(puzzle) {
     // working the solution out from the clues alone
     derive: { ...NO_LIMIT, forwardCheckMinRemaining: SETTLE_MIN_REMAINING, parallel: true },
 
+    // the editor's live difficulty line: it starts by itself on every edit, but it shows a bar and a Cancel button when it
+    // takes long, and the next edit throws it away: no limit either (on its own worker, so it never blocks the page)
+    preview: { ...NO_LIMIT, forwardCheckMinRemaining: SETTLE_MIN_REMAINING },
+
     // ---- bounded: work that runs by itself, with nobody to cancel it ----
-    // the editor's live difficulty line (it starts on every edit and is thrown away by the next one)
-    preview: {
-      maxWork: scaled(60_000_000, f),
-      timeMs: 4_000,
-      forwardCheckMinRemaining: SETTLE_MIN_REMAINING,
-    },
     // the campaign editor's solution check of each case
     campaign: {
       maxWork: scaled(1_000_000_000, f),

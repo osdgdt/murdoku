@@ -117,6 +117,10 @@ export function solvePuzzle(
   const usedCols = new Set();
   const placementMap = new Map();
   let nodesVisited = 0;
+  // The work done, in clue evaluations (every predicate call, the search's own and the forward checks'): unlike the
+  // node count it stays comparable when the search strategy changes (a node can cost 2 µs or 30 µs), and unlike
+  // the time it does not depend on the machine. Reported in `stats.evaluations`.
+  let evaluations = 0;
   let nodeCapHit = false;
   let timedOut = false;
   const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
@@ -132,7 +136,9 @@ export function solvePuzzle(
   // header), else every occupiable cell. Cells that cannot hold anyone are dropped once, here.
   const allCells = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (isOccupiable(puzzle.grid, r, c)) allCells.push({ row: r, col: c });
-  const given = domains ?? unaryDomains(puzzle, characters, predicates, allCells);
+  const unaryWork = { n: 0 };
+  const given = domains ?? unaryDomains(puzzle, characters, predicates, allCells, unaryWork);
+  evaluations += unaryWork.n;
   const candidates = new Map();
   for (const character of characters) {
     const fixed = fixedPlacements && fixedPlacements.get(character.id);
@@ -157,6 +163,7 @@ export function solvePuzzle(
   function violatesAny() {
     const complete = placementMap.size === order.length;
     for (const { predicate } of predicates) {
+      evaluations++;
       const result = predicate(placementMap, complete);
       if (result === false) return true;
     }
@@ -182,9 +189,17 @@ export function solvePuzzle(
   }
   function violatesAfterPlacing(characterId) {
     const complete = placementMap.size === order.length;
-    for (const predicate of alwaysChecked) if (predicate(placementMap, complete) === false) return true;
+    for (const predicate of alwaysChecked) {
+      evaluations++;
+      if (predicate(placementMap, complete) === false) return true;
+    }
     const own = checkedAfter.get(characterId);
-    if (own) for (const predicate of own) if (predicate(placementMap, complete) === false) return true;
+    if (own) {
+      for (const predicate of own) {
+        evaluations++;
+        if (predicate(placementMap, complete) === false) return true;
+      }
+    }
     return false;
   }
 
@@ -199,17 +214,19 @@ export function solvePuzzle(
       // read as a green light to prune, only a definite `contradiction` may
       // prune, so an inconclusive check degrades gracefully to plain
       // backtracking for that one node instead of risking unsoundness.
-      const stillPromising =
-        !forwardCheck ||
-        placementMap.size >= order.length ||
-        !propagate(puzzle, placementMap, {
+      let stillPromising = true;
+      if (forwardCheck && placementMap.size < order.length) {
+        const checked = propagate(puzzle, placementMap, {
           predicates,
           dependencies: incremental ? entryDependencies : null,
           incremental,
           maxRounds: FORWARD_CHECK_MAX_ROUNDS,
           maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
           maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
-        }).contradiction;
+        });
+        evaluations += checked.evaluationsUsed ?? 0;
+        stillPromising = !checked.contradiction;
+      }
       if (stillPromising) backtrack();
     }
     usedRows.delete(r);
@@ -255,6 +272,7 @@ export function solvePuzzle(
 
   if (stats) {
     stats.nodesVisited = nodesVisited;
+    stats.evaluations = evaluations;
     stats.nodeCapHit = nodeCapHit;
     stats.timedOut = timedOut;
   }
@@ -265,7 +283,7 @@ export function solvePuzzle(
 // The cells each character can take judged ALONE: a cell goes if some clue is already false
 // with just that character placed there. Sound by the predicates' own contract (a predicate
 // never rejects a partial placement that can still be completed), so no solution is lost.
-export function unaryDomains(puzzle, characters, predicates, cells) {
+export function unaryDomains(puzzle, characters, predicates, cells, work = null) {
   const domains = new Map();
   const alone = characters.length === 1;
   for (const character of characters) {
@@ -274,6 +292,7 @@ export function unaryDomains(puzzle, characters, predicates, cells) {
       const map = new Map([[character.id, cell]]);
       let ok = true;
       for (const { predicate } of predicates) {
+        if (work) work.n++;
         if (predicate(map, alone) === false) {
           ok = false;
           break;

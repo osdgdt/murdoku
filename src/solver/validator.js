@@ -103,5 +103,6 @@ export function checkUniqueness(
     exhausted: !stoppedBy,
     stoppedBy,
     nodesVisited: stats.nodesVisited,
+    evaluations: stats.evaluations,
   };
 }

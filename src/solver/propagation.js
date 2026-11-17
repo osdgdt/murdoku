@@ -120,17 +120,7 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
   const n = unplaced.length;
   if (n < 2) return { contradiction: null };
 
-  const masksBySize = new Map(); // size -> [bitmask, ...], computed once per call
-  for (let mask = 1; mask < 1 << n; mask++) {
-    const size = popcount(mask);
-    if (size < 2) continue;
-    let list = masksBySize.get(size);
-    if (!list) {
-      list = [];
-      masksBySize.set(size, list);
-    }
-    list.push(mask);
-  }
+  const masksBySize = masksFor(n);
 
   for (let pass = 0; pass < n * 2; pass++) {
     let progressed = false;
@@ -140,9 +130,9 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
         const subsetChars = [];
         for (let i = 0; i < n; i++) if (mask & (1 << i)) subsetChars.push(unplaced[i]);
 
-        const unionMap = new Map(); // "row,col" -> {row,col}
+        const unionMap = new Map(); // row * 64 + col -> {row,col} (a grid has at most 16 columns)
         for (const character of subsetChars) {
-          for (const cell of domains.get(character.id)) unionMap.set(`${cell.row},${cell.col}`, cell);
+          for (const cell of domains.get(character.id)) unionMap.set(cell.row * 64 + cell.col, cell);
         }
         const unionCells = [...unionMap.values()];
 
@@ -200,6 +190,24 @@ function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
     }
   }
   return { contradiction: null };
+}
+
+// size -> [bitmask, ...] for every subset of n characters with at least 2 members; the same for every call with the
+// same n, so it is built once (it used to be rebuilt at every search node).
+const MASKS = new Map();
+function masksFor(n) {
+  let masksBySize = MASKS.get(n);
+  if (!masksBySize) {
+    masksBySize = new Map();
+    for (let mask = 1; mask < 1 << n; mask++) {
+      const size = popcount(mask);
+      if (size < 2) continue;
+      if (!masksBySize.has(size)) masksBySize.set(size, []);
+      masksBySize.get(size).push(mask);
+    }
+    MASKS.set(n, masksBySize);
+  }
+  return masksBySize;
 }
 
 function popcount(x) {
@@ -320,8 +328,12 @@ export function propagate(
     const unplaced = puzzle.characters.filter((c) => !confirmed.has(c.id));
     if (unplaced.length === 0) break;
 
-    const usedRows = new Set([...confirmed.values()].map((p) => p.row));
-    const usedCols = new Set([...confirmed.values()].map((p) => p.col));
+    const usedRows = new Set();
+    const usedCols = new Set();
+    for (const { row, col } of confirmed.values()) {
+      usedRows.add(row);
+      usedCols.add(col);
+    }
     // Placing THIS character would complete the board exactly when they're
     // the only one left — constant for the whole round, and the only way to
     // honestly know `isComplete` for a single-tentative-placement map without

@@ -91,7 +91,13 @@ export const tests = [
     name: "searchBudget: passa al solutore solo tetto sul lavoro, tempo e strategia (non il vecchio tetto di nodi)",
     fn: () => {
       const budget = searchBudget(limitsFor(open(9, 2)).uniqueness);
-      assertEqual(Object.keys(budget).sort().join(), "forwardCheckMinRemaining,maxWork,timeMs");
+      assertEqual(Object.keys(budget).sort().join(), "forwardCheckMinRemaining,maxWork,parallel,timeMs");
+      assertEqual(budget.parallel, true, "la verifica di unicità può dividersi tra più worker");
+      assertEqual(
+        searchBudget(limitsFor(open(9, 2)).redundancy).parallel,
+        undefined,
+        "i tanti piccoli controlli degli indizi superflui no"
+      );
     },
   },
   {

@@ -103,10 +103,105 @@ function callWorker(name, type, payload, { signal = null, timeMs = null } = {}) 
 // Stops everything the editor's worker is doing (its pending calls reject with SolverCancelled).
 export function cancelSolver(name = "main") {
   dropWorker(name, new SolverCancelled());
+  if (name === "main")
+    for (const sliceName of [...workers.keys()].filter((n) => n.startsWith("slice"))) dropWorker(sliceName, new SolverCancelled());
 }
 
 export function computeHintChainAsync(puzzle, currentPlacements, candidates = new Map(), callOptions = {}) {
   return callWorker("hints", "computeHintChain", { puzzle, currentPlacements, candidates }, callOptions);
+}
+
+// ---- searching in parallel ------------------------------------------------------------------------------------
+// A search that has to be exhausted (to prove a case unique) is the one an author waits for, and it splits well: the
+// parts of the tree are independent. So a settle request is first tried on the usual worker for a short while (most
+// cases end within it, with no extra cost); one that does not is started again cut into slices, one per worker, and the
+// reports are put together. Two solutions found anywhere end it (the case is ambiguous); otherwise every slice has to
+// end for "unique" / "none" to stand. The slices cut the tree deterministically (solver.js `slice`), so together they
+// visit every node exactly once. Workers are kept for the next request.
+const STAGE_ONE_MS = 1000;
+const STAGE_ONE_WORK = 3_000_000;
+const MAX_SLICES = 4;
+
+// How many slices to cut a search into: all the cores but one (the page keeps one), at most MAX_SLICES; `options.parallelism`
+// overrides it (tests). 1 means "do not split".
+function sliceCountFor(options) {
+  if (Number.isInteger(options.parallelism)) return options.parallelism;
+  const cores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency || 1 : 1;
+  return cores >= 3 ? Math.min(MAX_SLICES, cores - 1) : 1;
+}
+
+// One uniqueness report for the whole search, from the reports of its slices (exported for tests).
+export function mergeSliceReports(reports, maxSolutions) {
+  const solutions = reports.flatMap((r) => r.solutions);
+  const stoppedBy = reports.map((r) => r.stoppedBy).find((reason) => reason) ?? null;
+  const enough = solutions.length >= maxSolutions; // as many as were asked for: the verdict is final whatever the other slices did
+  const exhausted = enough || reports.every((r) => r.exhausted);
+  return {
+    solutionCount: Math.min(solutions.length, enough ? Math.max(maxSolutions, 0) : solutions.length),
+    unique: solutions.length === 1 && exhausted,
+    solutions: enough ? solutions.slice(0, maxSolutions) : solutions,
+    truncated: enough || !exhausted,
+    exhausted,
+    stoppedBy: exhausted ? null : stoppedBy,
+    nodesVisited: reports.reduce((n, r) => n + (r.nodesVisited ?? 0), 0),
+    evaluations: reports.reduce((n, r) => n + (r.evaluations ?? 0), 0),
+  };
+}
+
+// Exported for tests: the search cut into `count` slices, one worker each, reports merged.
+export function searchInSlices(puzzle, options, callOptions, count) {
+  const maxSolutions = options.maxSolutions ?? 2;
+  const names = Array.from({ length: count }, (_, i) => `slice${i}`);
+  return new Promise((resolve, reject) => {
+    const reports = [];
+    let over = false;
+    const stopAll = () => {
+      for (const name of names) dropWorker(name, new SolverCancelled());
+      callOptions.signal?.removeEventListener("abort", onAbort);
+    };
+    const end = (fn, value) => {
+      if (over) return;
+      over = true;
+      stopAll();
+      fn(value);
+    };
+    const onAbort = () => end(reject, new SolverCancelled());
+    callOptions.signal?.addEventListener("abort", onAbort, { once: true });
+    names.forEach((name, index) => {
+      callWorker(
+        name,
+        "checkUniqueness",
+        { puzzle, options: { ...options, slice: { index, count } } },
+        { timeMs: options.timeMs ?? null }
+      ).then(
+        (report) => {
+          if (over) return;
+          reports.push(report);
+          const found = reports.reduce((n, r) => n + r.solutionCount, 0);
+          if (found >= maxSolutions || reports.length === count) end(resolve, mergeSliceReports(reports, maxSolutions));
+        },
+        (error) => end(reject, error)
+      );
+    });
+  });
+}
+
+// The options a worker is given: the ones only this client reads are not sent.
+const forWorker = ({ parallel, parallelism, ...rest }) => rest;
+
+// checkUniqueness for a request that asked to be allowed to run in parallel (`parallel: true`): a short try on one worker,
+// then the slices. Falls back to a single search whenever there are not enough cores, or the budget is not bigger than the try.
+async function uniquenessMaybeParallel(puzzle, options, callOptions) {
+  const base = forWorker(options);
+  const count = options.parallel ? sliceCountFor(options) : 1;
+  const single = (opts) =>
+    callWorker("main", "checkUniqueness", { puzzle, options: opts }, { timeMs: opts.timeMs ?? null, ...callOptions });
+  if (count < 2 || !((base.timeMs ?? Infinity) > STAGE_ONE_MS && (base.maxWork ?? Infinity) > STAGE_ONE_WORK)) return single(base);
+  // the slice workers load the solver while the short try runs, so a case that needs them does not wait for their start
+  for (let i = 0; i < count; i++) ensureWorker(`slice${i}`);
+  const first = await single({ ...base, timeMs: STAGE_ONE_MS, maxWork: STAGE_ONE_WORK });
+  if (first.exhausted) return first;
+  return searchInSlices(puzzle, base, callOptions, count);
 }
 
 // ---- remembering what was settled -----------------------------------------------------------------------------
@@ -151,7 +246,23 @@ export function deriveSolutionAsync(puzzle, options = {}, callOptions = {}) {
   const known = settled.get(key);
   if (known && !callOptions.signal?.aborted)
     return Promise.resolve(structuredClone({ status: known.status, placements: known.placements }));
-  return callWorker("main", "deriveSolution", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions }).then((result) => {
+  if (options.parallel) {
+    // the same search as checkUniqueness (two solutions are enough to call a case ambiguous), read as a derivation
+    return checkUniquenessAsync(puzzle, { ...options, maxSolutions: 2, forwardCheck: true }, callOptions).then((report) => {
+      if (report.solutionCount >= 2) return { status: "ambiguous", placements: null };
+      if (report.exhausted)
+        return report.solutionCount === 1
+          ? { status: "unique", placements: report.solutions[0] }
+          : { status: "unsatisfiable", placements: null };
+      return { status: "inconclusive", placements: null, stoppedBy: report.stoppedBy };
+    });
+  }
+  return callWorker(
+    "main",
+    "deriveSolution",
+    { puzzle, options: forWorker(options) },
+    { timeMs: options.timeMs ?? null, ...callOptions }
+  ).then((result) => {
     if (result.status === "unique" || result.status === "unsatisfiable") remember(key, result.status, result.placements ?? null);
     return result;
   });
@@ -174,7 +285,11 @@ export function checkUniquenessAsync(puzzle, options = {}, callOptions = {}) {
       evaluations: 0,
     });
   }
-  return callWorker("main", "checkUniqueness", { puzzle, options }, { timeMs: options.timeMs ?? null, ...callOptions }).then((report) => {
+  const search =
+    plain && options.parallel
+      ? uniquenessMaybeParallel(puzzle, options, callOptions)
+      : callWorker("main", "checkUniqueness", { puzzle, options: forWorker(options) }, { timeMs: options.timeMs ?? null, ...callOptions });
+  return search.then((report) => {
     if (plain && report.exhausted && report.solutionCount === 1) remember(key, "unique", report.solutions[0]);
     else if (plain && report.exhausted && report.solutionCount === 0) remember(key, "unsatisfiable", null);
     return report;

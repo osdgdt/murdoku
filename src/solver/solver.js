@@ -27,6 +27,12 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // this are still to place. Near the leaves a subtree is small and the check costs more than it saves; on a hard 9x9 case
 // 4 is ~25% faster in time although it visits 4x more nodes (so judge it by `maxWork`, not by `maxNodes`).
 //
+// `slice` ({ index, count }, default null = the whole search): explore only the index-th of `count` parts of the search tree,
+// so that `count` workers can each take one and, together, visit every node exactly once. The parts are cut at the second
+// level of the tree (every free cell of the second character, over every first move, is dealt out in turn), which is
+// deterministic because the search is: every worker makes the same choices up to that level and only descends into its
+// own share. `stats.nodesVisited` etc. then count the work of that part alone.
+//
 // `forwardCheck` (opt-in, default false — every existing caller/test is
 // completely unaffected unless it explicitly asks for this) makes the search
 // propagation-aware: after a tentative placement passes its own
@@ -83,6 +89,7 @@ export function solvePuzzle(
     stats = null,
     forwardCheck = false,
     forwardCheckMinRemaining = 0,
+    slice = null,
     domains = null,
     deadline = null,
     shouldStop = null,
@@ -163,6 +170,8 @@ export function solvePuzzle(
     );
   }
 
+  const sliceDepth = order.length >= 2 ? 1 : 0; // the level of the tree at which a slice's share is dealt out
+  let sliceCounter = 0;
   const isFree = ({ row, col }) => !usedRows.has(row) && !usedCols.has(col);
 
   // How many cells `character` still has (stops counting at `limit`).
@@ -271,6 +280,7 @@ export function solvePuzzle(
     }
     for (const cell of candidates.get(next.id)) {
       if (!isFree(cell)) continue;
+      if (slice && placementMap.size === sliceDepth && sliceCounter++ % slice.count !== slice.index) continue;
       nodesVisited++;
       if (nodesVisited >= maxNodes) {
         nodeCapHit = true;

@@ -36,6 +36,7 @@ export function limitsFor(puzzle) {
       maxWork: scaled(60_000_000, f),
       timeMs: scaled(30_000, f),
       forwardCheckMinRemaining: SETTLE_MIN_REMAINING,
+      parallel: true,
     },
     // one step of the "redundant clues" analysis (it runs one check per clue)
     redundancy: {
@@ -50,6 +51,7 @@ export function limitsFor(puzzle) {
       maxWork: scaled(100_000_000, f),
       timeMs: scaled(15_000, f),
       forwardCheckMinRemaining: SETTLE_MIN_REMAINING,
+      parallel: true,
     },
     // working the solution out from the clues alone
     derive: {
@@ -57,6 +59,7 @@ export function limitsFor(puzzle) {
       maxWork: scaled(1_000_000_000, f),
       timeMs: scaled(60_000, f),
       forwardCheckMinRemaining: SETTLE_MIN_REMAINING,
+      parallel: true,
     },
     // one click on the hint button (the node budget is shared by all the waves of that click)
     hints: { maxNodes: scaled(2_000_000, f), timeMs: scaled(8_000, f) },
@@ -64,8 +67,9 @@ export function limitsFor(puzzle) {
 }
 
 // What to hand to the solver for one of the settle actions above: the work and time budgets and the strategy.
-export function searchBudget({ maxWork, timeMs, forwardCheckMinRemaining }) {
-  return { maxWork, timeMs, forwardCheckMinRemaining };
+// `parallel` lets the client cut a search that runs long into slices on several workers (solverClient.js).
+export function searchBudget({ maxWork, timeMs, forwardCheckMinRemaining, parallel }) {
+  return { maxWork, timeMs, forwardCheckMinRemaining, parallel };
 }
 
 // How long after its own deadline a worker is given before the page gives up on it and starts a

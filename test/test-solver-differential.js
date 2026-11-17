@@ -134,4 +134,47 @@ export const tests = [
       assert(saved > 0.15 * total, `deve risparmiare valutazioni (${saved} su ${total})`);
     },
   },
+  {
+    name: "ricerca a fette: le parti di una ricerca divisa tra più worker sono disgiunte e insieme danno la ricerca intera (200 casi casuali, con e senza forward-check)",
+    fn: () => {
+      let shared = 0;
+      let moreThanOneWorks = 0;
+      for (let seed = 1; seed <= 200; seed++) {
+        const puzzle = randomPuzzle(seed);
+        for (const [forwardCheck, forwardCheckMinRemaining] of [
+          [false, 0],
+          [true, 0],
+          [true, 4],
+        ]) {
+          const whole = solvePuzzle(puzzle, { maxSolutions: 100000, forwardCheck, forwardCheckMinRemaining }).map(keyOf).sort();
+          for (const count of [2, 3, 4]) {
+            const seen = [];
+            let working = 0;
+            for (let index = 0; index < count; index++) {
+              const part = solvePuzzle(puzzle, {
+                maxSolutions: 100000,
+                forwardCheck,
+                forwardCheckMinRemaining,
+                slice: { index, count },
+              }).map(keyOf);
+              if (part.length > 0) working++;
+              seen.push(...part);
+            }
+            assertEqual(
+              seen.sort().join("\n"),
+              whole.join("\n"),
+              `caso ${seed} (forwardCheck=${forwardCheck}, minRemaining=${forwardCheckMinRemaining}, ${count} fette): unione diversa dalla ricerca intera`
+            );
+            assertEqual(new Set(seen).size, seen.length, `caso ${seed}: una soluzione compare in due fette`);
+            if (whole.length >= count) {
+              shared++;
+              if (working >= 2) moreThanOneWorks++;
+            }
+          }
+        }
+      }
+      assert(shared >= 50, `servono casi con abbastanza soluzioni da dividere (${shared})`);
+      assert(moreThanOneWorks >= 0.5 * shared, `le fette devono dividersi il lavoro (${moreThanOneWorks} su ${shared})`);
+    },
+  },
 ];

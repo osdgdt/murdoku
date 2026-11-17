@@ -1,5 +1,6 @@
 import { getLanguage } from "../i18n/i18n.js";
 import { WORKER_GRACE_MS } from "./limits.js";
+import { monotonic } from "./progress.js";
 // Thin Promise-based wrapper around lazily-created solver Workers. Every exported *Async function
 // returns a Promise that resolves with the callee's normal return value or rejects with a real
 // Error, so a slow or pathological search runs off the main thread and can never freeze the page.
@@ -50,9 +51,14 @@ function ensureWorker(name) {
   const worker = new Worker(new URL(`./solverWorker.js?lang=${getLanguage()}`, import.meta.url), { type: "module" });
   const slot = { worker, pending: new Map() };
   worker.onmessage = (event) => {
-    const { id, ok, result, error } = event.data || {};
+    const { id, ok, result, error, progress } = event.data || {};
     const entry = slot.pending.get(id);
     if (!entry) return; // unknown/stale id — nothing to do
+    if (ok === undefined) {
+      // not the answer: how far the search has got (0..1), sent only to a request that asked to hear it
+      if (typeof progress === "number") entry.onProgress?.(progress);
+      return;
+    }
     slot.pending.delete(id);
     clearTimeout(entry.timer);
     if (ok) entry.resolve(result);
@@ -68,12 +74,16 @@ function ensureWorker(name) {
   return slot;
 }
 
-function callWorker(name, type, payload, { signal = null, timeMs = null } = {}) {
+// setTimeout turns a delay above this into "now"
+const MAX_TIMER_MS = 2 ** 31 - 1;
+
+// `onProgress(fraction)`: how far the work has got, 0..1, while it runs (the worker only sends it when asked).
+function callWorker(name, type, payload, { signal = null, timeMs = null, onProgress = null } = {}) {
   if (signal?.aborted) return Promise.reject(new SolverCancelled());
   const slot = ensureWorker(name);
   const id = nextRequestId++;
   return new Promise((resolve, reject) => {
-    const entry = { resolve: null, reject: null, timer: null };
+    const entry = { resolve: null, reject: null, timer: null, onProgress };
     const onAbort = () => {
       if (slot.pending.get(id) !== entry) return; // already answered
       slot.pending.delete(id);
@@ -88,7 +98,8 @@ function callWorker(name, type, payload, { signal = null, timeMs = null } = {}) 
     };
     entry.resolve = finish(resolve);
     entry.reject = finish(reject);
-    if (timeMs != null) {
+    // no limit (null, or too long for a timer) means no watchdog: the person has the Cancel button
+    if (Number.isFinite(timeMs) && timeMs + WORKER_GRACE_MS < MAX_TIMER_MS) {
       entry.timer = setTimeout(
         () => dropWorker(name, new Error("Il calcolo non ha risposto in tempo ed è stato interrotto.")),
         timeMs + WORKER_GRACE_MS
@@ -96,15 +107,17 @@ function callWorker(name, type, payload, { signal = null, timeMs = null } = {}) 
     }
     slot.pending.set(id, entry);
     signal?.addEventListener("abort", onAbort, { once: true });
-    slot.worker.postMessage({ id, type, payload });
+    slot.worker.postMessage({ id, type, payload, progress: !!onProgress });
   });
 }
 
 // Stops everything the editor's worker is doing (its pending calls reject with SolverCancelled).
 export function cancelSolver(name = "main") {
   dropWorker(name, new SolverCancelled());
+  // what the editor's worker was doing may be spread over the slice workers and the lanes of the clue analysis
   if (name === "main")
-    for (const sliceName of [...workers.keys()].filter((n) => n.startsWith("slice"))) dropWorker(sliceName, new SolverCancelled());
+    for (const helper of [...workers.keys()].filter((n) => n.startsWith("slice") || n.startsWith("lane")))
+      dropWorker(helper, new SolverCancelled());
 }
 
 export function computeHintChainAsync(puzzle, currentPlacements, candidates = new Map(), callOptions = {}) {
@@ -130,6 +143,10 @@ function sliceCountFor(options) {
   return cores >= 3 ? Math.min(MAX_SLICES, cores - 1) : 1;
 }
 
+// How many independent searches may run at the same time (the redundant-clue analysis runs one per clue, each on its
+// own worker: callOptions.worker = "lane<n>"): the same rule as for the slices. 1 means one after the other.
+export const laneCountFor = (options = {}) => sliceCountFor(options);
+
 // One uniqueness report for the whole search, from the reports of its slices (exported for tests).
 export function mergeSliceReports(reports, maxSolutions) {
   const solutions = reports.flatMap((r) => r.solutions);
@@ -152,6 +169,11 @@ export function mergeSliceReports(reports, maxSolutions) {
 export function searchInSlices(puzzle, options, callOptions, count) {
   const maxSolutions = options.maxSolutions ?? 2;
   const names = Array.from({ length: count }, (_, i) => `slice${i}`);
+  // every slice reports its place in the WHOLE tree (solver.js), and a finished one is at the end: the search as a whole is
+  // as far as the average of them
+  const places = new Array(count).fill(0);
+  const onProgress = monotonic(callOptions.onProgress);
+  const reportPlaces = () => onProgress?.(places.reduce((sum, place) => sum + place, 0) / count);
   return new Promise((resolve, reject) => {
     const reports = [];
     let over = false;
@@ -172,10 +194,20 @@ export function searchInSlices(puzzle, options, callOptions, count) {
         name,
         "checkUniqueness",
         { puzzle, options: { ...options, slice: { index, count } } },
-        { timeMs: options.timeMs ?? null }
+        {
+          timeMs: options.timeMs ?? null,
+          onProgress: onProgress
+            ? (fraction) => {
+                places[index] = Math.max(places[index], fraction);
+                reportPlaces();
+              }
+            : null,
+        }
       ).then(
         (report) => {
           if (over) return;
+          places[index] = 1;
+          reportPlaces();
           reports.push(report);
           const found = reports.reduce((n, r) => n + r.solutionCount, 0);
           if (found >= maxSolutions || reports.length === count) end(resolve, mergeSliceReports(reports, maxSolutions));
@@ -191,9 +223,11 @@ const forWorker = ({ parallel, parallelism, ...rest }) => rest;
 
 // checkUniqueness for a request that asked to be allowed to run in parallel (`parallel: true`): a short try on one worker,
 // then the slices. Falls back to a single search whenever there are not enough cores, or the budget is not bigger than the try.
-async function uniquenessMaybeParallel(puzzle, options, callOptions) {
+async function uniquenessMaybeParallel(puzzle, options, rawCallOptions) {
   const base = forWorker(options);
   const count = options.parallel ? sliceCountFor(options) : 1;
+  // one bar for both stages: the slices start from the beginning of the tree again, the bar must not step back
+  const callOptions = { ...rawCallOptions, onProgress: monotonic(rawCallOptions.onProgress) };
   const single = (opts) =>
     callWorker("main", "checkUniqueness", { puzzle, options: opts }, { timeMs: opts.timeMs ?? null, ...callOptions });
   if (count < 2 || !((base.timeMs ?? Infinity) > STAGE_ONE_MS && (base.maxWork ?? Infinity) > STAGE_ONE_WORK)) return single(base);
@@ -244,8 +278,10 @@ const plainUniquenessRequest = (options) =>
 export function deriveSolutionAsync(puzzle, options = {}, callOptions = {}) {
   const key = settledKey(puzzle);
   const known = settled.get(key);
-  if (known && !callOptions.signal?.aborted)
+  if (known && !callOptions.signal?.aborted) {
+    callOptions.onProgress?.(1);
     return Promise.resolve(structuredClone({ status: known.status, placements: known.placements }));
+  }
   if (options.parallel) {
     // the same search as checkUniqueness (two solutions are enough to call a case ambiguous), read as a derivation
     return checkUniquenessAsync(puzzle, { ...options, maxSolutions: 2, forwardCheck: true }, callOptions).then((report) => {
@@ -273,6 +309,7 @@ export function checkUniquenessAsync(puzzle, options = {}, callOptions = {}) {
   const key = plain ? settledKey(puzzle) : null;
   const known = plain ? settled.get(key) : null;
   if (known && !callOptions.signal?.aborted) {
+    callOptions.onProgress?.(1);
     const solutions = known.status === "unique" ? [structuredClone(known.placements)] : [];
     return Promise.resolve({
       solutionCount: solutions.length,
@@ -285,10 +322,11 @@ export function checkUniquenessAsync(puzzle, options = {}, callOptions = {}) {
       evaluations: 0,
     });
   }
+  const { worker = "main", ...callRest } = callOptions; // `worker`: which of the client's workers runs a plain search
   const search =
     plain && options.parallel
-      ? uniquenessMaybeParallel(puzzle, options, callOptions)
-      : callWorker("main", "checkUniqueness", { puzzle, options: forWorker(options) }, { timeMs: options.timeMs ?? null, ...callOptions });
+      ? uniquenessMaybeParallel(puzzle, options, callRest)
+      : callWorker(worker, "checkUniqueness", { puzzle, options: forWorker(options) }, { timeMs: options.timeMs ?? null, ...callRest });
   return search.then((report) => {
     if (plain && report.exhausted && report.solutionCount === 1) remember(key, "unique", report.solutions[0]);
     else if (plain && report.exhausted && report.solutionCount === 0) remember(key, "unsatisfiable", null);

@@ -23,6 +23,7 @@ import {
   createBudget,
 } from "./hintBudget.js";
 import { attachInvolvedClues } from "./hintExplain.js";
+import { staged } from "./progress.js";
 
 function buildOccupancyIndex(solutions) {
   const index = new Map();
@@ -69,7 +70,7 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
   }
 
   const baselineStats = {};
-  const baselineMaxNodes = Math.max(0, Math.min(HINT_MAX_NODES, budget.waveNodesRemaining));
+  const baselineMaxNodes = budget.waveNodesFor(HINT_MAX_NODES);
   const baseline = solvePuzzle(puzzle, {
     maxSolutions: 1,
     maxNodes: baselineMaxNodes,
@@ -94,7 +95,7 @@ function diagnoseContradiction(puzzle, currentPlacements, budget) {
     const reduced = new Map(currentPlacements);
     reduced.delete(characterId);
     const stats = {};
-    const maxNodes = Math.max(0, Math.min(CULPRIT_MAX_NODES, budget.waveNodesRemaining));
+    const maxNodes = budget.waveNodesFor(CULPRIT_MAX_NODES);
     const withoutThis = solvePuzzle(puzzle, { maxSolutions: 1, fixedPlacements: reduced, maxNodes, stats, deadline: budget.deadline });
     budget.spendWaveNodes(stats.nodesVisited);
     if (withoutThis.length >= 1) culprits.push(characterId);
@@ -151,7 +152,7 @@ function toEliminatedCellStep(fact) {
 // already found a contradiction — an exhaustive solve fixed to whatever
 // propagation confirmed. Returns every forced placement/elimination found by
 // EITHER technique this wave, merged and deduplicated.
-function computeWave(puzzle, confirmed, budget, candidates) {
+function computeWave(puzzle, confirmed, budget, candidates, onProgress = null) {
   // Contradiction checks run BEFORE the budget check, on purpose: they're
   // already cheap/self-bounded (checkDirectClueViolation is a direct
   // predicate evaluation, propagate() has its own internal caps), and doing
@@ -186,7 +187,7 @@ function computeWave(puzzle, confirmed, budget, candidates) {
   }
 
   const stats = {};
-  const solveNodes = Math.max(0, Math.min(HINT_MAX_NODES, budget.waveNodesRemaining));
+  const solveNodes = budget.waveNodesFor(HINT_MAX_NODES);
   const solutions = solvePuzzle(puzzle, {
     maxSolutions: HINT_MAX_SOLUTIONS,
     fixedPlacements: prop.confirmed,
@@ -195,6 +196,7 @@ function computeWave(puzzle, confirmed, budget, candidates) {
     stats,
     forwardCheck: true,
     deadline: budget.deadline,
+    onProgress,
   });
   budget.spendWaveNodes(stats.nodesVisited);
 
@@ -314,17 +316,34 @@ function computeWave(puzzle, confirmed, budget, candidates) {
 // genuine "too complex to fully verify" wall (after having tried
 // propagation's lighter techniques regardless), or once nothing further is
 // derivable.
-export function computeHintChain(puzzle, currentPlacements, candidates = new Map()) {
+// How the bar of a hint is shared out (`onProgress(fraction)`, 0..1, an estimate that never goes back): the waves of
+// deduction come first (WAVES_SHARE), then the explanation of each step (the rest). How many waves there will be is not
+// known in advance, and the first one does nearly all of the work (the later ones start from a narrower case), so wave k
+// covers four fifths of what is left of the waves' share.
+const WAVES_SHARE = 0.7;
+export const waveProgress = (waveIndex, fraction) => WAVES_SHARE * staged(waveIndex, fraction);
+
+// `unlimited`: no time or node budget (hintBudget.js): the search always runs to its end, the person can cancel.
+export function computeHintChain(puzzle, currentPlacements, candidates = new Map(), { unlimited = false, onProgress = null } = {}) {
   if (currentPlacements.size === puzzle.characters.length) {
     return [{ type: "noHint", variant: "info", reason: "complete", message: ALREADY_COMPLETE_MSG }];
   }
 
-  const budget = createBudget(puzzle);
+  const budget = createBudget(puzzle, { unlimited });
   const steps = [];
   let confirmed = new Map(currentPlacements);
+  let waveIndex = 0;
 
   while (true) {
-    const wave = computeWave(puzzle, confirmed, budget, candidates);
+    const wave = computeWave(
+      puzzle,
+      confirmed,
+      budget,
+      candidates,
+      onProgress ? (fraction) => onProgress(waveProgress(waveIndex, fraction)) : null
+    );
+    waveIndex++;
+    onProgress?.(waveProgress(waveIndex, 0));
 
     if (wave.contradiction) {
       steps.push(wave.contradiction);
@@ -374,7 +393,13 @@ export function computeHintChain(puzzle, currentPlacements, candidates = new Map
     steps.push({ type: "noHint", variant: "info", reason: "noDeduction", message: NO_DEDUCTION_MSG });
   }
 
-  attachInvolvedClues(puzzle, steps, currentPlacements, budget);
+  attachInvolvedClues(
+    puzzle,
+    steps,
+    currentPlacements,
+    budget,
+    onProgress ? (fraction) => onProgress(WAVES_SHARE + (1 - WAVES_SHARE) * fraction) : null
+  );
   return steps;
 }
 

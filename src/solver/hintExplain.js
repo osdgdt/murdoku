@@ -60,7 +60,8 @@ export function factStillHolds(solutions, step) {
 // justified by the 1-2s budget. When no single clue (nor the base rule
 // alone) accounts for the fact, it's marked `jointlyDetermined` instead of
 // asserting something unproven.
-export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budget) {
+// `tick()` (optional) is called after every re-solve, so a caller can show how far the explanations have got.
+export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budget, tick = null) {
   const fixedPlacements = new Map(confirmedAtStep);
   fixedPlacements.delete(step.characterId);
   const involved = [];
@@ -72,7 +73,7 @@ export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budge
     }
     const reducedPuzzle = { ...puzzle, clues: puzzle.clues.filter((c) => c.id !== clue.id) };
     const stats = {};
-    const maxNodes = Math.max(0, Math.min(INVOLVED_CLUE_TEST_MAX_NODES, budget.involvedClueNodesRemaining));
+    const maxNodes = budget.involvedNodesFor(INVOLVED_CLUE_TEST_MAX_NODES);
     const solutions = solvePuzzle(reducedPuzzle, {
       maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS,
       fixedPlacements,
@@ -81,6 +82,7 @@ export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budge
       deadline: budget.deadline,
     });
     budget.spendInvolvedClueNodes(stats.nodesVisited);
+    tick?.();
     const inconclusive = stats.nodeCapHit || stats.timedOut || solutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
     if (inconclusive || !factStillHolds(solutions, step)) involved.push(clue);
   }
@@ -100,12 +102,13 @@ export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budge
   // conceding it's a joint effect of multiple clues together.
   if (!budget.expired() && budget.involvedClueNodesRemaining > 0) {
     const bareStats = {};
-    const maxNodes = Math.max(0, Math.min(INVOLVED_CLUE_TEST_MAX_NODES, budget.involvedClueNodesRemaining));
+    const maxNodes = budget.involvedNodesFor(INVOLVED_CLUE_TEST_MAX_NODES);
     const bareSolutions = solvePuzzle(
       { ...puzzle, clues: [] },
       { maxSolutions: INVOLVED_CLUE_TEST_MAX_SOLUTIONS, fixedPlacements, maxNodes, stats: bareStats, deadline: budget.deadline }
     );
     budget.spendInvolvedClueNodes(bareStats.nodesVisited);
+    tick?.();
     const bareInconclusive = bareStats.nodeCapHit || bareStats.timedOut || bareSolutions.length >= INVOLVED_CLUE_TEST_MAX_SOLUTIONS;
     if (!bareInconclusive && factStillHolds(bareSolutions, step)) {
       return { involvedClues: resolveWitnessClues(puzzle, [null]), jointlyDetermined: false };
@@ -115,8 +118,13 @@ export function involvedCluesViaLeaveOneOut(puzzle, confirmedAtStep, step, budge
   return { involvedClues: [], jointlyDetermined: true };
 }
 
-export function attachInvolvedClues(puzzle, steps, currentPlacements, budget) {
+// `onProgress(fraction)` (optional): how many of the re-solves needed to explain the steps are done.
+export function attachInvolvedClues(puzzle, steps, currentPlacements, budget, onProgress = null) {
   let confirmed = new Map(currentPlacements);
+  const needsSearch = (step) => (step.type === "forcedPlacement" || step.type === "eliminatedCell") && step.source !== "propagation";
+  const expected = steps.filter(needsSearch).length * (puzzle.clues.length + 1); // one re-solve per clue, one for the base rule
+  let done = 0;
+  const tick = onProgress && expected > 0 ? () => onProgress(Math.min(1, ++done / expected)) : null;
   for (const step of steps) {
     if (step.type === "forcedPlacement" || step.type === "eliminatedCell") {
       if (step.source === "propagation") {
@@ -124,7 +132,7 @@ export function attachInvolvedClues(puzzle, steps, currentPlacements, budget) {
         step.involvedGroups = resolveWitnessGroups(puzzle, step._witnessNakedSubsets);
         step.jointlyDetermined = step.involvedClues.length === 0 && step.involvedGroups.length === 0;
       } else {
-        const result = involvedCluesViaLeaveOneOut(puzzle, confirmed, step, budget);
+        const result = involvedCluesViaLeaveOneOut(puzzle, confirmed, step, budget, tick);
         step.involvedClues = result.involvedClues;
         step.involvedGroups = [];
         step.jointlyDetermined = result.jointlyDetermined;

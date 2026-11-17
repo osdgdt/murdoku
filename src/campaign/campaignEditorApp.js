@@ -281,7 +281,7 @@ addCaseBtn.addEventListener("click", async () => {
     addCaseStatus.className = "info-message";
     let solutionStatus = "unique";
     if (!validateSolution(puzzle).valid) {
-      solutionStatus = (await deriveSolutionAsync(puzzle, searchBudget(limitsFor(puzzle).derive))).status;
+      solutionStatus = (await deriveSolutionAsync(puzzle, searchBudget(limitsFor(puzzle).campaign))).status;
     }
     if (solutionStatus !== "unique") {
       const ok = confirm(t("{v} Aggiungerlo comunque alla campagna?", { v: SOLUTION_STATUS_WARNINGS[solutionStatus] }));

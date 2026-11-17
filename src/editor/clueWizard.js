@@ -22,7 +22,7 @@ import { buildPredicate } from "../solver/predicates/index.js";
 import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { declaredPlacementMap, suggestClues } from "../solver/suggestions.js";
 import { composeCluesAsync } from "../solver/solverClient.js";
-import { limitsFor } from "../solver/limits.js";
+import { startProgress } from "../util/progressBanner.js";
 import {
   newDraft,
   draftFromClue,
@@ -994,9 +994,7 @@ function renderGenerator(body, footer, puzzle) {
   body.appendChild(check("gen-keep", t("Parti dagli indizi che ho già"), "keepExisting"));
 
   if (gen.running) {
-    const progress = generatorProgress(t("Sto componendo un set di indizi…"), gen.timeMs, () => gen.controller?.abort());
-    body.appendChild(progress.node);
-    gen.stopProgress = progress.stop;
+    body.appendChild(gen.progress.node); // the same banner on every render: its clock and bar keep going
   } else {
     body.appendChild(
       el(
@@ -1086,11 +1084,16 @@ function renderGenerator(body, footer, puzzle) {
 
 async function runGenerator(gen) {
   const puzzle = ctx.getPuzzle();
-  const limits = limitsFor(puzzle).uniqueness;
-  gen.timeMs = limits.timeMs * 2;
   gen.running = true;
   gen.result = null;
   gen.controller = new AbortController();
+  const controller = gen.controller;
+  // no limit: it ends when it has a set or has run out of attempts, and the person can cancel (progress bar and Cancel)
+  gen.progress = startProgress({
+    label: t("Sto componendo un set di indizi…"),
+    onCancel: () => controller.abort(),
+    className: "result-banner hint-info",
+  });
   const mine = session;
   render();
   try {
@@ -1101,10 +1104,10 @@ async function runGenerator(gen) {
         seed: gen.seed,
         victimFree: gen.victimFree,
         keepExisting: gen.keepExisting,
-        maxNodes: limits.maxNodes * 5,
-        timeMs: gen.timeMs,
+        maxNodes: Infinity,
+        timeMs: null,
       },
-      { signal: gen.controller.signal }
+      { signal: controller.signal, onProgress: gen.progress.update }
     );
     gen.seed += 1; // the next press draws a different set
     gen.result = result;
@@ -1112,31 +1115,10 @@ async function runGenerator(gen) {
   } catch (err) {
     gen.result = err?.name === "AbortError" ? null : { status: "failed", reason: "error" };
   } finally {
-    gen.stopProgress?.();
+    gen.progress?.stop();
+    gen.progress = null;
     gen.running = false;
     gen.controller = null;
     if (session === mine) render();
   }
-}
-
-// "Composing…" with the time so far, a bar against the time allowed, and Cancel (the search can take half a minute
-// on a big grid: a still banner would look like a hang).
-function generatorProgress(label, expectedMs, onCancel) {
-  const started = performance.now();
-  const timeNode = el("span", { "aria-hidden": "true" }, "⏱ 0 s");
-  const bar = el("progress", { max: String(expectedMs), value: "0", "aria-hidden": "true" });
-  const node = el("div", { class: "result-banner hint-info progress-banner", role: "status" }, [
-    el("span", {}, label),
-    " ",
-    timeNode,
-    bar,
-    el("button", { type: "button", class: "progress-cancel", onClick: onCancel }, t("Annulla")),
-  ]);
-  const timer = setInterval(() => {
-    const elapsed = performance.now() - started;
-    timeNode.textContent = `⏱ ${Math.floor(elapsed / 1000)} s`;
-    if (elapsed < expectedMs) bar.value = elapsed;
-    else bar.removeAttribute("value");
-  }, 500);
-  return { node, stop: () => clearInterval(timer) };
 }

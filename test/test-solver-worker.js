@@ -9,10 +9,23 @@ import {
   mergeSliceReports,
   forgetSettledResults,
   SolverCancelled,
+  cancelSolver,
+  laneCountFor,
 } from "../src/solver/solverClient.js";
 import { checkUniqueness } from "../src/solver/validator.js";
 import { randomPuzzle } from "./helpers/random-puzzle.js";
 import { assert, assertEqual } from "./assert.js";
+
+// 6x6, four people and a clue that can only be judged at the end and is then always false: the whole tree is walked
+// (~150k nodes) with no solution to carry back, so there is plenty to report and little to send.
+function barren(n = 6) {
+  const puzzle = createPuzzle("sterile");
+  puzzle.grid = resizeGrid(puzzle.grid, n, n);
+  for (let i = 0; i < 4; i++) addCharacter(puzzle, `P${i}`);
+  const nowhere = addZone(puzzle.grid, "Nessuna cella", "#fff");
+  addClue(puzzle, null, "exactlyOneInRoom", { zoneId: nowhere.id });
+  return puzzle;
+}
 
 export const tests = [
   {
@@ -256,6 +269,211 @@ export const tests = [
       forgetSettledResults();
       const limited = await deriveSolutionAsync(wide, { parallel: true, parallelism: 3, timeMs: 60000, maxWork: 1e9, maxSolutions: 2 });
       assert(limited.status === "ambiguous" || limited.status === "inconclusive", "mai «unique» per un caso largo");
+    },
+  },
+  {
+    name: "corsie (indizi superflui): due controlli insieme su worker diversi rispondono ciascuno per il proprio caso; annullare «main» ferma anche le corsie e dopo lavorano ancora",
+    fn: async () => {
+      const mk = (withClue) => {
+        const puzzle = createPuzzle("corsia");
+        puzzle.grid = resizeGrid(puzzle.grid, 3, 3);
+        const a = addCharacter(puzzle, "A", "person1");
+        const z = addZone(puzzle.grid, "Uno", "#fff");
+        paintCellZone(puzzle.grid, 1, 1, z.id);
+        if (withClue) addClue(puzzle, a.id, "inRoom", { zoneId: z.id });
+        return puzzle;
+      };
+      forgetSettledResults();
+      const [unique, many] = await Promise.all([
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane0" }),
+        checkUniquenessAsync(mk(false), { maxSolutions: 2 }, { worker: "lane1" }),
+      ]);
+      assertEqual(unique.solutionCount, 1, "con l'indizio: una sola soluzione");
+      assertEqual(many.solutionCount, 2, "senza: ambiguo (due soluzioni bastano)");
+
+      // three searches in flight (two lanes and the main worker), cancelled at once: every one must be rejected
+      // (a search is never already over here: the request has not even reached its worker yet)
+      const outcomes = [
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane0" }),
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane1" }),
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }),
+      ].map((promise) =>
+        promise.then(
+          () => "finita",
+          (e) => e
+        )
+      );
+      cancelSolver("main");
+      for (const outcome of await Promise.all(outcomes))
+        assert(outcome instanceof SolverCancelled, `ogni ricerca in corso, anche sulle corsie, viene annullata (${outcome})`);
+      forgetSettledResults();
+      const again = await Promise.all([
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }, { worker: "lane0" }),
+        checkUniquenessAsync(mk(true), { maxSolutions: 2 }),
+      ]);
+      forgetSettledResults();
+      assert(
+        again.every((r) => r.solutionCount === 1),
+        "dopo l'annullamento le corsie e il worker principale lavorano ancora"
+      );
+      const lanes = laneCountFor();
+      assert(Number.isInteger(lanes) && lanes >= 1 && lanes <= 4, `numero di corsie ragionevole (${lanes})`);
+      assertEqual(laneCountFor({ parallelism: 2 }), 2, "si può forzare (test)");
+    },
+  },
+  {
+    name: "avanzamento (client): arriva dal worker crescente e solo a chi lo chiede, la memoria dei verdetti risponde subito «1», un tempo infinito non è una scadenza",
+    fn: async () => {
+      const puzzle = barren();
+      const options = { maxSolutions: 2, progressIntervalMs: 0 };
+      forgetSettledResults();
+      const asked = [];
+      const original = Worker.prototype.postMessage;
+      Worker.prototype.postMessage = function (data) {
+        asked.push(data?.progress);
+        return original.call(this, data);
+      };
+      let seen = [];
+      let withProgress;
+      let without;
+      try {
+        withProgress = await checkUniquenessAsync(puzzle, options, { onProgress: (f) => seen.push(f) });
+        forgetSettledResults(); // the verdict was remembered: ask the worker again
+        without = await checkUniquenessAsync(puzzle, options);
+      } finally {
+        Worker.prototype.postMessage = original;
+      }
+      assertEqual(JSON.stringify(asked), "[true,false]", "il worker riceve la richiesta di avanzamento solo da chi la fa");
+      assert(
+        seen.length > 5 && seen.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= seen[i - 1])),
+        `crescente tra 0 e 1 (${seen.length})`
+      );
+      assertEqual(JSON.stringify(withProgress), JSON.stringify(without), "stesso risultato");
+      assertEqual(withProgress.exhausted, true);
+
+      // and what the worker answers: nothing but the answer when nobody asked to hear of the progress
+      // (in this test environment the worker's own `self` is the one the shim installed)
+      if (globalThis.self?.postMessage) {
+        const sent = [];
+        const reply = globalThis.self.postMessage;
+        globalThis.self.postMessage = (data) => {
+          sent.push(data);
+          return reply(data);
+        };
+        try {
+          forgetSettledResults();
+          await checkUniquenessAsync(puzzle, options);
+          assert(sent.length > 0 && sent.every((message) => message.ok !== undefined), "senza richiesta, solo la risposta");
+          forgetSettledResults();
+          sent.length = 0;
+          await checkUniquenessAsync(puzzle, options, { onProgress: () => {} });
+          assert(
+            sent.some((message) => message.progress !== undefined),
+            "con la richiesta, anche l'avanzamento"
+          );
+          assert(sent[sent.length - 1].ok === true, "e l'ultimo messaggio è la risposta");
+        } finally {
+          globalThis.self.postMessage = reply;
+        }
+      }
+
+      // a verdict that was remembered is answered at once, with the bar at the end
+      const unique = createPuzzle("unico");
+      unique.grid = resizeGrid(unique.grid, 3, 3);
+      const a = addCharacter(unique, "A", "person1");
+      const zone = addZone(unique.grid, "Uno", "#fff");
+      paintCellZone(unique.grid, 1, 1, zone.id);
+      addClue(unique, a.id, "inRoom", { zoneId: zone.id });
+      forgetSettledResults();
+      await checkUniquenessAsync(unique, { maxSolutions: 2 });
+      const memory = [];
+      const again = await checkUniquenessAsync(unique, { maxSolutions: 2 }, { onProgress: (f) => memory.push(f) });
+      assertEqual(again.solutionCount, 1);
+      assertEqual(JSON.stringify(memory), "[1]", "dalla memoria: subito 1");
+      const memoryDerive = [];
+      assertEqual((await deriveSolutionAsync(unique, {}, { onProgress: (f) => memoryDerive.push(f) })).status, "unique");
+      assertEqual(JSON.stringify(memoryDerive), "[1]", "anche «Calcola soluzione»");
+
+      // no limit is not "a limit of zero": the watchdog is only set for a time a timer can hold
+      forgetSettledResults();
+      for (const timeMs of [Infinity, 2 ** 40, null, undefined]) {
+        const report = await checkUniquenessAsync(unique, { maxSolutions: 2, timeMs });
+        assertEqual(report.solutionCount, 1, `timeMs ${timeMs}: la ricerca non viene interrotta`);
+        forgetSettledResults();
+      }
+    },
+  },
+  {
+    name: "avanzamento (client): le fette sommano le loro posizioni (crescente, finisce a 1), «Calcola soluzione» e i suggerimenti lo riportano",
+    fn: async () => {
+      const puzzle = barren();
+      const options = { maxSolutions: 2, progressIntervalMs: 0 };
+      const sliced = [];
+      const report = await searchInSlices(puzzle, options, { onProgress: (f) => sliced.push(f) }, 3);
+      assertEqual(report.exhausted, true, "premessa: ogni fetta arriva in fondo");
+      assertEqual(sliced[sliced.length - 1], 1, "finite tutte le fette, la barra è al massimo");
+      assert(
+        sliced.length > 3 && sliced.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= sliced[i - 1])),
+        `fette: crescente (${sliced.length})`
+      );
+
+      forgetSettledResults();
+      const derive = [];
+      const derived = await deriveSolutionAsync(puzzle, { progressIntervalMs: 0 }, { onProgress: (f) => derive.push(f) });
+      assertEqual(derived.status, "unsatisfiable", "il verdetto c'è");
+      assert(
+        derive.length > 1 && derive.every((v, i) => i === 0 || v >= derive[i - 1]),
+        `derivazione (worker singolo): crescente (${derive.length})`
+      );
+
+      const hint = [];
+      const small = createPuzzle("suggerimento");
+      small.grid = resizeGrid(small.grid, 4, 4);
+      const x = addCharacter(small, "A", "person1");
+      addCharacter(small, "B", "person2");
+      const z = addZone(small.grid, "Studio", "#fff");
+      paintCellZone(small.grid, 1, 1, z.id);
+      addClue(small, x.id, "inRoom", { zoneId: z.id });
+      const chain = await computeHintChainAsync(small, new Map(), new Map(), { onProgress: (f) => hint.push(f) });
+      assert(chain.length >= 1, "la catena c'è");
+      assert(
+        hint.length >= 1 && hint.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= hint[i - 1])),
+        `suggerimenti: crescente (${hint})`
+      );
+    },
+  },
+  {
+    name: "avanzamento (client): una ricerca che passa dalla prova breve alle fette ha una barra sola, che non torna mai indietro e finisce a 1",
+    fn: async () => {
+      forgetSettledResults();
+      // long enough to overrun the short first try (3M units of work), so that the slices take over
+      const puzzle = barren(7);
+      const seen = [];
+      const sliced = [];
+      const original = Worker.prototype.postMessage;
+      Worker.prototype.postMessage = function (data) {
+        sliced.push(!!data?.payload?.options?.slice);
+        return original.call(this, data);
+      };
+      let report;
+      try {
+        report = await checkUniquenessAsync(
+          puzzle,
+          { maxSolutions: 2, parallel: true, parallelism: 3, progressIntervalMs: 0 },
+          { onProgress: (f) => seen.push(f) }
+        );
+      } finally {
+        Worker.prototype.postMessage = original;
+      }
+      assertEqual(sliced.filter(Boolean).length, 3, "premessa: la prova breve non è bastata e la ricerca è passata a 3 fette");
+      assertEqual(report.exhausted, true, "ricerca finita");
+      assertEqual(report.solutionCount, 0);
+      assert(
+        seen.length > 10 && seen.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= seen[i - 1])),
+        `una barra che non torna indietro (${seen.length})`
+      );
+      assertEqual(seen[seen.length - 1], 1, "e a ricerca finita è piena");
+      forgetSettledResults();
     },
   },
   {

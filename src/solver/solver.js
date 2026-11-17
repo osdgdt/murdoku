@@ -73,6 +73,13 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // ones that watch everybody; with `incremental: false` every clue is checked every time (the
 // differential test runs both and compares).
 //
+// `onProgress(fraction)` (default none) is called now and then (at most every `progressIntervalMs`, 100 by default; checked
+// every 256 nodes) with an ESTIMATE of how much of the search tree has been explored, from 0 to 1: at every level of
+// the current path, the children already finished are weighed by the share of the tree they stand for. It never goes
+// back (the search is a depth-first walk in a fixed order), but it is only an estimate: the branches are not all the
+// same size, so the bar can crawl or leap. With `slice` the fraction is the position in the WHOLE tree, so every slice
+// of one search reports about the same number. It is not called again at the end: the caller knows when the search ends.
+//
 // `deadline` (a performance.now() time in ms) and `shouldStop()` are wall-clock/cooperative
 // limits, polled every few hundred nodes: when either fires the search stops like a node cap
 // and `stats.timedOut` says so. Without them a pathological case can run for minutes.
@@ -94,6 +101,8 @@ export function solvePuzzle(
     deadline = null,
     shouldStop = null,
     incremental = true,
+    onProgress = null,
+    progressIntervalMs = 100,
   } = {}
 ) {
   const characters = puzzle.characters;
@@ -150,7 +159,31 @@ export function solvePuzzle(
   function timeIsUp() {
     if ((nodesVisited & 255) !== 0) return false;
     if ((deadline != null && now() >= deadline) || (shouldStop && shouldStop())) timedOut = true;
+    if (onProgress && !timedOut) {
+      const at = now();
+      if (at - lastProgressAt >= progressIntervalMs) {
+        lastProgressAt = at;
+        onProgress(progressEstimate());
+      }
+    }
     return timedOut;
+  }
+
+  // Progress: for each level of the path being explored, how many of the node's children (free cells of the character
+  // placed there) there are, and how many were finished before the one under way.
+  const pathChildren = new Int32Array(order.length + 1);
+  const pathDone = new Int32Array(order.length + 1);
+  let lastProgressAt = onProgress ? now() : 0;
+  function progressEstimate() {
+    let fraction = 0;
+    let share = 1; // the part of the whole tree one child of the current level stands for
+    for (let depth = 0; depth <= placementMap.size && depth < pathChildren.length; depth++) {
+      const children = pathChildren[depth];
+      if (children === 0) break;
+      fraction += (share * pathDone[depth]) / children;
+      share /= children;
+    }
+    return Math.min(1, fraction);
   }
 
   // Each character's candidate cells: the caller's `domains`, else the unary domains (see the
@@ -278,9 +311,13 @@ export function solvePuzzle(
         next = character;
       }
     }
+    const depth = placementMap.size;
+    pathChildren[depth] = fewest;
+    let finishedChildren = 0;
     for (const cell of candidates.get(next.id)) {
       if (!isFree(cell)) continue;
-      if (slice && placementMap.size === sliceDepth && sliceCounter++ % slice.count !== slice.index) continue;
+      pathDone[depth] = finishedChildren++;
+      if (slice && depth === sliceDepth && sliceCounter++ % slice.count !== slice.index) continue;
       nodesVisited++;
       if (nodesVisited >= maxNodes) {
         nodeCapHit = true;

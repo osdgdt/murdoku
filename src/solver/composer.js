@@ -14,6 +14,7 @@ import { checkUniqueness } from "./validator.js";
 import { solvePuzzle } from "./solver.js";
 import { propagate } from "./propagation.js";
 import { suggestClues, declaredPlacementMap } from "./suggestions.js";
+import { staged } from "./progress.js";
 
 export function rng(seed) {
   let a = seed >>> 0;
@@ -74,7 +75,9 @@ const sameClue = (a, b) =>
 // "no-candidate", "time" (the deadline passed). Options:
 //   random, allowType(clue), negateChance, sample, maxClues, pruneChance  as in the library builder;
 //   fixed: clues already in the case, kept as they are and counted when checking uniqueness;
-//   maxNodes: node budget of each uniqueness check; deadline: a performance.now() time to stop at.
+//   maxNodes: node budget of each uniqueness check; deadline: a performance.now() time to stop at (null: none);
+//   onProgress(fraction): how far this attempt has got, 0..1 (adding clues is about half of it, then the clues are tried
+//   out one by one: how many are still to try is known; how many clues will be added is not, so that part is a curve).
 export function composeClues(
   puzzle,
   pool,
@@ -89,6 +92,7 @@ export function composeClues(
     maxNodes = 3_000_000,
     deadline = null,
     report = null,
+    onProgress = null,
   }
 ) {
   const isUnique = (base, clues) => {
@@ -105,7 +109,12 @@ export function composeClues(
   const usable = pool.filter((c) => allowType(c) && (!c.negate || random() < negateChance));
   const clues = [];
   const base = { ...puzzle };
+  const GROWTH_SHARE = 0.5; // of the attempt: adding clues; the rest is trying them out
+  // clues added so far -> how far growth is: half way after about as many clues as there are characters
+  const growth = () => 1 - 1 / (1 + clues.length / Math.max(1, puzzle.characters.length));
+  onProgress?.(0);
   while (!isUnique(base, clues)) {
+    onProgress?.(GROWTH_SHARE * growth());
     if (late()) return fail("time");
     if (clues.length >= maxClues) return fail("too-many");
     let best = null;
@@ -132,13 +141,16 @@ export function composeClues(
     [order[i], order[j]] = [order[j], order[i]];
   }
   let current = clues.slice();
+  let tried = 0;
   for (const idx of order) {
+    onProgress?.(GROWTH_SHARE + (1 - GROWTH_SHARE) * (tried++ / order.length));
     if (late()) break; // out of time: keep what is already proved sufficient
     const target = clues[idx];
     if (random() > pruneChance) continue;
     const without = current.filter((c) => c !== target);
     if (without.length && isUnique(base, without)) current = without;
   }
+  onProgress?.(1);
   return current;
 }
 
@@ -202,16 +214,19 @@ export const MODES = {
 // Proposes clues that make the declared solution the only one. Does not touch `puzzle`.
 //   mode: "easy" | "medium" | "hard"; seed: any integer (another seed, another set);
 //   victimFree (default true): no clue about the victim; keepExisting (default true): the clues already in
-//   the case stay and the proposal completes them; maxNodes / timeMs: the limits.
+//   the case stay and the proposal completes them; maxNodes / timeMs: the limits (`timeMs: null` and `maxNodes: Infinity`:
+//   none: it only ends when it has an answer, or runs out of attempts, and the person can cancel);
+//   onProgress(fraction): how far it has got, 0..1, never going back.
 // Returns { status: "ok", clues: [{ type, characterId, params, negate }], nodes }
 //       | { status: "failed", reason: "no-solution" | "time" | "too-many" | "no-candidate" | "not-unique" | "limit" }
 export function proposeClueSet(
   puzzle,
-  { mode = "medium", seed = 1, victimFree = true, keepExisting = true, maxNodes = 3_000_000, timeMs = 20_000 } = {}
+  { mode = "medium", seed = 1, victimFree = true, keepExisting = true, maxNodes = 3_000_000, timeMs = 20_000, onProgress = null } = {}
 ) {
   const fullMap = declaredPlacementMap(puzzle);
   if (!fullMap) return { status: "failed", reason: "no-solution" };
-  const deadline = now() + timeMs;
+  const deadline = timeMs == null ? null : now() + timeMs;
+  const timeIsUp = () => deadline !== null && now() >= deadline;
   const settings = MODES[mode] ?? MODES.medium;
   const hasVictim = puzzle.characters.some((c) => c.isVictim);
   const dropVictim = victimFree && hasVictim;
@@ -236,9 +251,12 @@ export function proposeClueSet(
   // The victim is not in the search (see the house rules), so a set that settles the suspects can still leave her
   // more than one place; then another draw is tried, until one works or the time is up.
   const attempts = 12;
-  let lastFailure = { status: "failed", reason: now() >= deadline ? "time" : "no-candidate" };
-  for (let attempt = 0; attempt < attempts && now() < deadline; attempt++) {
+  let lastFailure = { status: "failed", reason: timeIsUp() ? "time" : "no-candidate" };
+  // an attempt that fails starts another one: the bar is shared out between an unknown number of attempts
+  // (progress.js), and the last twentieth of the attempt is the proof on the whole case
+  for (let attempt = 0; attempt < attempts && !timeIsUp(); attempt++) {
     const report = {};
+    const inAttempt = onProgress ? (fraction) => onProgress(staged(attempt, fraction)) : null;
     const added = composeClues(view, pool, {
       random: rng(seed + attempt * 7919),
       allowType: settings.allowType,
@@ -250,6 +268,7 @@ export function proposeClueSet(
       maxNodes,
       deadline,
       report,
+      onProgress: inAttempt ? (fraction) => inAttempt(0.95 * fraction) : null,
     });
     if (!added) {
       lastFailure = { status: "failed", reason: report.reason ?? "no-candidate" };
@@ -263,7 +282,8 @@ export function proposeClueSet(
       maxSolutions: 2,
       forwardCheck: true,
       maxNodes,
-      timeMs: Math.max(1000, deadline - now()),
+      timeMs: deadline === null ? null : Math.max(1000, deadline - now()),
+      onProgress: inAttempt ? (fraction) => inAttempt(0.95 + 0.05 * fraction) : null,
     });
     if (!check.exhausted) {
       lastFailure = { status: "failed", reason: "limit" };
@@ -273,6 +293,7 @@ export function proposeClueSet(
       lastFailure = { status: "failed", reason: "not-unique" };
       continue;
     }
+    onProgress?.(1);
     return {
       status: "ok",
       clues: added.map(({ type, characterId, params, negate }) => ({ type, characterId, params, negate: !!negate })),

@@ -285,3 +285,32 @@ input::placeholder { color: var(--ink-faint); }
 }
 .update-banner button { white-space: nowrap; border-radius: 999px; font-weight: 800; }
 @media print { .update-banner { display: none; } }
+
+/* The banner shown while the solver works (src/util/progressBanner.js): label, time, "~N %", the bar, Cancel. */
+.progress-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.7rem;
+}
+.progress-banner .progress-label {
+  font-weight: 700;
+}
+.progress-banner .progress-time,
+.progress-banner .progress-percent {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+.progress-banner .progress-percent:empty {
+  display: none;
+}
+.progress-banner .progress-bar {
+  flex: 1 1 12rem;
+  min-width: 8rem;
+  height: 0.85rem;
+  accent-color: var(--accent);
+}
+.progress-banner .progress-cancel {
+  flex: none;
+}

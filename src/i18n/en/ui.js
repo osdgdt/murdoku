@@ -307,7 +307,8 @@ export default {
   Autore: "Author",
   "Duplica questo caso": "Duplicate this case",
   "Elimina questo caso": "Delete this case",
-  Annulla: "Undo",
+  Annulla: "Cancel",
+  "Annulla l'ultima modifica": "Undo the last change",
   Ripeti: "Redo",
   "Deduce la soluzione dagli indizi con una ricerca esaustiva, quando è unica, e la compila automaticamente nella scheda Soluzione":
     "Deduces the solution from the clues with an exhaustive search, when it is unique, and fills it into the Solution tab",
@@ -745,6 +746,8 @@ export default {
   "Passo precedente": "Previous step",
   "Passo successivo": "Next step",
   "Ancora in calcolo: {seconds} secondi": "Still working: {seconds} seconds",
+  "Ancora in calcolo: {seconds} secondi, circa {percent} %": "Still working: {seconds} seconds, about {percent} %",
+  "Controllo quali indizi servono a determinare i sospettati…": "Checking which clues the suspects need…",
   "Personaggi e strumenti": "Characters and tools",
   ", già piazzato": ", already placed",
   "Passa al tema ad alto contrasto": "Switch to the high-contrast theme",

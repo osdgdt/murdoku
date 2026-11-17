@@ -53,24 +53,40 @@ export const HINT_CHAIN_MAX_STEPS = 120;
 
 // `puzzle` (optional) scales the time and node budgets to the size of the grid (limits.js): a
 // 16x16 case gets about three times what a 9x9 one does. Without it, the 9x9 numbers above.
-export function createBudget(puzzle = null) {
+//
+// `unlimited` (what the page asks for: the computation runs in a worker with a progress bar and a Cancel button, so the
+// person decides how long to wait): no time and no node budget for finding the FACTS (the waves of deduction and the
+// diagnosis of a contradiction), so no search for them is ever given up; every one runs to its natural end. What stays:
+//  - the caps that are part of the METHOD, not of the effort: HINT_MAX_SOLUTIONS (past that many solutions the case is
+//    "too open" to deduce anything from enumerating them) and the chain/step caps;
+//  - the small budget for EXPLAINING a step (which clues were involved, hintExplain.js): it only makes the wording
+//    finer, never changes the hint, and falls back to the safe answer "all of them" when it runs out. Measured on the
+//    hardest benchmark case: the facts take 18 s with no limit, an unbounded explanation would add 4 minutes more.
+export function createBudget(puzzle = null, { unlimited = false } = {}) {
   const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
   const limits = puzzle ? limitsFor(puzzle).hints : { maxNodes: HINT_MAX_NODES, timeMs: HINT_TOTAL_TIME_BUDGET_MS };
-  const deadline = now() + limits.timeMs;
+  const deadline = unlimited ? null : now() + limits.timeMs;
   return {
     // The same deadline stops a search that is running (solvePuzzle polls it), not just the
-    // loops that check `expired()` between searches.
+    // loops that check `expired()` between searches. `null` = none.
     deadline,
-    waveNodesRemaining: limits.maxNodes,
+    waveNodesRemaining: unlimited ? Infinity : limits.maxNodes,
     involvedClueNodesRemaining: INVOLVED_CLUE_TEST_MAX_NODES,
     expired() {
-      return now() >= deadline;
+      return deadline !== null && now() >= deadline;
     },
     spendWaveNodes(n) {
       this.waveNodesRemaining = Math.max(0, this.waveNodesRemaining - (n || 0));
     },
     spendInvolvedClueNodes(n) {
       this.involvedClueNodesRemaining = Math.max(0, this.involvedClueNodesRemaining - (n || 0));
+    },
+    // The node cap for one search that may use at most `cap` nodes of the shared pool (none when unlimited).
+    waveNodesFor(cap) {
+      return unlimited ? Infinity : Math.max(0, Math.min(cap, this.waveNodesRemaining));
+    },
+    involvedNodesFor(cap) {
+      return Math.max(0, Math.min(cap, this.involvedClueNodesRemaining));
     },
   };
 }

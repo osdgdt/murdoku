@@ -20,7 +20,7 @@ import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync, cancelSolver } from "../solver/solverClient.js";
-import { limitsFor } from "../solver/limits.js";
+import { limitsFor, searchBudget } from "../solver/limits.js";
 import { findRedundantClues, findCluesNeededWithoutVictim } from "../solver/redundancy.js";
 import { describeClue } from "../model/clueTypes.js";
 import { roomColor } from "../skin/paper/rooms.js";
@@ -393,15 +393,14 @@ validateBtn.addEventListener("click", () => {
 // enumerate and preview — enough to be useful for a small (≤9×9) puzzle
 // without risking a slow click if the puzzle is badly underconstrained
 // (in which case the solver would keep finding solutions almost forever;
-// maxNodes is the independent safety net for puzzles that are constrained
+// the work budget is the independent safety net for puzzles that are constrained
 // enough to prune well but still have many solutions to enumerate).
 const UNIQUENESS_PREVIEW_MAX_SOLUTIONS = 24;
 
-// The limits of every uniqueness check (nodes AND time, scaled with the grid: see solver/limits.js).
+// The limits of every uniqueness check (work AND time, scaled with the grid: see solver/limits.js).
 // forwardCheck: it costs more per step but prunes far more, which is what decides a big grid.
 function uniquenessOptions({ maxSolutions }) {
-  const { maxNodes, timeMs } = limitsFor(puzzle).uniqueness;
-  return { maxSolutions, maxNodes, timeMs, forwardCheck: true };
+  return { maxSolutions, ...searchBudget(limitsFor(puzzle).uniqueness), forwardCheck: true };
 }
 
 // One small read-only grid per alternative solution, so they can be scanned
@@ -501,8 +500,8 @@ redundantBtn.addEventListener("click", async () => {
   clear(validationPanel);
   const progress = showProgress(t("Analisi degli indizi in corso…"));
   try {
-    const { maxNodes, timeMs } = limitsFor(puzzle).redundancy;
-    const check = (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, maxNodes, timeMs, forwardCheck: true });
+    const budget = searchBudget(limitsFor(puzzle).redundancy);
+    const check = (candidate) => checkUniquenessAsync(candidate, { maxSolutions: 2, ...budget, forwardCheck: true });
     const result = await findRedundantClues(puzzle, check, {
       onProgress: (done, total) => {
         progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total });
@@ -617,8 +616,7 @@ calcSolutionBtn.addEventListener("click", async () => {
   calcSolutionBtn.disabled = true;
   showProgress(t("Calcolo della soluzione in corso…"));
   try {
-    const { maxNodes, timeMs } = limitsFor(puzzle).derive;
-    const result = await deriveSolutionAsync(puzzle, { maxNodes, timeMs });
+    const result = await deriveSolutionAsync(puzzle, searchBudget(limitsFor(puzzle).derive));
     clear(validationPanel);
     if (puzzle !== startedAtPuzzle || puzzle.updatedAt !== startedAtVersion) {
       validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è stato modificato nel frattempo: riprova.")));

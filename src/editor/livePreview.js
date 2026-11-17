@@ -8,7 +8,7 @@
 import { el, clear } from "../util/dom.js";
 import { estimateDifficulty, difficultyLabel } from "../model/puzzle.js";
 import { analyzePuzzleAsync } from "../solver/solverClient.js";
-import { limitsFor } from "../solver/limits.js";
+import { limitsFor, searchBudget } from "../solver/limits.js";
 import { t } from "../i18n/i18n.js";
 
 const DEBOUNCE_MS = 700;
@@ -57,7 +57,7 @@ export function createLivePreview({ container, getPuzzle }) {
     try {
       const result = await analyzePuzzleAsync(
         puzzle,
-        { maxNodes: limits.maxNodes, timeMs: Math.min(4000, Math.round(limits.timeMs / 3)) },
+        { ...searchBudget(limits), timeMs: Math.min(4000, Math.round(limits.timeMs / 3)) },
         { signal: controller.signal }
       );
       if (mine !== sequence) return; // a newer edit has started its own analysis

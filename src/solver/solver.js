@@ -19,6 +19,14 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // `stats` out-param is passed, it's filled with `{ nodesVisited, nodeCapHit }`
 // so callers can tell whether the returned solutions are the complete set.
 //
+// `maxWork` is a second, deterministic budget: clue evaluations plus WORK_NODE_WEIGHT per node (see stats.evaluations).
+// Unlike `maxNodes` it means the same effort whatever the search strategy (a node with forward checking costs ~15
+// times one without), so it is the budget to use when the strategy may change. `stats.workCapHit` says it ended the search.
+//
+// `forwardCheckMinRemaining` (default 0 = forward-check at every node): skip the forward check when fewer characters than
+// this are still to place. Near the leaves a subtree is small and the check costs more than it saves; on a hard 9x9 case
+// 4 is ~25% faster in time although it visits 4x more nodes (so judge it by `maxWork`, not by `maxNodes`).
+//
 // `forwardCheck` (opt-in, default false — every existing caller/test is
 // completely unaffected unless it explicitly asks for this) makes the search
 // propagation-aware: after a tentative placement passes its own
@@ -62,14 +70,19 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // `deadline` (a performance.now() time in ms) and `shouldStop()` are wall-clock/cooperative
 // limits, polled every few hundred nodes: when either fires the search stops like a node cap
 // and `stats.timedOut` says so. Without them a pathological case can run for minutes.
+// A node weighs this many clue evaluations when work is added up (measured: ~1 us per node and ~0.33 us per evaluation).
+export const WORK_NODE_WEIGHT = 3;
+
 export function solvePuzzle(
   puzzle,
   {
     maxSolutions = 2,
     fixedPlacements = null,
     maxNodes = Infinity,
+    maxWork = Infinity,
     stats = null,
     forwardCheck = false,
+    forwardCheckMinRemaining = 0,
     domains = null,
     deadline = null,
     shouldStop = null,
@@ -122,9 +135,10 @@ export function solvePuzzle(
   // the time it does not depend on the machine. Reported in `stats.evaluations`.
   let evaluations = 0;
   let nodeCapHit = false;
+  let workCapHit = false;
   let timedOut = false;
   const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
-  const stopped = () => nodeCapHit || timedOut;
+  const stopped = () => nodeCapHit || workCapHit || timedOut;
   // Polled every 256 nodes (a node is cheap, a clock read is not free).
   function timeIsUp() {
     if ((nodesVisited & 255) !== 0) return false;
@@ -215,7 +229,7 @@ export function solvePuzzle(
       // prune, so an inconclusive check degrades gracefully to plain
       // backtracking for that one node instead of risking unsoundness.
       let stillPromising = true;
-      if (forwardCheck && placementMap.size < order.length) {
+      if (forwardCheck && placementMap.size < order.length && order.length - placementMap.size >= forwardCheckMinRemaining) {
         const checked = propagate(puzzle, placementMap, {
           predicates,
           dependencies: incremental ? entryDependencies : null,
@@ -262,6 +276,10 @@ export function solvePuzzle(
         nodeCapHit = true;
         return;
       }
+      if (evaluations + WORK_NODE_WEIGHT * nodesVisited >= maxWork) {
+        workCapHit = true;
+        return;
+      }
       if (timeIsUp()) return;
       tryPlace(next, cell.row, cell.col);
       if (solutions.length >= maxSolutions || stopped()) return;
@@ -276,6 +294,7 @@ export function solvePuzzle(
     stats.nodesVisited = nodesVisited;
     stats.evaluations = evaluations;
     stats.nodeCapHit = nodeCapHit;
+    stats.workCapHit = workCapHit;
     stats.timedOut = timedOut;
   }
 

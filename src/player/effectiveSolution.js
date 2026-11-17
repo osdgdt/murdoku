@@ -16,7 +16,7 @@
 import { zoneOfCell } from "../model/grid.js";
 import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
-import { limitsFor } from "../solver/limits.js";
+import { limitsFor, searchBudget } from "../solver/limits.js";
 import { t } from "../i18n/i18n.js";
 
 export const SOLUTION_UNSATISFIABLE_MSG = t(
@@ -52,19 +52,14 @@ export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, ch
     });
 
   const limits = limitsFor(puzzle);
-  const derive = (signal) =>
-    deps.deriveSolutionAsync(puzzle, { maxNodes: limits.derive.maxNodes, timeMs: limits.derive.timeMs }, { signal });
+  const derive = (signal) => deps.deriveSolutionAsync(puzzle, searchBudget(limits.derive), { signal });
 
   // checkUniqueness has no fixedPlacements support: it re-searches the clues
   // from scratch under a smaller node cap. solutionCount can never be 0 here —
   // validateSolution() already proved the declared solution is one valid solution.
   function confirmDeclaredSolutionUnique(signal) {
     return deps
-      .checkUniquenessAsync(
-        puzzle,
-        { maxSolutions: 2, forwardCheck: true, maxNodes: limits.confirm.maxNodes, timeMs: limits.confirm.timeMs },
-        { signal }
-      )
+      .checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, ...searchBudget(limits.confirm) }, { signal })
       .then((report) => {
         if (report.solutionCount >= 2) return { status: "ambiguous", placements: null };
         const complete = report.exhausted ?? !report.truncated;

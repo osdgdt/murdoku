@@ -5,6 +5,7 @@
 // and, unlike the node count, stays comparable when the search strategy changes. So this can fail only if a
 // change makes the SEARCH worse (a weaker pruning, a lost optimisation); time is left to `npm run bench`.
 import { benchCase, measure } from "./bench/lib.mjs";
+import { SETTLE_MIN_REMAINING } from "../src/solver/limits.js";
 import { readRepoFile } from "./helpers/read-file.js";
 import { assert, assertEqual } from "./assert.js";
 
@@ -26,7 +27,7 @@ export const tests = CASES.map(([n, seed]) => ({
     assert(before && !before.capped, "il caso deve essere chiuso nella baseline");
     const puzzle = benchCase(n, seed);
     assert(puzzle, "il caso deve esistere");
-    const result = measure(puzzle, { maxNodes: 200000 });
+    const result = measure(puzzle, { maxNodes: Infinity, maxWork: 50_000_000, forwardCheckMinRemaining: SETTLE_MIN_REMAINING });
     assertEqual(result.capped, false, "il caso deve chiudersi");
     assertEqual(result.solutions, 2);
     const budget = Math.max(50000, before.work * FACTOR);

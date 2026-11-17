@@ -3,7 +3,7 @@
 //   - "editor" cases (test/bench/cases/*.murdoku.json): real cases, settled to the end the way the editor's
 //     "Verifica unicità" does it. They are the ones where an author waits.
 // It compares with test/bench/baseline.json and FAILS when:
-//   - a case the baseline settled now hits the cap or finds a different number of solutions, or
+//   - a case the baseline settled now hits the work cap or finds a different number of solutions, or
 //   - a case needs more than 25% more WORK than the baseline. Work is clue evaluations plus a charge per node
 //     (see lib.mjs): it does not depend on the machine and, unlike the node count, stays comparable when the
 //     search strategy changes (a node with forward checking costs ~15 times one without).
@@ -17,11 +17,14 @@ import path from "node:path";
 globalThis.__MURDOKU_LANG__ = "it";
 const { benchCase, measure } = await import("./lib.mjs");
 const { migratePuzzle } = await import("../../src/model/migrations.js");
+const { SETTLE_MIN_REMAINING } = await import("../../src/solver/limits.js");
 
 const BASELINE = path.join(import.meta.dirname, "baseline.json");
 const CASES_DIR = path.join(import.meta.dirname, "cases");
-const NODE_CAP = 20000;
-const EDITOR_NODE_CAP = 5_000_000;
+// The budgets are in WORK (see lib.mjs) and the strategy is the one the app uses to settle a case (src/solver/limits.js).
+const WORK_CAP = 5_000_000;
+const EDITOR_WORK_CAP = 200_000_000;
+const STRATEGY = { maxNodes: Infinity, forwardCheckMinRemaining: SETTLE_MIN_REMAINING };
 const WORK_TOLERANCE = 1.25;
 export const CASES = [
   [10, [1, 3, 4, 5, 6]],
@@ -31,7 +34,14 @@ export const CASES = [
 ].flatMap(([n, seeds]) => seeds.map((seed) => ({ n, seed })));
 
 const update = process.argv.includes("--update");
-let baseline = { version: 2, nodeCap: NODE_CAP, editorNodeCap: EDITOR_NODE_CAP, cases: [], editorCases: [] };
+let baseline = {
+  version: 3,
+  workCap: WORK_CAP,
+  editorWorkCap: EDITOR_WORK_CAP,
+  strategy: { forwardCheckMinRemaining: SETTLE_MIN_REMAINING },
+  cases: [],
+  editorCases: [],
+};
 if (!update) baseline = JSON.parse(await readFile(BASELINE, "utf8"));
 const known = new Map(baseline.cases.map((c) => [`${c.n}/${c.seed}`, c]));
 const knownEditor = new Map((baseline.editorCases ?? []).map((c) => [c.file, c]));
@@ -66,7 +76,7 @@ const rows = [];
 for (const { n, seed } of CASES) {
   const puzzle = benchCase(n, seed);
   if (!puzzle) throw new Error(`no valid solution for ${n}x${n} seed ${seed}`);
-  const now = measure(puzzle, { maxNodes: NODE_CAP });
+  const now = measure(puzzle, { ...STRATEGY, maxWork: WORK_CAP });
   const before = known.get(`${n}/${seed}`);
   const notes = compare(now, before);
   rows.push({ n, seed, ...now });
@@ -79,7 +89,7 @@ const files = (await readdir(CASES_DIR)).filter((f) => f.endsWith(".murdoku.json
 for (const file of files) {
   const puzzle = JSON.parse(await readFile(path.join(CASES_DIR, file), "utf8"));
   migratePuzzle(puzzle);
-  const now = measure(puzzle, { maxNodes: EDITOR_NODE_CAP });
+  const now = measure(puzzle, { ...STRATEGY, maxWork: EDITOR_WORK_CAP });
   const before = knownEditor.get(file);
   const notes = compare(now, before);
   editorRows.push({ file, ...now });

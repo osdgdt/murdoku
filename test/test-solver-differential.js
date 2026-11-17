@@ -17,26 +17,28 @@ const keyOf = (solution) =>
 
 export const tests = [
   {
-    name: "solver differenziale: stesso insieme di soluzioni della ricerca di riferimento (200 casi casuali, con e senza forward-check e controllo incrementale)",
+    name: "solver differenziale: stesso insieme di soluzioni della ricerca di riferimento (200 casi casuali, con e senza forward-check, controllo incrementale e salto del forward-check vicino alle foglie)",
     fn: () => {
       let withSolutions = 0;
       let withoutSolutions = 0;
       for (let seed = 1; seed <= 200; seed++) {
         const puzzle = randomPuzzle(seed);
         const expected = referenceSolutions(puzzle).sort();
-        for (const [forwardCheck, incremental] of [
-          [false, true],
-          [false, false],
-          [true, true],
+        for (const [forwardCheck, incremental, forwardCheckMinRemaining] of [
+          [false, true, 0],
+          [false, false, 0],
+          [true, true, 0],
+          // the strategy of the settle actions: no forward check when fewer than N are left to place (a different
+          // search, so also a different order of visiting, but the same set of solutions)
+          [true, true, 2],
+          [true, true, 4],
         ]) {
-          const actual = solvePuzzle(puzzle, { maxSolutions: 100000, forwardCheck, incremental }).map(keyOf).sort();
-          assertEqual(
-            actual.length,
-            expected.length,
-            `caso ${seed} (forwardCheck=${forwardCheck}, incremental=${incremental}): numero di soluzioni`
-          );
-          for (let i = 0; i < expected.length; i++)
-            assertEqual(actual[i], expected[i], `caso ${seed} (forwardCheck=${forwardCheck}, incremental=${incremental}): soluzione ${i}`);
+          const actual = solvePuzzle(puzzle, { maxSolutions: 100000, forwardCheck, incremental, forwardCheckMinRemaining })
+            .map(keyOf)
+            .sort();
+          const label = `forwardCheck=${forwardCheck}, incremental=${incremental}, minRemaining=${forwardCheckMinRemaining}`;
+          assertEqual(actual.length, expected.length, `caso ${seed} (${label}): numero di soluzioni`);
+          for (let i = 0; i < expected.length; i++) assertEqual(actual[i], expected[i], `caso ${seed} (${label}): soluzione ${i}`);
         }
         if (expected.length > 0) withSolutions++;
         else withoutSolutions++;

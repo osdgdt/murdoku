@@ -63,8 +63,16 @@ const values = (samples) => samples.filter((s) => s && s.value !== null).map((s)
 const rises = (list) => list.every((v, i) => i === 0 || v >= list[i - 1]);
 
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
-try {
+// How many cores the page believes it has: with ONE the client never splits a search into slices or runs several clue
+// checks at once, so a search takes the same few seconds on any machine (on a runner with more cores it would end in the
+// middle of a Cancel test and the button would be gone); with 4 the redundant-clue analysis really uses its lanes.
+async function newContext(cores) {
   const context = await browser.newContext({ locale: "en-US", viewport: { width: 1200, height: 900 }, serviceWorkers: "block" });
+  await context.addInitScript(`Object.defineProperty(navigator, "hardwareConcurrency", { get: () => ${cores} });`);
+  return context;
+}
+try {
+  const context = await newContext(1);
   const errors = [];
 
   // ---- the editor ----
@@ -115,7 +123,7 @@ try {
   await page.waitForFunction(() => /~\d+ %/.test(document.querySelector("#validation-panel .progress-percent")?.textContent || ""), null, {
     timeout: 15000,
   });
-  const during = await sample(page, "#validation-panel", 5, 500);
+  const during = await sample(page, "#validation-panel", 3, 500);
   const barValues = values(during);
   check(
     "uniqueness check: the bar fills while it runs and never goes back",
@@ -142,19 +150,6 @@ try {
     `${Date.now() - started} ms`
   );
 
-  // redundant clues: one bar for the whole analysis, counting the checks done
-  await page.click("#redundant-btn");
-  await page.waitForFunction(() => /~\d+ %/.test(document.querySelector("#validation-panel .progress-percent")?.textContent || ""), null, {
-    timeout: 30000,
-  });
-  const label = await page.innerText("#validation-panel .progress-label");
-  check("redundant clues: the label counts the clues checked", /\d+\/16/.test(label), label);
-  const redundantBar = values(await sample(page, "#validation-panel", 4, 700));
-  check("redundant clues: the bar never goes back", redundantBar.length >= 2 && rises(redundantBar), JSON.stringify(redundantBar));
-  await page.click("#validation-panel .progress-cancel");
-  await page.waitForFunction(() => /Operation cancelled/.test(document.querySelector("#validation-panel")?.innerText || ""));
-  check("Cancel stops the redundant-clue analysis, whichever worker it runs on", await page.locator("#redundant-btn").isEnabled());
-
   // computing the solution (a verdict the check above just settled would be answered from memory, with no search to follow)
   await page.evaluate(async () => (await import("/src/solver/solverClient.js")).forgetSettledResults());
   await page.click("#calc-solution-btn");
@@ -162,7 +157,7 @@ try {
   await page.waitForFunction(() => /~\d+ %/.test(document.querySelector("#validation-panel .progress-percent")?.textContent || ""), null, {
     timeout: 15000,
   });
-  const calcBar = values(await sample(page, "#validation-panel", 4, 400));
+  const calcBar = values(await sample(page, "#validation-panel", 3, 300));
   check("compute solution: the bar fills and never goes back", calcBar.length >= 1 && rises(calcBar), JSON.stringify(calcBar));
   await page.click("#validation-panel .progress-cancel");
   await page.waitForFunction(() => /Operation cancelled/.test(document.querySelector("#validation-panel")?.innerText || ""));
@@ -178,7 +173,7 @@ try {
   await player.waitForFunction(() => /~\d+ %/.test(document.querySelector("#result-panel .progress-percent")?.textContent || ""), null, {
     timeout: 15000,
   });
-  const playerBar = values(await sample(player, "#result-panel", 4, 500));
+  const playerBar = values(await sample(player, "#result-panel", 3, 400));
   check("player, answer check: the bar fills and never goes back", playerBar.length >= 2 && rises(playerBar), JSON.stringify(playerBar));
   check("player: the Cancel button says Cancel", (await player.innerText("#result-panel .progress-cancel")).trim() === "Cancel");
   await player.click("#result-panel .progress-cancel");
@@ -194,7 +189,7 @@ try {
   await player.waitForFunction(() => /~\d+ %/.test(document.querySelector("#hint-panel .progress-percent")?.textContent || ""), null, {
     timeout: 15000,
   });
-  const hintBar = values(await sample(player, "#hint-panel", 3, 500));
+  const hintBar = values(await sample(player, "#hint-panel", 3, 400));
   check("player, hint: the bar fills and never goes back", hintBar.length >= 2 && rises(hintBar), JSON.stringify(hintBar));
   await player.click("#hint-panel .progress-cancel");
   await player.waitForFunction(() => /Hint cancelled/.test(document.querySelector("#hint-panel")?.innerText || ""), null, {
@@ -204,6 +199,29 @@ try {
   await player.click("#hint-btn");
   await player.waitForFunction(() => /Step 1 of/.test(document.querySelector("#hint-panel")?.innerText || ""), null, { timeout: 120000 });
   check("with no limit the hint always arrives", true);
+
+  // redundant clues, on a page that believes it has 4 cores (so the clue checks run in parallel lanes): one bar for the
+  // whole analysis, counting the checks done; the analysis lasts ~20 s, far longer than the sampling
+  const lanesContext = await newContext(4);
+  const lanesPage = await lanesContext.newPage();
+  lanesPage.on("pageerror", (e) => errors.push(String(e)));
+  await lanesPage.goto(`${base}/editor.html`);
+  await lanesPage.waitForSelector("#redundant-btn");
+  await lanesPage.setInputFiles("#import-input", path.join(root, HARD_CASE));
+  await lanesPage.waitForFunction(() => /imported/i.test(document.querySelector("#status")?.innerText || ""));
+  await lanesPage.click("#redundant-btn");
+  await lanesPage.waitForFunction(
+    () => /~\d+ %/.test(document.querySelector("#validation-panel .progress-percent")?.textContent || ""),
+    null,
+    { timeout: 60000 }
+  );
+  const label = await lanesPage.innerText("#validation-panel .progress-label");
+  check("redundant clues: the label counts the clues checked", /\d+\/16/.test(label), label);
+  const redundantBar = values(await sample(lanesPage, "#validation-panel", 4, 700));
+  check("redundant clues: the bar never goes back", redundantBar.length >= 2 && rises(redundantBar), JSON.stringify(redundantBar));
+  await lanesPage.click("#validation-panel .progress-cancel");
+  await lanesPage.waitForFunction(() => /Operation cancelled/.test(document.querySelector("#validation-panel")?.innerText || ""));
+  check("Cancel stops the redundant-clue analysis, whichever worker it runs on", await lanesPage.locator("#redundant-btn").isEnabled());
 
   check("no uncaught errors", errors.length === 0, errors.join(" | "));
 } finally {

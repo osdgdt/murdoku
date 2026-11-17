@@ -56,7 +56,10 @@ export const DERIVE_SOLUTION_MAX_NODES = 10_000_000;
 //                     "exactly one" — genuinely unknown; must never be
 //                     treated as solved or as unsolvable
 //                     -> { status: "inconclusive", placements: null }
-export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES, timeMs = null } = {}) {
+export function deriveSolution(
+  puzzle,
+  { maxNodes = DERIVE_SOLUTION_MAX_NODES, maxWork = Infinity, timeMs = null, forwardCheckMinRemaining = 0 } = {}
+) {
   const prop = propagate(puzzle, new Map());
   if (prop.contradiction) {
     return { status: "unsatisfiable", placements: null };
@@ -65,15 +68,17 @@ export function deriveSolution(puzzle, { maxNodes = DERIVE_SOLUTION_MAX_NODES, t
   const report = checkUniqueness(puzzle, {
     maxSolutions: 2,
     maxNodes,
+    maxWork,
     timeMs,
     forwardCheck: true,
+    forwardCheckMinRemaining,
     fixedPlacements: prop.confirmed,
     domains: prop.domains,
   });
   if (report.solutionCount >= 2) {
     return { status: "ambiguous", placements: null };
   }
-  // `stoppedBy` ("nodes" | "time") tells the caller WHY it is inconclusive.
+  // `stoppedBy` ("nodes" | "work" | "time") tells the caller WHY it is inconclusive.
   if (report.solutionCount === 1) {
     return report.exhausted
       ? { status: "unique", placements: report.solutions[0] }

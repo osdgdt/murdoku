@@ -202,8 +202,10 @@ export const builders = {
       const targetsB = resolveTargetPositions(pm, puzzle, params.targetBId);
       if (targetsA === null || targetsB === null) return undefined;
       if (targetsA.length === 0 || targetsB.length === 0) return false;
-      const distA = Math.min(...targetsA.map((t) => manhattan(a, t)));
-      const distB = Math.min(...targetsB.map((t) => manhattan(a, t)));
+      let distA = Infinity;
+      for (const t of targetsA) distA = Math.min(distA, manhattan(a, t));
+      let distB = Infinity;
+      for (const t of targetsB) distB = Math.min(distB, manhattan(a, t));
       return distA < distB;
     };
   },

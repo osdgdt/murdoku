@@ -1,7 +1,9 @@
 // The optimised solver (unary domains, dynamic most-constrained ordering, incremental clue checks,
 // optional forward checking) must find EXACTLY the solutions of the plain reference search, on cases
 // of every kind: no clue, a few, contradictory, with rooms, objects and a victim. Seeded, so reproducible.
-import { solvePuzzle } from "../src/solver/solver.js";
+import { solvePuzzle, unaryDomains } from "../src/solver/solver.js";
+import { buildPredicates } from "../src/solver/predicates/index.js";
+import { isOccupiable } from "../src/model/grid.js";
 import { propagate } from "../src/solver/propagation.js";
 import { referenceSolutions } from "./reference-solver.js";
 import { randomPuzzle, rng } from "./helpers/random-puzzle.js";
@@ -15,26 +17,28 @@ const keyOf = (solution) =>
 
 export const tests = [
   {
-    name: "solver differenziale: stesso insieme di soluzioni della ricerca di riferimento (200 casi casuali, con e senza forward-check e controllo incrementale)",
+    name: "solver differenziale: stesso insieme di soluzioni della ricerca di riferimento (200 casi casuali, con e senza forward-check, controllo incrementale e salto del forward-check vicino alle foglie)",
     fn: () => {
       let withSolutions = 0;
       let withoutSolutions = 0;
       for (let seed = 1; seed <= 200; seed++) {
         const puzzle = randomPuzzle(seed);
         const expected = referenceSolutions(puzzle).sort();
-        for (const [forwardCheck, incremental] of [
-          [false, true],
-          [false, false],
-          [true, true],
+        for (const [forwardCheck, incremental, forwardCheckMinRemaining] of [
+          [false, true, 0],
+          [false, false, 0],
+          [true, true, 0],
+          // the strategy of the settle actions: no forward check when fewer than N are left to place (a different
+          // search, so also a different order of visiting, but the same set of solutions)
+          [true, true, 2],
+          [true, true, 4],
         ]) {
-          const actual = solvePuzzle(puzzle, { maxSolutions: 100000, forwardCheck, incremental }).map(keyOf).sort();
-          assertEqual(
-            actual.length,
-            expected.length,
-            `caso ${seed} (forwardCheck=${forwardCheck}, incremental=${incremental}): numero di soluzioni`
-          );
-          for (let i = 0; i < expected.length; i++)
-            assertEqual(actual[i], expected[i], `caso ${seed} (forwardCheck=${forwardCheck}, incremental=${incremental}): soluzione ${i}`);
+          const actual = solvePuzzle(puzzle, { maxSolutions: 100000, forwardCheck, incremental, forwardCheckMinRemaining })
+            .map(keyOf)
+            .sort();
+          const label = `forwardCheck=${forwardCheck}, incremental=${incremental}, minRemaining=${forwardCheckMinRemaining}`;
+          assertEqual(actual.length, expected.length, `caso ${seed} (${label}): numero di soluzioni`);
+          for (let i = 0; i < expected.length; i++) assertEqual(actual[i], expected[i], `caso ${seed} (${label}): soluzione ${i}`);
         }
         if (expected.length > 0) withSolutions++;
         else withoutSolutions++;
@@ -87,6 +91,90 @@ export const tests = [
         if (parsed.forced.length) forced++;
       }
       assert(contradictions >= 5 && forced >= 5, `serve un mix di esiti (${contradictions} contraddizioni, ${forced} forzati)`);
+    },
+  },
+  {
+    name: "propagate in modalità solo-contraddizione (controllo in avanti): stessa contraddizione di quello normale, con meno valutazioni (300 casi casuali)",
+    fn: () => {
+      let contradictions = 0;
+      let consistent = 0;
+      let saved = 0;
+      let total = 0;
+      for (let seed = 1; seed <= 300; seed++) {
+        const puzzle = randomPuzzle(seed, { maxClues: 8 });
+        const random = rng(seed * 17);
+        const { rows, cols } = puzzle.grid.size;
+        const confirmed = new Map();
+        for (const c of puzzle.characters)
+          if (random() < 0.3) confirmed.set(c.id, { row: Math.floor(random() * rows), col: Math.floor(random() * cols) });
+        const big = { maxEvaluations: Infinity, maxRounds: 50, maxSubsetOps: Infinity };
+        const normal = propagate(puzzle, confirmed, big);
+        // what the solver hands over: the cells each character can take judged alone
+        const cells = [];
+        for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (isOccupiable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
+        const unary = unaryDomains(puzzle, puzzle.characters, buildPredicates(puzzle), cells);
+        for (const startDomains of [null, unary]) {
+          const fast = propagate(puzzle, confirmed, { ...big, contradictionOnly: true, startDomains });
+          assertEqual(
+            JSON.stringify(fast.contradiction),
+            JSON.stringify(normal.contradiction),
+            `caso ${seed}${startDomains ? " (con domini unari)" : ""}: la modalità solo-contraddizione dà un verdetto diverso`
+          );
+          assert(
+            fast.evaluationsUsed <= normal.evaluationsUsed,
+            `caso ${seed}: la modalità solo-contraddizione non può usare più valutazioni`
+          );
+          saved += normal.evaluationsUsed - fast.evaluationsUsed;
+          total += normal.evaluationsUsed;
+        }
+        if (normal.contradiction) contradictions++;
+        else consistent++;
+      }
+      assert(contradictions >= 20 && consistent >= 20, `serve un mix di esiti (${contradictions} contraddizioni, ${consistent} no)`);
+      assert(saved > 0.15 * total, `deve risparmiare valutazioni (${saved} su ${total})`);
+    },
+  },
+  {
+    name: "ricerca a fette: le parti di una ricerca divisa tra più worker sono disgiunte e insieme danno la ricerca intera (200 casi casuali, con e senza forward-check)",
+    fn: () => {
+      let shared = 0;
+      let moreThanOneWorks = 0;
+      for (let seed = 1; seed <= 200; seed++) {
+        const puzzle = randomPuzzle(seed);
+        for (const [forwardCheck, forwardCheckMinRemaining] of [
+          [false, 0],
+          [true, 0],
+          [true, 4],
+        ]) {
+          const whole = solvePuzzle(puzzle, { maxSolutions: 100000, forwardCheck, forwardCheckMinRemaining }).map(keyOf).sort();
+          for (const count of [2, 3, 4]) {
+            const seen = [];
+            let working = 0;
+            for (let index = 0; index < count; index++) {
+              const part = solvePuzzle(puzzle, {
+                maxSolutions: 100000,
+                forwardCheck,
+                forwardCheckMinRemaining,
+                slice: { index, count },
+              }).map(keyOf);
+              if (part.length > 0) working++;
+              seen.push(...part);
+            }
+            assertEqual(
+              seen.sort().join("\n"),
+              whole.join("\n"),
+              `caso ${seed} (forwardCheck=${forwardCheck}, minRemaining=${forwardCheckMinRemaining}, ${count} fette): unione diversa dalla ricerca intera`
+            );
+            assertEqual(new Set(seen).size, seen.length, `caso ${seed}: una soluzione compare in due fette`);
+            if (whole.length >= count) {
+              shared++;
+              if (working >= 2) moreThanOneWorks++;
+            }
+          }
+        }
+      }
+      assert(shared >= 50, `servono casi con abbastanza soluzioni da dividere (${shared})`);
+      assert(moreThanOneWorks >= 0.5 * shared, `le fette devono dividersi il lavoro (${moreThanOneWorks} su ${shared})`);
     },
   },
 ];

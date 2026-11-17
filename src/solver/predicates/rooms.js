@@ -8,6 +8,7 @@ import {
   zonesAreAdjacent,
   isRoomCorner,
   characterHasProperty,
+  createWitnessCheck,
 } from "./helpers.js";
 
 export const builders = {
@@ -75,11 +76,13 @@ export const builders = {
     // Same shape as aloneWithPerson, but instead of checking the lone
     // companion's identity against one chosen character, checks their
     // PERSON_PROPERTY (gender, posture...) once they're known.
+    const witnessPossible = createWitnessCheck(puzzle, ownerId, params);
     return (pm, isComplete) => {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
       const za = zoneAt(puzzle, a);
       if (za === null) return false;
+      if (!witnessPossible(za, a)) return false; // nobody could ever be that companion here
       const others = [];
       let anyUndetermined = false;
       for (const c of puzzle.characters) {
@@ -92,6 +95,9 @@ export const builders = {
         if (zoneAt(puzzle, pos) === za) others.push(c.id);
       }
       if (others.length > 1) return false; // already at least two others there
+      // The one person already here can only stay (anybody else arriving makes two): if they do not have the property
+      // the clue is lost, with or without the rest of the board.
+      if (others.length === 1 && characterHasProperty(puzzle, pm, others[0], params, isComplete) === false) return false;
       if (!isComplete || anyUndetermined) return undefined;
       if (others.length !== 1) return false; // no one else there at all
       return characterHasProperty(puzzle, pm, others[0], params, isComplete) === true;
@@ -145,11 +151,13 @@ export const builders = {
   },
 
   someoneInRoomWithProperty: ({ clue, puzzle, ownerId, params }) => {
+    const witnessPossible = createWitnessCheck(puzzle, ownerId, params);
     return (pm, isComplete) => {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
       const za = zoneAt(puzzle, a);
       if (za === null) return false;
+      if (!witnessPossible(za, a)) return false; // nobody could ever be that someone in this room
       let anyUndetermined = false;
       for (const c of puzzle.characters) {
         if (c.id === ownerId) continue;

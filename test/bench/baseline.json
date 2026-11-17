@@ -1,6 +1,10 @@
 {
-  "version": 1,
-  "nodeCap": 20000,
+  "version": 3,
+  "workCap": 5000000,
+  "editorWorkCap": 200000000,
+  "strategy": {
+    "forwardCheckMinRemaining": 4
+  },
   "cases": [
     {
       "n": 10,
@@ -8,63 +12,79 @@
       "solutions": 2,
       "capped": false,
       "nodes": 13,
-      "ms": 41
+      "evaluations": 45665,
+      "work": 45704,
+      "ms": 23
     },
     {
       "n": 10,
       "seed": 3,
       "solutions": 2,
       "capped": false,
-      "nodes": 190,
-      "ms": 99
+      "nodes": 836,
+      "evaluations": 81696,
+      "work": 84204,
+      "ms": 43
     },
     {
       "n": 10,
       "seed": 4,
       "solutions": 2,
       "capped": false,
-      "nodes": 3382,
-      "ms": 405
+      "nodes": 8486,
+      "evaluations": 205237,
+      "work": 230695,
+      "ms": 111
     },
     {
       "n": 10,
       "seed": 5,
       "solutions": 2,
       "capped": false,
-      "nodes": 508,
-      "ms": 61
+      "nodes": 680,
+      "evaluations": 69558,
+      "work": 71598,
+      "ms": 23
     },
     {
       "n": 10,
       "seed": 6,
       "solutions": 0,
       "capped": true,
-      "nodes": 20000,
-      "ms": 3960
+      "nodes": 150825,
+      "evaluations": 4547540,
+      "work": 5000015,
+      "ms": 2101
     },
     {
       "n": 12,
       "seed": 1,
       "solutions": 2,
       "capped": false,
-      "nodes": 7318,
-      "ms": 1732
+      "nodes": 45609,
+      "evaluations": 828102,
+      "work": 964929,
+      "ms": 708
     },
     {
       "n": 12,
       "seed": 2,
       "solutions": 0,
       "capped": true,
-      "nodes": 20000,
-      "ms": 9363
+      "nodes": 110420,
+      "evaluations": 4668742,
+      "work": 5000002,
+      "ms": 3088
     },
     {
       "n": 12,
       "seed": 3,
       "solutions": 2,
       "capped": false,
-      "nodes": 58,
-      "ms": 115
+      "nodes": 73,
+      "evaluations": 106839,
+      "work": 107058,
+      "ms": 39
     },
     {
       "n": 12,
@@ -72,55 +92,69 @@
       "solutions": 2,
       "capped": false,
       "nodes": 24,
-      "ms": 63
+      "evaluations": 113846,
+      "work": 113918,
+      "ms": 36
     },
     {
       "n": 12,
       "seed": 5,
       "solutions": 0,
       "capped": true,
-      "nodes": 20000,
-      "ms": 1640
+      "nodes": 201915,
+      "evaluations": 4394266,
+      "work": 5000011,
+      "ms": 2699
     },
     {
       "n": 14,
       "seed": 1,
       "solutions": 0,
       "capped": true,
-      "nodes": 20000,
-      "ms": 4773
+      "nodes": 100854,
+      "evaluations": 4697446,
+      "work": 5000008,
+      "ms": 3985
     },
     {
       "n": 14,
       "seed": 2,
       "solutions": 2,
       "capped": false,
-      "nodes": 14461,
-      "ms": 2171
+      "nodes": 30687,
+      "evaluations": 904792,
+      "work": 996853,
+      "ms": 671
     },
     {
       "n": 14,
       "seed": 3,
       "solutions": 2,
       "capped": false,
-      "nodes": 1762,
-      "ms": 331
+      "nodes": 4102,
+      "evaluations": 367552,
+      "work": 379858,
+      "ms": 130
     },
     {
       "n": 14,
       "seed": 4,
       "solutions": 2,
       "capped": false,
-      "nodes": 7429,
-      "ms": 861
+      "nodes": 12272,
+      "evaluations": 558217,
+      "work": 595033,
+      "ms": 306
     },
     {
       "n": 16,
       "seed": 1,
       "solutions": 0,
       "capped": true,
-      "nodes": 20000,
-      "ms": 3117
+      "nodes": 184964,
+      "evaluations": 4445109,
+      "work": 5000001,
+      "ms": 3038
     },
     {
       "n": 16,
@@ -128,23 +162,40 @@
       "solutions": 2,
       "capped": false,
       "nodes": 51,
-      "ms": 692
+      "evaluations": 348720,
+      "work": 348873,
+      "ms": 125
     },
     {
       "n": 16,
       "seed": 3,
       "solutions": 0,
       "capped": true,
-      "nodes": 20000,
-      "ms": 6816
+      "nodes": 124384,
+      "evaluations": 4626864,
+      "work": 5000016,
+      "ms": 3983
     },
     {
       "n": 16,
       "seed": 4,
       "solutions": 2,
       "capped": false,
-      "nodes": 14379,
-      "ms": 5104
+      "nodes": 38607,
+      "evaluations": 2721081,
+      "work": 2836902,
+      "ms": 1453
+    }
+  ],
+  "editorCases": [
+    {
+      "file": "tragedia-piastra-pendolina.murdoku.json",
+      "solutions": 1,
+      "capped": false,
+      "nodes": 1188092,
+      "evaluations": 11097688,
+      "work": 14661964,
+      "ms": 3962
     }
   ]
 }

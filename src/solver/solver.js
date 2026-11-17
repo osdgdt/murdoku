@@ -19,6 +19,20 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // `stats` out-param is passed, it's filled with `{ nodesVisited, nodeCapHit }`
 // so callers can tell whether the returned solutions are the complete set.
 //
+// `maxWork` is a second, deterministic budget: clue evaluations plus WORK_NODE_WEIGHT per node (see stats.evaluations).
+// Unlike `maxNodes` it means the same effort whatever the search strategy (a node with forward checking costs ~15
+// times one without), so it is the budget to use when the strategy may change. `stats.workCapHit` says it ended the search.
+//
+// `forwardCheckMinRemaining` (default 0 = forward-check at every node): skip the forward check when fewer characters than
+// this are still to place. Near the leaves a subtree is small and the check costs more than it saves; on a hard 9x9 case
+// 4 is ~25% faster in time although it visits 4x more nodes (so judge it by `maxWork`, not by `maxNodes`).
+//
+// `slice` ({ index, count }, default null = the whole search): explore only the index-th of `count` parts of the search tree,
+// so that `count` workers can each take one and, together, visit every node exactly once. The parts are cut at the second
+// level of the tree (every free cell of the second character, over every first move, is dealt out in turn), which is
+// deterministic because the search is: every worker makes the same choices up to that level and only descends into its
+// own share. `stats.nodesVisited` etc. then count the work of that part alone.
+//
 // `forwardCheck` (opt-in, default false — every existing caller/test is
 // completely unaffected unless it explicitly asks for this) makes the search
 // propagation-aware: after a tentative placement passes its own
@@ -62,14 +76,20 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // `deadline` (a performance.now() time in ms) and `shouldStop()` are wall-clock/cooperative
 // limits, polled every few hundred nodes: when either fires the search stops like a node cap
 // and `stats.timedOut` says so. Without them a pathological case can run for minutes.
+// A node weighs this many clue evaluations when work is added up (measured: ~1 us per node and ~0.33 us per evaluation).
+export const WORK_NODE_WEIGHT = 3;
+
 export function solvePuzzle(
   puzzle,
   {
     maxSolutions = 2,
     fixedPlacements = null,
     maxNodes = Infinity,
+    maxWork = Infinity,
     stats = null,
     forwardCheck = false,
+    forwardCheckMinRemaining = 0,
+    slice = null,
     domains = null,
     deadline = null,
     shouldStop = null,
@@ -117,10 +137,15 @@ export function solvePuzzle(
   const usedCols = new Set();
   const placementMap = new Map();
   let nodesVisited = 0;
+  // The work done, in clue evaluations (every predicate call, the search's own and the forward checks'): unlike the
+  // node count it stays comparable when the search strategy changes (a node can cost 2 µs or 30 µs), and unlike
+  // the time it does not depend on the machine. Reported in `stats.evaluations`.
+  let evaluations = 0;
   let nodeCapHit = false;
+  let workCapHit = false;
   let timedOut = false;
   const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
-  const stopped = () => nodeCapHit || timedOut;
+  const stopped = () => nodeCapHit || workCapHit || timedOut;
   // Polled every 256 nodes (a node is cheap, a clock read is not free).
   function timeIsUp() {
     if ((nodesVisited & 255) !== 0) return false;
@@ -132,7 +157,9 @@ export function solvePuzzle(
   // header), else every occupiable cell. Cells that cannot hold anyone are dropped once, here.
   const allCells = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (isOccupiable(puzzle.grid, r, c)) allCells.push({ row: r, col: c });
-  const given = domains ?? unaryDomains(puzzle, characters, predicates, allCells);
+  const unaryWork = { n: 0 };
+  const given = domains ?? unaryDomains(puzzle, characters, predicates, allCells, unaryWork);
+  evaluations += unaryWork.n;
   const candidates = new Map();
   for (const character of characters) {
     const fixed = fixedPlacements && fixedPlacements.get(character.id);
@@ -143,6 +170,8 @@ export function solvePuzzle(
     );
   }
 
+  const sliceDepth = order.length >= 2 ? 1 : 0; // the level of the tree at which a slice's share is dealt out
+  let sliceCounter = 0;
   const isFree = ({ row, col }) => !usedRows.has(row) && !usedCols.has(col);
 
   // How many cells `character` still has (stops counting at `limit`).
@@ -157,6 +186,7 @@ export function solvePuzzle(
   function violatesAny() {
     const complete = placementMap.size === order.length;
     for (const { predicate } of predicates) {
+      evaluations++;
       const result = predicate(placementMap, complete);
       if (result === false) return true;
     }
@@ -182,9 +212,17 @@ export function solvePuzzle(
   }
   function violatesAfterPlacing(characterId) {
     const complete = placementMap.size === order.length;
-    for (const predicate of alwaysChecked) if (predicate(placementMap, complete) === false) return true;
+    for (const predicate of alwaysChecked) {
+      evaluations++;
+      if (predicate(placementMap, complete) === false) return true;
+    }
     const own = checkedAfter.get(characterId);
-    if (own) for (const predicate of own) if (predicate(placementMap, complete) === false) return true;
+    if (own) {
+      for (const predicate of own) {
+        evaluations++;
+        if (predicate(placementMap, complete) === false) return true;
+      }
+    }
     return false;
   }
 
@@ -199,17 +237,21 @@ export function solvePuzzle(
       // read as a green light to prune, only a definite `contradiction` may
       // prune, so an inconclusive check degrades gracefully to plain
       // backtracking for that one node instead of risking unsoundness.
-      const stillPromising =
-        !forwardCheck ||
-        placementMap.size >= order.length ||
-        !propagate(puzzle, placementMap, {
+      let stillPromising = true;
+      if (forwardCheck && placementMap.size < order.length && order.length - placementMap.size >= forwardCheckMinRemaining) {
+        const checked = propagate(puzzle, placementMap, {
           predicates,
           dependencies: incremental ? entryDependencies : null,
           incremental,
           maxRounds: FORWARD_CHECK_MAX_ROUNDS,
           maxEvaluations: FORWARD_CHECK_MAX_EVALUATIONS,
           maxSubsetOps: FORWARD_CHECK_MAX_SUBSET_OPS,
-        }).contradiction;
+          contradictionOnly: true,
+          startDomains: candidates,
+        });
+        evaluations += checked.evaluationsUsed ?? 0;
+        stillPromising = !checked.contradiction;
+      }
       if (stillPromising) backtrack();
     }
     usedRows.delete(r);
@@ -238,9 +280,14 @@ export function solvePuzzle(
     }
     for (const cell of candidates.get(next.id)) {
       if (!isFree(cell)) continue;
+      if (slice && placementMap.size === sliceDepth && sliceCounter++ % slice.count !== slice.index) continue;
       nodesVisited++;
       if (nodesVisited >= maxNodes) {
         nodeCapHit = true;
+        return;
+      }
+      if (evaluations + WORK_NODE_WEIGHT * nodesVisited >= maxWork) {
+        workCapHit = true;
         return;
       }
       if (timeIsUp()) return;
@@ -255,7 +302,9 @@ export function solvePuzzle(
 
   if (stats) {
     stats.nodesVisited = nodesVisited;
+    stats.evaluations = evaluations;
     stats.nodeCapHit = nodeCapHit;
+    stats.workCapHit = workCapHit;
     stats.timedOut = timedOut;
   }
 
@@ -265,7 +314,7 @@ export function solvePuzzle(
 // The cells each character can take judged ALONE: a cell goes if some clue is already false
 // with just that character placed there. Sound by the predicates' own contract (a predicate
 // never rejects a partial placement that can still be completed), so no solution is lost.
-export function unaryDomains(puzzle, characters, predicates, cells) {
+export function unaryDomains(puzzle, characters, predicates, cells, work = null) {
   const domains = new Map();
   const alone = characters.length === 1;
   for (const character of characters) {
@@ -274,6 +323,7 @@ export function unaryDomains(puzzle, characters, predicates, cells) {
       const map = new Map([[character.id, cell]]);
       let ok = true;
       for (const { predicate } of predicates) {
+        if (work) work.n++;
         if (predicate(map, alone) === false) {
           ok = false;
           break;

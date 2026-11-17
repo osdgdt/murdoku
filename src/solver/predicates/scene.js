@@ -88,29 +88,71 @@ export const builders = {
   },
 
   emptyRoomsSameSize: ({ clue, puzzle, ownerId, params }) => {
+    const zones = puzzle.grid.zones;
+    const { rows, cols } = puzzle.grid.size;
+    // computed once, not on every call: this predicate runs hundreds of thousands of times in a hard search
+    const sizes = zones.map((z) => zoneCellCount(puzzle.grid, z.id));
+    const distinctSizes = [...new Set(sizes)];
+    const sizeIndex = sizes.map((size) => distinctSizes.indexOf(size));
+    const cellZone = new Int16Array(rows * cols).fill(-1); // cell -> index in `zones`, -1 outside any room
+    zones.forEach((z, i) => {
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (puzzle.grid.cells[r][c].zoneId === z.id) cellZone[r * cols + c] = i;
+    });
+    const occupied = new Uint8Array(zones.length); // scratch space, reset on every call
+    const freeBySize = new Int32Array(distinctSizes.length);
+    const total = puzzle.characters.length;
     return (pm, isComplete) => {
-      const zones = puzzle.grid.zones;
-      const occupiedZones = new Set();
+      occupied.fill(0);
+      let occupiedCount = 0;
+      let placed = 0;
       for (const c of puzzle.characters) {
         const pos = posOfCharacter(pm, c.id);
         if (!pos) continue;
-        const z = zoneAt(puzzle, pos);
-        if (z !== null) occupiedZones.add(z);
+        placed++;
+        if (pos.row < 0 || pos.row >= rows || pos.col < 0 || pos.col >= cols) continue;
+        const z = cellZone[pos.row * cols + pos.col];
+        if (z >= 0 && !occupied[z]) {
+          occupied[z] = 1;
+          occupiedCount++;
+        }
       }
       // Same early-prune shape as roomsWithStateCount: confirmed-occupied
       // zones only ever grow, so a bound that's already too tight to reach
       // `count` empty zones stays too tight regardless of what follows.
-      const guaranteedEmpty = zones.length - occupiedZones.size;
+      const guaranteedEmpty = zones.length - occupiedCount;
       if (guaranteedEmpty < params.count) return false;
-      if (!isComplete) return undefined;
-      const emptyZones = zones.filter((z) => !occupiedZones.has(z.id));
-      if (emptyZones.length !== params.count) return false;
-      const sizes = new Set(emptyZones.map((z) => zoneCellCount(puzzle.grid, z.id)));
-      return sizes.size <= 1;
+      // The clue says EXACTLY `count` rooms stay empty, so exactly `zones.length - count` rooms must end up occupied.
+      // Every character still to place fills at most one more room: if the rooms still to fill outnumber them, no
+      // completion can work. (Before this the check only fired once the placement was complete, so a case whose other
+      // clues leave many solutions made the search visit hundreds of thousands of nodes.)
+      if (guaranteedEmpty - params.count > total - placed) return false;
+      if (!isComplete) {
+        // The rooms that end up empty are among the ones still unoccupied and must all have the same size: some size
+        // has to be shared by at least `count` of them (this is the check that prunes most).
+        if (params.count > 1) {
+          freeBySize.fill(0);
+          let enough = false;
+          for (let i = 0; i < zones.length && !enough; i++) {
+            if (!occupied[i] && ++freeBySize[sizeIndex[i]] >= params.count) enough = true;
+          }
+          if (!enough) return false;
+        }
+        return undefined;
+      }
+      let emptyCount = 0;
+      let firstSize = -1;
+      for (let i = 0; i < zones.length; i++) {
+        if (occupied[i]) continue;
+        emptyCount++;
+        if (firstSize === -1) firstSize = sizeIndex[i];
+        else if (sizeIndex[i] !== firstSize) return false; // the empty rooms differ in size
+      }
+      return emptyCount === params.count;
     };
   },
 
   sameRoomSizeAs: ({ clue, puzzle, ownerId, params }) => {
+    const sizeOf = new Map(puzzle.grid.zones.map((z) => [z.id, zoneCellCount(puzzle.grid, z.id)])); // once, not per call
     return (pm) => {
       const a = posOfCharacter(pm, params.targetAId);
       const b = posOfCharacter(pm, params.targetBId);
@@ -118,7 +160,7 @@ export const builders = {
       const za = zoneAt(puzzle, a);
       const zb = zoneAt(puzzle, b);
       if (za === null || zb === null) return false;
-      return zoneCellCount(puzzle.grid, za) === zoneCellCount(puzzle.grid, zb);
+      return sizeOf.get(za) === sizeOf.get(zb);
     };
   },
 

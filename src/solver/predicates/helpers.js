@@ -1,5 +1,5 @@
 import { isAdjacent } from "../../util/geometry.js";
-import { cellAt, edgeCells, isUsable } from "../../model/grid.js";
+import { cellAt, edgeCells, isUsable, isOccupiable } from "../../model/grid.js";
 import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeSeat, isEdgeObjectType } from "../../model/icons.js";
 import { buildPredicate } from "./index.js";
 
@@ -224,4 +224,35 @@ export function isMoreExtreme(direction, a, b) {
     default:
       return false;
   }
+}
+
+// Could somebody OTHER than `ownerId` still satisfy `params` (a PERSON_PROPERTY) inside the room the owner stands in?
+// Judged on the fixed map and the cast alone, never on where people are (so it is as valid on a half-built board as on a
+// finished one, and it never mistakes a player's wrong placement for a rule): a gender nobody else has, or a room with
+// no seat/stool for another person to sit on, can never work, and the search can drop that placement at once instead
+// of finding out when the board is complete. Returns (zoneId, ownerPosition) -> boolean, true whenever nothing is known.
+export function createWitnessCheck(puzzle, ownerId, params) {
+  const property = params.property;
+  // the cast is read on every call, not captured: a character's gender can change after the predicate is built
+  if (property === "male" || property === "female") return () => puzzle.characters.some((c) => c.id !== ownerId && c.gender === property);
+  if (property === "sittingOn" || property === "seated") {
+    const cellsByZone = new Map(); // zoneId -> the cells of that room where somebody could sit as asked
+    const { rows, cols } = puzzle.grid.size;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cell = cellAt(puzzle.grid, r, c);
+        if (!cell || !cell.zoneId || !cell.objectId || !isOccupiable(puzzle.grid, r, c)) continue;
+        const obj = puzzle.grid.objects.find((o) => o.id === cell.objectId);
+        if (!obj) continue;
+        const matches = property === "seated" ? isObjectTypeSeat(obj.typeId) : obj.typeId === params.objectTypeId;
+        if (!matches) continue;
+        if (!cellsByZone.has(cell.zoneId)) cellsByZone.set(cell.zoneId, []);
+        cellsByZone.get(cell.zoneId).push({ row: r, col: c });
+      }
+    }
+    return (zoneId, ownerPos) =>
+      puzzle.characters.length > 1 &&
+      (cellsByZone.get(zoneId) ?? []).some((cell) => !ownerPos || cell.row !== ownerPos.row || cell.col !== ownerPos.col);
+  }
+  return () => true; // adjacentTo / custom / no filter: nothing static to say
 }

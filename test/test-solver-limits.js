@@ -2,7 +2,7 @@ import { createPuzzle, addCharacter } from "../src/model/puzzle.js";
 import { resizeGrid } from "../src/model/grid.js";
 import { solvePuzzle } from "../src/solver/solver.js";
 import { checkUniqueness } from "../src/solver/validator.js";
-import { limitsFor, sizeFactor } from "../src/solver/limits.js";
+import { limitsFor, sizeFactor, searchBudget } from "../src/solver/limits.js";
 import { createBudget } from "../src/solver/hintBudget.js";
 import { findRedundantClues } from "../src/solver/redundancy.js";
 import { checkUniquenessAsync, SolverCancelled } from "../src/solver/solverClient.js";
@@ -69,13 +69,51 @@ export const tests = [
     },
   },
   {
-    name: "limiti: invariati fino a 9x9, crescono con la griglia (16x16 ~ 3,2 volte)",
+    name: "checkUniqueness: un tetto sul lavoro dà stoppedBy='work', è deterministico e non dipende dai nodi",
+    fn: () => {
+      const run = () => checkUniqueness(open(6, 5), { maxSolutions: 1_000_000, maxWork: 20_000, forwardCheck: true });
+      const a = run();
+      assertEqual(a.exhausted, false);
+      assertEqual(a.stoppedBy, "work");
+      assertEqual(a.unique, false, "mai «unica» se la ricerca è stata fermata da un limite");
+      assert(
+        a.evaluations + 3 * a.nodesVisited >= 20_000 && a.evaluations + 3 * a.nodesVisited < 20_000 + 20_000,
+        "si ferma poco oltre il tetto"
+      );
+      const b = run();
+      assertEqual(b.nodesVisited, a.nodesVisited, "stessi nodi a ogni esecuzione");
+      assertEqual(b.evaluations, a.evaluations, "stesso lavoro a ogni esecuzione");
+      const free = checkUniqueness(open(4, 3), { maxSolutions: 1000, maxWork: 1e12 });
+      assertEqual(free.exhausted, true, "un tetto ampio non ferma nulla");
+    },
+  },
+  {
+    name: "searchBudget: passa al solutore solo tetto sul lavoro, tempo e strategia (non il vecchio tetto di nodi)",
+    fn: () => {
+      const budget = searchBudget(limitsFor(open(9, 2)).uniqueness);
+      assertEqual(Object.keys(budget).sort().join(), "forwardCheckMinRemaining,maxWork,parallel,timeMs");
+      assertEqual(budget.parallel, true, "la verifica di unicità può dividersi tra più worker");
+      assertEqual(
+        searchBudget(limitsFor(open(9, 2)).redundancy).parallel,
+        undefined,
+        "i tanti piccoli controlli degli indizi superflui no"
+      );
+    },
+  },
+  {
+    name: "limiti: uguali fino a 9x9, crescono con la griglia (16x16 ~ 3,2 volte)",
     fn: () => {
       assertEqual(sizeFactor(open(3, 2)), 1);
       assertEqual(sizeFactor(open(9, 2)), 1);
       const nine = limitsFor(open(9, 2));
-      assertEqual(nine.uniqueness.maxNodes, 200_000, "i numeri di sempre");
-      assertEqual(nine.uniqueness.timeMs, 10_000);
+      assertEqual(nine.uniqueness.maxWork, 60_000_000);
+      assertEqual(nine.uniqueness.timeMs, 30_000);
+      assertEqual(nine.uniqueness.maxNodes, 600_000, "il tetto di nodi resta per chi lo usa ancora");
+      assertEqual(nine.redundancy.maxNodes, 200_000, "gli altri numeri restano quelli di sempre");
+      assertEqual(nine.hints.maxNodes, 2_000_000, "i suggerimenti restano a nodi");
+      assert(nine.hints.maxWork === undefined && nine.hints.forwardCheckMinRemaining === undefined, "e con la loro strategia di sempre");
+      for (const key of ["uniqueness", "redundancy", "confirm", "derive"])
+        assertEqual(nine[key].forwardCheckMinRemaining, 4, `${key}: strategia di chiusura`);
       const big = limitsFor(open(16, 2));
       assert(Math.abs(sizeFactor(open(16, 2)) - (16 / 9) ** 2) < 1e-9);
       for (const key of Object.keys(nine)) {

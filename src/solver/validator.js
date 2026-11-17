@@ -75,7 +75,7 @@ export function validateSolution(puzzle) {
 //   exhausted: true  the search ran to its natural end under the limits, so `solutionCount` is the
 //                    whole truth (0 = no solution exists, 1 = unique), unless it stopped early
 //                    because it found `maxSolutions` (then there are AT LEAST that many)
-//   exhausted: false a limit (nodes or time, see `stoppedBy`) ended it: with `solutionCount` 0
+//   exhausted: false a limit (nodes, work or time, see `stoppedBy`) ended it: with `solutionCount` 0
 //                    that is "gave up", NOT "no solution"; with 1 it is "found one, could not
 //                    rule out others" and NOT "unique"
 // `truncated` (older name) is true when the list may be incomplete for either reason.
@@ -84,7 +84,10 @@ export function checkUniqueness(
   {
     maxSolutions = 2,
     maxNodes = Infinity,
+    maxWork = Infinity,
     forwardCheck = false,
+    forwardCheckMinRemaining = 0,
+    slice = null,
     fixedPlacements = null,
     domains = null,
     timeMs = null,
@@ -93,8 +96,20 @@ export function checkUniqueness(
 ) {
   const stats = {};
   const deadline = timeMs == null ? null : (typeof performance !== "undefined" ? performance.now() : Date.now()) + timeMs;
-  const solutions = solvePuzzle(puzzle, { maxSolutions, maxNodes, stats, forwardCheck, fixedPlacements, domains, deadline, shouldStop });
-  const stoppedBy = stats.timedOut ? "time" : stats.nodeCapHit ? "nodes" : null;
+  const solutions = solvePuzzle(puzzle, {
+    maxSolutions,
+    maxNodes,
+    maxWork,
+    stats,
+    forwardCheck,
+    forwardCheckMinRemaining,
+    slice,
+    fixedPlacements,
+    domains,
+    deadline,
+    shouldStop,
+  });
+  const stoppedBy = stats.timedOut ? "time" : stats.workCapHit ? "work" : stats.nodeCapHit ? "nodes" : null;
   return {
     solutionCount: solutions.length,
     unique: solutions.length === 1 && !stoppedBy,
@@ -103,5 +118,6 @@ export function checkUniqueness(
     exhausted: !stoppedBy,
     stoppedBy,
     nodesVisited: stats.nodesVisited,
+    evaluations: stats.evaluations,
   };
 }

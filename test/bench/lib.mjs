@@ -5,7 +5,7 @@ import { createPuzzle, addCharacter, setSolutionPlacement } from "../../src/mode
 import { resizeGrid, addZone, paintCellZone, placeObject } from "../../src/model/grid.js";
 import { validateSolution } from "../../src/solver/validator.js";
 import { suggestClues } from "../../src/solver/suggestions.js";
-import { solvePuzzle } from "../../src/solver/solver.js";
+import { solvePuzzle, WORK_NODE_WEIGHT } from "../../src/solver/solver.js";
 import { rng } from "../helpers/random-puzzle.js";
 
 const OBJECT_TYPES = ["chair", "plant", "table", "lamp", "rug", "shelf"];
@@ -81,15 +81,27 @@ export function benchCase(n, seed, { perSuspect = 4 } = {}) {
   return puzzle;
 }
 
+// The cost of a search, machine-independent: clue evaluations plus a charge per node. Measured on a hard 9x9 case with
+// and without forward checking, time came out as ~0.33 µs per evaluation + ~1 µs per node, so a node weighs 3 evaluations.
+// Unlike the node count, `work` stays comparable when the search strategy changes (a node with forward checking costs
+// ~30 µs, one without ~2 µs).
+export const NODE_WEIGHT = WORK_NODE_WEIGHT;
+export const workOf = ({ nodes, evaluations }) => evaluations + NODE_WEIGHT * nodes;
+
 // What a check of uniqueness costs on `puzzle`, under a node budget: how the search ended and how much work it took.
-export function measure(puzzle, { maxNodes = 20000, incremental = true } = {}) {
+export function measure(
+  puzzle,
+  { maxNodes = 20000, maxWork = Infinity, incremental = true, forwardCheck = true, forwardCheckMinRemaining = 0 } = {}
+) {
   const stats = {};
   const started = performance.now();
-  const solutions = solvePuzzle(puzzle, { maxSolutions: 2, maxNodes, stats, forwardCheck: true, incremental });
-  return {
+  const solutions = solvePuzzle(puzzle, { maxSolutions: 2, maxNodes, maxWork, stats, forwardCheck, forwardCheckMinRemaining, incremental });
+  const result = {
     solutions: solutions.length,
-    capped: !!stats.nodeCapHit,
+    capped: !!(stats.nodeCapHit || stats.workCapHit),
     nodes: stats.nodesVisited,
+    evaluations: stats.evaluations,
     ms: Math.round(performance.now() - started),
   };
+  return { ...result, work: workOf(result) };
 }

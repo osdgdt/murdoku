@@ -8,8 +8,11 @@
 // imported modules touch document/window).
 //
 // Protocol:
-//   request  -> { id: number, type: "computeHintChain"|"deriveSolution"|"checkUniqueness"|"analyze"|"compose", payload }
+//   request  -> { id: number, type: "computeHintChain"|"deriveSolution"|"checkUniqueness"|"analyze"|"compose", payload,
+//                 progress?: boolean }
 //   response -> { id: number, ok: true, result } | { id: number, ok: false, error: string }
+//   while it works, and only for a request that set `progress`:  { id: number, progress: number }  (0..1, an estimate,
+//   never going back); these are not answers: the request stays open until the one with `ok`
 // `error` is always a plain string (not an Error instance) — reconstructed
 // as a real Error on the client side instead, avoiding any doubt about
 // Error's structured-clone support varying across engines.
@@ -27,17 +30,19 @@ const ready = (async () => {
     import("./analysis.js"),
     import("./composer.js"),
   ]);
+  // `report(fraction)` is the request's progress callback, or null when the page did not ask for progress
   handlers = {
-    computeHintChain: (payload) => computeHintChain(payload.puzzle, payload.currentPlacements, payload.candidates),
-    deriveSolution: (payload) => deriveSolution(payload.puzzle, payload.options || {}),
-    checkUniqueness: (payload) => checkUniqueness(payload.puzzle, payload.options || {}),
+    computeHintChain: (payload, report) =>
+      computeHintChain(payload.puzzle, payload.currentPlacements, payload.candidates, { unlimited: true, onProgress: report }),
+    deriveSolution: (payload, report) => deriveSolution(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
+    checkUniqueness: (payload, report) => checkUniqueness(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
     analyze: (payload) => analyzePuzzle(payload.puzzle, payload.options || {}),
-    compose: (payload) => proposeClueSet(payload.puzzle, payload.options || {}),
+    compose: (payload, report) => proposeClueSet(payload.puzzle, { ...(payload.options || {}), onProgress: report }),
   };
 })();
 
 self.onmessage = async (event) => {
-  const { id, type, payload } = event.data || {};
+  const { id, type, payload, progress } = event.data || {};
   try {
     await ready;
   } catch (err) {
@@ -50,7 +55,8 @@ self.onmessage = async (event) => {
     return;
   }
   try {
-    self.postMessage({ id, ok: true, result: handler(payload) });
+    const report = progress ? (fraction) => self.postMessage({ id, progress: fraction }) : null;
+    self.postMessage({ id, ok: true, result: handler(payload, report) });
   } catch (err) {
     self.postMessage({ id, ok: false, error: (err && err.message) || String(err) });
   }

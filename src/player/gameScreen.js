@@ -23,8 +23,8 @@ import { characterIndexForKey, stepForKey, steppedCharacter } from "./characterK
 import { announce } from "../util/announcer.js";
 import { snapshotBoard, describeBoardChange, describeSelection } from "./announcements.js";
 import { describeClue } from "../model/clueTypes.js";
-import { limitsFor } from "../solver/limits.js";
-import { startProgress } from "./progressBanner.js";
+import { monotonic, staged } from "../solver/progress.js";
+import { startProgress } from "../util/progressBanner.js";
 import { notifyInTitle } from "../util/tabTitle.js";
 import { t } from "../i18n/i18n.js";
 
@@ -95,7 +95,6 @@ export function createGameScreen({
     saveBoard();
   };
   const effectiveSolution = createEffectiveSolution(answerPuzzle);
-  const limits = limitsFor(answerPuzzle);
   let hintAbort = null; // AbortController of the hint being worked out, if any
   let submitAbort = null; // ... and of the solution check
 
@@ -369,20 +368,24 @@ export function createGameScreen({
     const mine = hintAbort;
     const progress = startProgress({
       label: t("Sto calcolando un suggerimento…"),
-      expectedMs: limits.hints.timeMs,
       onCancel: () => mine.abort(),
+      className: "result-banner hint-info",
     });
+    // a hint may need two jobs one after the other (the deduction, then the full solution when the deduction is stuck):
+    // they share the bar as the stages of one (solver/progress.js)
+    const bar = monotonic(progress.update);
     hintPanel.appendChild(progress.node);
     hintPanel.setAttribute("aria-busy", "true");
     try {
+      // no time limit: the hint is worked out until it is ready or the player cancels
       hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates, {
         signal: mine.signal,
-        timeMs: limits.hints.timeMs,
+        onProgress: (fraction) => bar(staged(0, fraction)),
       });
       await extendChainWithOracleStep(hintChain, {
         puzzle,
         placements: state.placements,
-        getEffectiveSolution: () => effectiveSolution.get({ signal: mine.signal }),
+        getEffectiveSolution: () => effectiveSolution.get({ signal: mine.signal, onProgress: (fraction) => bar(staged(1, fraction)) }),
       });
       countHintIfReal();
       hintChainIndex = 0;
@@ -413,13 +416,13 @@ export function createGameScreen({
     const mine = submitAbort;
     const progress = startProgress({
       label: t("Sto verificando la soluzione…"),
-      expectedMs: limits.confirm.timeMs,
       onCancel: () => mine.abort(),
+      className: "result-banner hint-info",
     });
     resultEl.appendChild(progress.node);
     resultEl.setAttribute("aria-busy", "true");
     try {
-      const effective = await effectiveSolution.get({ signal: mine.signal });
+      const effective = await effectiveSolution.get({ signal: mine.signal, onProgress: progress.update });
       clear(resultEl);
       if (effective.status !== "unique") {
         const message =

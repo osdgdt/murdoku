@@ -58,7 +58,14 @@ export const DERIVE_SOLUTION_MAX_NODES = 10_000_000;
 //                     -> { status: "inconclusive", placements: null }
 export function deriveSolution(
   puzzle,
-  { maxNodes = DERIVE_SOLUTION_MAX_NODES, maxWork = Infinity, timeMs = null, forwardCheckMinRemaining = 0 } = {}
+  {
+    maxNodes = DERIVE_SOLUTION_MAX_NODES,
+    maxWork = Infinity,
+    timeMs = null,
+    forwardCheckMinRemaining = 0,
+    onProgress = null,
+    progressIntervalMs,
+  } = {}
 ) {
   const prop = propagate(puzzle, new Map());
   if (prop.contradiction) {
@@ -74,6 +81,8 @@ export function deriveSolution(
     forwardCheckMinRemaining,
     fixedPlacements: prop.confirmed,
     domains: prop.domains,
+    onProgress,
+    progressIntervalMs,
   });
   if (report.solutionCount >= 2) {
     return { status: "ambiguous", placements: null };

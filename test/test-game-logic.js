@@ -89,6 +89,43 @@ export const tests = [
     },
   },
   {
+    name: "effectiveSolution: l'avanzamento arriva a chi aspetta (anche in due), le due ricerche in sequenza dividono la barra senza tornare indietro, e a lavoro finito è 1",
+    fn: async () => {
+      const { p } = build();
+      const { deps: d } = deps({
+        // the quick check of the declared solution cannot settle it, so the full derivation follows
+        checkUniquenessAsync: async (_puzzle, _options, { onProgress }) => {
+          await Promise.resolve(); // a worker reports later, never inside the call that started it
+          onProgress(0.3);
+          onProgress(1);
+          return { solutionCount: 1, truncated: true };
+        },
+        deriveSolutionAsync: async (_puzzle, _options, { onProgress }) => {
+          onProgress(0);
+          onProgress(0.5);
+          onProgress(1);
+          return { status: "unique", placements: [] };
+        },
+      });
+      const eff = createEffectiveSolution(p, d);
+      const first = [];
+      const second = [];
+      await Promise.all([eff.get({ onProgress: (f) => first.push(f) }), eff.get({ onProgress: (f) => second.push(f) })]);
+      for (const heard of [first, second]) {
+        assert(heard.length >= 5, `ogni chi aspetta sente i numeri (${heard.length})`);
+        assert(
+          heard.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= heard[i - 1])),
+          `tra 0 e 1 e mai all'indietro: ${heard.map((v) => v.toFixed(2))}`
+        );
+        assertEqual(heard[heard.length - 1], 1, "a lavoro finito è 1");
+      }
+      // a late comer, when the answer is already known: at once 1
+      const late = [];
+      await eff.get({ onProgress: (f) => late.push(f) });
+      assertEqual(JSON.stringify(late), "[1]");
+    },
+  },
+  {
     name: "effectiveSolution: un errore transitorio non resta memorizzato, il tentativo successivo riprova",
     fn: async () => {
       const { p } = build();

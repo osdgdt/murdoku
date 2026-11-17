@@ -69,7 +69,7 @@ export function validateSolution(puzzle) {
 // and sees byte-identical behavior.
 //
 // `timeMs` is a wall-clock limit (the search stops when it runs out, like a node cap); `shouldStop`
-// is a cooperative stop callback.
+// is a cooperative stop callback; `onProgress(fraction)` hears of the estimated progress (see solver.js).
 //
 // What the report means (read `exhausted`, not just the count):
 //   exhausted: true  the search ran to its natural end under the limits, so `solutionCount` is the
@@ -92,6 +92,8 @@ export function checkUniqueness(
     domains = null,
     timeMs = null,
     shouldStop = null,
+    onProgress = null,
+    progressIntervalMs,
   } = {}
 ) {
   const stats = {};
@@ -108,6 +110,8 @@ export function checkUniqueness(
     domains,
     deadline,
     shouldStop,
+    onProgress,
+    progressIntervalMs,
   });
   const stoppedBy = stats.timedOut ? "time" : stats.workCapHit ? "work" : stats.nodeCapHit ? "nodes" : null;
   return {

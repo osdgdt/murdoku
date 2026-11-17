@@ -77,6 +77,26 @@ export const tests = [
     },
   },
   {
+    name: "generatore: l'avanzamento è tra 0 e 1 e non torna indietro, ascoltarlo non cambia gli indizi, e senza limiti (tempo e nodi) si ottiene lo stesso insieme",
+    fn: async () => {
+      const puzzle = await load("faro.en");
+      puzzle.clues = [];
+      const plain = proposeClueSet(puzzle, { mode: "medium", seed: 5, keepExisting: false });
+      const seen = [];
+      const heard = proposeClueSet(puzzle, { mode: "medium", seed: 5, keepExisting: false, onProgress: (f) => seen.push(f) });
+      assertEqual(JSON.stringify(heard.clues), JSON.stringify(plain.clues), "ascoltare l'avanzamento non cambia gli indizi");
+      assert(seen.length > 5, `segnala più volte (${seen.length})`);
+      assert(
+        seen.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= seen[i - 1])),
+        "tra 0 e 1, mai all'indietro"
+      );
+      assert(seen[seen.length - 1] > 0.9, `a lavoro finito è vicino a 1 (${seen[seen.length - 1]})`);
+      const free = proposeClueSet(puzzle, { mode: "medium", seed: 5, keepExisting: false, timeMs: null, maxNodes: Infinity });
+      assertEqual(free.status, "ok", "senza limiti il generatore lavora comunque (nessuna scadenza nulla scambiata per «tempo scaduto»)");
+      assertEqual(JSON.stringify(free.clues), JSON.stringify(plain.clues), "e con lo stesso seme dà lo stesso insieme");
+    },
+  },
+  {
     name: "generatore: senza soluzione completa dichiarata, o senza tempo, dice perché non può",
     fn: async () => {
       const puzzle = await load("tutorial.en");

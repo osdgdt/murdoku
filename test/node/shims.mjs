@@ -38,7 +38,7 @@ export function installWorkerShim() {
   const senders = new Map(); // request id -> FakeWorker
   workerScope.postMessage = (data) => {
     const sender = senders.get(data?.id);
-    senders.delete(data?.id);
+    if (data?.ok !== undefined) senders.delete(data?.id); // a progress message is not the answer: the request stays open
     queueMicrotask(() => sender?.onmessage?.({ data: structuredClone(data) }));
   };
   globalThis.Worker = class FakeWorker {

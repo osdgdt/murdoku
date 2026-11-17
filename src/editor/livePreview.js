@@ -53,13 +53,9 @@ export function createLivePreview({ container, getPuzzle }) {
     }
     show("info", t("Analisi in corso…"));
     controller = new AbortController();
-    const limits = limitsFor(puzzle).uniqueness;
     try {
-      const result = await analyzePuzzleAsync(
-        puzzle,
-        { ...searchBudget(limits), timeMs: Math.min(4000, Math.round(limits.timeMs / 3)) },
-        { signal: controller.signal }
-      );
+      // bounded on purpose: it starts by itself on every edit and nobody is there to cancel it
+      const result = await analyzePuzzleAsync(puzzle, searchBudget(limitsFor(puzzle).preview), { signal: controller.signal });
       if (mine !== sequence) return; // a newer edit has started its own analysis
       const { tone, text } = describeAnalysis(result);
       show(tone, text);

@@ -132,6 +132,38 @@ export const tests = [
     },
   },
   {
+    name: "findRedundantClues: l'avanzamento tiene conto del controllo iniziale e di quanto è arrivato ogni controllo in corso, non torna indietro e finisce a 1",
+    fn: async () => {
+      const { p } = build();
+      p.clues = Array.from({ length: 6 }, (_, i) => ({ id: `c${i}`, characterId: null, type: "x", params: {} }));
+      for (const concurrency of [1, 3]) {
+        const seen = [];
+        let inChecks = 0;
+        const check = async (_puzzle, { onProgress: tell } = {}) => {
+          tell?.(0.5); // half way through its own search
+          await new Promise((resolve) => setTimeout(resolve, 6));
+          tell?.(0.9);
+          inChecks++;
+          return { solutionCount: 1, truncated: false, exhausted: true };
+        };
+        await findRedundantClues(p, check, { concurrency, onProgress: (done, total, fraction) => seen.push({ done, total, fraction }) });
+        const fractions = seen.map((s) => s.fraction);
+        assert(
+          fractions.every((f, i) => f >= 0 && f <= 1 && (i === 0 || f >= fractions[i - 1])),
+          `concurrency ${concurrency}: tra 0 e 1 e mai all'indietro (${fractions.map((f) => f.toFixed(2))})`
+        );
+        assertEqual(fractions[fractions.length - 1], 1, "finisce a 1");
+        assert(
+          seen.some((s) => s.done === 2 && s.fraction > 2 / 7 && s.fraction < 1),
+          "tra un controllo finito e l'altro la barra si muove da sola"
+        );
+        assertEqual(seen[seen.length - 1].done, 6);
+        assertEqual(seen[seen.length - 1].total, 6);
+        assertEqual(inChecks, 7, "il controllo iniziale e uno per indizio");
+      }
+    },
+  },
+  {
     name: "findRedundantClues: su un caso non univoco non analizza e spiega perché",
     fn: async () => {
       const { p } = build();

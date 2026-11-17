@@ -17,6 +17,7 @@ import { zoneOfCell } from "../model/grid.js";
 import { validateSolution } from "../solver/validator.js";
 import { deriveSolutionAsync, checkUniquenessAsync } from "../solver/solverClient.js";
 import { limitsFor, searchBudget } from "../solver/limits.js";
+import { staged } from "../solver/progress.js";
 import { t } from "../i18n/i18n.js";
 
 export const SOLUTION_UNSATISFIABLE_MSG = t(
@@ -34,6 +35,8 @@ export const SOLUTION_INCONCLUSIVE_MSG = t(
 // derive it escalates to on the rare puzzle this cheaper check can't settle.
 
 // `deps` is injectable so the logic is unit-testable without a Web Worker.
+// `get({ signal, onProgress })`: `onProgress(fraction)` hears how far the work has got (0..1, never going back; at once "1"
+// when the answer was already known). The work is shared, so everybody waiting hears the same numbers.
 // `get({ signal })` can be cancelled: when the last person waiting for the answer gives up, the computation
 // itself is stopped (the worker is terminated) and the next `get()` starts it afresh. Waiting on it while
 // somebody else is too (a hint and a check at the same time) only stops YOUR wait.
@@ -52,30 +55,51 @@ export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, ch
     });
 
   const limits = limitsFor(puzzle);
-  const derive = (signal) => deps.deriveSolutionAsync(puzzle, searchBudget(limits.derive), { signal });
+  const listeners = new Set(); // everybody waiting for the work now under way
+  const broadcast = (fraction) => {
+    for (const listener of listeners) listener(fraction);
+  };
+  // `stage`: the work may be two searches one after the other (the quick check of the declared solution, then the full
+  // derivation if that one could not settle it): they share the bar as the stages of one job (progress.js)
+  const derive = (signal, stage = null) =>
+    deps.deriveSolutionAsync(puzzle, searchBudget(limits.derive), {
+      signal,
+      onProgress: (fraction) => broadcast(stage === null ? fraction : staged(stage, fraction)),
+    });
 
   // checkUniqueness has no fixedPlacements support: it re-searches the clues
   // from scratch under a smaller node cap. solutionCount can never be 0 here —
   // validateSolution() already proved the declared solution is one valid solution.
   function confirmDeclaredSolutionUnique(signal) {
     return deps
-      .checkUniquenessAsync(puzzle, { maxSolutions: 2, forwardCheck: true, ...searchBudget(limits.confirm) }, { signal })
+      .checkUniquenessAsync(
+        puzzle,
+        { maxSolutions: 2, forwardCheck: true, ...searchBudget(limits.confirm) },
+        { signal, onProgress: (fraction) => broadcast(staged(0, fraction)) }
+      )
       .then((report) => {
         if (report.solutionCount >= 2) return { status: "ambiguous", placements: null };
         const complete = report.exhausted ?? !report.truncated;
         if (report.solutionCount === 1 && complete) return { status: "unique", placements: puzzle.solution.placements };
         // The cheap tier couldn't settle it — escalate instead of guessing.
-        return derive(signal);
+        return derive(signal, 1);
       });
   }
 
   return {
-    get({ signal = null } = {}) {
+    get({ signal = null, onProgress = null } = {}) {
       if (signal?.aborted) return Promise.reject(Object.assign(new Error("Operazione annullata."), { name: "AbortError" }));
+      // listen BEFORE the work starts: nothing it reports may be missed
+      if (onProgress) listeners.add(onProgress);
       if (!promise) {
         controller = new AbortController();
         const own = controller.signal;
-        promise = retryable(deps.validateSolution(puzzle).valid ? confirmDeclaredSolutionUnique(own) : derive(own));
+        try {
+          promise = retryable(deps.validateSolution(puzzle).valid ? confirmDeclaredSolutionUnique(own) : derive(own));
+        } catch (err) {
+          if (onProgress) listeners.delete(onProgress);
+          throw err;
+        }
       }
       const shared = promise;
       waiters++;
@@ -85,6 +109,7 @@ export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, ch
           if (finished) return false;
           finished = true;
           waiters--;
+          if (onProgress) listeners.delete(onProgress);
           signal?.removeEventListener("abort", onAbort);
           return true;
         };
@@ -95,7 +120,12 @@ export function createEffectiveSolution(puzzle, deps = { deriveSolutionAsync, ch
         };
         signal?.addEventListener("abort", onAbort, { once: true });
         shared.then(
-          (value) => leave() && resolve(value),
+          (value) => {
+            if (leave()) {
+              onProgress?.(1);
+              resolve(value);
+            }
+          },
           (err) => leave() && reject(err)
         );
       });

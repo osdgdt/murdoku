@@ -20,6 +20,7 @@ import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
 import { checkUniquenessAsync, deriveSolutionAsync, cancelSolver, laneCountFor } from "../solver/solverClient.js";
+import { startProgress } from "../util/progressBanner.js";
 import { limitsFor, searchBudget } from "../solver/limits.js";
 import { findRedundantClues, findCluesNeededWithoutVictim } from "../solver/redundancy.js";
 import { describeClue } from "../model/clueTypes.js";
@@ -237,20 +238,21 @@ saveBtn.addEventListener("click", () => {
   persist();
 });
 
-// A "working…" line in the validation panel with a Cancel button: a search on a big grid can take
-// a while, and the author must be able to give up. Returns the element holding the text, so a
-// caller can update it (progress counters).
+// A "working…" line in the validation panel with a progress bar and a Cancel button: a search on a big grid can take
+// a while, and the author must be able to follow it and give up. Returns the progress (src/util/progressBanner.js):
+// `update(fraction)` moves the bar, `setLabel(text)` changes the words. Call stopProgress() when the work is over.
+let activeProgress = null;
 function showProgress(text) {
+  stopProgress();
   clear(validationPanel);
-  const message = el("span", {}, text);
-  validationPanel.appendChild(
-    el("p", { class: "info-message" }, [
-      message,
-      " ",
-      el("button", { type: "button", class: "cancel-solve", onClick: () => cancelSolver("main") }, t("Annulla")),
-    ])
-  );
-  return message;
+  activeProgress = startProgress({ label: text, onCancel: () => cancelSolver("main"), className: "info-message" });
+  validationPanel.appendChild(activeProgress.node);
+  return activeProgress;
+}
+
+function stopProgress() {
+  activeProgress?.stop();
+  activeProgress = null;
 }
 
 // What to say when a solver call failed: a cancel is not an error.
@@ -290,11 +292,11 @@ function limitMessage(report) {
 // broken one: a case with no solution, several solutions, or one we couldn't
 // verify is flagged, and the author can still choose to go ahead.
 async function confirmPublishable() {
-  showProgress(t("Controllo che il caso abbia una soluzione unica…"));
+  const progress = showProgress(t("Controllo che il caso abbia una soluzione unica…"));
   let problem = null;
   let cancelled = false;
   try {
-    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: 2 }));
+    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: 2 }), { onProgress: progress.update });
     if (report.solutionCount > 1)
       problem = t("Il caso ha più di una soluzione: i giocatori potrebbero non capire quale sia quella giusta.");
     else if (!report.exhausted) problem = t("Non sono riuscito a verificare in tempi ragionevoli che la soluzione sia unica.");
@@ -302,6 +304,8 @@ async function confirmPublishable() {
   } catch (err) {
     if (err?.name === "AbortError") cancelled = true;
     else problem = t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message: err.message });
+  } finally {
+    stopProgress();
   }
   clear(validationPanel);
   if (cancelled) return false;
@@ -461,9 +465,11 @@ function renderSolutionPreviews(puzzle, solutions) {
 
 uniqueBtn.addEventListener("click", async () => {
   uniqueBtn.disabled = true;
-  showProgress(t("Verifica unicità in corso…"));
+  const progress = showProgress(t("Verifica unicità in corso…"));
   try {
-    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS }));
+    const report = await checkUniquenessAsync(puzzle, uniquenessOptions({ maxSolutions: UNIQUENESS_PREVIEW_MAX_SOLUTIONS }), {
+      onProgress: progress.update,
+    });
     clear(validationPanel);
     if (report.solutionCount <= 1 && !report.exhausted) {
       // stopped by a limit: neither "no solution" nor "unique" may be claimed
@@ -491,6 +497,7 @@ uniqueBtn.addEventListener("click", async () => {
   } catch (err) {
     showSolverError(err, (message) => t("Non sono riuscito a verificare l'unicità: {message}. Riprova.", { message }));
   } finally {
+    stopProgress();
     uniqueBtn.disabled = false;
   }
 });
@@ -503,18 +510,20 @@ redundantBtn.addEventListener("click", async () => {
     const budget = searchBudget(limitsFor(puzzle).redundancy);
     // one check per clue, several at once when the machine has the cores for it (each on its own worker)
     const lanes = laneCountFor();
-    const check = (candidate, { lane = null } = {}) =>
+    const check = (candidate, { lane = null, onProgress } = {}) =>
       checkUniquenessAsync(
         candidate,
         { maxSolutions: 2, ...budget, forwardCheck: true },
-        lanes > 1 && lane !== null ? { worker: `lane${lane}` } : {}
+        { onProgress, ...(lanes > 1 && lane !== null ? { worker: `lane${lane}` } : {}) }
       );
     const result = await findRedundantClues(puzzle, check, {
       concurrency: lanes,
-      onProgress: (done, total) => {
-        progress.textContent = t("Analisi degli indizi in corso… {done}/{total}", { done, total });
+      onProgress: (done, total, fraction) => {
+        progress.setLabel(t("Analisi degli indizi in corso… {done}/{total}", { done, total }));
+        progress.update(fraction);
       },
     });
+    stopProgress();
     clear(validationPanel);
     if (!result.ok) {
       validationPanel.appendChild(
@@ -546,8 +555,11 @@ redundantBtn.addEventListener("click", async () => {
           : el("p", { class: "ok-message" }, t("✓ Nessun indizio superfluo: ognuno è necessario all'unicità."))
       );
     } else {
-      progress.textContent = t("Analisi degli indizi in corso…");
-      const neededForSuspects = new Set(await findCluesNeededWithoutVictim(puzzle, result.redundant, check));
+      // a second, short step with its own bar: which of them the suspects need even without the victim's rule
+      const second = showProgress(t("Controllo quali indizi servono a determinare i sospettati…"));
+      const neededForSuspects = new Set(await findCluesNeededWithoutVictim(puzzle, result.redundant, check, { onProgress: second.update }));
+      stopProgress();
+      clear(validationPanel);
       validationPanel.appendChild(
         el(
           "p",
@@ -595,6 +607,7 @@ redundantBtn.addEventListener("click", async () => {
   } catch (err) {
     showSolverError(err, (message) => t("Analisi non riuscita: {message}. Riprova.", { message }));
   } finally {
+    stopProgress();
     redundantBtn.disabled = false;
   }
 });
@@ -622,9 +635,10 @@ calcSolutionBtn.addEventListener("click", async () => {
   const startedAtVersion = puzzle.updatedAt;
   const startedAtPuzzle = puzzle;
   calcSolutionBtn.disabled = true;
-  showProgress(t("Calcolo della soluzione in corso…"));
+  const progress = showProgress(t("Calcolo della soluzione in corso…"));
   try {
-    const result = await deriveSolutionAsync(puzzle, searchBudget(limitsFor(puzzle).derive));
+    const result = await deriveSolutionAsync(puzzle, searchBudget(limitsFor(puzzle).derive), { onProgress: progress.update });
+    stopProgress();
     clear(validationPanel);
     if (puzzle !== startedAtPuzzle || puzzle.updatedAt !== startedAtVersion) {
       validationPanel.appendChild(el("p", { class: "violation" }, t("Il caso è stato modificato nel frattempo: riprova.")));
@@ -672,6 +686,7 @@ calcSolutionBtn.addEventListener("click", async () => {
   } catch (err) {
     showSolverError(err, (message) => t("Non sono riuscito a calcolare la soluzione: {message}. Riprova.", { message }));
   } finally {
+    stopProgress();
     calcSolutionBtn.disabled = false;
   }
 });

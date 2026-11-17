@@ -76,6 +76,36 @@ try {
   await page.waitForFunction(() => /imported/i.test(document.querySelector("#status")?.innerText || ""));
   check("the undo button says Undo, in English", /Undo/.test(await page.getAttribute("#editor-undo-btn", "title")));
 
+  // the live difficulty line has no limit either: a long analysis shows a bar and Cancel in its place, and ends with the answer
+  await page.waitForSelector("#difficulty-preview .progress-banner", { timeout: 15000 });
+  await page.waitForFunction(
+    () => /~\d+ %/.test(document.querySelector("#difficulty-preview .progress-percent")?.textContent || ""),
+    null,
+    { timeout: 15000 }
+  );
+  const lineBar = values(await sample(page, "#difficulty-preview", 3, 400));
+  check(
+    "difficulty line: a long analysis shows a bar that never goes back",
+    lineBar.length >= 2 && rises(lineBar),
+    JSON.stringify(lineBar)
+  );
+  check("difficulty line: it has a Cancel button", (await page.innerText("#difficulty-preview .progress-cancel")).trim() === "Cancel");
+  await page.click("#difficulty-preview .progress-cancel");
+  await page.waitForFunction(() => /Analysis cancelled/.test(document.querySelector("#difficulty-preview")?.innerText || ""));
+  check(
+    "difficulty line: Cancel stops it and offers to try again",
+    (await page.locator("#difficulty-preview .difficulty-retry").innerText()).trim() === "Try again"
+  );
+  await page.click("#difficulty-preview .difficulty-retry");
+  await page.waitForSelector("#difficulty-preview .progress-banner");
+  await page.waitForSelector("#difficulty-preview .difficulty-line.ok", { timeout: 90000 });
+  const lineText = await page.innerText("#difficulty-preview");
+  check(
+    'difficulty line: with no limit it reaches the answer (never "not finished within the limit")',
+    /Unique solution/.test(lineText) && !/limit/i.test(lineText),
+    lineText
+  );
+
   await page.click("#unique-btn");
   await page.waitForSelector("#validation-panel .progress-banner");
   check(

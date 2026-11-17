@@ -105,7 +105,7 @@ export const tests = [
     fn: () => {
       for (const n of [3, 9, 12, 16]) {
         const limits = limitsFor(open(n, 2));
-        for (const key of ["uniqueness", "redundancy", "confirm", "derive"]) {
+        for (const key of ["uniqueness", "redundancy", "confirm", "derive", "preview"]) {
           const budget = searchBudget(limits[key]);
           assertEqual(budget.maxWork, Infinity, `${n}x${n} ${key}: nessun tetto di lavoro`);
           assertEqual(budget.maxNodes, Infinity, `${n}x${n} ${key}: nessun tetto di nodi`);
@@ -122,30 +122,26 @@ export const tests = [
     },
   },
   {
-    name: "limiti: il lavoro che parte da solo, senza nessuno che prema Annulla (anteprima dal vivo, editor campagne, suggerimenti di default), resta limitato e cresce con la griglia",
+    name: "limiti: il lavoro che parte da solo, senza nessuno che prema Annulla (editor campagne, suggerimenti di default), resta limitato e cresce con la griglia",
     fn: () => {
       const nine = limitsFor(open(9, 2));
       const big = limitsFor(open(16, 2));
       assertEqual(sizeFactor(open(3, 2)), 1);
       assertEqual(sizeFactor(open(9, 2)), 1);
       assert(Math.abs(sizeFactor(open(16, 2)) - (16 / 9) ** 2) < 1e-9);
-      assertEqual(nine.preview.maxWork, 60_000_000);
-      assertEqual(nine.preview.timeMs, 4_000);
       assertEqual(nine.campaign.maxWork, 1_000_000_000);
       assertEqual(nine.campaign.timeMs, 60_000);
       assertEqual(nine.hints.maxNodes, 2_000_000, "i suggerimenti di default restano a nodi");
       assertEqual(nine.hints.timeMs, 8_000);
       assert(nine.hints.maxWork === undefined && nine.hints.forwardCheckMinRemaining === undefined, "e con la loro strategia di sempre");
       for (const [key, field] of [
-        ["preview", "maxWork"],
         ["campaign", "maxWork"],
         ["campaign", "timeMs"],
         ["hints", "maxNodes"],
         ["hints", "timeMs"],
       ])
         assert(Number.isFinite(big[key][field]) && big[key][field] > nine[key][field], `${key}.${field}: 16x16 deve avere più margine`);
-      for (const key of ["preview", "campaign"])
-        assert(Number.isFinite(nine[key].maxWork) && Number.isFinite(nine[key].timeMs), `${key} limitato`);
+      assert(Number.isFinite(nine.campaign.maxWork) && Number.isFinite(nine.campaign.timeMs), "campaign limitato");
     },
   },
   {

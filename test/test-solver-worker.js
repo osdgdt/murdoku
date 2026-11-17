@@ -11,6 +11,7 @@ import {
   SolverCancelled,
   cancelSolver,
   laneCountFor,
+  analyzePuzzleAsync,
 } from "../src/solver/solverClient.js";
 import { checkUniqueness } from "../src/solver/validator.js";
 import { randomPuzzle } from "./helpers/random-puzzle.js";
@@ -401,6 +402,16 @@ export const tests = [
         assertEqual(report.solutionCount, 1, `timeMs ${timeMs}: la ricerca non viene interrotta`);
         forgetSettledResults();
       }
+    },
+  },
+  {
+    name: "avanzamento (client): l'analisi dal vivo (worker «preview») lo riporta e, senza limiti, finisce con una risposta",
+    fn: async () => {
+      const seen = [];
+      const result = await analyzePuzzleAsync(barren(), { progressIntervalMs: 0 }, { onProgress: (f) => seen.push(f) });
+      assertEqual(result.status, "none", "ricerca finita, nessuna soluzione");
+      assertEqual(result.stoppedBy, null);
+      assert(seen.length > 5 && seen.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= seen[i - 1])), `crescente (${seen.length})`);
     },
   },
   {

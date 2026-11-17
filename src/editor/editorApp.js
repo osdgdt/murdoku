@@ -345,6 +345,7 @@ importInput.addEventListener("change", async () => {
     persist();
     render();
     updateUndoRedoButtons();
+    preview.schedule(); // the difficulty line is about the case that is now open
     setStatus(t("Puzzle importato."), "muted");
   } catch (err) {
     setStatus(err.message, "violation");

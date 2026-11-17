@@ -748,6 +748,8 @@ export default {
   "Ancora in calcolo: {seconds} secondi": "Still working: {seconds} seconds",
   "Ancora in calcolo: {seconds} secondi, circa {percent} %": "Still working: {seconds} seconds, about {percent} %",
   "Controllo quali indizi servono a determinare i sospettati…": "Checking which clues the suspects need…",
+  "Analisi annullata.": "Analysis cancelled.",
+  Riprova: "Try again",
   "Personaggi e strumenti": "Characters and tools",
   ", già piazzato": ", already placed",
   "Passa al tema ad alto contrasto": "Switch to the high-contrast theme",

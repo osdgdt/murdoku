@@ -69,9 +69,43 @@ export const writeBatch = () => {
 export const runTransaction = async (db, fn) => fn({ get: (ref) => getDoc(ref), set: (ref, v, o) => setDoc(ref, v, o) });
 `;
 
+// The Cloud Functions of the shared case database, run for real in the page: the SAME handlers as the server
+// (functions/src/handlers.js, with the page's own casePolicy.js) over the fake Firestore above. It enforces what the
+// server enforces in code (login, nickname, "solved once", limits, duplicates); it does not enforce firestore.rules.
+const FUNCTIONS = `
+export const getFunctions = (app, region) => ({ app, region });
+export const httpsCallable = (functions, name) => async (data) => {
+  const [{ createHandlers }, policy, { createFakeStore }] = await Promise.all([
+    import(location.origin + "/functions/src/handlers.js"),
+    import(location.origin + "/src/community/casePolicy.js"),
+    import(location.origin + "/test/helpers/fake-store.js"),
+  ]);
+  const DB_KEY = "__fake_db";
+  const store = createFakeStore(JSON.parse(localStorage.getItem(DB_KEY) || "{}"));
+  const handlers = createHandlers({ store, policy, randomInt: (n) => Math.floor(Math.random() * n) });
+  const user = JSON.parse(localStorage.getItem("__fake_user") || "null");
+  try {
+    const result = await handlers[name](JSON.parse(JSON.stringify(data)), user ? { uid: user.uid } : null);
+    localStorage.setItem(DB_KEY, JSON.stringify(Object.fromEntries(store.docs)));
+    return { data: result };
+  } catch (e) {
+    if (e.name !== "CaseError") throw e;
+    const err = new Error(e.reason);
+    err.code = "functions/" + e.code;
+    err.details = e.details;
+    throw err;
+  }
+};
+`;
+
 // Registers the stand-ins on a Playwright page (call BEFORE page.goto).
 export async function installFakeFirebase(page) {
-  const files = { "firebase-app.js": APP, "firebase-auth.js": AUTH, "firebase-firestore.js": FIRESTORE };
+  const files = {
+    "firebase-app.js": APP,
+    "firebase-auth.js": AUTH,
+    "firebase-firestore.js": FIRESTORE,
+    "firebase-functions.js": FUNCTIONS,
+  };
   await page.route("https://www.gstatic.com/firebasejs/**", (route) => {
     const name = route.request().url().split("/").pop();
     if (files[name]) route.fulfill({ contentType: "text/javascript", body: files[name] });

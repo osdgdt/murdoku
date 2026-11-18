@@ -10,7 +10,8 @@ import { createGameScreen } from "../player/gameScreen.js";
 import { loadLibraryIndex, caseOfTheDay } from "../player/libraryPanel.js";
 import { formatElapsed } from "../util/time.js";
 import * as dailyStore from "./dailyStore.js";
-import { utcDateKey, previousDateKey, rankEntries, positionOf, validateNickname, NICKNAME_MIN, NICKNAME_MAX } from "./dailyMath.js";
+import { utcDateKey, previousDateKey, rankEntries, positionOf, validateNickname, NICKNAME_MAX } from "./dailyMath.js";
+import { NICKNAME_ERRORS } from "./nicknameErrors.js";
 import { getLanguage, t, intlLocale } from "../i18n/i18n.js";
 
 wireThemeToggle();
@@ -80,13 +81,6 @@ function setInfo(children) {
 }
 
 // ---- nickname ----------------------------------------------------------------------------
-
-const NICKNAME_ERRORS = {
-  "too-short": () => t("Il nickname deve avere almeno {n} caratteri.", { n: NICKNAME_MIN }),
-  "too-long": () => t("Il nickname può avere al massimo {n} caratteri.", { n: NICKNAME_MAX }),
-  characters: () => t("Sono ammessi lettere, cifre, spazi e . _ ' -"),
-  taken: () => t("Questo nickname è già preso: scegline un altro."),
-};
 
 function askNickname(onDone) {
   clear(nicknameEl);

@@ -14,6 +14,7 @@ export const AREA_LOADERS = {
   tutorial: () => import("./en/tutorial.js"),
   privacy: () => import("./en/privacy.js"),
   campaign: () => import("./en/campaign.js"),
+  community: () => import("./en/community.js"),
 };
 
 const COMMON = ["ui", "clues", "medieval"];
@@ -21,7 +22,9 @@ const COMMON = ["ui", "clues", "medieval"];
 const EXTRA = {
   // (the glossary examples are little cases whose cast and rooms are translated in the tutorial's area)
   "glossary.html": ["glossary", "tutorial"],
-  "editor.html": ["glossary"],
+  "editor.html": ["glossary", "community"],
+  // (publishing and opening a case by its code)
+  "player.html": ["community"],
   "tutorial.html": ["tutorial"],
   "privacy.html": ["privacy"],
   "campaign.html": ["campaign"],
@@ -29,7 +32,7 @@ const EXTRA = {
 };
 // pages that are known to need nothing else; any other name (a renamed page, a host that serves the home at "/")
 // gets every area, which is always correct
-const PLAIN_PAGES = new Set(["", "index.html", "player.html", "print.html", "achievements.html", "daily.html"]);
+const PLAIN_PAGES = new Set(["", "index.html", "print.html", "achievements.html", "daily.html"]);
 
 // The areas of the page at `pathname` (e.g. "/murdoku/glossary.html").
 export function areasForPage(pathname) {

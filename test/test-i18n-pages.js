@@ -11,7 +11,8 @@ export const tests = [
     fn: () => {
       assertEqual(areasForPage("/murdoku/glossary.html").join(), "ui,clues,medieval,glossary,tutorial");
       assertEqual(areasForPage("/x/editor.html").includes("glossary"), true, "il wizard degli indizi mostra i testi del glossario");
-      assertEqual(areasForPage("/x/player.html").join(), "ui,clues,medieval");
+      assertEqual(areasForPage("/x/player.html").join(), "ui,clues,medieval,community", "il giocatore apre i casi condivisi con un codice");
+      assertEqual(areasForPage("/x/editor.html").includes("community"), true, "l'editor pubblica nel database dei casi");
       assertEqual(areasForPage("/x/").join(), "ui,clues,medieval", "la home servita come cartella");
       assertEqual(areasForPage("/x/privacy.html").includes("privacy"), true);
       assertEqual(areasForPage("/x/qualcosa-di-nuovo.html").length, Object.keys(AREA_LOADERS).length, "pagina non elencata: tutto");

@@ -12,6 +12,7 @@ import {
   deleteDoc,
   collection,
   query,
+  where,
   orderBy,
   limit,
   writeBatch,
@@ -260,4 +261,100 @@ test("daily: a player deletes their own entries (the public one too) and nobody 
   await assertSucceeds(getDoc(doc(as("u1"), "users", "u1", "dailyEntries", today())));
   await assertSucceeds(deleteDoc(doc(as("u1"), "daily", today(), "entries", "u1")));
   await assertSucceeds(deleteDoc(doc(as("u1"), "users", "u1", "dailyEntries", today())));
+});
+
+// ============================================================================================ shared cases
+// (published through the Cloud Functions, which bypass these rules: the page only reads)
+
+const card = (over = {}) => ({
+  title: "Il faro",
+  titleLower: "il faro",
+  status: "active",
+  authorUid: "author",
+  authorNick: "Gianna",
+  license: "cc-by",
+  revision: 1,
+  ...over,
+});
+const seedCase = (code, over = {}) =>
+  seed(async (db) => {
+    await setDoc(doc(db, "cases", code), card(over));
+    await setDoc(doc(db, "cases", code, "revisions", "1"), { json: "{}", bytes: 2 });
+  });
+
+test("shared cases: anybody, signed in or not, reads an active case and its revision; nobody writes them from the page", async () => {
+  await seedCase("ACDEFGHJ");
+  for (const db of [anon(), as("reader")]) {
+    await assertSucceeds(getDoc(doc(db, "cases", "ACDEFGHJ")));
+    await assertSucceeds(getDoc(doc(db, "cases", "ACDEFGHJ", "revisions", "1")));
+  }
+  for (const db of [anon(), as("author"), as("reader")]) {
+    await assertFails(setDoc(doc(db, "cases", "NEWCODE1"), card()));
+    await assertFails(setDoc(doc(db, "cases", "ACDEFGHJ"), card({ title: "Altro" }), { merge: true }));
+    await assertFails(deleteDoc(doc(db, "cases", "ACDEFGHJ")));
+    await assertFails(setDoc(doc(db, "cases", "ACDEFGHJ", "revisions", "2"), { json: "{}" }));
+    await assertFails(deleteDoc(doc(db, "cases", "ACDEFGHJ", "revisions", "1")));
+  }
+});
+
+test("shared cases: the gallery lists only active cards, 30 at a time; the revisions are never listed", async () => {
+  await seedCase("ACDEFGHJ");
+  await seedCase("KMNPQRTU", { status: "withdrawn" });
+  const db = anon();
+  const active = collection(db, "cases");
+  await assertSucceeds(getDocs(query(active, where("status", "==", "active"), limit(30))));
+  await assertFails(getDocs(query(active, where("status", "==", "active"), limit(31))));
+  await assertFails(getDocs(query(active, where("status", "==", "active")))); // no limit: refused
+  await assertFails(getDocs(query(active, limit(10)))); // not restricted to the active ones: would show the others
+  await assertFails(getDocs(query(active, where("status", "==", "withdrawn"), limit(10))));
+  await assertFails(getDocs(collection(db, "cases", "ACDEFGHJ", "revisions")));
+  await assertFails(getDocs(query(collection(db, "cases", "ACDEFGHJ", "revisions"), limit(5))));
+});
+
+test("shared cases: a withdrawn or hidden case, and its revisions, are for its author and the admins only", async () => {
+  await seedCase("KMNPQRTU", { status: "withdrawn" });
+  await seedCase("VWXY3469", { status: "hidden" });
+  await seed((db) => setDoc(doc(db, "admins", "moderator"), { since: 1 }));
+  for (const code of ["KMNPQRTU", "VWXY3469"]) {
+    await assertFails(getDoc(doc(anon(), "cases", code)));
+    await assertFails(getDoc(doc(as("reader"), "cases", code)));
+    await assertFails(getDoc(doc(anon(), "cases", code, "revisions", "1")));
+    await assertFails(getDoc(doc(as("reader"), "cases", code, "revisions", "1")));
+    await assertSucceeds(getDoc(doc(as("author"), "cases", code)));
+    await assertSucceeds(getDoc(doc(as("author"), "cases", code, "revisions", "1")));
+    await assertSucceeds(getDoc(doc(as("moderator"), "cases", code)));
+    await assertSucceeds(getDoc(doc(as("moderator"), "cases", code, "revisions", "1")));
+  }
+});
+
+test("shared cases: authors are public (listed 30 at a time), the author's own list is private, the server's bookkeeping is out of reach", async () => {
+  await seed(async (db) => {
+    await setDoc(doc(db, "authors", "author"), { nick: "Gianna", nickLower: "gianna", caseCount: 1 });
+    await setDoc(doc(db, "users", "author", "published", "ACDEFGHJ"), { code: "ACDEFGHJ", title: "Il faro" });
+    await setDoc(doc(db, "users", "author", "publishLog", "2026-11-20"), { publishes: 1 });
+    await setDoc(doc(db, "caseHashes", "abc"), { code: "ACDEFGHJ" });
+    await setDoc(doc(db, "config", "limits"), { publishPerDay: 5 });
+  });
+  await assertSucceeds(getDoc(doc(anon(), "authors", "author")));
+  await assertSucceeds(getDocs(query(collection(anon(), "authors"), limit(30))));
+  await assertFails(getDocs(query(collection(anon(), "authors"), limit(31))));
+  await assertFails(setDoc(doc(as("author"), "authors", "author"), { nick: "X", caseCount: 99 }));
+  await assertFails(deleteDoc(doc(as("author"), "authors", "author")));
+
+  await assertSucceeds(getDoc(doc(as("author"), "users", "author", "published", "ACDEFGHJ")));
+  await assertSucceeds(getDocs(collection(as("author"), "users", "author", "published")));
+  await assertFails(getDoc(doc(as("other"), "users", "author", "published", "ACDEFGHJ")));
+  await assertFails(getDoc(doc(anon(), "users", "author", "published", "ACDEFGHJ")));
+  await assertFails(setDoc(doc(as("author"), "users", "author", "published", "NEWCODE1"), { code: "NEWCODE1" }));
+  await assertFails(deleteDoc(doc(as("author"), "users", "author", "published", "ACDEFGHJ")));
+
+  for (const path of [
+    ["users", "author", "publishLog", "2026-11-20"],
+    ["caseHashes", "abc"],
+    ["config", "limits"],
+  ]) {
+    await assertFails(getDoc(doc(as("author"), ...path)));
+    await assertFails(setDoc(doc(as("author"), ...path), { publishes: 0 }));
+    await assertFails(getDoc(doc(anon(), ...path)));
+  }
 });

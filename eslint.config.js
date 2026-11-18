@@ -2,7 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 
 export default [
-  { ignores: ["node_modules/**"] },
+  { ignores: ["node_modules/**", "functions/shared/**"] },
   js.configs.recommended,
   {
     files: ["src/**/*.js", "test/**/*.js"],
@@ -13,7 +13,7 @@ export default [
     },
   },
   {
-    files: ["test/node/**/*.mjs", "test/e2e/**/*.mjs", "test/rules/**/*.mjs", "test/bench/**/*.mjs", "test/helpers/**/*.js", "tools/**/*.mjs", "eslint.config.js"],
+    files: ["test/node/**/*.mjs", "test/e2e/**/*.mjs", "test/rules/**/*.mjs", "test/functions/**/*.mjs", "test/bench/**/*.mjs", "test/helpers/**/*.js", "tools/**/*.mjs", "eslint.config.js", "functions/**/*.{js,mjs}"],
     languageOptions: { ecmaVersion: 2023, sourceType: "module", globals: { ...globals.node, ...globals.browser } },
   },
   {

@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwm9lr4dvn09msnq",
+  "title": "Lo scriptorium",
+  "author": "",
+  "difficulty": "medium",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Un copista è stato ucciso nello scriptorium, con il pennino ancora sul foglio. La regina ti fa dire di essere discreto: «Le carte di un monastero sono delicate, e tanti vi si fidano più che del re». Quattro persone sospette, e un solo libro mastro in disordine.",
+  "resolutionNote": "Ambrogio aveva falsificato una trentina di atti e Valerio l'aveva scoperto. Dentro il pennino d'argento un foglietto: «Il medico pregava nella cappella mentre il re moriva». Il medico di corte, ti avverte la regina, è un uomo onesto: non perdere tempo.",
+  "tense": "past",
+  "createdAt": 1795015032205,
+  "updatedAt": 1795015032206,
+  "grid": {
+    "size": {
+      "rows": 5,
+      "cols": 5
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": "obj_mwm9lr4dsn3vfdpe",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": "obj_mwm9lr4daf2izevp",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ddnt5juof",
+          "objectId": "obj_mwm9lr4dz7azpck3",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ddnt5juof",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": "obj_mwm9lr4djuibswv0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ddnt5juof",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ddnt5juof",
+          "objectId": "obj_mwm9lr4dz2kxv1sd",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": "obj_mwm9lr4d64lhbbwo",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4dsg4hynas",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4da4a8gwke",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4da4a8gwke",
+          "objectId": "obj_mwm9lr4dtg33bla6",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4da4a8gwke",
+          "objectId": "obj_mwm9lr4drmbblorl",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4da4a8gwke",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": "obj_mwm9lr4dh8lo1dzu",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4doojjprok",
+          "objectId": "obj_mwm9lr4ddx8ongyz",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwm9lr4dsg4hynas",
+        "name": "Lo scriptorium",
+        "color": "#f4c2c2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwm9lr4ddnt5juof",
+        "name": "La biblioteca",
+        "color": "#c2e0f4",
+        "textureId": "flagstone_dark"
+      },
+      {
+        "id": "zone_mwm9lr4da4a8gwke",
+        "name": "Lo studio del segretario",
+        "color": "#c9f4c2",
+        "textureId": "carpet"
+      },
+      {
+        "id": "zone_mwm9lr4doojjprok",
+        "name": "Il chiostro",
+        "color": "#f4ecc2",
+        "textureId": "cobble"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwm9lr4dsn3vfdpe",
+        "typeId": "lectern",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4d64lhbbwo",
+        "typeId": "lectern",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4daf2izevp",
+        "typeId": "candelabrum",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4djuibswv0",
+        "typeId": "bench",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4dz7azpck3",
+        "typeId": "shelf",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4dz2kxv1sd",
+        "typeId": "shelf",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4dtg33bla6",
+        "typeId": "chest",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4drmbblorl",
+        "typeId": "carpet",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4dh8lo1dzu",
+        "typeId": "bench",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4ddx8ongyz",
+        "typeId": "plant",
+        "row": 4,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4dmf9qprma",
+        "typeId": "door",
+        "row": 1,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4dw9q1jkls",
+        "typeId": "door",
+        "row": 2,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4d2g3uepra",
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4d8qgmg5n6",
+        "typeId": "door",
+        "row": 3,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4dxjtz2ovf",
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4e95coxr9j",
+        "typeId": "window",
+        "row": 0,
+        "col": 4,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4ef3yu34i3",
+        "typeId": "window",
+        "row": 4,
+        "col": 4,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4e1ni8lx55",
+        "typeId": "window",
+        "row": 2,
+        "col": 4,
+        "side": "E"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwm9lr4e49ydxtz3",
+      "name": "Ambrogio",
+      "iconId": "lawyer",
+      "isVictim": false,
+      "bio": "Segretario dell'abate: custodisce i registri e i sigilli dell'abbazia. Preciso, riservato, sempre ben informato sugli affari del monastero.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4euayrnbnb",
+      "name": "Benvenuto",
+      "iconId": "glasses",
+      "isVictim": false,
+      "bio": "Copista anziano, miope e sospettoso. Lavora fianco a fianco con Valerio da anni e ne invidia la velocità.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4e4ilnglph",
+      "name": "Teobaldo",
+      "iconId": "artist",
+      "isVictim": false,
+      "bio": "Miniatore: illustra i codici più preziosi. Vive per i colori e per i pennelli; ha debiti con un mercante di Borgocenere.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4ej69shmgc",
+      "name": "Perpetua",
+      "iconId": "librarian",
+      "isVictim": false,
+      "bio": "Monaca bibliotecaria: conosce a memoria ogni scaffale. Dice di aver sentito rumori nella notte, ma di non aver visto nulla.",
+      "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr4eniopu5yr",
+      "name": "Valerio",
+      "iconId": "hat",
+      "isVictim": true,
+      "bio": "22 anni, scrivano dello scriptorium. Una calligrafia perfetta e un occhio da contabile: leggeva ogni atto che copiava.",
+      "color": "#bf8020",
+      "gender": "male"
+    }
+  ],
+  "clues": [],
+  "solution": {
+    "placements": []
+  },
+  "manualHints": []
+}

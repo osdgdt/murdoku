@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwm9lr45a57xeltl",
+  "title": "Il garzone della forgia",
+  "author": "",
+  "difficulty": "easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e tre persone giurano di non aver visto niente.",
+  "resolutionNote": "Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.",
+  "tense": "past",
+  "createdAt": 1795015032197,
+  "updatedAt": 1795015032200,
+  "grid": {
+    "size": {
+      "rows": 4,
+      "cols": 4
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "objectId": "obj_mwm9lr46wre1rnlp",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46ubzdc0u3",
+          "objectId": "obj_mwm9lr46aqb4cubq",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "objectId": "obj_mwm9lr46s1fjdipp",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46ubzdc0u3",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "objectId": "obj_mwm9lr46z48i23sy",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46dsu29nos",
+          "objectId": "obj_mwm9lr46xjg4iitz",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46dsu29nos",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46dsu29nos",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr46dsu29nos",
+          "objectId": "obj_mwm9lr46edzw5mti",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwm9lr46d3p7su3y",
+        "name": "La forgia",
+        "color": "#f4c2c2",
+        "textureId": "flagstone_dark"
+      },
+      {
+        "id": "zone_mwm9lr46ubzdc0u3",
+        "name": "Il magazzino",
+        "color": "#c2e0f4",
+        "textureId": "planks_dark"
+      },
+      {
+        "id": "zone_mwm9lr46kpi95d5t",
+        "name": "La casa del fabbro",
+        "color": "#c9f4c2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwm9lr46dsu29nos",
+        "name": "Il cortile",
+        "color": "#f4ecc2",
+        "textureId": "cobble"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwm9lr46wre1rnlp",
+        "typeId": "fireplace",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr46s1fjdipp",
+        "typeId": "anvil",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr46aqb4cubq",
+        "typeId": "barrel",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr46edzw5mti",
+        "typeId": "weapon_rack",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr46xjg4iitz",
+        "typeId": "bench",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr46z48i23sy",
+        "typeId": "pallet",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr46i4wn39q4",
+        "typeId": "door",
+        "row": 1,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4742ee9y47",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr478w3bey5h",
+        "typeId": "door",
+        "row": 1,
+        "col": 2,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr48zek5tuxs",
+        "typeId": "door",
+        "row": 3,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr48kpf4o51b",
+        "typeId": "door",
+        "row": 1,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr48ytvqyj7p",
+        "typeId": "window",
+        "row": 0,
+        "col": 1,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr48wuobnse4",
+        "typeId": "window",
+        "row": 2,
+        "col": 0,
+        "side": "W"
+      },
+      {
+        "id": "obj_mwm9lr48vp65a4e8",
+        "typeId": "window",
+        "row": 3,
+        "col": 3,
+        "side": "E"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwm9lr480vp6ci4h",
+      "name": "Bertoldo",
+      "iconId": "blacksmith",
+      "isVictim": false,
+      "bio": "Maestro fabbro e padrone della forgia. Burbero ma stimato, fornisce ferri e armi al presidio del castello. Ultimamente ha le mani piene di ordini e il carattere peggiorato.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr48pc5s71zj",
+      "name": "Lupo",
+      "iconId": "construction",
+      "isVictim": false,
+      "bio": "Lavorante, forte come un bue e di poche parole. Vanni gli aveva preso il posto accanto alla fornace, e lui non l'ha mai nascosto.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr48lpoy1y10",
+      "name": "Mabilia",
+      "iconId": "baker",
+      "isVictim": false,
+      "bio": "Moglie del fabbro: tiene i conti e la cucina. Voleva bene al garzone come a un figlio, dice; ma la sera lo sentiva parlare di cose che non capiva.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr483mhxlgop",
+      "name": "Vanni",
+      "iconId": "farmer",
+      "isVictim": true,
+      "bio": "19 anni, garzone della forgia di Borgocenere. Silenzioso e instancabile, è arrivato in bottega ancora bambino: nessuno sa chi fossero i suoi genitori.",
+      "color": "#9f5595",
+      "gender": "male"
+    }
+  ],
+  "clues": [],
+  "solution": {
+    "placements": []
+  },
+  "manualHints": []
+}

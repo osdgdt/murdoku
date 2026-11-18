@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwm9lr4cu4t3ynm5",
+  "title": "L'orto dell'abbazia",
+  "author": "",
+  "difficulty": "easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "All'abbazia di San Ilario una giovane erborista è stata trovata morta nell'orto, tra le aiuole. La regina ti ha scritto: «Il mio giardino è pieno delle stesse piante; fammi sapere se qualcuno le usa male.» L'abate ti riceve a denti stretti.",
+  "resolutionNote": "Fra Anselmo cede quando ti mostri il suo registro dei veleni: lo smerciava ai nobili del borgo. Nell'erbario di Violante, fra le foglie di digitale, una nota: «La cameriera rammendava davanti al camino». Due figli del re morti in pochi giorni: sai già che non saranno gli ultimi.",
+  "tense": "past",
+  "createdAt": 1795015032204,
+  "updatedAt": 1795015032204,
+  "grid": {
+    "size": {
+      "rows": 4,
+      "cols": 4
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwm9lr4c172jb9f5",
+          "objectId": "obj_mwm9lr4c6ue7jpwn",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4c172jb9f5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4culm39ka3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4culm39ka3",
+          "objectId": "obj_mwm9lr4cwz9bwr76",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4c172jb9f5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4c172jb9f5",
+          "objectId": "obj_mwm9lr4cl43sdjru",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4culm39ka3",
+          "objectId": "obj_mwm9lr4cz19tjj5r",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4culm39ka3",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4cxv3m0pwn",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4cxv3m0pwn",
+          "objectId": "obj_mwm9lr4cg5ouirfn",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4c6gml1hyd",
+          "objectId": "obj_mwm9lr4cyqmlgkx0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4c6gml1hyd",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4cxv3m0pwn",
+          "objectId": "obj_mwm9lr4cpmodtzxh",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4cxv3m0pwn",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4c6gml1hyd",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4c6gml1hyd",
+          "objectId": "obj_mwm9lr4cf8eqcv3s",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwm9lr4c172jb9f5",
+        "name": "L'orto",
+        "color": "#f4c2c2",
+        "textureId": "grass"
+      },
+      {
+        "id": "zone_mwm9lr4culm39ka3",
+        "name": "La serra delle erbe",
+        "color": "#c2e0f4",
+        "textureId": "moss"
+      },
+      {
+        "id": "zone_mwm9lr4cxv3m0pwn",
+        "name": "L'infermeria",
+        "color": "#c9f4c2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwm9lr4c6gml1hyd",
+        "name": "Il chiostro",
+        "color": "#f4ecc2",
+        "textureId": "stone"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwm9lr4c6ue7jpwn",
+        "typeId": "well",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4cl43sdjru",
+        "typeId": "bench",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4cwz9bwr76",
+        "typeId": "plant",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4cz19tjj5r",
+        "typeId": "stool",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4cpmodtzxh",
+        "typeId": "cauldron",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4cg5ouirfn",
+        "typeId": "pallet",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4cf8eqcv3s",
+        "typeId": "statue",
+        "row": 3,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4cyqmlgkx0",
+        "typeId": "bench",
+        "row": 2,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4cavup5dy1",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4canqtbi3f",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4c5djax7yl",
+        "typeId": "door",
+        "row": 1,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4cqrvuaw75",
+        "typeId": "door",
+        "row": 3,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4co3c3ulku",
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4c0eqvrvld",
+        "typeId": "window",
+        "row": 0,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4ce91shzda",
+        "typeId": "window",
+        "row": 3,
+        "col": 0,
+        "side": "W"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwm9lr4cx9ehl3dl",
+      "name": "Anselmo",
+      "iconId": "monk",
+      "isVictim": false,
+      "bio": "Fra Anselmo, infermiere dell'abbazia: conosce ogni pianta e ogni dose. Autorevole, di rado visto fuori dall'infermeria, se non per raccogliere erbe all'alba.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4c1drwuw1q",
+      "name": "Clemenza",
+      "iconId": "nun",
+      "isVictim": false,
+      "bio": "Suor Clemenza, sorvegliante dell'orto e dell'infermeria: severa con le novizie. Rimproverava Violante per i ritardi, e per le sue visite fuori orario.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr4cidihu1qk",
+      "name": "Gherardo",
+      "iconId": "gardener",
+      "isVictim": false,
+      "bio": "Giardiniere laico dell'abbazia. Lavora l'orto da vent'anni e non ha mai amato che altri mettessero le mani nelle sue aiuole.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4cyahhrziw",
+      "name": "Violante",
+      "iconId": "pharmacist",
+      "isVictim": true,
+      "bio": "20 anni, erborista: cura le aiuole e prepara gli unguenti dell'infermeria. Teneva un erbario a cui non lasciava avvicinare nessuno.",
+      "color": "#9f5595",
+      "gender": "female"
+    }
+  ],
+  "clues": [],
+  "solution": {
+    "placements": []
+  },
+  "manualHints": []
+}

@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwm9lr4edn3obhl5",
+  "title": "La taverna dei Tre Corvi",
+  "author": "",
+  "difficulty": "medium",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.»",
+  "resolutionNote": "Rodolfo ammette tutto, con una risata amara. Sotto la medaglia di Vitale, un foglietto: «La sarta cuciva nel corridoio, vicino all'armatura». La regina annuisce piano quando glielo racconti: «Un'altra giovane vita sprecata».",
+  "tense": "past",
+  "createdAt": 1795015032206,
+  "updatedAt": 1795015032207,
+  "grid": {
+    "size": {
+      "rows": 5,
+      "cols": 5
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": "obj_mwm9lr4ex0mg6dd6",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": "obj_mwm9lr4ea0c52rc7",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4el75k4suz",
+          "objectId": "obj_mwm9lr4err0uk5sj",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": "obj_mwm9lr4ewgsdicj2",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": "obj_mwm9lr4eidoqw0gi",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4el75k4suz",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": "obj_mwm9lr4e1rcrcbug",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4e4l091xy8",
+          "objectId": "obj_mwm9lr4e0xcy7pcn",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4e4l091xy8",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4e4l091xy8",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4e4l091xy8",
+          "objectId": "obj_mwm9lr4ey0i4bwa7",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": "obj_mwm9lr4e6zd4dqzu",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "objectId": "obj_mwm9lr4etwtbtrqn",
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwm9lr4ezk4p1rin",
+        "name": "La sala della taverna",
+        "color": "#f4c2c2",
+        "textureId": "planks_dark"
+      },
+      {
+        "id": "zone_mwm9lr4el75k4suz",
+        "name": "La cucina",
+        "color": "#c2e0f4",
+        "textureId": "brick"
+      },
+      {
+        "id": "zone_mwm9lr4e4l091xy8",
+        "name": "La cantina",
+        "color": "#c9f4c2",
+        "textureId": "flagstone_dark"
+      },
+      {
+        "id": "zone_mwm9lr4edyoxd6zr",
+        "name": "Il cortile delle stalle",
+        "color": "#f4ecc2",
+        "textureId": "dirt"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwm9lr4ex0mg6dd6",
+        "typeId": "fireplace",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4ea0c52rc7",
+        "typeId": "bench",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4ewgsdicj2",
+        "typeId": "bench",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4e1rcrcbug",
+        "typeId": "bench",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4eidoqw0gi",
+        "typeId": "table",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4err0uk5sj",
+        "typeId": "shelf",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4e0xcy7pcn",
+        "typeId": "barrel",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4ey0i4bwa7",
+        "typeId": "barrel",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4e6zd4dqzu",
+        "typeId": "cart",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4etwtbtrqn",
+        "typeId": "well",
+        "row": 4,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4esmpzgzbz",
+        "typeId": "door",
+        "row": 1,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4epq0i436g",
+        "typeId": "door",
+        "row": 2,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4edgxq9u3i",
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4ea2mbse03",
+        "typeId": "door",
+        "row": 3,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4eirivk0b4",
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4flq2zv1vg",
+        "typeId": "window",
+        "row": 0,
+        "col": 2,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4fo0o3njma",
+        "typeId": "window",
+        "row": 0,
+        "col": 4,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4fv75hbufg",
+        "typeId": "window",
+        "row": 4,
+        "col": 4,
+        "side": "S"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwm9lr4fxfrw425d",
+      "name": "Rodolfo",
+      "iconId": "soldier",
+      "isVictim": false,
+      "bio": "Rodolfo il Guercio, soldato di ventura con un occhio solo e molte cicatrici. Gioca a dadi con Vitale quasi ogni sera, e perde più spesso di quanto ammetta.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4f3hzesag2",
+      "name": "Gisulfo",
+      "iconId": "banker",
+      "isVictim": false,
+      "bio": "Mercante di panni di passaggio a Borgocenere: ha preso una stanza ai Tre Corvi per una settimana. Paga bene e parla poco.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4f2y9y4g4s",
+      "name": "Orsola",
+      "iconId": "waiter",
+      "isVictim": false,
+      "bio": "Cameriera dei Tre Corvi. Sa tutto di tutti: serve vino e ascolta. Si è fatta più guardinga da quando Vitale è morto.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr4f0zr02cwr",
+      "name": "Drogone",
+      "iconId": "farmer",
+      "isVictim": false,
+      "bio": "Mandriano delle colline, in paese solo per vendere le bestie. Beve forte e ha il pugno facile.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4foi81pwdf",
+      "name": "Vitale",
+      "iconId": "archer",
+      "isVictim": true,
+      "bio": "21 anni, mercenario al soldo di chi paga. Giocatore di dadi, spaccone, benvoluto a metà.",
+      "color": "#bf8020",
+      "gender": "male"
+    }
+  ],
+  "clues": [],
+  "solution": {
+    "placements": []
+  },
+  "manualHints": []
+}

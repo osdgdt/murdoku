@@ -1,0 +1,579 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwm9lr4jn2mspwrd",
+  "title": "La torre delle prigioni",
+  "author": "",
+  "difficulty": "hard",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Una carceriera giace in fondo alla torre delle prigioni, con le chiavi mancanti. La regina ti nota stanco e ti prende le mani: «I pretendenti sono quasi finiti», dice piano. E lo ripete, come per convincersene.",
+  "resolutionNote": "Il capitano della guardia fa il nome del compratore delle fughe e resta in silenzio. Nell'anello di chiavi c'è un foglietto che sembra innocuo: «La regina pregò nella cappella prima di cena». Lo metti in tasca senza pensarci.",
+  "tense": "past",
+  "createdAt": 1795015032211,
+  "updatedAt": 1795015032212,
+  "grid": {
+    "size": {
+      "rows": 7,
+      "cols": 7
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": "obj_mwm9lr4joeeyk6n0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": "obj_mwm9lr4j0eyt9y4n",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": "obj_mwm9lr4j43lii80c",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": "obj_mwm9lr4jiazkbht0",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": "obj_mwm9lr4jtz3dfqya",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": "obj_mwm9lr4jq27kwb8q",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": "obj_mwm9lr4jfxk0jscz",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": "obj_mwm9lr4judjpi486",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": "obj_mwm9lr4jdh1lt39u",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": "obj_mwm9lr4jp1jjcmn3",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "objectId": "obj_mwm9lr4jdb6i79o9",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": "obj_mwm9lr4jaeqjw7ns",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": "obj_mwm9lr4j2r8tuqat",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": "obj_mwm9lr4j2ro10pwq",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jrkueq867",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": "obj_mwm9lr4jo0a0bvar",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwm9lr4jgmes50dl",
+        "name": "La sala del capitano",
+        "color": "#f4c2c2",
+        "textureId": "carpet_blue"
+      },
+      {
+        "id": "zone_mwm9lr4j5mqqr0kp",
+        "name": "Le celle",
+        "color": "#c2e0f4",
+        "textureId": "flagstone_dark"
+      },
+      {
+        "id": "zone_mwm9lr4jnlcvxc1u",
+        "name": "Il corpo di guardia",
+        "color": "#c9f4c2",
+        "textureId": "stone"
+      },
+      {
+        "id": "zone_mwm9lr4jrkueq867",
+        "name": "La scala",
+        "color": "#f4ecc2",
+        "textureId": "slate"
+      },
+      {
+        "id": "zone_mwm9lr4j8dnrtbkt",
+        "name": "La sala degli interrogatori",
+        "color": "#e0c2f4",
+        "textureId": "planks_dark"
+      },
+      {
+        "id": "zone_mwm9lr4jbff54dsy",
+        "name": "Il cortile della torre",
+        "color": "#f4d3c2",
+        "textureId": "gravel"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwm9lr4joeeyk6n0",
+        "typeId": "table",
+        "row": 0,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4j0eyt9y4n",
+        "typeId": "candelabrum",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4jtz3dfqya",
+        "typeId": "chair",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4j43lii80c",
+        "typeId": "cage",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "id": "obj_mwm9lr4jq27kwb8q",
+        "typeId": "cage",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4jfxk0jscz",
+        "typeId": "pallet",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "obj_mwm9lr4jiazkbht0",
+        "typeId": "bench",
+        "row": 0,
+        "col": 6
+      },
+      {
+        "id": "obj_mwm9lr4judjpi486",
+        "typeId": "armor",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4jdh1lt39u",
+        "typeId": "table",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "obj_mwm9lr4jdb6i79o9",
+        "typeId": "weapon_rack",
+        "row": 3,
+        "col": 6
+      },
+      {
+        "id": "obj_mwm9lr4jp1jjcmn3",
+        "typeId": "bench",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4jaeqjw7ns",
+        "typeId": "candelabrum",
+        "row": 4,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4j2r8tuqat",
+        "typeId": "chest",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4jo0a0bvar",
+        "typeId": "cage",
+        "row": 6,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4j2ro10pwq",
+        "typeId": "well",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "obj_mwm9lr4ji0vk4jgd",
+        "typeId": "door",
+        "row": 2,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4jofgnl11e",
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4jj082he8o",
+        "typeId": "door",
+        "row": 2,
+        "col": 2,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4k2qj5h023",
+        "typeId": "portcullis",
+        "row": 1,
+        "col": 5,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4kf8b9ofes",
+        "typeId": "door",
+        "row": 3,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4k05msj6bh",
+        "typeId": "door",
+        "row": 3,
+        "col": 5,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4knt579kaj",
+        "typeId": "door",
+        "row": 5,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4kg5lowywu",
+        "typeId": "door",
+        "row": 5,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4k252000hh",
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4kjva6qjn4",
+        "typeId": "window",
+        "row": 3,
+        "col": 0,
+        "side": "W"
+      },
+      {
+        "id": "obj_mwm9lr4kfyu9g94l",
+        "typeId": "window",
+        "row": 6,
+        "col": 0,
+        "side": "W"
+      },
+      {
+        "id": "obj_mwm9lr4kmfe49kpz",
+        "typeId": "window",
+        "row": 6,
+        "col": 6,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4k6u6cterf",
+        "typeId": "arrow_slit",
+        "row": 0,
+        "col": 4,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4kge31pqfv",
+        "typeId": "arrow_slit",
+        "row": 1,
+        "col": 6,
+        "side": "E"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwm9lr4kbcjxerxe",
+      "name": "Manfredo",
+      "iconId": "knight",
+      "isVictim": false,
+      "bio": "Capitano della guardia della torre: soldato di lunga carriera, rispettato dai suoi uomini.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4kymff3qh2",
+      "name": "Sveva",
+      "iconId": "soldier",
+      "isVictim": false,
+      "bio": "Guardia di turno nella torre: fa la ronda ai piani alti. Ha un debito con un cambiavalute.",
+      "color": "#ea558a",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr4klcs46r4g",
+      "name": "Aldo",
+      "iconId": "thief",
+      "isVictim": false,
+      "bio": "Ladro rinchiuso in cella, in attesa del giudizio. Ride sempre, dice di avere amici fuori.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4khb3eez1x",
+      "name": "Cunegonda",
+      "iconId": "countess",
+      "isVictim": false,
+      "bio": "Dama di corte, in visita al prigioniero per conto di una nobile famiglia. Veste di seta e parla a bassa voce.",
+      "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr4knbjhu745",
+      "name": "Tobia",
+      "iconId": "herald",
+      "isVictim": false,
+      "bio": "Araldo del re: legge i bandi e porta i messaggi ai detenuti. Sa chi entra e chi esce.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4kjhnlhubw",
+      "name": "Norberto",
+      "iconId": "executioner",
+      "isVictim": false,
+      "bio": "Boia della torre: lavora quando serve, e quando non serve aspetta. Di Vivia era il collega più vicino.",
+      "color": "#4a6aca",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4kc5m0i8kf",
+      "name": "Vivia",
+      "iconId": "police",
+      "isVictim": true,
+      "bio": "20 anni, carceriera della torre: tiene le chiavi di ogni cella. Giovane, ligia, spesso sola nei sotterranei.",
+      "color": "#9f80b5",
+      "gender": "female"
+    }
+  ],
+  "clues": [],
+  "solution": {
+    "placements": []
+  },
+  "manualHints": []
+}

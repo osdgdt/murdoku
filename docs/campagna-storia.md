@@ -2,6 +2,8 @@
 
 > **Attenzione, spoiler.** Questo documento rivela il colpevole di tutti i casi, finale compreso. Non condividerlo con chi deve giocare la campagna. Versione inglese: [campaign-story.en.md](campaign-story.en.md).
 
+**I casi 1-9 già pronti** (mappa, personaggi, vittima e dossier, senza indizi né soluzione): [campagna-casi/README.md](campagna-casi/README.md).
+
 Dieci casi, difficoltà crescente, tono cupo, nessuna magia. Il giocatore è **l'investigatore di corte** del regno di **Carvenna**. I casi dall'1 al 9 sono omicidi di giovani adulti; il decimo, in una griglia 9×9, è la morte del re e si risolve con gli indizi raccolti nei nove precedenti (indizi nascosti, vedi `README.md`, sezione campagne).
 
 Nomi, luoghi e dettagli sono proposte: cambiali pure, purché restino coerenti con le regole in fondo (iniziali, nessuna V tra i sospettati).

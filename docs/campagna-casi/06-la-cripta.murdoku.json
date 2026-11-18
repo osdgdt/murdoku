@@ -1,0 +1,432 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwm9lr4gi4r265zc",
+  "title": "La cripta",
+  "author": "",
+  "difficulty": "hard",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "Nella cripta dell'abbazia, dove il re sarà sepolto, una novizia è stata trovata ai piedi di un sarcofago. La regina vi si recherà per le esequie, e vuole una risposta prima di allora. Il sagrestano, ti avvertono, parla poco.",
+  "resolutionNote": "Il sagrestano vende l'argento delle reliquie da anni, e Valeria lo ha visto. Nel rosario, in una perla vuota: «La nobildonna aspettava udienza davanti al trono». Intorno alla bara del re, i figli che restano sono sempre meno.",
+  "tense": "past",
+  "createdAt": 1795015032208,
+  "updatedAt": 1795015032208,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 6
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwm9lr4gplfqld4m",
+          "objectId": "obj_mwm9lr4gywlvfl4a",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gplfqld4m",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gplfqld4m",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gh0recp5j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gh0recp5j",
+          "objectId": "obj_mwm9lr4gwu79nh4u",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gh0recp5j",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4gplfqld4m",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gplfqld4m",
+          "objectId": "obj_mwm9lr4grrjnaun5",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gplfqld4m",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gh0recp5j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gh0recp5j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gh0recp5j",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": "obj_mwm9lr4g3dy2vr7c",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": "obj_mwm9lr4gh1gibupr",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gzesf3052",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gzesf3052",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": "obj_mwm9lr4g5r8yj7b9",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gzesf3052",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gzesf3052",
+          "objectId": "obj_mwm9lr4g3udk6fbm",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": "obj_mwm9lr4gercs5jcu",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4g2jku31er",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4g2jku31er",
+          "objectId": "obj_mwm9lr4g8wyjx05g",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": "obj_mwm9lr4g19ms5buo",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4gy5c0stoc",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4g2jku31er",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwm9lr4g2jku31er",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwm9lr4gplfqld4m",
+        "name": "La sacrestia",
+        "color": "#f4c2c2",
+        "textureId": "wood"
+      },
+      {
+        "id": "zone_mwm9lr4gh0recp5j",
+        "name": "La navata",
+        "color": "#c2e0f4",
+        "textureId": "checker_stone"
+      },
+      {
+        "id": "zone_mwm9lr4gy5c0stoc",
+        "name": "La cripta",
+        "color": "#c9f4c2",
+        "textureId": "cracked_stone"
+      },
+      {
+        "id": "zone_mwm9lr4gzesf3052",
+        "name": "La cappella dei pellegrini",
+        "color": "#f4ecc2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwm9lr4g2jku31er",
+        "name": "L'ossario",
+        "color": "#e0c2f4",
+        "textureId": "ossuary"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwm9lr4gywlvfl4a",
+        "typeId": "chest",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4grrjnaun5",
+        "typeId": "candelabrum",
+        "row": 1,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4g3dy2vr7c",
+        "typeId": "altar",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "id": "obj_mwm9lr4g5r8yj7b9",
+        "typeId": "sarcophagus",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "id": "obj_mwm9lr4g19ms5buo",
+        "typeId": "sarcophagus",
+        "row": 5,
+        "col": 1
+      },
+      {
+        "id": "obj_mwm9lr4gercs5jcu",
+        "typeId": "gravestone",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4gh1gibupr",
+        "typeId": "candelabrum",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "obj_mwm9lr4gwu79nh4u",
+        "typeId": "bench",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "obj_mwm9lr4g3udk6fbm",
+        "typeId": "bench",
+        "row": 3,
+        "col": 5
+      },
+      {
+        "id": "obj_mwm9lr4g8wyjx05g",
+        "typeId": "gravestone",
+        "row": 4,
+        "col": 5
+      },
+      {
+        "id": "obj_mwm9lr4gdfobp63r",
+        "typeId": "door",
+        "row": 1,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4g19qkqmie",
+        "typeId": "door",
+        "row": 1,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4gw9sgrgz3",
+        "typeId": "door",
+        "row": 1,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4g8xowzpsw",
+        "typeId": "door",
+        "row": 1,
+        "col": 5,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwm9lr4g5uawlgee",
+        "typeId": "door",
+        "row": 3,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4gv57q9qdc",
+        "typeId": "door",
+        "row": 5,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwm9lr4gwfnumb8d",
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4g0j679ny4",
+        "typeId": "window",
+        "row": 0,
+        "col": 4,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwm9lr4gwgnenh3d",
+        "typeId": "window",
+        "row": 2,
+        "col": 5,
+        "side": "E"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwm9lr4g8ikohy72",
+      "name": "Odorico",
+      "iconId": "monk",
+      "isVictim": false,
+      "bio": "Sagrestano: custodisce i vasi sacri, le chiavi e i reliquiari. Parla poco e non lascia mai la cripta senza chiuderla.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4geie04zvr",
+      "name": "Leopoldo",
+      "iconId": "priest",
+      "isVictim": false,
+      "bio": "Abate di San Ilario: anziano, severo, impegnato a preparare le esequie del re.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4goel6ulyd",
+      "name": "Rinaldo",
+      "iconId": "gardener",
+      "isVictim": false,
+      "bio": "Becchino del borgo: scava le tombe e le chiude. Si dice che parli con i morti, e che i vivi gli stiano a distanza.",
+      "color": "#158060",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4gul9y6jt8",
+      "name": "Eleonora",
+      "iconId": "farmer",
+      "isVictim": false,
+      "bio": "Pellegrina venuta a pregare sulle tombe dei santi. Arrivata da pochi giorni, ha già fatto troppe domande.",
+      "color": "#9f5595",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwm9lr4g07x0gpv4",
+      "name": "Martino",
+      "iconId": "explorer",
+      "isVictim": false,
+      "bio": "Pellegrino ed ex soldato: prega molto e dorme poco. Non vuole dire da dove viene.",
+      "color": "#bf8020",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwm9lr4geyifap9h",
+      "name": "Valeria",
+      "iconId": "nun",
+      "isVictim": true,
+      "bio": "20 anni, novizia dell'abbazia di San Ilario. Curiosa, taciturna, spesso trovata dove non dovrebbe.",
+      "color": "#4a6aca",
+      "gender": "female"
+    }
+  ],
+  "clues": [],
+  "solution": {
+    "placements": []
+  },
+  "manualHints": []
+}

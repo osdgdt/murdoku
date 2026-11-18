@@ -18,6 +18,13 @@ const db = getFirestore(firebaseApp);
 // aggregates in the top-level `caseStats` collection hold no personal data and stay.)
 const SUBCOLLECTIONS = ["campaignProgress", "achievements", "caseStats", "dailyEntries"];
 
+// How many cases of the shared database this player has published (they are NOT deleted with the rest: they stay online
+// under the player's nickname until the author deletes them from the editor's "Pubblica" window).
+export async function countPublishedCases(uid) {
+  const snap = await getDocs(collection(db, "users", uid, "published"));
+  return snap.size;
+}
+
 // Returns the number of documents removed.
 export async function deleteCloudData(uid) {
   let removed = 0;

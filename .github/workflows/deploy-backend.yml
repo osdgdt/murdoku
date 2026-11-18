@@ -1,0 +1,74 @@
+# Deploys the backend of the shared case database: the Cloud Functions (functions/), the Firestore rules and the indexes.
+# The site itself is published by pages.yml; this is the other half, and it only runs when the backend changes.
+#
+# It needs a secret, FIREBASE_SERVICE_ACCOUNT: the JSON key of a service account of the Firebase project allowed to deploy
+# (steps in docs/community-setup.md). Without it the job says so and finishes green: the site keeps working, the shared
+# case database just is not updated.
+name: Backend
+on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/**"
+      - "firestore.rules"
+      - "firestore.indexes.json"
+      - "firebase.json"
+      - "tools/build-functions.mjs"
+      # the functions run a generated copy of these (tools/build-functions.mjs lists what they import)
+      - "src/community/casePolicy.js"
+      - "src/model/**"
+      - "src/i18n/**"
+      - "src/skin/**"
+      - "src/util/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# one deploy at a time; a newer push waits instead of cancelling a deploy half way
+concurrency:
+  group: backend
+  cancel-in-progress: false
+
+env:
+  FIREBASE_PROJECT: murdoku-61284
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Is there a key to deploy with?
+        id: key
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::The FIREBASE_SERVICE_ACCOUNT secret is not set: the backend was not deployed (see docs/community-setup.md)."
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v6
+        if: steps.key.outputs.present == 'true'
+        with:
+          node-version: 22
+      # firebase-tools comes from the same lock file the rules tests use: the version that was tested is the one that deploys
+      - name: Install firebase-tools and the functions' dependencies
+        if: steps.key.outputs.present == 'true'
+        run: |
+          npm ci --prefix test/rules
+          npm ci --prefix functions
+      - name: Deploy functions, rules and indexes
+        if: steps.key.outputs.present == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_TOOLS_DISABLE_UPDATE_CHECK: "true"
+        run: |
+          umask 077
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/service-account.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/service-account.json"
+          test/rules/node_modules/.bin/firebase deploy \
+            --only functions,firestore:rules,firestore:indexes \
+            --project "$FIREBASE_PROJECT" --non-interactive
+          rm -f "$RUNNER_TEMP/service-account.json"

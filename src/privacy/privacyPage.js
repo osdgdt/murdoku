@@ -39,16 +39,24 @@ qs("#clear-cloud-btn").addEventListener("click", async () => {
       });
     });
     const current = user || (await signIn()).user;
+    const { deleteCloudData, deleteSignInAccount, countPublishedCases } = await import("../auth/cloudData.js");
+    const published = await countPublishedCases(current.uid).catch(() => 0);
     if (
       !confirm(
         t(
           "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati, i contrassegni delle statistiche e il nickname con le partite della sfida del giorno dell'account {email}?",
           { email: current.email }
-        )
+        ) +
+          (published > 0
+            ? "\n\n" +
+              t(
+                "Attenzione: hai {count} casi pubblicati nel database dei casi. Cancellare i dati NON li elimina: restano online col tuo nickname finché non li elimini dalla finestra «Pubblica» dell'editor.",
+                { count: published }
+              )
+            : "")
       )
     )
       return;
-    const { deleteCloudData, deleteSignInAccount } = await import("../auth/cloudData.js");
     const removed = await deleteCloudData(current.uid);
     let message = t("Fatto: {count} elementi cancellati dal cloud.", { count: removed });
     if (confirm(t("Vuoi anche eliminare l'accesso con Google a questo sito (l'account Google resta invariato)?"))) {

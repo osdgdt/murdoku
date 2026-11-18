@@ -29,6 +29,24 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e:all
+  # firestore.rules and the Cloud Functions of the shared case database, against the Firebase emulators (they run on Java,
+  # which the runner has). Like the visual job it never runs on main: an emulator hiccup must not stop the site from being
+  # published (pages.yml calls this workflow for every push to main); it is checked on every pull request instead.
+  emulators:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix test/rules
+      - run: npm ci --prefix functions
+      - run: java -version
+      - run: REQUIRE_RULES=1 npm run test:rules
+      - run: REQUIRE_FUNCTIONS=1 npm run test:functions
   # Pixel comparison of key screens (test/e2e/visual.mjs against test/visual/*.png). It runs in Playwright's own
   # container image, whose version must match the installed Playwright (test/test-ci-config.js checks it), so
   # fonts and the renderer are the same here and on the machine that wrote the references. Never on main:

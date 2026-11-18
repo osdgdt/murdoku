@@ -57,6 +57,34 @@ const PAGES = [
     },
     "#clue-wizard .clue-sentence",
   ],
+  // the window that puts a case in the shared database: the form of a new case, and a case that is already published
+  // (its code, link and QR); the second one is told about the publication through the browser's own memory of it
+  [
+    "editor (publish window, form)",
+    null,
+    async (page) => {
+      await page.evaluate(() => localStorage.removeItem("murdoku:community:published"));
+      await page.click("#publish-btn");
+    },
+    ".publish-dialog [data-key=publish-blurb]",
+  ],
+  [
+    "editor (publish window, published case)",
+    null,
+    async (page) => {
+      const id = new URL(page.url()).searchParams.get("id");
+      await page.evaluate(
+        (key) =>
+          localStorage.setItem(
+            "murdoku:community:published",
+            JSON.stringify({ [key]: { code: "ACDEFGHJ", revision: 1, license: "cc-by", title: "Test" } })
+          ),
+        id
+      );
+      await page.click("#publish-btn");
+    },
+    ".publish-dialog [data-key=publish-qr] svg",
+  ],
   ["privacy", "privacy.html"],
   ["tutorial", "tutorial.html"],
 ];

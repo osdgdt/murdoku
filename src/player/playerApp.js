@@ -2,7 +2,12 @@ import "../i18n/i18n.js";
 import { el, clear, qs } from "../util/dom.js";
 import * as store from "../storage/puzzleStore.js";
 import { createBoardState, serializeBoardState, deserializeBoardState } from "./board.js";
-import { duplicatePuzzle, difficultyLabel } from "../model/puzzle.js";
+import { difficultyLabel } from "../model/puzzle.js";
+import { duplicateCase } from "../community/remix.js";
+import { isCaseCode, normalizeCode, isSharedPuzzleId, SHARED_PREFIX } from "../community/casePolicy.js";
+import * as sharedRegistry from "../community/localRegistry.js";
+import { openSharedCode } from "./sharedCase.js";
+import { renderSharedPanel } from "./sharedPanel.js";
 import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { decodePuzzleFromFragment } from "../storage/shareLink.js";
 import { wireThemeToggle } from "../util/theme.js";
@@ -55,6 +60,16 @@ if (!puzzleId && location.hash.startsWith("#case=")) {
   }
 }
 
+// A case of the shared database: `player.html?c=ABCD2345` (a code someone passed on, a QR). It is saved here as
+// `shared_<CODE>` the first time and opens from this browser afterwards — see player/sharedCase.js.
+const sharedCode = params.get("c");
+if (!puzzleId && sharedCode) {
+  qs("#player-title").textContent = t("Cerco il caso {code}…", { code: normalizeCode(sharedCode) });
+  const opened = await openSharedCode(sharedCode);
+  if (opened.error) importError = opened.error;
+  else puzzleId = opened.puzzleId;
+}
+
 const pickerEl = qs("#puzzle-picker");
 const gameEl = qs("#game");
 const titleEl = qs("#player-title");
@@ -67,6 +82,41 @@ let state = puzzle ? deserializeBoardState(store.getProgress(puzzle.id)) : creat
 // the page — restores exactly where you left off.
 function persistProgress() {
   store.saveProgress(puzzle.id, serializeBoardState(state));
+}
+
+// "Hai un codice?": the short code of a shared case, typed or pasted.
+function renderCodeEntry() {
+  const input = el("input", {
+    type: "text",
+    maxlength: "12",
+    autocomplete: "off",
+    autocapitalize: "characters",
+    spellcheck: "false",
+    "aria-label": t("Codice del caso"),
+    placeholder: t("Codice del caso"),
+    "data-key": "code-input",
+  });
+  const notice = el("p", { class: "violation", role: "alert" });
+  notice.hidden = true;
+  const open = () => {
+    const code = normalizeCode(input.value);
+    if (!isCaseCode(code)) {
+      notice.textContent = t("Il codice non è valido: sono 8 caratteri tra lettere e cifre, come ABCD-2345.");
+      notice.hidden = false;
+      return;
+    }
+    location.href = `player.html?c=${code}`;
+  };
+  input.addEventListener("keydown", (e) => e.key === "Enter" && open());
+  return el("section", { class: "code-entry panel" }, [
+    el("h2", {}, t("Hai un codice?")),
+    el("p", { class: "muted" }, t("Se qualcuno ti ha passato il codice di un caso, scrivilo qui per giocarlo.")),
+    el("div", { class: "field-row" }, [
+      input,
+      el("button", { type: "button", class: "primary", "data-key": "code-go", onClick: open }, t("Apri")),
+    ]),
+    notice,
+  ]);
 }
 
 let pickerSortMode = "updated"; // "updated" | "title" | "difficulty"
@@ -103,6 +153,7 @@ function showPicker() {
     const section = pickerEl.querySelector(".library-section");
     if (section) pickerEl.insertBefore(section, pickerEl.firstChild);
   });
+  pickerEl.appendChild(renderCodeEntry());
   if (puzzles.length === 0) return;
   pickerEl.appendChild(
     el("div", { class: "saved-list-header" }, [
@@ -142,6 +193,15 @@ function showPicker() {
             ? el("span", { class: "best-time-badge", title: t("Miglior tempo") }, `⏱ ${formatElapsed(entry.bestTimeSeconds)}`)
             : null,
           el("span", { class: "meta" }, t("Aggiornato il {updated}", { updated })),
+          isSharedPuzzleId(entry.id) && sharedRegistry.getShared(entry.id.slice(SHARED_PREFIX.length))?.authorNick
+            ? el(
+                "span",
+                { class: "meta" },
+                `🌐 ${t("di {nick}", { nick: sharedRegistry.getShared(entry.id.slice(SHARED_PREFIX.length)).authorNick })}`
+              )
+            : isSharedPuzzleId(entry.id)
+              ? el("span", { class: "meta" }, `🌐 ${t("Caso condiviso")}`)
+              : null,
         ]),
         el("div", { class: "actions" }, [
           el("a", { class: "play", href: `player.html?id=${entry.id}` }, t("Gioca")),
@@ -154,7 +214,12 @@ function showPicker() {
               onClick: () => {
                 const original = store.get(entry.id);
                 if (!original) return;
-                store.save(duplicatePuzzle(original));
+                const made = duplicateCase(original);
+                if (!made.ok) {
+                  alert(t("L'autore non permette di copiare questo caso: puoi solo giocarlo."));
+                  return;
+                }
+                store.save(made.copy);
                 showPicker();
               },
             },
@@ -188,6 +253,7 @@ if (!puzzle) {
   pickerEl.classList.add("hidden");
   gameEl.classList.remove("hidden");
   titleEl.textContent = puzzle.title;
+  if (isSharedPuzzleId(puzzle.id)) renderSharedPanel(qs("#shared-panel"), puzzle);
   recentActivity.recordOpened({
     kind: "puzzle",
     id: puzzle.id,

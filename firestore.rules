@@ -157,5 +157,47 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if isSignedIn() && request.auth.uid == userId;
     }
+
+    // ---- Shared cases (see src/community/ and functions/src/handlers.js) -----------------------------------------------
+    // Anyone, signed in or not, reads a case: that is the point of a code you can pass on. Nobody writes any of it from the
+    // page: publishing, revising, withdrawing and deleting go through the Cloud Functions (which use the admin SDK and so
+    // are not subject to these rules), because only a server can enforce the limits per author, hand out codes without
+    // collisions, keep the counters honest and check the case with the app's own validation.
+    //  - the card `cases/{code}` is small and public; it can be listed (only the active ones, 30 at a time: no scraping);
+    //  - the case itself, `cases/{code}/revisions/{n}`, is read one revision at a time and never listed;
+    //  - a case that is withdrawn or hidden is readable only by its author and by the admins.
+    // Keep the bounds in step with LIMITS in src/community/casePolicy.js.
+    function isActiveCase(code) {
+      return get(/databases/$(database)/documents/cases/$(code)).data.status == 'active';
+    }
+    function isCaseAuthor(code) {
+      return isSignedIn() && get(/databases/$(database)/documents/cases/$(code)).data.authorUid == request.auth.uid;
+    }
+    match /cases/{code} {
+      allow get: if resource.data.status == 'active'
+        || (isSignedIn() && resource.data.authorUid == request.auth.uid)
+        || isOwner();
+      allow list: if resource.data.status == 'active' && request.query.limit <= 30;
+      allow write: if false;
+      match /revisions/{revision} {
+        allow get: if isActiveCase(code) || isCaseAuthor(code) || isOwner();
+        allow list, write: if false;
+      }
+    }
+    // The author's public name and how many cases they have out.
+    match /authors/{userId} {
+      allow get: if true;
+      allow list: if request.query.limit <= 30;
+      allow write: if false;
+    }
+    // The author's own list of what they published (the account deletion and the editor read it).
+    match /users/{userId}/published/{code} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow write: if false;
+    }
+    // Server only: the per-day counters of the limits, the claimed fingerprints, the adjustable limits.
+    match /users/{userId}/publishLog/{day} { allow read, write: if false; }
+    match /caseHashes/{hash} { allow read, write: if false; }
+    match /config/{doc} { allow read, write: if false; }
   }
 }

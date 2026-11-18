@@ -5,7 +5,6 @@ import {
   touch,
   validatePuzzleShape,
   clonePuzzle,
-  duplicatePuzzle,
   pruneDanglingClueReferences,
   pruneDanglingSolutionPlacements,
   characterColor,
@@ -16,6 +15,7 @@ import {
   removeClue,
 } from "../model/puzzle.js";
 import * as store from "../storage/puzzleStore.js";
+import { duplicateCase } from "../community/remix.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
@@ -333,6 +333,23 @@ shareBtn.addEventListener("click", async () => {
   }
 });
 
+// The shared case database: its window (and all of Firebase) is loaded only when somebody asks for it.
+qs("#publish-btn").addEventListener("click", async () => {
+  try {
+    const { openPublishDialog } = await import("./publishDialog.js");
+    openPublishDialog({
+      getPuzzle: () => puzzle,
+      confirmPublishable,
+      onPlay: () => {
+        persist();
+        location.href = `player.html?id=${puzzle.id}`;
+      },
+    });
+  } catch {
+    setStatus(t("Non riesco ad aprire la finestra di pubblicazione: controlla la connessione e riprova."), "violation");
+  }
+});
+
 importInput.addEventListener("change", async () => {
   const file = importInput.files[0];
   if (!file) return;
@@ -372,7 +389,12 @@ deleteBtn.addEventListener("click", () => {
 
 duplicateBtn.addEventListener("click", () => {
   persist();
-  const copy = duplicatePuzzle(puzzle);
+  const made = duplicateCase(puzzle);
+  if (!made.ok) {
+    setStatus(t("L'autore non permette di copiare questo caso: puoi solo giocarlo."), "violation");
+    return;
+  }
+  const copy = made.copy;
   store.save(copy);
   location.href = `editor.html?id=${copy.id}`;
 });

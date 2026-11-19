@@ -162,7 +162,7 @@ test("sociale e moderazione per davvero: mi piace e giocato sul Firestore vero, 
     await db.doc(`profiles/${reader.uid}`).set({ nickname: nick, key: nick.toLowerCase() });
     readers.push(reader);
   }
-  const [one, two, three] = readers;
+  const [one, two] = readers;
 
   assert.equal((await call("setLike", { code, liked: true }, one)).result.likes, 1);
   assert.equal((await call("setLike", { code, liked: true }, one)).result.likes, 1, "ripetere non cambia nulla");

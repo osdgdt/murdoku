@@ -1,6 +1,6 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwo3ocerndvl3ejs",
+  "id": "puzzle_mwo3vm5kqf9hj9b3",
   "title": "La torre delle prigioni",
   "author": "",
   "difficulty": "hard",
@@ -9,8 +9,8 @@
   "briefing": "Una carceriera giace in fondo alla torre delle prigioni, con le chiavi mancanti. La regina ti nota stanco e ti prende le mani: «I pretendenti sono quasi finiti», dice piano. E lo ripete, come per convincersene.",
   "resolutionNote": "Il capitano della guardia fa il nome del compratore delle fughe e resta in silenzio. Nell'anello di chiavi c'è un foglietto che sembra innocuo: «La regina pregò nella cappella prima di cena». Lo metti in tasca senza pensarci.",
   "tense": "past",
-  "createdAt": 1795126007763,
-  "updatedAt": 1795126007764,
+  "createdAt": 1795126346984,
+  "updatedAt": 1795126346984,
   "grid": {
     "size": {
       "rows": 8,
@@ -19,336 +19,336 @@
     "cells": [
       [
         {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
-          "objectId": "obj_mwo3ocers32c2547",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
+          "objectId": "obj_mwo3vm5k55gf4r7p",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
-          "objectId": "obj_mwo3ocerco9wzg1s",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
+          "objectId": "obj_mwo3vm5k4nd7f5b6",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
-          "objectId": "obj_mwo3ocerztp37215",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
+          "objectId": "obj_mwo3vm5krklmh1j4",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
-          "objectId": "obj_mwo3ocer4djum46g",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
+          "objectId": "obj_mwo3vm5kv07jhavt",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
-          "objectId": "obj_mwo3ocernr62v6vi",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
+          "objectId": "obj_mwo3vm5k5qhguzl1",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
-          "objectId": "obj_mwo3ocersm22dxnk",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
+          "objectId": "obj_mwo3vm5kzzyey7zt",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
-          "objectId": "obj_mwo3ocer999mfqmv",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
+          "objectId": "obj_mwo3vm5kb3w7887j",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerxfaqs8n5",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocer86bmjwzb",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": "obj_mwo3ocerruyrdrxg",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": "obj_mwo3ocer1ibu6gj4",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "zoneId": "zone_mwo3vm5ks71c8ql6",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
+          "zoneId": "zone_mwo3vm5kuhyqmnng",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
+          "objectId": "obj_mwo3vm5k7ktkbkfa",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": "obj_mwo3ocer98ebgphy",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
+          "objectId": "obj_mwo3vm5k5a72rwm8",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerk8v6h1gz",
-          "objectId": "obj_mwo3ocerq9zu2wwv",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
-          "objectId": "obj_mwo3ocer5840531h",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerpwragady",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerpwragady",
-          "objectId": "obj_mwo3ocer94aswwhn",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
+          "objectId": "obj_mwo3vm5kr4q6d8eg",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
-          "objectId": "obj_mwo3oceratgho8qo",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kf2z5s3p0",
+          "objectId": "obj_mwo3vm5ko9cijlvn",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
+          "objectId": "obj_mwo3vm5k3877y6i4",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
+          "objectId": "obj_mwo3vm5k2j7shiyz",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
-          "objectId": "obj_mwo3ocerz1893hul",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerpwragady",
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": "obj_mwo3vm5kaps7af97",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
-          "objectId": "obj_mwo3ocerj3gbrvbe",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
+          "objectId": "obj_mwo3vm5kqbldh30x",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerpwragady",
-          "objectId": "obj_mwo3ocerb7v6qkp7",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": "obj_mwo3vm5k4jn7qab3",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kh7tnzfwk",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kz76wvhb4",
+          "objectId": "obj_mwo3vm5ksw2x5to0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5kw4w9qw2a",
           "objectId": null,
           "blocked": false
         }
@@ -356,37 +356,37 @@
     ],
     "zones": [
       {
-        "id": "zone_mwo3ocer86bmjwzb",
+        "id": "zone_mwo3vm5kuhyqmnng",
         "name": "La sala del capitano",
         "color": "#f4c2c2",
         "textureId": "carpet_blue"
       },
       {
-        "id": "zone_mwo3ocerxfaqs8n5",
+        "id": "zone_mwo3vm5ks71c8ql6",
         "name": "Le celle",
         "color": "#c2e0f4",
         "textureId": "flagstone_dark"
       },
       {
-        "id": "zone_mwo3ocerk8v6h1gz",
+        "id": "zone_mwo3vm5kf2z5s3p0",
         "name": "Il corpo di guardia",
         "color": "#c9f4c2",
         "textureId": "stone"
       },
       {
-        "id": "zone_mwo3ocer5f58i4dd",
+        "id": "zone_mwo3vm5kh7tnzfwk",
         "name": "La scala",
         "color": "#f4ecc2",
         "textureId": "slate"
       },
       {
-        "id": "zone_mwo3ocerpwragady",
+        "id": "zone_mwo3vm5kz76wvhb4",
         "name": "La sala degli interrogatori",
         "color": "#e0c2f4",
         "textureId": "planks_dark"
       },
       {
-        "id": "zone_mwo3ocerppqsf1uu",
+        "id": "zone_mwo3vm5kw4w9qw2a",
         "name": "Il cortile della torre",
         "color": "#f4d3c2",
         "textureId": "gravel"
@@ -394,207 +394,207 @@
     ],
     "objects": [
       {
-        "id": "obj_mwo3ocers32c2547",
+        "id": "obj_mwo3vm5k55gf4r7p",
         "typeId": "table",
         "row": 0,
         "col": 1
       },
       {
-        "id": "obj_mwo3ocerco9wzg1s",
+        "id": "obj_mwo3vm5k4nd7f5b6",
         "typeId": "candelabrum",
         "row": 0,
         "col": 2
       },
       {
-        "id": "obj_mwo3ocernr62v6vi",
+        "id": "obj_mwo3vm5k5qhguzl1",
         "typeId": "chair",
         "row": 1,
         "col": 0
       },
       {
-        "id": "obj_mwo3ocerztp37215",
+        "id": "obj_mwo3vm5krklmh1j4",
         "typeId": "cage",
         "row": 0,
         "col": 5
       },
       {
-        "id": "obj_mwo3ocersm22dxnk",
+        "id": "obj_mwo3vm5kzzyey7zt",
         "typeId": "cage",
         "row": 1,
         "col": 3
       },
       {
-        "id": "obj_mwo3ocer999mfqmv",
+        "id": "obj_mwo3vm5kb3w7887j",
         "typeId": "pallet",
         "row": 1,
         "col": 6
       },
       {
-        "id": "obj_mwo3ocer4djum46g",
+        "id": "obj_mwo3vm5kv07jhavt",
         "typeId": "bench",
         "row": 0,
         "col": 7
       },
       {
-        "id": "obj_mwo3ocerruyrdrxg",
+        "id": "obj_mwo3vm5k7ktkbkfa",
         "typeId": "armor",
         "row": 2,
         "col": 3
       },
       {
-        "id": "obj_mwo3ocer1ibu6gj4",
+        "id": "obj_mwo3vm5k5a72rwm8",
         "typeId": "table",
         "row": 2,
         "col": 5
       },
       {
-        "id": "obj_mwo3ocerq9zu2wwv",
+        "id": "obj_mwo3vm5ko9cijlvn",
         "typeId": "weapon_rack",
         "row": 3,
         "col": 7
       },
       {
-        "id": "obj_mwo3ocer98ebgphy",
+        "id": "obj_mwo3vm5kr4q6d8eg",
         "typeId": "bench",
         "row": 3,
         "col": 4
       },
       {
-        "id": "obj_mwo3ocer5840531h",
+        "id": "obj_mwo3vm5k3877y6i4",
         "typeId": "candelabrum",
         "row": 4,
         "col": 0
       },
       {
-        "id": "obj_mwo3ocer94aswwhn",
+        "id": "obj_mwo3vm5k2j7shiyz",
         "typeId": "chest",
         "row": 4,
         "col": 3
       },
       {
-        "id": "obj_mwo3ocerz1893hul",
+        "id": "obj_mwo3vm5kqbldh30x",
         "typeId": "cage",
         "row": 6,
         "col": 2
       },
       {
-        "id": "obj_mwo3oceratgho8qo",
+        "id": "obj_mwo3vm5kaps7af97",
         "typeId": "well",
         "row": 5,
         "col": 5
       },
       {
-        "id": "obj_mwo3ocerb7v6qkp7",
+        "id": "obj_mwo3vm5ksw2x5to0",
         "typeId": "barrel",
         "row": 7,
         "col": 3
       },
       {
-        "id": "obj_mwo3ocerj3gbrvbe",
+        "id": "obj_mwo3vm5k4jn7qab3",
         "typeId": "cart",
         "row": 6,
         "col": 7
       },
       {
-        "id": "obj_mwo3ocer1ux9s1pb",
+        "id": "obj_mwo3vm5kpc2u2wyi",
         "typeId": "door",
         "row": 2,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocesrnlecldi",
+        "id": "obj_mwo3vm5kcmpgf2zt",
         "typeId": "door",
         "row": 2,
         "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwo3oces5i4hshdo",
+        "id": "obj_mwo3vm5ki3ltctul",
         "typeId": "door",
         "row": 2,
         "col": 2,
         "side": "S"
       },
       {
-        "id": "obj_mwo3oceso0r7amjc",
+        "id": "obj_mwo3vm5kagsp38kq",
         "typeId": "portcullis",
         "row": 1,
         "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwo3ocesu6g3yni1",
+        "id": "obj_mwo3vm5kg7hz28y7",
         "typeId": "door",
         "row": 3,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwo3oceslbj7pka3",
+        "id": "obj_mwo3vm5k9mlhbtb7",
         "typeId": "door",
         "row": 3,
         "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwo3oces7pfwfrmw",
+        "id": "obj_mwo3vm5k6h7epbax",
         "typeId": "door",
         "row": 5,
         "col": 1,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocesw27isij5",
+        "id": "obj_mwo3vm5k7pv1142j",
         "typeId": "door",
         "row": 6,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwo3oces53ptbzq7",
+        "id": "obj_mwo3vm5keyxe1zfm",
         "typeId": "window",
         "row": 0,
         "col": 0,
         "side": "N"
       },
       {
-        "id": "obj_mwo3ocesu675qol5",
+        "id": "obj_mwo3vm5kn5habcyw",
         "typeId": "window",
         "row": 3,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwo3ocesad5he6bj",
+        "id": "obj_mwo3vm5kl1814j14",
         "typeId": "window",
         "row": 7,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwo3ocesbfw8u9th",
+        "id": "obj_mwo3vm5kvcyz8htz",
         "typeId": "window",
         "row": 7,
         "col": 7,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocesf4gixw2v",
+        "id": "obj_mwo3vm5k6tbeokqw",
         "typeId": "window",
         "row": 5,
         "col": 7,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocestg4r7jbs",
+        "id": "obj_mwo3vm5kpeomhot1",
         "typeId": "arrow_slit",
         "row": 0,
         "col": 4,
         "side": "N"
       },
       {
-        "id": "obj_mwo3ocestv9jfjhm",
+        "id": "obj_mwo3vm5kxaoetmtk",
         "typeId": "arrow_slit",
         "row": 1,
         "col": 7,
@@ -604,8 +604,8 @@
   },
   "characters": [
     {
-      "id": "char_mwo3oces3d01a9u2",
-      "name": "Manfredo",
+      "id": "char_mwo3vm5k3jq9ygv1",
+      "name": "Alderico",
       "iconId": "knight",
       "isVictim": false,
       "bio": "Capitano della guardia della torre: soldato di lunga carriera, rispettato dai suoi uomini.",
@@ -613,8 +613,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3oces303z721s",
-      "name": "Sveva",
+      "id": "char_mwo3vm5kga5dan8d",
+      "name": "Brunilde",
       "iconId": "soldier",
       "isVictim": false,
       "bio": "Guardia di turno nella torre: fa la ronda ai piani alti. Ha un debito con un cambiavalute.",
@@ -622,26 +622,26 @@
       "gender": "female"
     },
     {
-      "id": "char_mwo3oces7aeutbs7",
-      "name": "Aldo",
-      "iconId": "thief",
-      "isVictim": false,
-      "bio": "Ladro rinchiuso in cella, in attesa del giudizio. Ride sempre, dice di avere amici fuori.",
-      "color": "#158060",
-      "gender": "male"
-    },
-    {
-      "id": "char_mwo3ocesginda4cj",
+      "id": "char_mwo3vm5klh7h7itj",
       "name": "Cunegonda",
       "iconId": "countess",
       "isVictim": false,
       "bio": "Dama di corte, in visita al prigioniero per conto di una nobile famiglia. Veste di seta e parla a bassa voce.",
-      "color": "#9f5595",
+      "color": "#158060",
       "gender": "female"
     },
     {
-      "id": "char_mwo3ocesgeffa9ih",
-      "name": "Tobia",
+      "id": "char_mwo3vm5k7hrkp4uy",
+      "name": "Dino",
+      "iconId": "thief",
+      "isVictim": false,
+      "bio": "Ladro rinchiuso in cella, in attesa del giudizio. Ride sempre, dice di avere amici fuori.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5kg13pxul1",
+      "name": "Ettore",
       "iconId": "herald",
       "isVictim": false,
       "bio": "Araldo del re: legge i bandi e porta i messaggi ai detenuti. Sa chi entra e chi esce.",
@@ -649,8 +649,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3oceswqmq7ycs",
-      "name": "Norberto",
+      "id": "char_mwo3vm5kj902jg71",
+      "name": "Fausto",
       "iconId": "executioner",
       "isVictim": false,
       "bio": "Boia della torre: lavora quando serve, e quando non serve aspetta. Di Vivia era il collega più vicino.",
@@ -658,8 +658,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3ocescvf0znkg",
-      "name": "Pierina",
+      "id": "char_mwo3vm5kgf8ydx8r",
+      "name": "Giuditta",
       "iconId": "baker",
       "isVictim": false,
       "bio": "Cuoca dei prigionieri: porta ogni giorno la zuppa alle celle. Vivia le teneva la porta, e le raccontava tutto quello che vedeva.",
@@ -667,7 +667,7 @@
       "gender": "female"
     },
     {
-      "id": "char_mwo3ocesg9dy6xwh",
+      "id": "char_mwo3vm5kpnpkwhsm",
       "name": "Vivia",
       "iconId": "police",
       "isVictim": true,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwo3oceo7x24jp01",
+  "id": "puzzle_mwo3vm5i1fsxyk3p",
   "title": "La cripta",
   "author": "",
   "difficulty": "hard",
@@ -9,8 +9,8 @@
   "briefing": "Nella cripta dell'abbazia, dove il re sarà sepolto, una novizia è stata trovata ai piedi di un sarcofago. La regina vi si recherà per le esequie, e vuole una risposta prima di allora. Il sagrestano, ti avvertono, parla poco; gli altri cinque parlano solo per dire che non c'erano.",
   "resolutionNote": "Il sagrestano vende l'argento delle reliquie da anni, e Valeria lo ha visto. Nel rosario, in una perla vuota: «La nobildonna aspettava udienza davanti al trono». Intorno alla bara del re, i figli che restano sono sempre meno.",
   "tense": "past",
-  "createdAt": 1795126007760,
-  "updatedAt": 1795126007761,
+  "createdAt": 1795126346982,
+  "updatedAt": 1795126346982,
   "grid": {
     "size": {
       "rows": 7,
@@ -19,259 +19,259 @@
     "cells": [
       [
         {
-          "zoneId": "zone_mwo3oceom0eb1anc",
-          "objectId": "obj_mwo3oceocf6k0fky",
+          "zoneId": "zone_mwo3vm5i8yzbne5m",
+          "objectId": "obj_mwo3vm5i503lfeh5",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceom0eb1anc",
+          "zoneId": "zone_mwo3vm5i8yzbne5m",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceom0eb1anc",
+          "zoneId": "zone_mwo3vm5i8yzbne5m",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo244b77yt",
-          "objectId": "obj_mwo3oceobzfapceh",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
+          "objectId": "obj_mwo3vm5iuep3ahje",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo244b77yt",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo244b77yt",
-          "objectId": "obj_mwo3oceov6wbu163",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
+          "objectId": "obj_mwo3vm5ibgqzgilm",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo244b77yt",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwo3oceom0eb1anc",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceom0eb1anc",
-          "objectId": "obj_mwo3oceog6wizzcy",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceom0eb1anc",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo244b77yt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo244b77yt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo244b77yt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo244b77yt",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
-          "objectId": "obj_mwo3oceo363a7vjr",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo97w23ite",
+          "zoneId": "zone_mwo3vm5i8yzbne5m",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
+          "zoneId": "zone_mwo3vm5i8yzbne5m",
+          "objectId": "obj_mwo3vm5ixlgqrhxy",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5i8yzbne5m",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
-          "objectId": "obj_mwo3oceou5u60t7d",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceovdepsw7s",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceovdepsw7s",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceovdepsw7s",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwo3oceo97w23ite",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo97w23ite",
-          "objectId": "obj_mwo3oceok1zzr1rz",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceo97w23ite",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceovdepsw7s",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceovdepsw7s",
-          "objectId": "obj_mwo3oceop8h335cu",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceovdepsw7s",
+          "zoneId": "zone_mwo3vm5iy5h0b6ak",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": "obj_mwo3vm5it5qj8cub",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5i7zm77jha",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": "obj_mwo3vm5izzyeju6w",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5izkke2zvw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceo97w23ite",
-          "objectId": "obj_mwo3oceo9mhj8puw",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceonsn7mimt",
+          "zoneId": "zone_mwo3vm5izkke2zvw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceonsn7mimt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceonsn7mimt",
-          "objectId": "obj_mwo3oceou3eisaez",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwo3oceoottm2x3b",
-          "objectId": "obj_mwo3oceoqsprivbt",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceoottm2x3b",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceoottm2x3b",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceoottm2x3b",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceonsn7mimt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceonsn7mimt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwo3oceonsn7mimt",
+          "zoneId": "zone_mwo3vm5izkke2zvw",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwo3oceoottm2x3b",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceoottm2x3b",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceoottm2x3b",
-          "objectId": "obj_mwo3oceormd8twuu",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": "obj_mwo3vm5ivu513j04",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceoottm2x3b",
+          "zoneId": "zone_mwo3vm5i7zm77jha",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceonsn7mimt",
+          "zoneId": "zone_mwo3vm5izkke2zvw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceonsn7mimt",
-          "objectId": "obj_mwo3oceoy42pmafx",
+          "zoneId": "zone_mwo3vm5izkke2zvw",
+          "objectId": "obj_mwo3vm5ibm0uu1xy",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwo3oceonsn7mimt",
+          "zoneId": "zone_mwo3vm5izkke2zvw",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5i7zm77jha",
+          "objectId": "obj_mwo3vm5i1diuthoa",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": "obj_mwo3vm5i0i6m6hh0",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": "obj_mwo3vm5ipograqr3",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": "obj_mwo3vm5ihwphjnni",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ilj6lvq73",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
+          "objectId": "obj_mwo3vm5i2jzdfba8",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5iqfkctvtv",
           "objectId": null,
           "blocked": false
         }
@@ -279,37 +279,37 @@
     ],
     "zones": [
       {
-        "id": "zone_mwo3oceom0eb1anc",
+        "id": "zone_mwo3vm5i8yzbne5m",
         "name": "La sacrestia",
         "color": "#f4c2c2",
         "textureId": "wood"
       },
       {
-        "id": "zone_mwo3oceo244b77yt",
+        "id": "zone_mwo3vm5iy5h0b6ak",
         "name": "La navata",
         "color": "#c2e0f4",
         "textureId": "checker_stone"
       },
       {
-        "id": "zone_mwo3oceo97w23ite",
+        "id": "zone_mwo3vm5i7zm77jha",
         "name": "La cripta",
         "color": "#c9f4c2",
         "textureId": "cracked_stone"
       },
       {
-        "id": "zone_mwo3oceovdepsw7s",
+        "id": "zone_mwo3vm5izkke2zvw",
         "name": "La cappella dei pellegrini",
         "color": "#f4ecc2",
         "textureId": "planks"
       },
       {
-        "id": "zone_mwo3oceonsn7mimt",
+        "id": "zone_mwo3vm5iqfkctvtv",
         "name": "L'ossario",
         "color": "#e0c2f4",
         "textureId": "ossuary"
       },
       {
-        "id": "zone_mwo3oceoottm2x3b",
+        "id": "zone_mwo3vm5ilj6lvq73",
         "name": "Il deposito delle reliquie",
         "color": "#f4d3c2",
         "textureId": "flagstone_dark"
@@ -317,169 +317,169 @@
     ],
     "objects": [
       {
-        "id": "obj_mwo3oceocf6k0fky",
+        "id": "obj_mwo3vm5i503lfeh5",
         "typeId": "chest",
         "row": 0,
         "col": 0
       },
       {
-        "id": "obj_mwo3oceog6wizzcy",
+        "id": "obj_mwo3vm5ixlgqrhxy",
         "typeId": "candelabrum",
         "row": 1,
         "col": 1
       },
       {
-        "id": "obj_mwo3oceo363a7vjr",
+        "id": "obj_mwo3vm5it5qj8cub",
         "typeId": "altar",
         "row": 2,
         "col": 0
       },
       {
-        "id": "obj_mwo3oceok1zzr1rz",
+        "id": "obj_mwo3vm5ivu513j04",
         "typeId": "sarcophagus",
         "row": 3,
         "col": 2
       },
       {
-        "id": "obj_mwo3oceo9mhj8puw",
+        "id": "obj_mwo3vm5i1diuthoa",
         "typeId": "gravestone",
         "row": 4,
         "col": 3
       },
       {
-        "id": "obj_mwo3oceou5u60t7d",
+        "id": "obj_mwo3vm5izzyeju6w",
         "typeId": "candelabrum",
         "row": 2,
         "col": 3
       },
       {
-        "id": "obj_mwo3oceov6wbu163",
+        "id": "obj_mwo3vm5ibgqzgilm",
         "typeId": "bench",
         "row": 0,
         "col": 5
       },
       {
-        "id": "obj_mwo3oceop8h335cu",
+        "id": "obj_mwo3vm5ibm0uu1xy",
         "typeId": "bench",
         "row": 3,
         "col": 5
       },
       {
-        "id": "obj_mwo3oceou3eisaez",
+        "id": "obj_mwo3vm5i0i6m6hh0",
         "typeId": "gravestone",
         "row": 4,
         "col": 6
       },
       {
-        "id": "obj_mwo3oceoqsprivbt",
+        "id": "obj_mwo3vm5ipograqr3",
         "typeId": "chest",
         "row": 5,
         "col": 0
       },
       {
-        "id": "obj_mwo3oceormd8twuu",
+        "id": "obj_mwo3vm5ihwphjnni",
         "typeId": "shelf",
         "row": 6,
         "col": 2
       },
       {
-        "id": "obj_mwo3oceoy42pmafx",
+        "id": "obj_mwo3vm5i2jzdfba8",
         "typeId": "sarcophagus",
         "row": 6,
         "col": 5
       },
       {
-        "id": "obj_mwo3oceobzfapceh",
+        "id": "obj_mwo3vm5iuep3ahje",
         "typeId": "statue",
         "row": 0,
         "col": 3
       },
       {
-        "id": "obj_mwo3oceok86efh0h",
+        "id": "obj_mwo3vm5i68po8zjf",
         "typeId": "door",
         "row": 1,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocepb6cffphp",
+        "id": "obj_mwo3vm5ibsadxbfr",
         "typeId": "door",
         "row": 1,
         "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwo3ocepwkmc2zp5",
+        "id": "obj_mwo3vm5i47oxercq",
         "typeId": "door",
         "row": 1,
         "col": 3,
         "side": "S"
       },
       {
-        "id": "obj_mwo3oceppj0t6mqm",
+        "id": "obj_mwo3vm5if3xvx8y2",
         "typeId": "door",
         "row": 1,
         "col": 5,
         "side": "S"
       },
       {
-        "id": "obj_mwo3ocepsqvi8a6a",
+        "id": "obj_mwo3vm5ick91wmem",
         "typeId": "door",
         "row": 3,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocepu5jc3igi",
+        "id": "obj_mwo3vm5ip4xc21gm",
         "typeId": "door",
         "row": 4,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocep75dnumog",
+        "id": "obj_mwo3vm5i4uvbyx83",
         "typeId": "door",
         "row": 4,
         "col": 2,
         "side": "S"
       },
       {
-        "id": "obj_mwo3ocep4muju9mq",
+        "id": "obj_mwo3vm5io34srca2",
         "typeId": "door",
         "row": 6,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocepdy9oo3cq",
+        "id": "obj_mwo3vm5isyce9zqm",
         "typeId": "door",
         "row": 3,
         "col": 5,
         "side": "S"
       },
       {
-        "id": "obj_mwo3ocep1gcnzc80",
+        "id": "obj_mwo3vm5itk7pqefm",
         "typeId": "window",
         "row": 0,
         "col": 0,
         "side": "N"
       },
       {
-        "id": "obj_mwo3ocepdfgqxqiv",
+        "id": "obj_mwo3vm5idjnqxbki",
         "typeId": "window",
         "row": 0,
         "col": 5,
         "side": "N"
       },
       {
-        "id": "obj_mwo3ocepjcqmezfk",
+        "id": "obj_mwo3vm5ipitnocn7",
         "typeId": "window",
         "row": 2,
         "col": 6,
         "side": "E"
       },
       {
-        "id": "obj_mwo3ocepauisyjgv",
+        "id": "obj_mwo3vm5ig5msiqvs",
         "typeId": "window",
         "row": 6,
         "col": 0,
@@ -489,8 +489,8 @@
   },
   "characters": [
     {
-      "id": "char_mwo3ocepahl0foro",
-      "name": "Odorico",
+      "id": "char_mwo3vm5ic1u8o4y9",
+      "name": "Amedeo",
       "iconId": "monk",
       "isVictim": false,
       "bio": "Sagrestano: custodisce i vasi sacri, le chiavi e i reliquiari. Parla poco e non lascia mai la cripta senza chiuderla.",
@@ -498,8 +498,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3ocepcjylbgfz",
-      "name": "Leopoldo",
+      "id": "char_mwo3vm5iaitrfdtt",
+      "name": "Benedetto",
       "iconId": "priest",
       "isVictim": false,
       "bio": "Abate di San Ilario: anziano, severo, impegnato a preparare le esequie del re.",
@@ -507,8 +507,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3ocepukgair7r",
-      "name": "Rinaldo",
+      "id": "char_mwo3vm5i8nsjs848",
+      "name": "Cassiano",
       "iconId": "gardener",
       "isVictim": false,
       "bio": "Becchino del borgo: scava le tombe e le chiude. Si dice che parli con i morti, e che i vivi gli stiano a distanza.",
@@ -516,8 +516,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3ocep83wimmcs",
-      "name": "Eleonora",
+      "id": "char_mwo3vm5izpwpk11n",
+      "name": "Donata",
       "iconId": "farmer",
       "isVictim": false,
       "bio": "Pellegrina venuta a pregare sulle tombe dei santi. Arrivata da pochi giorni, ha già fatto troppe domande.",
@@ -525,8 +525,8 @@
       "gender": "female"
     },
     {
-      "id": "char_mwo3ocepz5m076ix",
-      "name": "Martino",
+      "id": "char_mwo3vm5iu3755qjx",
+      "name": "Eusebio",
       "iconId": "explorer",
       "isVictim": false,
       "bio": "Pellegrino ed ex soldato: prega molto e dorme poco. Non vuole dire da dove viene.",
@@ -534,8 +534,8 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3ocepgfponykx",
-      "name": "Placido",
+      "id": "char_mwo3vm5i65jgtz18",
+      "name": "Fortunato",
       "iconId": "alchemist",
       "isVictim": false,
       "bio": "Frate cercatore: gira per i villaggi a raccogliere le offerte e le porta all'abbazia. Tiene i conti dell'argento dei reliquiari, e non vuole che nessuno li riveda.",
@@ -543,7 +543,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwo3ocepbkx5edom",
+      "id": "char_mwo3vm5ifqd0dp6l",
       "name": "Valeria",
       "iconId": "nun",
       "isVictim": true,

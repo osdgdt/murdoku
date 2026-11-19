@@ -18,12 +18,12 @@ Regole rispettate: una griglia N×N ha N persone (N−1 sospettati più la vitti
 | 1 | Il garzone della forgia | 6×6 | facile | Vanni | Bertoldo | `01-il-garzone-della-forgia.murdoku.json` |
 | 2 | L'orto dell'abbazia | 6×6 | facile | Violante | fra Anselmo | `02-l-orto-dell-abbazia.murdoku.json` |
 | 3 | Lo scriptorium | 6×6 | media | Valerio | Ambrogio | `03-lo-scriptorium.murdoku.json` |
-| 4 | La taverna dei Tre Corvi | 7×7 | media | Vitale | Rodolfo il Guercio | `04-la-taverna-dei-tre-corvi.murdoku.json` |
+| 4 | La taverna dei Tre Corvi | 7×7 | media | Vitale | Aimone il Guercio | `04-la-taverna-dei-tre-corvi.murdoku.json` |
 | 5 | Le scuderie reali | 7×7 | media | Venanzia | ser Aldobrando | `05-le-scuderie-reali.murdoku.json` |
-| 6 | La cripta | 7×7 | difficile | Valeria | Odorico | `06-la-cripta.murdoku.json` |
+| 6 | La cripta | 7×7 | difficile | Valeria | Amedeo | `06-la-cripta.murdoku.json` |
 | 7 | Le cucine | 8×8 | difficile | Valdo | Agnese | `07-le-cucine.murdoku.json` |
-| 8 | La torre delle prigioni | 8×8 | difficile | Vivia | Manfredo | `08-la-torre-delle-prigioni.murdoku.json` |
-| 9 | Il banchetto dell'erede | 8×8 | undefined | Valdemaro | lord Folco di Valgrigia | `09-il-banchetto-dell-erede.murdoku.json` |
+| 8 | La torre delle prigioni | 8×8 | difficile | Vivia | Alderico | `08-la-torre-delle-prigioni.murdoku.json` |
+| 9 | Il banchetto dell'erede | 8×8 | undefined | Valdemaro | lord Alboino di Valgrigia | `09-il-banchetto-dell-erede.murdoku.json` |
 
 ---
 
@@ -39,11 +39,11 @@ Regole rispettate: una griglia N×N ha N persone (N−1 sospettati più la vitti
 
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
+| A | **Arnaldo** | lavorante di bottega | Operaio | Lavorante, forte come un bue e di poche parole. Vanni gli aveva preso il posto accanto alla fornace, e lui non l'ha mai nascosto. |
 | B | **Bertoldo** (colpevole) | il maestro fabbro | Fabbro | Maestro fabbro e padrone della forgia. Burbero ma stimato, fornisce ferri e armi al presidio del castello. Ultimamente ha le mani piene di ordini e il carattere peggiorato. |
-| L | **Lupo** | lavorante di bottega | Operaio | Lavorante, forte come un bue e di poche parole. Vanni gli aveva preso il posto accanto alla fornace, e lui non l'ha mai nascosto. |
-| M | **Mabilia** | la moglie del fabbro | Fornaio | Moglie del fabbro: tiene i conti e la cucina. Voleva bene al garzone come a un figlio, dice; ma la sera lo sentiva parlare di cose che non capiva. |
-| O | **Osvaldo** | il carbonaio | Contadino/a | Carbonaio di Borgocenere: porta il carbone alla forgia ogni mattina. Parla solo del tempo, ma vede tutto quello che entra ed esce dal cortile. |
-| I | **Ilaria** | la figlia del vasaio | Cameriera/e | Figlia del vasaio della porta accanto: porta ogni giorno la zuppa ai lavoranti. Si fermava a parlare con Vanni più del dovuto. |
+| C | **Clelia** | la moglie del fabbro | Fornaio | Moglie del fabbro: tiene i conti e la cucina. Voleva bene al garzone come a un figlio, dice; ma la sera lo sentiva parlare di cose che non capiva. |
+| D | **Duccio** | il carbonaio | Contadino/a | Carbonaio di Borgocenere: porta il carbone alla forgia ogni mattina. Parla solo del tempo, ma vede tutto quello che entra ed esce dal cortile. |
+| E | **Egidia** | la figlia del vasaio | Cameriera/e | Figlia del vasaio della porta accanto: porta ogni giorno la zuppa ai lavoranti. Si fermava a parlare con Vanni più del dovuto. |
 | V | **Vanni** (vittima) | la vittima, garzone fabbro | Ninja | 19 anni, garzone della forgia di Borgocenere. Silenzioso e instancabile, è arrivato in bottega ancora bambino: nessuno sa chi fossero i suoi genitori. |
 
 ### Mappa
@@ -97,8 +97,8 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
 | A | **Anselmo** (colpevole) | fra Anselmo, l'infermiere | Monaco | Fra Anselmo, infermiere dell'abbazia: conosce ogni pianta e ogni dose. Autorevole, di rado visto fuori dall'infermeria, se non per raccogliere erbe all'alba. |
+| B | **Bonifacio** | il giardiniere | Giardiniere/a | Giardiniere laico dell'abbazia. Lavora l'orto da vent'anni e non ha mai amato che altri mettessero le mani nelle sue aiuole. |
 | C | **Clemenza** | suor Clemenza | Suora | Suor Clemenza, sorvegliante dell'orto e dell'infermeria: severa con le novizie. Rimproverava Violante per i ritardi, e per le sue visite fuori orario. |
-| G | **Gherardo** | il giardiniere | Giardiniere/a | Giardiniere laico dell'abbazia. Lavora l'orto da vent'anni e non ha mai amato che altri mettessero le mani nelle sue aiuole. |
 | D | **Dionigi** | il frate portinaio | Sacerdote | Frate portinaio: apre e chiude il portone dell'abbazia e sa chi è venuto e chi se n'è andato. Dorme poco e ascolta molto. |
 | E | **Eufemia** | la cuoca del refettorio | Fornaio | Cuoca del refettorio: prepara i pasti dei monaci e dei pellegrini. Ha le erbe in cucina quanto l'erborista le ha nell'orto, e non lo ha mai detto volentieri. |
 | V | **Violante** (vittima) | la vittima, erborista | Farmacista | 20 anni, erborista: cura le aiuole e prepara gli unguenti dell'infermeria. Teneva un erbario a cui non lasciava avvicinare nessuno. |
@@ -155,9 +155,9 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 |---|---|---|---|---|
 | A | **Ambrogio** (colpevole) | il segretario dell'abate | Avvocato | Segretario dell'abate: custodisce i registri e i sigilli dell'abbazia. Preciso, riservato, sempre ben informato sugli affari del monastero. |
 | B | **Benvenuto** | il copista | Studioso/a | Copista anziano, miope e sospettoso. Lavora fianco a fianco con Valerio da anni e ne invidia la velocità. |
-| T | **Teobaldo** | il miniatore | Artista | Miniatore: illustra i codici più preziosi. Vive per i colori e per i pennelli; ha debiti con un mercante di Borgocenere. |
-| P | **Perpetua** | la monaca bibliotecaria | Bibliotecario/a | Monaca bibliotecaria: conosce a memoria ogni scaffale. Dice di aver sentito rumori nella notte, ma di non aver visto nulla. |
-| F | **Federico** | il rilegatore | Meccanico | Rilegatore dell'abbazia: lavora la pelle, la colla e le borchie. Entra ed esce dallo scriptorium per ritirare i fogli, e nessuno lo nota più. |
+| C | **Cosimo** | il miniatore | Artista | Miniatore: illustra i codici più preziosi. Vive per i colori e per i pennelli; ha debiti con un mercante di Borgocenere. |
+| D | **Domitilla** | la monaca bibliotecaria | Bibliotecario/a | Monaca bibliotecaria: conosce a memoria ogni scaffale. Dice di aver sentito rumori nella notte, ma di non aver visto nulla. |
+| E | **Eligio** | il rilegatore | Meccanico | Rilegatore dell'abbazia: lavora la pelle, la colla e le borchie. Entra ed esce dallo scriptorium per ritirare i fogli, e nessuno lo nota più. |
 | V | **Valerio** (vittima) | la vittima, scrivano | Cronista | 22 anni, scrivano dello scriptorium. Una calligrafia perfetta e un occhio da contabile: leggeva ogni atto che copiava. |
 
 ### Mappa
@@ -204,18 +204,18 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 **Vittima:** Vitale — mercenario.
 
-**Colpevole:** Rodolfo il Guercio (Rodolfo il Guercio, soldato di ventura). **Movente:** Un debito di gioco: Vitale lo aveva sorpreso a barare ai dadi.
+**Colpevole:** Aimone il Guercio (Aimone il Guercio, soldato di ventura). **Movente:** Un debito di gioco: Vitale lo aveva sorpreso a barare ai dadi.
 
 ### Personaggi
 
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
-| R | **Rodolfo** (colpevole) | Rodolfo il Guercio, soldato di ventura | Soldato | Rodolfo il Guercio, soldato di ventura con un occhio solo e molte cicatrici. Gioca a dadi con Vitale quasi ogni sera, e perde più spesso di quanto ammetta. |
-| G | **Gisulfo** | il mercante | Banchiere | Mercante di panni di passaggio a Borgocenere: ha preso una stanza ai Tre Corvi per una settimana. Paga bene e parla poco. |
-| O | **Orsola** | la cameriera | Cameriere | Cameriera dei Tre Corvi. Sa tutto di tutti: serve vino e ascolta. Si è fatta più guardinga da quando Vitale è morto. |
+| A | **Aimone** (colpevole) | Aimone il Guercio, soldato di ventura | Soldato | Aimone il Guercio, soldato di ventura con un occhio solo e molte cicatrici. Gioca a dadi con Vitale quasi ogni sera, e perde più spesso di quanto ammetta. |
+| B | **Brigida** | la cameriera | Cameriere | Cameriera dei Tre Corvi. Sa tutto di tutti: serve vino e ascolta. Si è fatta più guardinga da quando Vitale è morto. |
+| C | **Camillo** | il mercante | Banchiere | Mercante di panni di passaggio a Borgocenere: ha preso una stanza ai Tre Corvi per una settimana. Paga bene e parla poco. |
 | D | **Drogone** | il mandriano | Contadino/a | Mandriano delle colline, in paese solo per vendere le bestie. Beve forte e ha il pugno facile. |
-| N | **Nerina** | la lavandaia | Cameriera/e | Lavandaia dei Tre Corvi: lava lenzuola e boccali, e raccoglie le chiacchiere insieme ai panni sporchi. Vitale le lasciava sempre una moneta. |
-| S | **Savino** | il cantiniere | Barista | Cantiniere della taverna: scende in cantina a spillare e risale con le orecchie piene. Tiene i conti dei debiti di gioco, e non li ha mai detti a nessuno. |
+| E | **Elvira** | la lavandaia | Cameriera/e | Lavandaia dei Tre Corvi: lava lenzuola e boccali, e raccoglie le chiacchiere insieme ai panni sporchi. Vitale le lasciava sempre una moneta. |
+| F | **Fiorenzo** | il cantiniere | Barista | Cantiniere della taverna: scende in cantina a spillare e risale con le orecchie piene. Tiene i conti dei debiti di gioco, e non li ha mai detti a nessuno. |
 | V | **Vitale** (vittima) | la vittima, mercenario | Arciere/a | 21 anni, mercenario al soldo di chi paga. Giocatore di dadi, spaccone, benvoluto a metà. |
 
 ### Mappa
@@ -254,7 +254,7 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
-> Rodolfo ammette tutto, con una risata amara. Sotto la medaglia di Vitale, un foglietto: «La sarta cuciva nel corridoio, vicino all'armatura». La regina annuisce piano quando glielo racconti: «Un'altra giovane vita sprecata».
+> Aimone ammette tutto, con una risata amara. Sotto la medaglia di Vitale, un foglietto: «La sarta cuciva nel corridoio, vicino all'armatura». La regina annuisce piano quando glielo racconti: «Un'altra giovane vita sprecata».
 
 ---
 
@@ -271,11 +271,11 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
 | A | **Aldobrando** (colpevole) | ser Aldobrando, cavaliere | Cavaliere | Ser Aldobrando, cavaliere di molti tornei e di pochi scrupoli. Vince spesso, e di recente è il favorito per la giostra del re. |
-| S | **Sigfrido** | lo scudiero | Soldato | Scudiero di ser Aldobrando: lucida le armi e porta la lancia. Fedele, o abituato a esserlo. |
 | B | **Brunone** | il garzone di stalla | Operaio | Garzone di stalla, tutto muscoli e poco cervello. Venanzia lo sgridava per il fieno sprecato. |
-| I | **Isolda** | la dama | Principessa | Dama della corte, appassionata di tornei: siede sempre in prima fila. Frequenta le scuderie più di quanto sia decoroso. |
-| E | **Ermengarda** | la guardarobiera | Cameriera/e | Guardarobiera della corte: cura le insegne, i panni e gli stendardi del torneo. Ha le chiavi del magazzino. |
 | C | **Corrado** | il maniscalco | Fabbro | Maniscalco delle scuderie: ferra i cavalli dei cavalieri e conosce il peso di ogni lancia. Venanzia gli portava i cavalli zoppi, e lui le dava sempre ragione. |
+| D | **Delia** | la dama | Principessa | Dama della corte, appassionata di tornei: siede sempre in prima fila. Frequenta le scuderie più di quanto sia decoroso. |
+| E | **Ermengarda** | la guardarobiera | Cameriera/e | Guardarobiera della corte: cura le insegne, i panni e gli stendardi del torneo. Ha le chiavi del magazzino. |
+| F | **Fabiano** | lo scudiero | Soldato | Scudiero di ser Aldobrando: lucida le armi e porta la lancia. Fedele, o abituato a esserlo. |
 | V | **Venanzia** (vittima) | la vittima, palafreniera | Cowboy | 21 anni, palafreniera della corte. Conosce ogni cavallo per nome e ogni cavaliere per i suoi vizi. |
 
 ### Mappa
@@ -324,18 +324,18 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 **Vittima:** Valeria — novizia.
 
-**Colpevole:** Odorico (Odorico, il sagrestano). **Movente:** Rubava l'argento dei reliquiari; Valeria lo vide.
+**Colpevole:** Amedeo (Amedeo, il sagrestano). **Movente:** Rubava l'argento dei reliquiari; Valeria lo vide.
 
 ### Personaggi
 
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
-| O | **Odorico** (colpevole) | Odorico, il sagrestano | Monaco | Sagrestano: custodisce i vasi sacri, le chiavi e i reliquiari. Parla poco e non lascia mai la cripta senza chiuderla. |
-| L | **Leopoldo** | l'abate Leopoldo | Sacerdote | Abate di San Ilario: anziano, severo, impegnato a preparare le esequie del re. |
-| R | **Rinaldo** | il becchino | Giardiniere/a | Becchino del borgo: scava le tombe e le chiude. Si dice che parli con i morti, e che i vivi gli stiano a distanza. |
-| E | **Eleonora** | la pellegrina | Contadino/a | Pellegrina venuta a pregare sulle tombe dei santi. Arrivata da pochi giorni, ha già fatto troppe domande. |
-| M | **Martino** | il pellegrino | Esploratore | Pellegrino ed ex soldato: prega molto e dorme poco. Non vuole dire da dove viene. |
-| P | **Placido** | il frate cercatore | Alchimista | Frate cercatore: gira per i villaggi a raccogliere le offerte e le porta all'abbazia. Tiene i conti dell'argento dei reliquiari, e non vuole che nessuno li riveda. |
+| A | **Amedeo** (colpevole) | Amedeo, il sagrestano | Monaco | Sagrestano: custodisce i vasi sacri, le chiavi e i reliquiari. Parla poco e non lascia mai la cripta senza chiuderla. |
+| B | **Benedetto** | l'abate Benedetto | Sacerdote | Abate di San Ilario: anziano, severo, impegnato a preparare le esequie del re. |
+| C | **Cassiano** | il becchino | Giardiniere/a | Becchino del borgo: scava le tombe e le chiude. Si dice che parli con i morti, e che i vivi gli stiano a distanza. |
+| D | **Donata** | la pellegrina | Contadino/a | Pellegrina venuta a pregare sulle tombe dei santi. Arrivata da pochi giorni, ha già fatto troppe domande. |
+| E | **Eusebio** | il pellegrino | Esploratore | Pellegrino ed ex soldato: prega molto e dorme poco. Non vuole dire da dove viene. |
+| F | **Fortunato** | il frate cercatore | Alchimista | Frate cercatore: gira per i villaggi a raccogliere le offerte e le porta all'abbazia. Tiene i conti dell'argento dei reliquiari, e non vuole che nessuno li riveda. |
 | V | **Valeria** (vittima) | la vittima, novizia | Suora | 20 anni, novizia dell'abbazia di San Ilario. Curiosa, taciturna, spesso trovata dove non dovrebbe. |
 
 ### Mappa
@@ -391,12 +391,12 @@ _I mobili pieni (11) occupano la loro casella; panche, sgabelli, giacigli, tappe
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
 | A | **Agnese** (colpevole) | Agnese, la dispensiera | Cameriera/e | Dispensiera del castello: tiene le chiavi di cantine e dispense. Sa quanto vino e quanta carne entrano in cucina, e quanto ne esce. |
-| T | **Tommaso** | lo sguattero | Cameriere | Sguattero: lava le pentole e porta l'acqua. Valdo lo trattava meglio di quanto meritasse, dice. |
-| L | **Lorenzo** | il maestro di cucina | Maggiordomo | Maestro di cucina, capo di tutti i fornelli. Aveva proposto un altro per il posto di cuoco del re. |
-| Z | **Zaccaria** | il macellaio | Macellaio | Macellaio del castello: fornisce la carne e conosce i coltelli meglio di chiunque. |
-| N | **Nicola** | il fornaio | Fornaio | Fornaio: all'alba è già al forno. Passa dalle cucine per le farine e per le uova. |
-| G | **Ginevra** | la lavandaia | Contadino/a | Lavandaia: porta i panni puliti e si ferma volentieri a chiacchierare. |
+| B | **Bruno** | lo sguattero | Cameriere | Sguattero: lava le pentole e porta l'acqua. Valdo lo trattava meglio di quanto meritasse, dice. |
 | C | **Cesare** | il trinciante | Barista | Trinciante del re: taglia le carni a tavola e le assaggia prima di tutti. Valdo gli aveva portato via il posto accanto al re, e lui non lo ha scordato. |
+| D | **Damiano** | il maestro di cucina | Maggiordomo | Maestro di cucina, capo di tutti i fornelli. Aveva proposto un altro per il posto di cuoco del re. |
+| E | **Ezio** | il macellaio | Macellaio | Macellaio del castello: fornisce la carne e conosce i coltelli meglio di chiunque. |
+| F | **Filippo** | il fornaio | Fornaio | Fornaio: all'alba è già al forno. Passa dalle cucine per le farine e per le uova. |
+| G | **Ginevra** | la lavandaia | Contadino/a | Lavandaia: porta i panni puliti e si ferma volentieri a chiacchierare. |
 | V | **Valdo** (vittima) | la vittima, cuoco | Cuoco/a | 22 anni, cuoco: promosso da poco cuoco personale del re. Ambizioso, orgoglioso del suo posto. |
 
 ### Mappa
@@ -447,19 +447,19 @@ _I mobili pieni (15) occupano la loro casella; panche, sgabelli, giacigli, tappe
 
 **Vittima:** Vivia — carceriera.
 
-**Colpevole:** Manfredo (Manfredo, capitano della guardia). **Movente:** Vivia sapeva che lasciava fuggire prigionieri dietro compenso.
+**Colpevole:** Alderico (Alderico, capitano della guardia). **Movente:** Vivia sapeva che lasciava fuggire prigionieri dietro compenso.
 
 ### Personaggi
 
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
-| M | **Manfredo** (colpevole) | Manfredo, capitano della guardia | Cavaliere | Capitano della guardia della torre: soldato di lunga carriera, rispettato dai suoi uomini. |
-| S | **Sveva** | la guardia | Soldato | Guardia di turno nella torre: fa la ronda ai piani alti. Ha un debito con un cambiavalute. |
-| A | **Aldo** | il ladro in cella | Ladro/a | Ladro rinchiuso in cella, in attesa del giudizio. Ride sempre, dice di avere amici fuori. |
+| A | **Alderico** (colpevole) | Alderico, capitano della guardia | Cavaliere | Capitano della guardia della torre: soldato di lunga carriera, rispettato dai suoi uomini. |
+| B | **Brunilde** | la guardia | Soldato | Guardia di turno nella torre: fa la ronda ai piani alti. Ha un debito con un cambiavalute. |
 | C | **Cunegonda** | la dama | Contessa | Dama di corte, in visita al prigioniero per conto di una nobile famiglia. Veste di seta e parla a bassa voce. |
-| T | **Tobia** | l'araldo | Araldo/a | Araldo del re: legge i bandi e porta i messaggi ai detenuti. Sa chi entra e chi esce. |
-| N | **Norberto** | il boia | Boia | Boia della torre: lavora quando serve, e quando non serve aspetta. Di Vivia era il collega più vicino. |
-| P | **Pierina** | la cuoca dei prigionieri | Fornaio | Cuoca dei prigionieri: porta ogni giorno la zuppa alle celle. Vivia le teneva la porta, e le raccontava tutto quello che vedeva. |
+| D | **Dino** | il ladro in cella | Ladro/a | Ladro rinchiuso in cella, in attesa del giudizio. Ride sempre, dice di avere amici fuori. |
+| E | **Ettore** | l'araldo | Araldo/a | Araldo del re: legge i bandi e porta i messaggi ai detenuti. Sa chi entra e chi esce. |
+| F | **Fausto** | il boia | Boia | Boia della torre: lavora quando serve, e quando non serve aspetta. Di Vivia era il collega più vicino. |
+| G | **Giuditta** | la cuoca dei prigionieri | Fornaio | Cuoca dei prigionieri: porta ogni giorno la zuppa alle celle. Vivia le teneva la porta, e le raccontava tutto quello che vedeva. |
 | V | **Vivia** (vittima) | la vittima, carceriera | Poliziotto/a | 20 anni, carceriera della torre: tiene le chiavi di ogni cella. Giovane, ligia, spesso sola nei sotterranei. |
 
 ### Mappa
@@ -509,19 +509,19 @@ _I mobili pieni (13) occupano la loro casella; panche, sgabelli, giacigli, tappe
 
 **Vittima:** Valdemaro — il maggiore, acclamato erede.
 
-**Colpevole:** lord Folco di Valgrigia (lord Folco di Valgrigia). **Movente:** Impedire l'incoronazione e restare a corte.
+**Colpevole:** lord Alboino di Valgrigia (lord Alboino di Valgrigia). **Movente:** Impedire l'incoronazione e restare a corte.
 
 ### Personaggi
 
 | Iniziale | Nome | Chi è | Avatar | Descrizione |
 |---|---|---|---|---|
-| F | **Folco** (colpevole) | lord Folco di Valgrigia | Giudice | Lord Folco di Valgrigia, nobile di un'altra casata, ospite del banchetto. Elegante e affabile, attento a chi può diventare re. |
-| G | **Gualtiero** | l'araldo | Araldo/a | Araldo di corte: annuncia gli ospiti e legge i bandi. Conosce l'ordine di ogni posto a tavola. |
+| A | **Alboino** (colpevole) | lord Alboino di Valgrigia | Giudice | Lord Alboino di Valgrigia, nobile di un'altra casata, ospite del banchetto. Elegante e affabile, attento a chi può diventare re. |
 | B | **Bartolo** | il giullare | Giullare/a | Giullare: fa ridere tutti e osserva tutti. Dice la verità solo per scherzo. |
-| A | **Alberico** | il bardo | Bardo/a | Bardo: canta le imprese del re e dei suoi figli. Compone anche quando nessuno glielo chiede. |
 | C | **Costanza** | la contessa | Contessa | Contessa vedova, madre di uno dei figli del re. Siede al tavolo d'onore con aria assente. |
-| O | **Ottone** | il cavaliere | Cavaliere | Cavaliere della guardia del re: siede vicino al trono per tradizione. Giura fedeltà a chi regna. |
 | D | **Domenico** | il prete | Sacerdote | Prete di corte: benedice il pane e il vino del banchetto. Ha confessato metà della sala. |
+| E | **Elia** | il bardo | Bardo/a | Bardo: canta le imprese del re e dei suoi figli. Compone anche quando nessuno glielo chiede. |
+| F | **Federico** | l'araldo | Araldo/a | Araldo di corte: annuncia gli ospiti e legge i bandi. Conosce l'ordine di ogni posto a tavola. |
+| G | **Guido** | il cavaliere | Cavaliere | Cavaliere della guardia del re: siede vicino al trono per tradizione. Giura fedeltà a chi regna. |
 | V | **Valdemaro** (vittima) | la vittima, il maggiore, acclamato erede | Principe | 23 anni, il maggiore dei figli del re. Acclamato erede al banchetto, davanti a tutta la corte. |
 
 ### Mappa
@@ -562,6 +562,6 @@ _I mobili pieni (16) occupano la loro casella; panche, sgabelli, giacigli, tappe
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
-> Lord Folco confessa: voleva evitare un'incoronazione che lo avrebbe escluso. Sotto il castone dell'anello col sigillo trovi l'ultimo foglietto: «Il re dormiva nel letto vicino alla finestra; quello vicino al camino era della regina». Hai nove testimonianze e una stanza da ricostruire.
+> Lord Alboino confessa: voleva evitare un'incoronazione che lo avrebbe escluso. Sotto il castone dell'anello col sigillo trovi l'ultimo foglietto: «Il re dormiva nel letto vicino alla finestra; quello vicino al camino era della regina». Hai nove testimonianze e una stanza da ricostruire.
 
 ---

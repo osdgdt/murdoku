@@ -1,16 +1,16 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwm9lr4l8kfikm27",
+  "id": "puzzle_mwo3ocetys1f46la",
   "title": "Il banchetto dell'erede",
   "author": "",
-  "difficulty": "hard",
+  "difficulty": "expert",
   "completed": false,
   "bestTimeSeconds": null,
   "briefing": "Nella sala grande, al banchetto, i nobili hanno appena acclamato Valdemaro come erede quando lui crolla tra i candelabri. Davanti al trono vuoto, la regina piange. Ti volti, e per un attimo sorride.",
   "resolutionNote": "Lord Folco confessa: voleva evitare un'incoronazione che lo avrebbe escluso. Sotto il castone dell'anello col sigillo trovi l'ultimo foglietto: «Il re dormiva nel letto vicino alla finestra; quello vicino al camino era della regina». Hai nove testimonianze e una stanza da ricostruire.",
   "tense": "past",
-  "createdAt": 1795015032213,
-  "updatedAt": 1795015032213,
+  "createdAt": 1795126007765,
+  "updatedAt": 1795126007767,
   "grid": {
     "size": {
       "rows": 8,
@@ -19,380 +19,380 @@
     "cells": [
       [
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4l1j8wzxsv",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetlt66ky7c",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4ly2vbs01x",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetf3v1h9au",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4lxez8g096",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetv9gd57z3",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
-          "objectId": "obj_mwm9lr4l3vca6hke",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
+          "objectId": "obj_mwo3ocetdlm9ri6e",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4lwb1e1rcr",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4l33d80fnw",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetlmilr347",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4lkg8m9ab0",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4lcw27b0cg",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetw3jjf18m",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4lq9rsqzib",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": "obj_mwm9lr4l4m32q16f",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ln5oqdv2f",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lhysxfjw6",
-          "objectId": "obj_mwm9lr4lg2g3znca",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": "obj_mwm9lr4l9kby5lht",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lkleurtfm",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lkleurtfm",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lkleurtfm",
-          "objectId": "obj_mwm9lr4ls8p894j3",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ltgq0lhfd",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ltgq0lhfd",
-          "objectId": "obj_mwm9lr4ldkl22y3d",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": "obj_mwm9lr4lgd8zfb93",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lkleurtfm",
-          "objectId": "obj_mwm9lr4l66t0grca",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lkleurtfm",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lkleurtfm",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ltgq0lhfd",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ltgq0lhfd",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
-          "objectId": "obj_mwm9lr4lp6uf2ck7",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4lsb6hs1sn",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetbw2pd0nt",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetn6vqsauc",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
-          "objectId": "obj_mwm9lr4lprsgegux",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4lsoyi3t77",
-          "objectId": "obj_mwm9lr4lld93o07e",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsoyi3t77",
-          "objectId": "obj_mwm9lr4lhnnaquy2",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4lsoyi3t77",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocetx40c0jdc",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetb483kv5h",
+          "objectId": "obj_mwo3ocettwq9t2ud",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetb483kv5h",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4l3xtgdhji",
-          "objectId": "obj_mwm9lr4lsc51shz6",
+          "zoneId": "zone_mwo3ocetm7sj3x2c",
+          "objectId": "obj_mwo3ocetf59b70fs",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": "obj_mwo3ocetgbmz2eek",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetatf6yjti",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetatf6yjti",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetatf6yjti",
+          "objectId": "obj_mwo3ocetkyxdiswg",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetvieq630f",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetvieq630f",
+          "objectId": "obj_mwo3ocetqydzqzsl",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": "obj_mwo3ocet5kmmfoz5",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetatf6yjti",
+          "objectId": "obj_mwo3oceto7e9chz0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetatf6yjti",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetatf6yjti",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetvieq630f",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetvieq630f",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": "obj_mwo3ocetj4qtod4e",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetglpxfls1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": "obj_mwo3ocetahvsmyfl",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocetok7oot99",
+          "objectId": "obj_mwo3ocetlohjapje",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetok7oot99",
+          "objectId": "obj_mwo3ocet2ojc3z81",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocetok7oot99",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocet9r8csdsh",
+          "objectId": "obj_mwo3ocetnhcs5801",
           "blocked": false
         }
       ]
     ],
     "zones": [
       {
-        "id": "zone_mwm9lr4ln5oqdv2f",
+        "id": "zone_mwo3ocetb483kv5h",
         "name": "La sala grande",
         "color": "#f4c2c2",
         "textureId": "damask"
       },
       {
-        "id": "zone_mwm9lr4lhysxfjw6",
+        "id": "zone_mwo3ocetm7sj3x2c",
         "name": "La galleria dei musici",
         "color": "#c2e0f4",
         "textureId": "parquet"
       },
       {
-        "id": "zone_mwm9lr4lsb6hs1sn",
+        "id": "zone_mwo3ocetglpxfls1",
         "name": "Le cucine di servizio",
         "color": "#c9f4c2",
         "textureId": "brick"
       },
       {
-        "id": "zone_mwm9lr4lkleurtfm",
+        "id": "zone_mwo3ocetatf6yjti",
         "name": "L'anticamera",
         "color": "#f4ecc2",
         "textureId": "carpet"
       },
       {
-        "id": "zone_mwm9lr4ltgq0lhfd",
+        "id": "zone_mwo3ocetvieq630f",
         "name": "La loggia",
         "color": "#e0c2f4",
         "textureId": "marble"
       },
       {
-        "id": "zone_mwm9lr4l3xtgdhji",
+        "id": "zone_mwo3ocet9r8csdsh",
         "name": "Il cortile d'onore",
         "color": "#f4d3c2",
         "textureId": "cobble"
       },
       {
-        "id": "zone_mwm9lr4lsoyi3t77",
+        "id": "zone_mwo3ocetok7oot99",
         "name": "La cappella",
         "color": "#c2f4e8",
         "textureId": "encaustic"
@@ -400,252 +400,252 @@
     ],
     "objects": [
       {
-        "id": "obj_mwm9lr4ly2vbs01x",
+        "id": "obj_mwo3ocetf3v1h9au",
         "typeId": "throne",
         "row": 0,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4l1j8wzxsv",
+        "id": "obj_mwo3ocetlt66ky7c",
         "typeId": "banner",
         "row": 0,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4lxez8g096",
+        "id": "obj_mwo3ocetv9gd57z3",
         "typeId": "banner",
         "row": 0,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4lwb1e1rcr",
+        "id": "obj_mwo3ocetlmilr347",
         "typeId": "candelabrum",
         "row": 1,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4l33d80fnw",
+        "id": "obj_mwo3ocetw3jjf18m",
         "typeId": "candelabrum",
         "row": 1,
         "col": 4
       },
       {
-        "id": "obj_mwm9lr4lkg8m9ab0",
+        "id": "obj_mwo3ocetbw2pd0nt",
         "typeId": "table",
         "row": 2,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4lcw27b0cg",
+        "id": "obj_mwo3ocetn6vqsauc",
         "typeId": "table",
         "row": 2,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4lq9rsqzib",
+        "id": "obj_mwo3ocetx40c0jdc",
         "typeId": "bench",
         "row": 3,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4l4m32q16f",
+        "id": "obj_mwo3ocettwq9t2ud",
         "typeId": "bench",
         "row": 3,
         "col": 4
       },
       {
-        "id": "obj_mwm9lr4l3vca6hke",
+        "id": "obj_mwo3ocetdlm9ri6e",
         "typeId": "bench",
         "row": 0,
         "col": 6
       },
       {
-        "id": "obj_mwm9lr4lg2g3znca",
+        "id": "obj_mwo3ocetf59b70fs",
         "typeId": "chest",
         "row": 3,
         "col": 7
       },
       {
-        "id": "obj_mwm9lr4l9kby5lht",
+        "id": "obj_mwo3ocetgbmz2eek",
         "typeId": "cauldron",
         "row": 4,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4lp6uf2ck7",
+        "id": "obj_mwo3ocetj4qtod4e",
         "typeId": "fireplace",
         "row": 6,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4lgd8zfb93",
+        "id": "obj_mwo3ocet5kmmfoz5",
         "typeId": "barrel",
         "row": 5,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4l66t0grca",
+        "id": "obj_mwo3oceto7e9chz0",
         "typeId": "bench",
         "row": 5,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4ls8p894j3",
+        "id": "obj_mwo3ocetkyxdiswg",
         "typeId": "statue",
         "row": 4,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4ldkl22y3d",
+        "id": "obj_mwo3ocetqydzqzsl",
         "typeId": "plant",
         "row": 4,
         "col": 7
       },
       {
-        "id": "obj_mwm9lr4lprsgegux",
+        "id": "obj_mwo3ocetahvsmyfl",
         "typeId": "well",
         "row": 6,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4lsc51shz6",
+        "id": "obj_mwo3ocetnhcs5801",
         "typeId": "cart",
         "row": 7,
         "col": 7
       },
       {
-        "id": "obj_mwm9lr4lhnnaquy2",
+        "id": "obj_mwo3ocet2ojc3z81",
         "typeId": "altar",
         "row": 7,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4lld93o07e",
+        "id": "obj_mwo3ocetlohjapje",
         "typeId": "candelabrum",
         "row": 7,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4lihh610yo",
+        "id": "obj_mwo3ocetvj7x9k4g",
         "typeId": "door",
         "row": 2,
         "col": 5,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4lgmtzlwin",
+        "id": "obj_mwo3ocet9y5szcht",
         "typeId": "door",
         "row": 3,
         "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4l6dtwbh5e",
+        "id": "obj_mwo3ocetaqk2fbdk",
         "typeId": "door",
         "row": 3,
         "col": 4,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4l5r6sy01r",
+        "id": "obj_mwo3oceth6s1kp7b",
         "typeId": "door",
         "row": 3,
         "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4lieqtgipr",
+        "id": "obj_mwo3ocetu47tltxj",
         "typeId": "door",
         "row": 5,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4l067z87ms",
+        "id": "obj_mwo3ocet7yhtakl1",
         "typeId": "door",
         "row": 6,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4l4nfev0n9",
+        "id": "obj_mwo3ocetz3g7n0li",
         "typeId": "door",
         "row": 6,
         "col": 2,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4lqw9h28r6",
+        "id": "obj_mwo3oceu7x2fopdo",
         "typeId": "door",
         "row": 5,
         "col": 4,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4ltkokjatt",
+        "id": "obj_mwo3oceuecjrsadc",
         "typeId": "door",
         "row": 5,
         "col": 5,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4l7g1qa7ri",
+        "id": "obj_mwo3oceullq2s06i",
         "typeId": "door",
         "row": 5,
         "col": 7,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4lflvfm1ny",
+        "id": "obj_mwo3oceuu75h5inm",
         "typeId": "door",
         "row": 7,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4lwoebpos5",
+        "id": "obj_mwo3oceus4lc1h3k",
         "typeId": "window",
         "row": 0,
         "col": 0,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4losbern75",
+        "id": "obj_mwo3oceujglc6xld",
         "typeId": "window",
         "row": 0,
         "col": 3,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4le9tbaz4j",
+        "id": "obj_mwo3oceu4pioo204",
         "typeId": "window",
         "row": 0,
         "col": 7,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4lnjv78n6c",
+        "id": "obj_mwo3oceve1kjri7a",
         "typeId": "window",
         "row": 4,
         "col": 7,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4lc1jrndse",
+        "id": "obj_mwo3ocevri8p5y7m",
         "typeId": "window",
         "row": 7,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr4l62raqh5f",
+        "id": "obj_mwo3ocevlial1v7p",
         "typeId": "window",
         "row": 7,
         "col": 7,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4ll86hlsry",
+        "id": "obj_mwo3ocev8p7x4f64",
         "typeId": "window",
         "row": 4,
         "col": 0,
@@ -655,7 +655,7 @@
   },
   "characters": [
     {
-      "id": "char_mwm9lr4l5u8ftkmd",
+      "id": "char_mwo3ocevgn62dxbt",
       "name": "Folco",
       "iconId": "judge",
       "isVictim": false,
@@ -664,7 +664,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4l3amnxohf",
+      "id": "char_mwo3ocevclpeepch",
       "name": "Gualtiero",
       "iconId": "herald",
       "isVictim": false,
@@ -673,7 +673,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4lu0xxmmgh",
+      "id": "char_mwo3ocevawpwbqdh",
       "name": "Bartolo",
       "iconId": "jester",
       "isVictim": false,
@@ -682,7 +682,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4lf0um3vqg",
+      "id": "char_mwo3ocev69626g34",
       "name": "Alberico",
       "iconId": "bard",
       "isVictim": false,
@@ -691,7 +691,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4l5epujlo6",
+      "id": "char_mwo3ocevlubn6qlk",
       "name": "Costanza",
       "iconId": "countess",
       "isVictim": false,
@@ -700,7 +700,7 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4lvjve9s3o",
+      "id": "char_mwo3ocevav5nym3a",
       "name": "Ottone",
       "iconId": "knight",
       "isVictim": false,
@@ -709,7 +709,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4lm6iga2x2",
+      "id": "char_mwo3ocevaebtow5d",
       "name": "Domenico",
       "iconId": "priest",
       "isVictim": false,
@@ -718,7 +718,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4lf6tqbp1p",
+      "id": "char_mwo3ocevuiv9mc92",
       "name": "Valdemaro",
       "iconId": "prince",
       "isVictim": true,

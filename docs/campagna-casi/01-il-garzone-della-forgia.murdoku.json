@@ -1,235 +1,383 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwm9lr45a57xeltl",
+  "id": "puzzle_mwo3oceags2pz6ky",
   "title": "Il garzone della forgia",
   "author": "",
   "difficulty": "easy",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e tre persone giurano di non aver visto niente.",
+  "briefing": "La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.",
   "resolutionNote": "Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.",
   "tense": "past",
-  "createdAt": 1795015032197,
-  "updatedAt": 1795015032200,
+  "createdAt": 1795126007746,
+  "updatedAt": 1795126007749,
   "grid": {
     "size": {
-      "rows": 4,
-      "cols": 4
+      "rows": 6,
+      "cols": 6
     },
     "cells": [
       [
         {
-          "zoneId": "zone_mwm9lr46d3p7su3y",
-          "objectId": "obj_mwm9lr46wre1rnlp",
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": "obj_mwo3ocebx0mu8cof",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "zoneId": "zone_mwo3oceb3azgt875",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "zoneId": "zone_mwo3oceb3azgt875",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46ubzdc0u3",
-          "objectId": "obj_mwm9lr46aqb4cubq",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr46d3p7su3y",
+          "zoneId": "zone_mwo3oceb3azgt875",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46d3p7su3y",
-          "objectId": "obj_mwm9lr46s1fjdipp",
+          "zoneId": "zone_mwo3ocebnlag6qmy",
+          "objectId": "obj_mwo3oceb0p76p0dz",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46d3p7su3y",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr46ubzdc0u3",
+          "zoneId": "zone_mwo3ocebnlag6qmy",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "zoneId": "zone_mwo3oceb3azgt875",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46kpi95d5t",
-          "objectId": "obj_mwm9lr46z48i23sy",
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46dsu29nos",
-          "objectId": "obj_mwm9lr46xjg4iitz",
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": "obj_mwo3ocebpr59ch2c",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46dsu29nos",
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebnlag6qmy",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebnlag6qmy",
+          "objectId": "obj_mwo3ocebwgpo5wrm",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": "obj_mwo3ocebzy6igu9b",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3oceb3azgt875",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebbkif7bv5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebbkif7bv5",
+          "objectId": "obj_mwo3ocebvzm4qyt1",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebbkif7bv5",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "zoneId": "zone_mwo3ocebvrd83wk4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46kpi95d5t",
+          "zoneId": "zone_mwo3ocebvrd83wk4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46dsu29nos",
+          "zoneId": "zone_mwo3ocebvrd83wk4",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr46dsu29nos",
-          "objectId": "obj_mwm9lr46edzw5mti",
+          "zoneId": "zone_mwo3ocebbkif7bv5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebbkif7bv5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebbkif7bv5",
+          "objectId": "obj_mwo3ocebdftgvqu5",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocebvrd83wk4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebvrd83wk4",
+          "objectId": "obj_mwo3ocebpxabm5ju",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebvrd83wk4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebtalo0p8d",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebtalo0p8d",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebtalo0p8d",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocebvrd83wk4",
+          "objectId": "obj_mwo3ocebhbh42o7u",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebvrd83wk4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebvrd83wk4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebtalo0p8d",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebtalo0p8d",
+          "objectId": "obj_mwo3ocecmpgd68gf",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocebtalo0p8d",
+          "objectId": null,
           "blocked": false
         }
       ]
     ],
     "zones": [
       {
-        "id": "zone_mwm9lr46d3p7su3y",
+        "id": "zone_mwo3oceb3azgt875",
         "name": "La forgia",
         "color": "#f4c2c2",
         "textureId": "flagstone_dark"
       },
       {
-        "id": "zone_mwm9lr46ubzdc0u3",
-        "name": "Il magazzino",
+        "id": "zone_mwo3ocebnlag6qmy",
+        "name": "La carbonaia",
         "color": "#c2e0f4",
+        "textureId": "dirt"
+      },
+      {
+        "id": "zone_mwo3ocebbkif7bv5",
+        "name": "Il magazzino",
+        "color": "#c9f4c2",
         "textureId": "planks_dark"
       },
       {
-        "id": "zone_mwm9lr46kpi95d5t",
+        "id": "zone_mwo3ocebvrd83wk4",
         "name": "La casa del fabbro",
-        "color": "#c9f4c2",
+        "color": "#f4ecc2",
         "textureId": "planks"
       },
       {
-        "id": "zone_mwm9lr46dsu29nos",
+        "id": "zone_mwo3ocebtalo0p8d",
         "name": "Il cortile",
-        "color": "#f4ecc2",
+        "color": "#e0c2f4",
         "textureId": "cobble"
       }
     ],
     "objects": [
       {
-        "id": "obj_mwm9lr46wre1rnlp",
+        "id": "obj_mwo3ocebx0mu8cof",
         "typeId": "fireplace",
         "row": 0,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr46s1fjdipp",
+        "id": "obj_mwo3ocebpr59ch2c",
         "typeId": "anvil",
         "row": 1,
-        "col": 1
-      },
-      {
-        "id": "obj_mwm9lr46aqb4cubq",
-        "typeId": "barrel",
-        "row": 0,
-        "col": 3
-      },
-      {
-        "id": "obj_mwm9lr46edzw5mti",
-        "typeId": "weapon_rack",
-        "row": 3,
-        "col": 3
-      },
-      {
-        "id": "obj_mwm9lr46xjg4iitz",
-        "typeId": "bench",
-        "row": 2,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr46z48i23sy",
-        "typeId": "pallet",
+        "id": "obj_mwo3ocebzy6igu9b",
+        "typeId": "weapon_rack",
         "row": 2,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr46i4wn39q4",
-        "typeId": "door",
-        "row": 1,
-        "col": 2,
-        "side": "E"
+        "id": "obj_mwo3oceb0p76p0dz",
+        "typeId": "barrel",
+        "row": 0,
+        "col": 4
       },
       {
-        "id": "obj_mwm9lr4742ee9y47",
-        "typeId": "door",
+        "id": "obj_mwo3ocebwgpo5wrm",
+        "typeId": "cart",
         "row": 1,
-        "col": 1,
-        "side": "S"
+        "col": 5
       },
       {
-        "id": "obj_mwm9lr478w3bey5h",
-        "typeId": "door",
-        "row": 1,
-        "col": 2,
-        "side": "S"
+        "id": "obj_mwo3ocebvzm4qyt1",
+        "typeId": "shelf",
+        "row": 2,
+        "col": 4
       },
       {
-        "id": "obj_mwm9lr48zek5tuxs",
-        "typeId": "door",
+        "id": "obj_mwo3ocebdftgvqu5",
+        "typeId": "chest",
         "row": 3,
-        "col": 1,
-        "side": "E"
+        "col": 5
       },
       {
-        "id": "obj_mwm9lr48kpf4o51b",
+        "id": "obj_mwo3ocebpxabm5ju",
+        "typeId": "table",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3ocebhbh42o7u",
+        "typeId": "bed",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "obj_mwo3ocecmpgd68gf",
+        "typeId": "well",
+        "row": 5,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3ocecii1f8ltw",
         "typeId": "door",
         "row": 1,
         "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocecbz67r14h",
+        "typeId": "door",
+        "row": 2,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocedwmnxaf98",
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr48ytvqyj7p",
+        "id": "obj_mwo3ocedzxuowvek",
+        "typeId": "door",
+        "row": 3,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocedqx4849fa",
+        "typeId": "door",
+        "row": 5,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocedz4nt4wet",
+        "typeId": "door",
+        "row": 3,
+        "col": 4,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3ocedakz3hqj6",
         "typeId": "window",
         "row": 0,
         "col": 1,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr48wuobnse4",
+        "id": "obj_mwo3ocedbqfg94ba",
         "typeId": "window",
-        "row": 2,
+        "row": 0,
+        "col": 5,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwo3ocedicdbsvxc",
+        "typeId": "window",
+        "row": 3,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr48vp65a4e8",
+        "id": "obj_mwo3oced2j3mpr9z",
         "typeId": "window",
-        "row": 3,
-        "col": 3,
+        "row": 5,
+        "col": 5,
         "side": "E"
       }
     ]
   },
   "characters": [
     {
-      "id": "char_mwm9lr480vp6ci4h",
+      "id": "char_mwo3oced3wftl9or",
       "name": "Bertoldo",
       "iconId": "blacksmith",
       "isVictim": false,
@@ -238,7 +386,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr48pc5s71zj",
+      "id": "char_mwo3oceddo4fmu5d",
       "name": "Lupo",
       "iconId": "construction",
       "isVictim": false,
@@ -247,7 +395,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr48lpoy1y10",
+      "id": "char_mwo3ocedrfijmgln",
       "name": "Mabilia",
       "iconId": "baker",
       "isVictim": false,
@@ -256,12 +404,30 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr483mhxlgop",
-      "name": "Vanni",
+      "id": "char_mwo3oced9zv200ny",
+      "name": "Osvaldo",
       "iconId": "farmer",
+      "isVictim": false,
+      "bio": "Carbonaio di Borgocenere: porta il carbone alla forgia ogni mattina. Parla solo del tempo, ma vede tutto quello che entra ed esce dal cortile.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3oced7utz5xyb",
+      "name": "Ilaria",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "Figlia del vasaio della porta accanto: porta ogni giorno la zuppa ai lavoranti. Si fermava a parlare con Vanni più del dovuto.",
+      "color": "#bf8020",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3ocedxrl1jzdz",
+      "name": "Vanni",
+      "iconId": "ninja",
       "isVictim": true,
       "bio": "19 anni, garzone della forgia di Borgocenere. Silenzioso e instancabile, è arrivato in bottega ancora bambino: nessuno sa chi fossero i suoi genitori.",
-      "color": "#9f5595",
+      "color": "#4a6aca",
       "gender": "male"
     }
   ],

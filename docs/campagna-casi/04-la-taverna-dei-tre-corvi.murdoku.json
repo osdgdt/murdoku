@@ -1,306 +1,521 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwm9lr4edn3obhl5",
+  "id": "puzzle_mwo3oceluzs8b1vs",
   "title": "La taverna dei Tre Corvi",
   "author": "",
   "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.»",
+  "briefing": "Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.» Sei persone giurano di non aver visto niente.",
   "resolutionNote": "Rodolfo ammette tutto, con una risata amara. Sotto la medaglia di Vitale, un foglietto: «La sarta cuciva nel corridoio, vicino all'armatura». La regina annuisce piano quando glielo racconti: «Un'altra giovane vita sprecata».",
   "tense": "past",
-  "createdAt": 1795015032206,
-  "updatedAt": 1795015032207,
+  "createdAt": 1795126007757,
+  "updatedAt": 1795126007758,
   "grid": {
     "size": {
-      "rows": 5,
-      "cols": 5
+      "rows": 7,
+      "cols": 7
     },
     "cells": [
       [
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
-          "objectId": "obj_mwm9lr4ex0mg6dd6",
+          "zoneId": "zone_mwo3ocelqc9famzw",
+          "objectId": "obj_mwo3oceltibw5wad",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
-          "objectId": "obj_mwm9lr4ea0c52rc7",
+          "zoneId": "zone_mwo3ocelqc9famzw",
+          "objectId": "obj_mwo3ocel2had5bi0",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4el75k4suz",
-          "objectId": "obj_mwm9lr4err0uk5sj",
+          "zoneId": "zone_mwo3ocel9nyv9ha6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocel9nyv9ha6",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocel9nyv9ha6",
+          "objectId": "obj_mwo3ocel2ml8f5zj",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
-          "objectId": "obj_mwm9lr4ewgsdicj2",
+          "zoneId": "zone_mwo3ocelqc9famzw",
+          "objectId": "obj_mwo3ocelufp10zv7",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
-          "objectId": "obj_mwm9lr4eidoqw0gi",
+          "zoneId": "zone_mwo3ocelqc9famzw",
+          "objectId": "obj_mwo3ocel3fozyyyw",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4el75k4suz",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
-          "objectId": "obj_mwm9lr4e1rcrcbug",
+          "zoneId": "zone_mwo3ocel9nyv9ha6",
+          "objectId": "obj_mwo3ocelvw3du9of",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
+          "zoneId": "zone_mwo3ocel9nyv9ha6",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ezk4p1rin",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4e4l091xy8",
-          "objectId": "obj_mwm9lr4e0xcy7pcn",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4e4l091xy8",
+          "zoneId": "zone_mwo3ocel9nyv9ha6",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "zoneId": "zone_mwo3ocelqc9famzw",
+          "objectId": "obj_mwo3ocelrbeg9mrs",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "zoneId": "zone_mwo3ocelqc9famzw",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4e4l091xy8",
+          "zoneId": "zone_mwo3ocelx0amkxl5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4e4l091xy8",
-          "objectId": "obj_mwm9lr4ey0i4bwa7",
+          "zoneId": "zone_mwo3ocelx0amkxl5",
+          "objectId": "obj_mwo3ocelr2j6qnzq",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelx0amkxl5",
+          "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
-          "objectId": "obj_mwm9lr4e6zd4dqzu",
+          "zoneId": "zone_mwo3ocelolglpcz5",
+          "objectId": "obj_mwo3ocel762qtpgj",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "zoneId": "zone_mwo3ocelolglpcz5",
+          "objectId": "obj_mwo3ocelhrhi0ac6",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelolglpcz5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "zoneId": "zone_mwo3ocelolglpcz5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
+          "zoneId": "zone_mwo3ocelx0amkxl5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4edyoxd6zr",
-          "objectId": "obj_mwm9lr4etwtbtrqn",
+          "zoneId": "zone_mwo3ocelx0amkxl5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelx0amkxl5",
+          "objectId": "obj_mwo3ocelzlcnd1c0",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocelolglpcz5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelolglpcz5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelolglpcz5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelolglpcz5",
+          "objectId": "obj_mwo3ocelqjt5dtfq",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": "obj_mwo3ocely17wuur5",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocellvrt312y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocellvrt312y",
+          "objectId": "obj_mwo3ocelf6wv0j4e",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocellvrt312y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocellvrt312y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocellvrt312y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocellvrt312y",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": "obj_mwo3ocel1cqhpg2m",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocelwx9mb9yv",
+          "objectId": null,
           "blocked": false
         }
       ]
     ],
     "zones": [
       {
-        "id": "zone_mwm9lr4ezk4p1rin",
+        "id": "zone_mwo3ocelqc9famzw",
         "name": "La sala della taverna",
         "color": "#f4c2c2",
         "textureId": "planks_dark"
       },
       {
-        "id": "zone_mwm9lr4el75k4suz",
+        "id": "zone_mwo3ocel9nyv9ha6",
         "name": "La cucina",
         "color": "#c2e0f4",
         "textureId": "brick"
       },
       {
-        "id": "zone_mwm9lr4e4l091xy8",
-        "name": "La cantina",
+        "id": "zone_mwo3ocelx0amkxl5",
+        "name": "Le camere",
         "color": "#c9f4c2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwo3ocelolglpcz5",
+        "name": "La cantina",
+        "color": "#f4ecc2",
         "textureId": "flagstone_dark"
       },
       {
-        "id": "zone_mwm9lr4edyoxd6zr",
-        "name": "Il cortile delle stalle",
-        "color": "#f4ecc2",
+        "id": "zone_mwo3ocellvrt312y",
+        "name": "La stalla",
+        "color": "#e0c2f4",
+        "textureId": "straw"
+      },
+      {
+        "id": "zone_mwo3ocelwx9mb9yv",
+        "name": "Il cortile",
+        "color": "#f4d3c2",
         "textureId": "dirt"
       }
     ],
     "objects": [
       {
-        "id": "obj_mwm9lr4ex0mg6dd6",
+        "id": "obj_mwo3oceltibw5wad",
         "typeId": "fireplace",
         "row": 0,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4ea0c52rc7",
+        "id": "obj_mwo3ocel2had5bi0",
         "typeId": "bench",
         "row": 0,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4ewgsdicj2",
+        "id": "obj_mwo3ocelufp10zv7",
         "typeId": "bench",
         "row": 1,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4e1rcrcbug",
-        "typeId": "bench",
-        "row": 2,
-        "col": 0
-      },
-      {
-        "id": "obj_mwm9lr4eidoqw0gi",
+        "id": "obj_mwo3ocel3fozyyyw",
         "typeId": "table",
         "row": 1,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4err0uk5sj",
-        "typeId": "shelf",
-        "row": 0,
-        "col": 4
-      },
-      {
-        "id": "obj_mwm9lr4e0xcy7pcn",
-        "typeId": "barrel",
+        "id": "obj_mwo3ocelrbeg9mrs",
+        "typeId": "bench",
         "row": 2,
-        "col": 3
-      },
-      {
-        "id": "obj_mwm9lr4ey0i4bwa7",
-        "typeId": "barrel",
-        "row": 3,
-        "col": 4
-      },
-      {
-        "id": "obj_mwm9lr4e6zd4dqzu",
-        "typeId": "cart",
-        "row": 4,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4etwtbtrqn",
-        "typeId": "well",
-        "row": 4,
+        "id": "obj_mwo3ocel2ml8f5zj",
+        "typeId": "shelf",
+        "row": 0,
+        "col": 6
+      },
+      {
+        "id": "obj_mwo3ocelvw3du9of",
+        "typeId": "cauldron",
+        "row": 1,
         "col": 4
       },
       {
-        "id": "obj_mwm9lr4esmpzgzbz",
+        "id": "obj_mwo3ocelr2j6qnzq",
+        "typeId": "bed",
+        "row": 2,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3ocelzlcnd1c0",
+        "typeId": "bed",
+        "row": 3,
+        "col": 6
+      },
+      {
+        "id": "obj_mwo3ocelhrhi0ac6",
+        "typeId": "barrel",
+        "row": 3,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3ocelqjt5dtfq",
+        "typeId": "barrel",
+        "row": 4,
+        "col": 3
+      },
+      {
+        "id": "obj_mwo3ocel762qtpgj",
+        "typeId": "barrel",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "obj_mwo3ocelf6wv0j4e",
+        "typeId": "pallet",
+        "row": 5,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3ocel1cqhpg2m",
+        "typeId": "cart",
+        "row": 6,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3ocely17wuur5",
+        "typeId": "well",
+        "row": 4,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3ocel4jk997ue",
         "typeId": "door",
         "row": 1,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4epq0i436g",
+        "id": "obj_mwo3oceldgrehzpg",
         "typeId": "door",
         "row": 2,
-        "col": 2,
+        "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4edgxq9u3i",
+        "id": "obj_mwo3ocelakfd4du8",
         "typeId": "door",
         "row": 2,
-        "col": 1,
+        "col": 2,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4ea2mbse03",
+        "id": "obj_mwo3ocel7fktyah4",
+        "typeId": "door",
+        "row": 1,
+        "col": 5,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3oceljyr90lfd",
         "typeId": "door",
         "row": 3,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocel2c7x1eoe",
+        "typeId": "door",
+        "row": 4,
         "col": 3,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4eirivk0b4",
+        "id": "obj_mwo3ocelorui3ns2",
+        "typeId": "door",
+        "row": 3,
+        "col": 5,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3ocelbtyaomli",
+        "typeId": "door",
+        "row": 4,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3oceljtr4zv62",
+        "typeId": "door",
+        "row": 6,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocelhufksif9",
         "typeId": "window",
         "row": 0,
         "col": 0,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4flq2zv1vg",
+        "id": "obj_mwo3ocel1wxgcsrd",
         "typeId": "window",
         "row": 0,
         "col": 2,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4fo0o3njma",
+        "id": "obj_mwo3ocelxbo7pxbo",
         "typeId": "window",
         "row": 0,
-        "col": 4,
+        "col": 6,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4fv75hbufg",
+        "id": "obj_mwo3ocemi8e5jl86",
         "typeId": "window",
-        "row": 4,
-        "col": 4,
-        "side": "S"
+        "row": 2,
+        "col": 6,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocemknaiw2xr",
+        "typeId": "window",
+        "row": 6,
+        "col": 6,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocem39yemesk",
+        "typeId": "window",
+        "row": 5,
+        "col": 0,
+        "side": "W"
       }
     ]
   },
   "characters": [
     {
-      "id": "char_mwm9lr4fxfrw425d",
+      "id": "char_mwo3ocemuy9uu2wp",
       "name": "Rodolfo",
       "iconId": "soldier",
       "isVictim": false,
@@ -309,7 +524,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4f3hzesag2",
+      "id": "char_mwo3ocemvv2rchwk",
       "name": "Gisulfo",
       "iconId": "banker",
       "isVictim": false,
@@ -318,7 +533,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4f2y9y4g4s",
+      "id": "char_mwo3ocemd938ngf1",
       "name": "Orsola",
       "iconId": "waiter",
       "isVictim": false,
@@ -327,7 +542,7 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4f0zr02cwr",
+      "id": "char_mwo3ocemwej30rc9",
       "name": "Drogone",
       "iconId": "farmer",
       "isVictim": false,
@@ -336,12 +551,30 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4foi81pwdf",
+      "id": "char_mwo3ocem266fthvf",
+      "name": "Nerina",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "Lavandaia dei Tre Corvi: lava lenzuola e boccali, e raccoglie le chiacchiere insieme ai panni sporchi. Vitale le lasciava sempre una moneta.",
+      "color": "#bf8020",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3ocemcy881gte",
+      "name": "Savino",
+      "iconId": "bartender",
+      "isVictim": false,
+      "bio": "Cantiniere della taverna: scende in cantina a spillare e risale con le orecchie piene. Tiene i conti dei debiti di gioco, e non li ha mai detti a nessuno.",
+      "color": "#4a6aca",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3ocemxuztyugs",
       "name": "Vitale",
       "iconId": "archer",
       "isVictim": true,
       "bio": "21 anni, mercenario al soldo di chi paga. Giocatore di dadi, spaccone, benvoluto a metà.",
-      "color": "#bf8020",
+      "color": "#9f80b5",
       "gender": "male"
     }
   ],

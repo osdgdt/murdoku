@@ -95,88 +95,88 @@ Adela is never among the suspects of cases 1-9, but she appears in every introdu
 
 Grid, characters and objects are suggestions. **No suspect** may have a name starting with V (V is reserved for King Victor and his children). Within one case, all initials differ.
 
-### Case 1 — The Smith's Apprentice · 4×4
+### Case 1 — The Smith's Apprentice · 6×6
 - **Victim**: Vance, 19, a smith's apprentice.
 - **Scene**: the forge in Cinderwick. Objects: anvil, fireplace (the furnace), barrel, weapon rack.
 - **Culprit**: Walter, the master smith. **Motive**: Vance had found out he sold flawed blades to the garrison.
-- **Other suspects** (3 in all, culprit included): Hob (journeyman), Maud (the smith's wife).
+- **Other suspects** (5 in all, culprit included): Hob (journeyman), Maud (the smith's wife), Oswald (charcoal burner), Isobel (the potter's daughter).
 - **Object**: a hollow iron token bearing Victor's crest; it shows that Vance was the king's son.
 
-**Introduction.** Queen Adela has picked you to find out how her husband died, but to begin with she sends you to Cinderwick: a smith's apprentice lies dead beside the anvil. «A small matter,» she says, «but an investigation starts wherever it can.» The forge is still hot, and three people swear they saw nothing.
+**Introduction.** Queen Adela has picked you to find out how her husband died, but to begin with she sends you to Cinderwick: a smith's apprentice lies dead beside the anvil. «A small matter,» she says, «but an investigation starts wherever it can.» The forge is still hot, and five people swear they saw nothing.
 
 **Epilogue.** The master smith confesses: Vance had discovered the flawed blades sold to the army. In the iron token the boy wore round his neck there is Victor's crest, and a slip: «The cupbearer never went into the chamber». You tell the queen the apprentice was the king's son. «I did not know,» Adela whispers.
 
-### Case 2 — The Abbey Garden · 4×4
+### Case 2 — The Abbey Garden · 6×6
 - **Victim**: Viola, 20, an herbalist.
 - **Scene**: the garden and infirmary of Saint Hilary's. Objects: well, bench, statue, cauldron.
 - **Culprit**: Brother Anselm, the infirmarian. **Motive**: Viola had found his ledger of poisons, which he sold in secret.
-- **Other suspects** (3 in all): Sister Clemence, Gerard (gardener).
+- **Other suspects** (5 in all): Sister Clemence, Gerard (gardener), Dennis (porter friar), Euphemia (refectory cook).
 - **Object**: a herbal with pressed leaves.
 
-**Introduction.** At Saint Hilary's Abbey a young herbalist has been found dead in the garden, among the beds. The queen has written to you: «My own garden is full of the same plants; let me know if anyone is misusing them.» The abbot receives you through clenched teeth.
+**Introduction.** At Saint Hilary's Abbey a young herbalist has been found dead in the garden, among the beds. The queen has written to you: «My own garden is full of the same plants; let me know if anyone is misusing them.» The abbot receives you through clenched teeth, and five people tell you they saw nothing.
 
 **Epilogue.** Brother Anselm gives way when you show him his ledger of poisons: he had been selling them to the nobles of the town. In Viola's herbal, among the foxglove leaves, a note: «The chambermaid sat mending in front of the fireplace». Two of the king's children dead in a few days: you already know they will not be the last.
 
-### Case 3 — The Scriptorium · 5×5
+### Case 3 — The Scriptorium · 6×6
 - **Victim**: Valerian, 22, a scribe.
 - **Scene**: the abbey's scriptorium. Objects: lectern, chest, candelabrum, bench.
 - **Culprit**: Ambrose, the abbot's secretary. **Motive**: he forged title deeds; Valerian had noticed.
-- **Other suspects** (4 in all): Benedict (copyist), Theobald (illuminator), Perpetua (the librarian nun).
+- **Other suspects** (5 in all): Benedict (copyist), Theobald (illuminator), Perpetua (the librarian nun), Frederick (bookbinder).
 - **Object**: a hollow silver quill.
 
-**Introduction.** A copyist has been killed in the scriptorium, his quill still on the page. The queen has you told to be discreet: «A monastery's papers are delicate, and many trust them more than the king.» Four suspects, and a single account book in disorder.
+**Introduction.** A copyist has been killed in the scriptorium, his quill still on the page. The queen has you told to be discreet: «A monastery's papers are delicate, and many trust them more than the king.» Five suspects, and a single account book in disorder.
 
 **Epilogue.** Ambrose had forged some thirty deeds and Valerian had caught him. Inside the silver quill, a slip: «The physician was praying in the chapel while the king died». The court physician, the queen warns you, is an honest man: do not waste your time.
 
-### Case 4 — The Three Ravens · 5×5
+### Case 4 — The Three Ravens · 7×7
 - **Victim**: Vaughan, 21, a mercenary.
 - **Scene**: the tavern in Cinderwick. Objects: barrels, fireplace, benches.
 - **Culprit**: Rudolf One-Eye, a sellsword. **Motive**: a gambling debt, and Vaughan had caught him cheating at dice.
-- **Other suspects** (4 in all): Godric (merchant), Ursula (serving girl), Drogo (drover).
+- **Other suspects** (6 in all): Godric (merchant), Ursula (serving girl), Drogo (drover), Nell (laundress), Simon (cellarman).
 - **Object**: a soldier's medal.
 
-**Introduction.** At the Three Ravens a rumour has spread, and so has a corpse: a mercenary, laid out among the benches with a dagger in his side. «There they gamble, drink, say anything,» the queen lets you know. «Listen to everything, and trust no one.»
+**Introduction.** At the Three Ravens a rumour has spread, and so has a corpse: a mercenary, laid out among the benches with a dagger in his side. «There they gamble, drink, say anything,» the queen lets you know. «Listen to everything, and trust no one.» Six people swear they saw nothing.
 
 **Epilogue.** Rudolf admits it all, with a bitter laugh. Under Vaughan's medal, a slip: «The seamstress was sewing in the corridor, near the armor». The queen nods softly when you tell her: «Another young life wasted».
 
-### Case 5 — The Royal Stables · 6×6
+### Case 5 — The Royal Stables · 7×7
 - **Victim**: Verity, 21, the court's stable hand.
 - **Scene**: the stables and the tournament field. Objects: cart, banner, weapon rack, bench.
 - **Culprit**: Sir Aldous, a knight. **Motive**: Verity had seen him rig his lance at the tourneys.
-- **Other suspects** (5 in all): Sigurd (squire), Brant (stable boy), Isolde (lady), Ermengarde (wardrobe mistress).
+- **Other suspects** (6 in all): Sigurd (squire), Brant (stable boy), Isolde (lady), Ermengarde (wardrobe mistress), Conrad (farrier).
 - **Object**: a pewter tankard with a false bottom.
 
-**Introduction.** At the edge of the tournament field they have found a stable hand, killed among the stalls. The queen already knows some details of the scene and apologises for it: «The stablemen talk to me.» You note it down and move on.
+**Introduction.** At the edge of the tournament field they have found a stable hand, killed among the stalls. The queen already knows some details of the scene and apologises for it: «The stablemen talk to me.» You note it down and move on. Six suspects, all within a few steps of the scene.
 
 **Epilogue.** Sir Aldous falls to your simplest argument: the rigged lance. In the false bottom of Verity's tankard, a note: «The innkeeper was in the courtyard, by the well». Five of the king's children now, and all of them dead.
 
-### Case 6 — The Crypt · 6×6
+### Case 6 — The Crypt · 7×7
 - **Victim**: Vesper, 20, a novice.
 - **Scene**: the abbey's crypt. Objects: altar, sarcophagus, gravestone, candelabrum.
 - **Culprit**: Osbert, the sacristan. **Motive**: he stole the silver of the reliquaries; Vesper saw him.
-- **Other suspects** (5 in all): Abbot Leofwin, Reynold (gravedigger), Eleanor (pilgrim), Martin (pilgrim).
+- **Other suspects** (6 in all): Abbot Leofwin, Reynold (gravedigger), Eleanor (pilgrim), Martin (pilgrim), Piers (collecting friar).
 - **Object**: a rosary.
 
-**Introduction.** In the abbey crypt, where the king will be buried, a novice has been found at the foot of a sarcophagus. The queen will come for the funeral rites and wants an answer before then. The sacristan, you are warned, says little.
+**Introduction.** In the abbey crypt, where the king will be buried, a novice has been found at the foot of a sarcophagus. The queen will come for the funeral rites and wants an answer before then. The sacristan, you are warned, says little; the other five speak only to say they were not there.
 
 **Epilogue.** The sacristan has been selling the silver of the relics for years, and Vesper saw him. In the rosary, in a hollow bead: «The noblewoman was waiting for an audience in front of the throne». Around the king's bier, the children who remain are fewer and fewer.
 
-### Case 7 — The Kitchens · 7×7
+### Case 7 — The Kitchens · 8×8
 - **Victim**: Vidar, 22, a cook.
 - **Scene**: the castle kitchens. Objects: cauldron, well, barrels, fireplace.
 - **Culprit**: Agnes, the pantry-keeper. **Motive**: jealousy; Vidar had been made the king's cook in her place.
-- **Other suspects** (6 in all): Thomas (scullion), Laurence (kitchen master), Zachary (butcher), Nicholas (baker), Giles (stableman).
+- **Other suspects** (7 in all): Thomas (scullion), Laurence (kitchen master), Zachary (butcher), Nicholas (baker), Giles (stableman), Cedric (carver).
 - **Object**: a silver spoon with a hollow handle.
 
-**Introduction.** A cook has died in the castle kitchens, beside the cauldron. The queen receives you in the hall, offers you a cup of wine and drinks first: «No one is to be trusted here, not even cooks». Outside, the castle already knows an investigation is underway.
+**Introduction.** A cook has died in the castle kitchens, beside the cauldron. The queen receives you in the hall, offers you a cup of wine and drinks first: «No one is to be trusted here, not even cooks». Outside, the castle already knows an investigation is underway, and seven people had access to the kitchens.
 
 **Epilogue.** The pantry-keeper breaks: Vidar's promotion had burned inside her. In the handle of the silver spoon, a slip: «The chancellor was writing in the anteroom, near the candelabrum». Seven of the king's children dead: you wonder who, at court, gains from it.
 
-### Case 8 — The Prison Tower · 7×7
+### Case 8 — The Prison Tower · 8×8
 - **Victim**: Vivian, 20, a jailer.
 - **Scene**: the tower. Objects: cage, armor, sarcophagus (cell), candelabrum.
 - **Culprit**: Manfred, captain of the guard. **Motive**: Vivian knew he let prisoners escape for pay.
-- **Other suspects** (6 in all): Sweyn (guard), Alwin (thief in the cell), Constance (lady), Tobias (herald), Norman (executioner).
+- **Other suspects** (7 in all): Sweyn (guard), Alwin (thief in the cell), Constance (lady), Tobias (herald), Norman (executioner), Petronella (the prisoners' cook).
 - **Object**: a ring of keys.
 
 **Introduction.** A jailer lies at the bottom of the prison tower, the keys gone. The queen sees you are tired and takes your hands: «The pretenders are almost finished,» she says softly. And she repeats it, as if to convince herself.
@@ -220,6 +220,6 @@ After case 10 the player chooses between two epilogues. Both are bitter.
 
 - **No V among the suspects** (only the king and his children). Within one case, all initials differ.
 - **No magic**: no wizards, runes, crystal balls or creatures. Objects are earthly ones (anvil, cauldron, altar, sarcophagus, cage...).
-- **Difficulty**: grids of 4, 4, 5, 5, 6, 6, 7, 7, 8, then 9×9. An N×N grid has N people: **N−1 suspects plus the victim** (4×4 = 3 suspects, 9×9 = 8). The personal clues needed for a unique solution grow quickly (about 4-5 for the first cases, 12-14 for the finale).
+- **Difficulty**: grids of 6, 6, 6, 7, 7, 7, 8, 8, 8, then 9×9. An N×N grid has N people: **N−1 suspects plus the victim** (6×6 = 5 suspects, 9×9 = 8). The personal clues needed for a unique solution grow quickly (about 8-9 for the first cases, 12-14 for the finale).
 - **Spoilers**: the case files (`.murdoku.json`) are public and contain the solution; do not put the culprit's name in the title or the briefing.
 - **Texts in the app**: campaign title «The King Is Dead»; case labels «1. The Smith's Apprentice», «2. The Abbey Garden»... up to «10. The King's Night»; description: «King Victor of Carvenna has been found dead in his bed. Everyone says his heart gave out; no one believes it. The queen has chosen you as court investigator: find the truth, wherever it leads.»

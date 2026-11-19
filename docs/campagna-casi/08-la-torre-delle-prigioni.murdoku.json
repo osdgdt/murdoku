@@ -1,6 +1,6 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwm9lr4jn2mspwrd",
+  "id": "puzzle_mwo3ocerndvl3ejs",
   "title": "La torre delle prigioni",
   "author": "",
   "difficulty": "hard",
@@ -9,269 +9,346 @@
   "briefing": "Una carceriera giace in fondo alla torre delle prigioni, con le chiavi mancanti. La regina ti nota stanco e ti prende le mani: «I pretendenti sono quasi finiti», dice piano. E lo ripete, come per convincersene.",
   "resolutionNote": "Il capitano della guardia fa il nome del compratore delle fughe e resta in silenzio. Nell'anello di chiavi c'è un foglietto che sembra innocuo: «La regina pregò nella cappella prima di cena». Lo metti in tasca senza pensarci.",
   "tense": "past",
-  "createdAt": 1795015032211,
-  "updatedAt": 1795015032212,
+  "createdAt": 1795126007763,
+  "updatedAt": 1795126007764,
   "grid": {
     "size": {
-      "rows": 7,
-      "cols": 7
+      "rows": 8,
+      "cols": 8
     },
     "cells": [
       [
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
-          "objectId": "obj_mwm9lr4joeeyk6n0",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
+          "objectId": "obj_mwo3ocers32c2547",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
-          "objectId": "obj_mwm9lr4j0eyt9y4n",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
+          "objectId": "obj_mwo3ocerco9wzg1s",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
-          "objectId": "obj_mwm9lr4j43lii80c",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "objectId": "obj_mwo3ocerztp37215",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
-          "objectId": "obj_mwm9lr4jiazkbht0",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "objectId": "obj_mwo3ocer4djum46g",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
-          "objectId": "obj_mwm9lr4jtz3dfqya",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
+          "objectId": "obj_mwo3ocernr62v6vi",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
-          "objectId": "obj_mwm9lr4jq27kwb8q",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "objectId": "obj_mwo3ocersm22dxnk",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
-          "objectId": "obj_mwm9lr4jfxk0jscz",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4j5mqqr0kp",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
-          "objectId": null,
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
+          "objectId": "obj_mwo3ocer999mfqmv",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jgmes50dl",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
-          "objectId": "obj_mwm9lr4judjpi486",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
-          "objectId": "obj_mwm9lr4jdh1lt39u",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "zoneId": "zone_mwo3ocerxfaqs8n5",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4jrkueq867",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jrkueq867",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "zoneId": "zone_mwo3ocer86bmjwzb",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "objectId": "obj_mwo3ocerruyrdrxg",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
-          "objectId": "obj_mwm9lr4jp1jjcmn3",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "objectId": "obj_mwo3ocer1ibu6gj4",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jnlcvxc1u",
-          "objectId": "obj_mwm9lr4jdb6i79o9",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4jrkueq867",
-          "objectId": "obj_mwm9lr4jaeqjw7ns",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jrkueq867",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
-          "objectId": "obj_mwm9lr4j2r8tuqat",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4jrkueq867",
+          "zoneId": "zone_mwo3ocer5f58i4dd",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jrkueq867",
+          "zoneId": "zone_mwo3ocer5f58i4dd",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "zoneId": "zone_mwo3ocerpwragady",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "zoneId": "zone_mwo3ocerpwragady",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "objectId": "obj_mwo3ocer98ebgphy",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
-          "objectId": "obj_mwm9lr4j2ro10pwq",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "zoneId": "zone_mwo3ocerk8v6h1gz",
+          "objectId": "obj_mwo3ocerq9zu2wwv",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "objectId": "obj_mwo3ocer5840531h",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerpwragady",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerpwragady",
+          "objectId": "obj_mwo3ocer94aswwhn",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4jrkueq867",
+          "zoneId": "zone_mwo3ocer5f58i4dd",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jrkueq867",
+          "zoneId": "zone_mwo3ocer5f58i4dd",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
-          "objectId": "obj_mwm9lr4jo0a0bvar",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4j8dnrtbkt",
+          "zoneId": "zone_mwo3ocerpwragady",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "zoneId": "zone_mwo3ocerpwragady",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "zoneId": "zone_mwo3ocerppqsf1uu",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4jbff54dsy",
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": "obj_mwo3oceratgho8qo",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerpwragady",
+          "objectId": "obj_mwo3ocerz1893hul",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerpwragady",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": "obj_mwo3ocerj3gbrvbe",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocer5f58i4dd",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerpwragady",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerpwragady",
+          "objectId": "obj_mwo3ocerb7v6qkp7",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3ocerppqsf1uu",
           "objectId": null,
           "blocked": false
         }
@@ -279,37 +356,37 @@
     ],
     "zones": [
       {
-        "id": "zone_mwm9lr4jgmes50dl",
+        "id": "zone_mwo3ocer86bmjwzb",
         "name": "La sala del capitano",
         "color": "#f4c2c2",
         "textureId": "carpet_blue"
       },
       {
-        "id": "zone_mwm9lr4j5mqqr0kp",
+        "id": "zone_mwo3ocerxfaqs8n5",
         "name": "Le celle",
         "color": "#c2e0f4",
         "textureId": "flagstone_dark"
       },
       {
-        "id": "zone_mwm9lr4jnlcvxc1u",
+        "id": "zone_mwo3ocerk8v6h1gz",
         "name": "Il corpo di guardia",
         "color": "#c9f4c2",
         "textureId": "stone"
       },
       {
-        "id": "zone_mwm9lr4jrkueq867",
+        "id": "zone_mwo3ocer5f58i4dd",
         "name": "La scala",
         "color": "#f4ecc2",
         "textureId": "slate"
       },
       {
-        "id": "zone_mwm9lr4j8dnrtbkt",
+        "id": "zone_mwo3ocerpwragady",
         "name": "La sala degli interrogatori",
         "color": "#e0c2f4",
         "textureId": "planks_dark"
       },
       {
-        "id": "zone_mwm9lr4jbff54dsy",
+        "id": "zone_mwo3ocerppqsf1uu",
         "name": "Il cortile della torre",
         "color": "#f4d3c2",
         "textureId": "gravel"
@@ -317,198 +394,217 @@
     ],
     "objects": [
       {
-        "id": "obj_mwm9lr4joeeyk6n0",
+        "id": "obj_mwo3ocers32c2547",
         "typeId": "table",
         "row": 0,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4j0eyt9y4n",
+        "id": "obj_mwo3ocerco9wzg1s",
         "typeId": "candelabrum",
         "row": 0,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4jtz3dfqya",
+        "id": "obj_mwo3ocernr62v6vi",
         "typeId": "chair",
         "row": 1,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4j43lii80c",
+        "id": "obj_mwo3ocerztp37215",
         "typeId": "cage",
         "row": 0,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4jq27kwb8q",
+        "id": "obj_mwo3ocersm22dxnk",
         "typeId": "cage",
         "row": 1,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4jfxk0jscz",
+        "id": "obj_mwo3ocer999mfqmv",
         "typeId": "pallet",
         "row": 1,
-        "col": 5
-      },
-      {
-        "id": "obj_mwm9lr4jiazkbht0",
-        "typeId": "bench",
-        "row": 0,
         "col": 6
       },
       {
-        "id": "obj_mwm9lr4judjpi486",
+        "id": "obj_mwo3ocer4djum46g",
+        "typeId": "bench",
+        "row": 0,
+        "col": 7
+      },
+      {
+        "id": "obj_mwo3ocerruyrdrxg",
         "typeId": "armor",
         "row": 2,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4jdh1lt39u",
+        "id": "obj_mwo3ocer1ibu6gj4",
         "typeId": "table",
         "row": 2,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4jdb6i79o9",
+        "id": "obj_mwo3ocerq9zu2wwv",
         "typeId": "weapon_rack",
         "row": 3,
-        "col": 6
+        "col": 7
       },
       {
-        "id": "obj_mwm9lr4jp1jjcmn3",
+        "id": "obj_mwo3ocer98ebgphy",
         "typeId": "bench",
         "row": 3,
         "col": 4
       },
       {
-        "id": "obj_mwm9lr4jaeqjw7ns",
+        "id": "obj_mwo3ocer5840531h",
         "typeId": "candelabrum",
         "row": 4,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4j2r8tuqat",
+        "id": "obj_mwo3ocer94aswwhn",
         "typeId": "chest",
         "row": 4,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4jo0a0bvar",
+        "id": "obj_mwo3ocerz1893hul",
         "typeId": "cage",
         "row": 6,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4j2ro10pwq",
+        "id": "obj_mwo3oceratgho8qo",
         "typeId": "well",
         "row": 5,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4ji0vk4jgd",
+        "id": "obj_mwo3ocerb7v6qkp7",
+        "typeId": "barrel",
+        "row": 7,
+        "col": 3
+      },
+      {
+        "id": "obj_mwo3ocerj3gbrvbe",
+        "typeId": "cart",
+        "row": 6,
+        "col": 7
+      },
+      {
+        "id": "obj_mwo3ocer1ux9s1pb",
         "typeId": "door",
         "row": 2,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4jofgnl11e",
+        "id": "obj_mwo3ocesrnlecldi",
         "typeId": "door",
         "row": 2,
         "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4jj082he8o",
+        "id": "obj_mwo3oces5i4hshdo",
         "typeId": "door",
         "row": 2,
         "col": 2,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4k2qj5h023",
+        "id": "obj_mwo3oceso0r7amjc",
         "typeId": "portcullis",
         "row": 1,
-        "col": 5,
+        "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4kf8b9ofes",
+        "id": "obj_mwo3ocesu6g3yni1",
         "typeId": "door",
         "row": 3,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4k05msj6bh",
+        "id": "obj_mwo3oceslbj7pka3",
         "typeId": "door",
         "row": 3,
-        "col": 5,
+        "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4knt579kaj",
+        "id": "obj_mwo3oces7pfwfrmw",
         "typeId": "door",
         "row": 5,
         "col": 1,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4kg5lowywu",
+        "id": "obj_mwo3ocesw27isij5",
         "typeId": "door",
-        "row": 5,
+        "row": 6,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4k252000hh",
+        "id": "obj_mwo3oces53ptbzq7",
         "typeId": "window",
         "row": 0,
         "col": 0,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4kjva6qjn4",
+        "id": "obj_mwo3ocesu675qol5",
         "typeId": "window",
         "row": 3,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr4kfyu9g94l",
+        "id": "obj_mwo3ocesad5he6bj",
         "typeId": "window",
-        "row": 6,
+        "row": 7,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr4kmfe49kpz",
+        "id": "obj_mwo3ocesbfw8u9th",
         "typeId": "window",
-        "row": 6,
-        "col": 6,
+        "row": 7,
+        "col": 7,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4k6u6cterf",
+        "id": "obj_mwo3ocesf4gixw2v",
+        "typeId": "window",
+        "row": 5,
+        "col": 7,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3ocestg4r7jbs",
         "typeId": "arrow_slit",
         "row": 0,
         "col": 4,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4kge31pqfv",
+        "id": "obj_mwo3ocestv9jfjhm",
         "typeId": "arrow_slit",
         "row": 1,
-        "col": 6,
+        "col": 7,
         "side": "E"
       }
     ]
   },
   "characters": [
     {
-      "id": "char_mwm9lr4kbcjxerxe",
+      "id": "char_mwo3oces3d01a9u2",
       "name": "Manfredo",
       "iconId": "knight",
       "isVictim": false,
@@ -517,7 +613,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4kymff3qh2",
+      "id": "char_mwo3oces303z721s",
       "name": "Sveva",
       "iconId": "soldier",
       "isVictim": false,
@@ -526,7 +622,7 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4klcs46r4g",
+      "id": "char_mwo3oces7aeutbs7",
       "name": "Aldo",
       "iconId": "thief",
       "isVictim": false,
@@ -535,7 +631,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4khb3eez1x",
+      "id": "char_mwo3ocesginda4cj",
       "name": "Cunegonda",
       "iconId": "countess",
       "isVictim": false,
@@ -544,7 +640,7 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4knbjhu745",
+      "id": "char_mwo3ocesgeffa9ih",
       "name": "Tobia",
       "iconId": "herald",
       "isVictim": false,
@@ -553,7 +649,7 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4kjhnlhubw",
+      "id": "char_mwo3oceswqmq7ycs",
       "name": "Norberto",
       "iconId": "executioner",
       "isVictim": false,
@@ -562,12 +658,21 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4kc5m0i8kf",
+      "id": "char_mwo3ocescvf0znkg",
+      "name": "Pierina",
+      "iconId": "baker",
+      "isVictim": false,
+      "bio": "Cuoca dei prigionieri: porta ogni giorno la zuppa alle celle. Vivia le teneva la porta, e le raccontava tutto quello che vedeva.",
+      "color": "#9f80b5",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3ocesg9dy6xwh",
       "name": "Vivia",
       "iconId": "police",
       "isVictim": true,
       "bio": "20 anni, carceriera della torre: tiene le chiavi di ogni cella. Giovane, ligia, spesso sola nei sotterranei.",
-      "color": "#9f80b5",
+      "color": "#6a9560",
       "gender": "female"
     }
   ],

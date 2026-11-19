@@ -15,21 +15,21 @@ Regole rispettate: una griglia N×N ha N persone (N−1 sospettati più la vitti
 
 | Caso | Titolo | Griglia | Difficoltà | Vittima | Colpevole | File |
 |---|---|---|---|---|---|---|
-| 1 | Il garzone della forgia | 4×4 | facile | Vanni | Bertoldo | `01-il-garzone-della-forgia.murdoku.json` |
-| 2 | L'orto dell'abbazia | 4×4 | facile | Violante | fra Anselmo | `02-l-orto-dell-abbazia.murdoku.json` |
-| 3 | Lo scriptorium | 5×5 | media | Valerio | Ambrogio | `03-lo-scriptorium.murdoku.json` |
-| 4 | La taverna dei Tre Corvi | 5×5 | media | Vitale | Rodolfo il Guercio | `04-la-taverna-dei-tre-corvi.murdoku.json` |
-| 5 | Le scuderie reali | 6×6 | media | Venanzia | ser Aldobrando | `05-le-scuderie-reali.murdoku.json` |
-| 6 | La cripta | 6×6 | difficile | Valeria | Odorico | `06-la-cripta.murdoku.json` |
-| 7 | Le cucine | 7×7 | difficile | Valdo | Agnese | `07-le-cucine.murdoku.json` |
-| 8 | La torre delle prigioni | 7×7 | difficile | Vivia | Manfredo | `08-la-torre-delle-prigioni.murdoku.json` |
-| 9 | Il banchetto dell'erede | 8×8 | difficile | Valdemaro | lord Folco di Valgrigia | `09-il-banchetto-dell-erede.murdoku.json` |
+| 1 | Il garzone della forgia | 6×6 | facile | Vanni | Bertoldo | `01-il-garzone-della-forgia.murdoku.json` |
+| 2 | L'orto dell'abbazia | 6×6 | facile | Violante | fra Anselmo | `02-l-orto-dell-abbazia.murdoku.json` |
+| 3 | Lo scriptorium | 6×6 | media | Valerio | Ambrogio | `03-lo-scriptorium.murdoku.json` |
+| 4 | La taverna dei Tre Corvi | 7×7 | media | Vitale | Rodolfo il Guercio | `04-la-taverna-dei-tre-corvi.murdoku.json` |
+| 5 | Le scuderie reali | 7×7 | media | Venanzia | ser Aldobrando | `05-le-scuderie-reali.murdoku.json` |
+| 6 | La cripta | 7×7 | difficile | Valeria | Odorico | `06-la-cripta.murdoku.json` |
+| 7 | Le cucine | 8×8 | difficile | Valdo | Agnese | `07-le-cucine.murdoku.json` |
+| 8 | La torre delle prigioni | 8×8 | difficile | Vivia | Manfredo | `08-la-torre-delle-prigioni.murdoku.json` |
+| 9 | Il banchetto dell'erede | 8×8 | undefined | Valdemaro | lord Folco di Valgrigia | `09-il-banchetto-dell-erede.murdoku.json` |
 
 ---
 
-## Caso 1 — Il garzone della forgia · 4×4
+## Caso 1 — Il garzone della forgia · 6×6
 
-**Scena.** La forgia di Borgocenere. **Difficoltà:** facile. **File:** `01-il-garzone-della-forgia.murdoku.json`
+**Scena.** La forgia di Borgocenere, la casa del fabbro e la carbonaia. **Difficoltà:** facile. **File:** `01-il-garzone-della-forgia.murdoku.json`
 
 **Vittima:** Vanni — garzone fabbro.
 
@@ -42,36 +42,41 @@ Regole rispettate: una griglia N×N ha N persone (N−1 sospettati più la vitti
 | B | **Bertoldo** (colpevole) | il maestro fabbro | Fabbro | Maestro fabbro e padrone della forgia. Burbero ma stimato, fornisce ferri e armi al presidio del castello. Ultimamente ha le mani piene di ordini e il carattere peggiorato. |
 | L | **Lupo** | lavorante di bottega | Operaio | Lavorante, forte come un bue e di poche parole. Vanni gli aveva preso il posto accanto alla fornace, e lui non l'ha mai nascosto. |
 | M | **Mabilia** | la moglie del fabbro | Fornaio | Moglie del fabbro: tiene i conti e la cucina. Voleva bene al garzone come a un figlio, dice; ma la sera lo sentiva parlare di cose che non capiva. |
-| V | **Vanni** (vittima) | la vittima, garzone fabbro | Contadino/a | 19 anni, garzone della forgia di Borgocenere. Silenzioso e instancabile, è arrivato in bottega ancora bambino: nessuno sa chi fossero i suoi genitori. |
+| O | **Osvaldo** | il carbonaio | Contadino/a | Carbonaio di Borgocenere: porta il carbone alla forgia ogni mattina. Parla solo del tempo, ma vede tutto quello che entra ed esce dal cortile. |
+| I | **Ilaria** | la figlia del vasaio | Cameriera/e | Figlia del vasaio della porta accanto: porta ogni giorno la zuppa ai lavoranti. Si fermava a parlare con Vanni più del dovuto. |
+| V | **Vanni** (vittima) | la vittima, garzone fabbro | Ninja | 19 anni, garzone della forgia di Borgocenere. Silenzioso e instancabile, è arrivato in bottega ancora bambino: nessuno sa chi fossero i suoi genitori. |
 
 ### Mappa
 
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 
-  R1  F  F  F  G  
-  R2  F  F  F  G  
-  R3  K  K  Y  Y  
-  R4  K  K  Y  Y  
+      C1 C2 C3 C4 C5 C6 
+  R1  F  F  F  F  C  C  
+  R2  F  F  F  F  C  C  
+  R3  F  F  F  G  G  G  
+  R4  K  K  K  G  G  G  
+  R5  K  K  K  Y  Y  Y  
+  R6  K  K  K  Y  Y  Y  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
-| F | La forgia | Lastre scure | 6 | camino (R1C1), incudine (R2C2) |
-| G | Il magazzino | Listoni scuri | 2 | botte (R1C4) |
-| K | La casa del fabbro | Listoni chiari | 4 | giaciglio (R3C2) |
-| Y | Il cortile | Ciottoli | 4 | rastrelliera (R4C4), panca (R3C3) |
+| F | La forgia | Lastre scure | 11 | camino (R1C1), incudine (R2C3), rastrelliera (R3C2) |
+| C | La carbonaia | Terra battuta | 4 | botte (R1C5), carro (R2C6) |
+| G | Il magazzino | Listoni scuri | 6 | scaffale (R3C5), forziere (R4C6) |
+| K | La casa del fabbro | Listoni chiari | 9 | tavolo (R5C2), letto (R6C1) |
+| Y | Il cortile | Ciottoli | 6 | pozzo (R6C5) |
 
-**Porte tra le stanze:** La forgia – Il magazzino; La forgia – La casa del fabbro; La forgia – Il cortile; La casa del fabbro – Il cortile; Il magazzino – Il cortile. **Finestre:** 3.
+**Porte tra le stanze:** La forgia – La carbonaia; La forgia – Il magazzino; La forgia – La casa del fabbro; La casa del fabbro – Il magazzino; La casa del fabbro – Il cortile; Il magazzino – Il cortile. **Finestre:** 4.
 
-_I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e tre persone giurano di non aver visto niente.
+> La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -79,9 +84,9 @@ _I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ---
 
-## Caso 2 — L'orto dell'abbazia · 4×4
+## Caso 2 — L'orto dell'abbazia · 6×6
 
-**Scena.** L'orto e l'infermeria dell'abbazia di San Ilario. **Difficoltà:** facile. **File:** `02-l-orto-dell-abbazia.murdoku.json`
+**Scena.** L'orto, la serra, l'infermeria e il refettorio dell'abbazia di San Ilario. **Difficoltà:** facile. **File:** `02-l-orto-dell-abbazia.murdoku.json`
 
 **Vittima:** Violante — erborista.
 
@@ -94,6 +99,8 @@ _I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | A | **Anselmo** (colpevole) | fra Anselmo, l'infermiere | Monaco | Fra Anselmo, infermiere dell'abbazia: conosce ogni pianta e ogni dose. Autorevole, di rado visto fuori dall'infermeria, se non per raccogliere erbe all'alba. |
 | C | **Clemenza** | suor Clemenza | Suora | Suor Clemenza, sorvegliante dell'orto e dell'infermeria: severa con le novizie. Rimproverava Violante per i ritardi, e per le sue visite fuori orario. |
 | G | **Gherardo** | il giardiniere | Giardiniere/a | Giardiniere laico dell'abbazia. Lavora l'orto da vent'anni e non ha mai amato che altri mettessero le mani nelle sue aiuole. |
+| D | **Dionigi** | il frate portinaio | Sacerdote | Frate portinaio: apre e chiude il portone dell'abbazia e sa chi è venuto e chi se n'è andato. Dorme poco e ascolta molto. |
+| E | **Eufemia** | la cuoca del refettorio | Fornaio | Cuoca del refettorio: prepara i pasti dei monaci e dei pellegrini. Ha le erbe in cucina quanto l'erborista le ha nell'orto, e non lo ha mai detto volentieri. |
 | V | **Violante** (vittima) | la vittima, erborista | Farmacista | 20 anni, erborista: cura le aiuole e prepara gli unguenti dell'infermeria. Teneva un erbario a cui non lasciava avvicinare nessuno. |
 
 ### Mappa
@@ -101,29 +108,32 @@ _I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappet
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 
-  R1  O  O  L  L  
-  R2  O  O  L  L  
-  R3  I  I  C  C  
-  R4  I  I  C  C  
+      C1 C2 C3 C4 C5 C6 
+  R1  O  O  O  O  L  L  
+  R2  O  O  O  O  L  L  
+  R3  O  O  O  O  R  R  
+  R4  I  I  C  C  R  R  
+  R5  I  I  C  C  R  R  
+  R6  I  I  C  C  R  R  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
-| O | L'orto | Erba | 4 | pozzo (R1C1), panca (R2C2) |
-| L | La serra delle erbe | Muschio | 4 | pianta (R1C4), sgabello (R2C3) |
-| I | L'infermeria | Listoni chiari | 4 | calderone (R4C1), giaciglio (R3C2) |
-| C | Il chiostro | Lastre di pietra | 4 | statua (R4C4), panca (R3C3) |
+| O | L'orto | Erba | 12 | pozzo (R1C1), panca (R2C3), statua (R3C4) |
+| L | La serra delle erbe | Muschio | 4 | pianta (R1C5), scaffale (R2C6) |
+| R | Il refettorio | Listoni scuri | 8 | tavolo (R4C5), panca (R5C6), sgabello (R6C5) |
+| I | L'infermeria | Listoni chiari | 6 | calderone (R4C1), giaciglio (R5C2) |
+| C | Il chiostro | Lastre di pietra | 6 | statua (R6C3) |
 
-**Porte tra le stanze:** L'orto – La serra delle erbe; L'orto – L'infermeria; La serra delle erbe – Il chiostro; L'infermeria – Il chiostro. **Finestre:** 3.
+**Porte tra le stanze:** L'orto – La serra delle erbe; L'orto – Il refettorio; L'orto – L'infermeria; L'orto – Il chiostro; Il chiostro – L'infermeria; Il chiostro – Il refettorio. **Finestre:** 4.
 
-_I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> All'abbazia di San Ilario una giovane erborista è stata trovata morta nell'orto, tra le aiuole. La regina ti ha scritto: «Il mio giardino è pieno delle stesse piante; fammi sapere se qualcuno le usa male.» L'abate ti riceve a denti stretti.
+> All'abbazia di San Ilario una giovane erborista è stata trovata morta nell'orto, tra le aiuole. La regina ti ha scritto: «Il mio giardino è pieno delle stesse piante; fammi sapere se qualcuno le usa male.» L'abate ti riceve a denti stretti, e cinque persone ti dicono di non aver visto niente.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -131,9 +141,9 @@ _I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ---
 
-## Caso 3 — Lo scriptorium · 5×5
+## Caso 3 — Lo scriptorium · 6×6
 
-**Scena.** Lo scriptorium dell'abbazia. **Difficoltà:** media. **File:** `03-lo-scriptorium.murdoku.json`
+**Scena.** Lo scriptorium, la biblioteca e la legatoria dell'abbazia. **Difficoltà:** media. **File:** `03-lo-scriptorium.murdoku.json`
 
 **Vittima:** Valerio — scrivano.
 
@@ -147,6 +157,7 @@ _I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | B | **Benvenuto** | il copista | Studioso/a | Copista anziano, miope e sospettoso. Lavora fianco a fianco con Valerio da anni e ne invidia la velocità. |
 | T | **Teobaldo** | il miniatore | Artista | Miniatore: illustra i codici più preziosi. Vive per i colori e per i pennelli; ha debiti con un mercante di Borgocenere. |
 | P | **Perpetua** | la monaca bibliotecaria | Bibliotecario/a | Monaca bibliotecaria: conosce a memoria ogni scaffale. Dice di aver sentito rumori nella notte, ma di non aver visto nulla. |
+| F | **Federico** | il rilegatore | Meccanico | Rilegatore dell'abbazia: lavora la pelle, la colla e le borchie. Entra ed esce dallo scriptorium per ritirare i fogli, e nessuno lo nota più. |
 | V | **Valerio** (vittima) | la vittima, scrivano | Cronista | 22 anni, scrivano dello scriptorium. Una calligrafia perfetta e un occhio da contabile: leggeva ogni atto che copiava. |
 
 ### Mappa
@@ -154,30 +165,32 @@ _I mobili pieni (4) occupano la loro casella; panche, sgabelli, giacigli, tappet
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 C5 
-  R1  S  S  S  B  B  
-  R2  S  S  S  B  B  
-  R3  S  S  S  U  U  
-  R4  C  C  C  U  U  
-  R5  C  C  C  C  C  
+      C1 C2 C3 C4 C5 C6 
+  R1  S  S  S  S  B  B  
+  R2  S  S  S  S  B  B  
+  R3  S  S  S  S  U  U  
+  R4  C  C  C  R  U  U  
+  R5  C  C  C  R  R  R  
+  R6  C  C  C  R  R  R  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
-| S | Lo scriptorium | Listoni chiari | 9 | leggio (R1C2), leggio (R3C2), candelabro (R1C3), panca (R2C1) |
-| B | La biblioteca | Lastre scure | 4 | scaffale (R1C4), scaffale (R2C5) |
-| U | Lo studio del segretario | Moquette rossa | 4 | forziere (R3C5), tappeto (R4C4) |
-| C | Il chiostro | Ciottoli | 8 | panca (R5C2), pianta (R5C5) |
+| S | Lo scriptorium | Listoni chiari | 12 | leggio (R1C2), leggio (R3C2), candelabro (R1C3), panca (R2C1) |
+| B | La biblioteca | Lastre scure | 4 | scaffale (R1C5), scaffale (R2C6) |
+| U | Lo studio del segretario | Moquette rossa | 4 | forziere (R3C5), tappeto (R4C6) |
+| R | La legatoria | Assi di legno | 7 | tavolo (R5C5), forziere (R6C4) |
+| C | Il chiostro | Ciottoli | 9 | panca (R5C2), pianta (R6C1) |
 
-**Porte tra le stanze:** Lo scriptorium – La biblioteca; Lo scriptorium – Lo studio del segretario; Lo scriptorium – Il chiostro; Lo studio del segretario – Il chiostro. **Finestre:** 4.
+**Porte tra le stanze:** Lo scriptorium – La biblioteca; Lo scriptorium – Lo studio del segretario; Lo scriptorium – Il chiostro; Lo scriptorium – La legatoria; Lo studio del segretario – La legatoria; Il chiostro – La legatoria. **Finestre:** 5.
 
-_I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> Un copista è stato ucciso nello scriptorium, con il pennino ancora sul foglio. La regina ti fa dire di essere discreto: «Le carte di un monastero sono delicate, e tanti vi si fidano più che del re». Quattro persone sospette, e un solo libro mastro in disordine.
+> Un copista è stato ucciso nello scriptorium, con il pennino ancora sul foglio. La regina ti fa dire di essere discreto: «Le carte di un monastero sono delicate, e tanti vi si fidano più che del re». Cinque persone sospette, e un solo libro mastro in disordine.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -185,9 +198,9 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ---
 
-## Caso 4 — La taverna dei Tre Corvi · 5×5
+## Caso 4 — La taverna dei Tre Corvi · 7×7
 
-**Scena.** La taverna dei Tre Corvi, a Borgocenere. **Difficoltà:** media. **File:** `04-la-taverna-dei-tre-corvi.murdoku.json`
+**Scena.** La taverna dei Tre Corvi, a Borgocenere: sala, cucina, camere, cantina, stalla e cortile. **Difficoltà:** media. **File:** `04-la-taverna-dei-tre-corvi.murdoku.json`
 
 **Vittima:** Vitale — mercenario.
 
@@ -201,6 +214,8 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | G | **Gisulfo** | il mercante | Banchiere | Mercante di panni di passaggio a Borgocenere: ha preso una stanza ai Tre Corvi per una settimana. Paga bene e parla poco. |
 | O | **Orsola** | la cameriera | Cameriere | Cameriera dei Tre Corvi. Sa tutto di tutti: serve vino e ascolta. Si è fatta più guardinga da quando Vitale è morto. |
 | D | **Drogone** | il mandriano | Contadino/a | Mandriano delle colline, in paese solo per vendere le bestie. Beve forte e ha il pugno facile. |
+| N | **Nerina** | la lavandaia | Cameriera/e | Lavandaia dei Tre Corvi: lava lenzuola e boccali, e raccoglie le chiacchiere insieme ai panni sporchi. Vitale le lasciava sempre una moneta. |
+| S | **Savino** | il cantiniere | Barista | Cantiniere della taverna: scende in cantina a spillare e risale con le orecchie piene. Tiene i conti dei debiti di gioco, e non li ha mai detti a nessuno. |
 | V | **Vitale** (vittima) | la vittima, mercenario | Arciere/a | 21 anni, mercenario al soldo di chi paga. Giocatore di dadi, spaccone, benvoluto a metà. |
 
 ### Mappa
@@ -208,30 +223,34 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 C5 
-  R1  T  T  T  T  K  
-  R2  T  T  T  T  K  
-  R3  T  T  T  C  C  
-  R4  Y  Y  Y  C  C  
-  R5  Y  Y  Y  Y  Y  
+      C1 C2 C3 C4 C5 C6 C7 
+  R1  T  T  T  T  K  K  K  
+  R2  T  T  T  T  K  K  K  
+  R3  T  T  T  T  L  L  L  
+  R4  C  C  C  C  L  L  L  
+  R5  C  C  C  C  Y  Y  Y  
+  R6  P  P  P  Y  Y  Y  Y  
+  R7  P  P  P  Y  Y  Y  Y  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
-| T | La sala della taverna | Listoni scuri | 11 | camino (R1C1), panca (R1C3), panca (R2C2), panca (R3C1), tavolo (R2C3) |
-| K | La cucina | Mattoni | 2 | scaffale (R1C5) |
-| C | La cantina | Lastre scure | 4 | botte (R3C4), botte (R4C5) |
-| Y | Il cortile delle stalle | Terra battuta | 8 | carro (R5C1), pozzo (R5C5) |
+| T | La sala della taverna | Listoni scuri | 12 | camino (R1C1), panca (R1C3), panca (R2C2), tavolo (R2C3), panca (R3C1) |
+| K | La cucina | Mattoni | 6 | scaffale (R1C7), calderone (R2C5) |
+| L | Le camere | Listoni chiari | 6 | letto (R3C6), letto (R4C7) |
+| C | La cantina | Lastre scure | 8 | botte (R4C2), botte (R5C4), botte (R4C1) |
+| P | La stalla | Paglia | 6 | giaciglio (R6C2) |
+| Y | Il cortile | Terra battuta | 11 | carro (R7C6), pozzo (R5C6) |
 
-**Porte tra le stanze:** La sala della taverna – La cucina; La sala della taverna – La cantina; La sala della taverna – Il cortile delle stalle; La cantina – Il cortile delle stalle. **Finestre:** 4.
+**Porte tra le stanze:** La sala della taverna – La cucina; La sala della taverna – Le camere; La sala della taverna – La cantina; La cucina – Le camere; La cantina – Le camere; La cantina – Il cortile; Le camere – Il cortile; La cantina – La stalla; La stalla – Il cortile. **Finestre:** 6.
 
-_I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.»
+> Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.» Sei persone giurano di non aver visto niente.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -239,9 +258,9 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ---
 
-## Caso 5 — Le scuderie reali · 6×6
+## Caso 5 — Le scuderie reali · 7×7
 
-**Scena.** Le scuderie e il campo del torneo. **Difficoltà:** media. **File:** `05-le-scuderie-reali.murdoku.json`
+**Scena.** Le scuderie, il campo del torneo, il fienile, l'armeria, il maniscalco e la selleria. **Difficoltà:** media. **File:** `05-le-scuderie-reali.murdoku.json`
 
 **Vittima:** Venanzia — palafreniera.
 
@@ -256,6 +275,7 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | B | **Brunone** | il garzone di stalla | Operaio | Garzone di stalla, tutto muscoli e poco cervello. Venanzia lo sgridava per il fieno sprecato. |
 | I | **Isolda** | la dama | Principessa | Dama della corte, appassionata di tornei: siede sempre in prima fila. Frequenta le scuderie più di quanto sia decoroso. |
 | E | **Ermengarda** | la guardarobiera | Cameriera/e | Guardarobiera della corte: cura le insegne, i panni e gli stendardi del torneo. Ha le chiavi del magazzino. |
+| C | **Corrado** | il maniscalco | Fabbro | Maniscalco delle scuderie: ferra i cavalli dei cavalieri e conosce il peso di ogni lancia. Venanzia gli portava i cavalli zoppi, e lui le dava sempre ragione. |
 | V | **Venanzia** (vittima) | la vittima, palafreniera | Cowboy | 21 anni, palafreniera della corte. Conosce ogni cavallo per nome e ogni cavaliere per i suoi vizi. |
 
 ### Mappa
@@ -263,32 +283,34 @@ _I mobili pieni (7) occupano la loro casella; panche, sgabelli, giacigli, tappet
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 C5 C6 
-  R1  C  C  C  C  C  C  
-  R2  C  C  C  C  C  C  
-  R3  S  S  S  F  F  F  
-  R4  S  S  S  F  F  F  
-  R5  A  A  R  R  R  R  
-  R6  A  A  R  R  R  R  
+      C1 C2 C3 C4 C5 C6 C7 
+  R1  C  C  C  C  C  C  C  
+  R2  C  C  C  C  C  C  C  
+  R3  S  S  S  S  F  F  F  
+  R4  S  S  S  S  F  F  F  
+  R5  A  A  M  M  R  R  R  
+  R6  A  A  M  M  R  R  R  
+  R7  A  A  M  M  R  R  R  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
-| C | Il campo del torneo | Erba | 12 | stendardo (R1C2), stendardo (R1C5), panca (R2C3), panca (R2C4) |
-| S | Le scuderie | Paglia | 6 | giaciglio (R4C2), sgabello (R3C1) |
-| F | Il fienile | Assi grezze | 6 | carro (R4C6) |
-| A | L'armeria | Lastre scure | 4 | rastrelliera (R5C1), armatura (R6C2) |
-| R | La selleria | Listoni scuri | 8 | forziere (R5C5), panca (R6C4) |
+| C | Il campo del torneo | Erba | 14 | stendardo (R1C2), stendardo (R1C6), panca (R2C3), panca (R2C5) |
+| S | Le scuderie | Paglia | 8 | giaciglio (R4C2), sgabello (R3C1) |
+| F | Il fienile | Assi grezze | 6 | carro (R4C7) |
+| A | L'armeria | Lastre scure | 6 | rastrelliera (R5C1), armatura (R7C2) |
+| M | Il maniscalco | Cotto | 6 | incudine (R6C3), camino (R5C4) |
+| R | La selleria | Listoni scuri | 9 | forziere (R5C7), panca (R7C5), botte (R6C6) |
 
-**Porte tra le stanze:** Il campo del torneo – Le scuderie; Il campo del torneo – Il fienile; Le scuderie – Il fienile; Le scuderie – L'armeria; Le scuderie – La selleria; Il fienile – La selleria; L'armeria – La selleria. **Finestre:** 4.
+**Porte tra le stanze:** Il campo del torneo – Le scuderie; Il campo del torneo – Il fienile; Le scuderie – Il fienile; Le scuderie – L'armeria; Le scuderie – Il maniscalco; Il fienile – La selleria; Il maniscalco – La selleria; L'armeria – Il maniscalco. **Finestre:** 5.
 
-_I mobili pieni (6) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> Ai margini del campo del torneo hanno trovato una palafreniera, uccisa tra le stalle. La regina conosce già alcuni dettagli della scena e se ne scusa: «Gli stallieri parlano con me». Tu annoti la cosa e passi oltre.
+> Ai margini del campo del torneo hanno trovato una palafreniera, uccisa tra le stalle. La regina conosce già alcuni dettagli della scena e se ne scusa: «Gli stallieri parlano con me». Tu annoti la cosa e passi oltre. Sei sospettati, e tutti a due passi dal luogo del delitto.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -296,9 +318,9 @@ _I mobili pieni (6) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ---
 
-## Caso 6 — La cripta · 6×6
+## Caso 6 — La cripta · 7×7
 
-**Scena.** La cripta dell'abbazia, dove il re sarà sepolto. **Difficoltà:** difficile. **File:** `06-la-cripta.murdoku.json`
+**Scena.** La cripta dell'abbazia, dove il re sarà sepolto, con la sacrestia, la navata, la cappella dei pellegrini e l'ossario. **Difficoltà:** difficile. **File:** `06-la-cripta.murdoku.json`
 
 **Vittima:** Valeria — novizia.
 
@@ -313,6 +335,7 @@ _I mobili pieni (6) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | R | **Rinaldo** | il becchino | Giardiniere/a | Becchino del borgo: scava le tombe e le chiude. Si dice che parli con i morti, e che i vivi gli stiano a distanza. |
 | E | **Eleonora** | la pellegrina | Contadino/a | Pellegrina venuta a pregare sulle tombe dei santi. Arrivata da pochi giorni, ha già fatto troppe domande. |
 | M | **Martino** | il pellegrino | Esploratore | Pellegrino ed ex soldato: prega molto e dorme poco. Non vuole dire da dove viene. |
+| P | **Placido** | il frate cercatore | Alchimista | Frate cercatore: gira per i villaggi a raccogliere le offerte e le porta all'abbazia. Tiene i conti dell'argento dei reliquiari, e non vuole che nessuno li riveda. |
 | V | **Valeria** (vittima) | la vittima, novizia | Suora | 20 anni, novizia dell'abbazia di San Ilario. Curiosa, taciturna, spesso trovata dove non dovrebbe. |
 
 ### Mappa
@@ -320,32 +343,34 @@ _I mobili pieni (6) occupano la loro casella; panche, sgabelli, giacigli, tappet
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 C5 C6 
-  R1  S  S  S  N  N  N  
-  R2  S  S  S  N  N  N  
-  R3  K  K  K  K  P  P  
-  R4  K  K  K  K  P  P  
-  R5  K  K  K  K  O  O  
-  R6  K  K  K  K  O  O  
+      C1 C2 C3 C4 C5 C6 C7 
+  R1  S  S  S  N  N  N  N  
+  R2  S  S  S  N  N  N  N  
+  R3  K  K  K  K  P  P  P  
+  R4  K  K  K  K  P  P  P  
+  R5  K  K  K  K  O  O  O  
+  R6  D  D  D  D  O  O  O  
+  R7  D  D  D  D  O  O  O  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
 | S | La sacrestia | Assi di legno | 6 | forziere (R1C1), candelabro (R2C2) |
-| N | La navata | Scacchiera di pietra | 6 | panca (R1C5) |
-| K | La cripta | Pietra incrinata | 16 | altare (R3C1), sarcofago (R4C3), sarcofago (R6C2), lapide (R5C4), candelabro (R3C4) |
-| P | La cappella dei pellegrini | Listoni chiari | 4 | panca (R4C6) |
-| O | L'ossario | Ossario | 4 | lapide (R5C6) |
+| N | La navata | Scacchiera di pietra | 8 | panca (R1C6), statua (R1C4) |
+| K | La cripta | Pietra incrinata | 12 | altare (R3C1), sarcofago (R4C3), lapide (R5C4), candelabro (R3C4) |
+| P | La cappella dei pellegrini | Listoni chiari | 6 | panca (R4C6) |
+| O | L'ossario | Ossario | 9 | lapide (R5C7), sarcofago (R7C6) |
+| D | Il deposito delle reliquie | Lastre scure | 8 | forziere (R6C1), scaffale (R7C3) |
 
-**Porte tra le stanze:** La sacrestia – La navata; La sacrestia – La cripta; La navata – La cripta; La navata – La cappella dei pellegrini; La cripta – La cappella dei pellegrini; La cripta – L'ossario. **Finestre:** 3.
+**Porte tra le stanze:** La sacrestia – La navata; La sacrestia – La cripta; La navata – La cripta; La navata – La cappella dei pellegrini; La cripta – La cappella dei pellegrini; La cripta – L'ossario; La cripta – Il deposito delle reliquie; Il deposito delle reliquie – L'ossario; La cappella dei pellegrini – L'ossario. **Finestre:** 4.
 
-_I mobili pieni (8) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (11) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> Nella cripta dell'abbazia, dove il re sarà sepolto, una novizia è stata trovata ai piedi di un sarcofago. La regina vi si recherà per le esequie, e vuole una risposta prima di allora. Il sagrestano, ti avvertono, parla poco.
+> Nella cripta dell'abbazia, dove il re sarà sepolto, una novizia è stata trovata ai piedi di un sarcofago. La regina vi si recherà per le esequie, e vuole una risposta prima di allora. Il sagrestano, ti avvertono, parla poco; gli altri cinque parlano solo per dire che non c'erano.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -353,9 +378,9 @@ _I mobili pieni (8) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ---
 
-## Caso 7 — Le cucine · 7×7
+## Caso 7 — Le cucine · 8×8
 
-**Scena.** Le cucine del castello. **Difficoltà:** difficile. **File:** `07-le-cucine.murdoku.json`
+**Scena.** Le cucine del castello: cucina grande, dispensa, macelleria, forno, lavanderia, cantina e cortile. **Difficoltà:** difficile. **File:** `07-le-cucine.murdoku.json`
 
 **Vittima:** Valdo — cuoco.
 
@@ -371,6 +396,7 @@ _I mobili pieni (8) occupano la loro casella; panche, sgabelli, giacigli, tappet
 | Z | **Zaccaria** | il macellaio | Macellaio | Macellaio del castello: fornisce la carne e conosce i coltelli meglio di chiunque. |
 | N | **Nicola** | il fornaio | Fornaio | Fornaio: all'alba è già al forno. Passa dalle cucine per le farine e per le uova. |
 | G | **Ginevra** | la lavandaia | Contadino/a | Lavandaia: porta i panni puliti e si ferma volentieri a chiacchierare. |
+| C | **Cesare** | il trinciante | Barista | Trinciante del re: taglia le carni a tavola e le assaggia prima di tutti. Valdo gli aveva portato via il posto accanto al re, e lui non lo ha scordato. |
 | V | **Valdo** (vittima) | la vittima, cuoco | Cuoco/a | 22 anni, cuoco: promosso da poco cuoco personale del re. Ambizioso, orgoglioso del suo posto. |
 
 ### Mappa
@@ -378,35 +404,36 @@ _I mobili pieni (8) occupano la loro casella; panche, sgabelli, giacigli, tappet
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 C5 C6 C7 
-  R1  K  K  K  K  D  D  D  
-  R2  K  K  K  K  D  D  D  
-  R3  K  K  K  K  M  M  M  
-  R4  F  F  W  W  M  M  M  
-  R5  F  F  W  W  C  C  C  
-  R6  B  B  B  W  C  C  C  
-  R7  B  B  B  W  C  C  C  
+      C1 C2 C3 C4 C5 C6 C7 C8 
+  R1  K  K  K  K  D  D  D  D  
+  R2  K  K  K  K  D  D  D  D  
+  R3  K  K  K  K  M  M  M  M  
+  R4  F  F  F  W  M  M  M  M  
+  R5  F  F  F  W  C  C  C  C  
+  R6  B  B  B  W  C  C  C  C  
+  R7  B  B  B  B  C  C  C  C  
+  R8  B  B  B  B  C  C  C  C  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
 | K | La cucina grande | Mattoni | 12 | calderone (R2C2), camino (R1C4), tavolo (R3C3), panca (R3C1) |
-| D | La dispensa | Pietra muschiosa | 6 | scaffale (R1C5), scaffale (R1C7), botte (R2C6) |
-| M | La macelleria | Cotto | 6 | tavolo (R4C6) |
-| F | Il forno | Mattoni a intreccio | 4 | camino (R4C1), panca (R5C2) |
-| W | La lavanderia | Lastre di pietra | 6 | calderone (R5C3) |
-| C | Il cortile | Ciottoli | 9 | pozzo (R6C6), carro (R7C7) |
-| B | La cantina | Terra battuta | 6 | botte (R6C1), botte (R7C2), botte (R6C3) |
+| D | La dispensa | Pietra muschiosa | 8 | scaffale (R1C5), scaffale (R1C8), botte (R2C7) |
+| M | La macelleria | Cotto | 8 | tavolo (R4C6) |
+| F | Il forno | Mattoni a intreccio | 6 | camino (R4C1), panca (R5C2), calderone (R5C3) |
+| W | La lavanderia | Lastre di pietra | 3 | — |
+| C | Il cortile | Ciottoli | 16 | pozzo (R6C7), carro (R8C8) |
+| B | La cantina | Terra battuta | 11 | botte (R6C1), botte (R7C2), botte (R6C3), forziere (R8C2) |
 
-**Porte tra le stanze:** La cucina grande – La dispensa; La cucina grande – La macelleria; La cucina grande – Il forno; La cucina grande – La lavanderia; La dispensa – La macelleria; La macelleria – La lavanderia; La macelleria – Il cortile; Il forno – La lavanderia; La lavanderia – Il cortile; La lavanderia – La cantina. **Finestre:** 5.
+**Porte tra le stanze:** La cucina grande – La dispensa; La cucina grande – La macelleria; La cucina grande – Il forno; La cucina grande – La lavanderia; La dispensa – La macelleria; La macelleria – La lavanderia; La macelleria – Il cortile; Il forno – La lavanderia; La lavanderia – Il cortile; La lavanderia – La cantina; La cantina – Il cortile. **Finestre:** 6.
 
-_I mobili pieni (14) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (15) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> Un cuoco è morto nelle cucine del castello, vicino al calderone. La regina ti riceve nella sala, ti offre un calice di vino e beve per prima: «Qui non ci si fida di nessuno, nemmeno dei cuochi». Fuori, il castello sa già che si indaga.
+> Un cuoco è morto nelle cucine del castello, vicino al calderone. La regina ti riceve nella sala, ti offre un calice di vino e beve per prima: «Qui non ci si fida di nessuno, nemmeno dei cuochi». Fuori, il castello sa già che si indaga, e sette persone avevano accesso alle cucine.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 
@@ -414,9 +441,9 @@ _I mobili pieni (14) occupano la loro casella; panche, sgabelli, giacigli, tappe
 
 ---
 
-## Caso 8 — La torre delle prigioni · 7×7
+## Caso 8 — La torre delle prigioni · 8×8
 
-**Scena.** La torre delle prigioni. **Difficoltà:** difficile. **File:** `08-la-torre-delle-prigioni.murdoku.json`
+**Scena.** La torre delle prigioni, con le celle, il corpo di guardia, la scala e il cortile. **Difficoltà:** difficile. **File:** `08-la-torre-delle-prigioni.murdoku.json`
 
 **Vittima:** Vivia — carceriera.
 
@@ -432,6 +459,7 @@ _I mobili pieni (14) occupano la loro casella; panche, sgabelli, giacigli, tappe
 | C | **Cunegonda** | la dama | Contessa | Dama di corte, in visita al prigioniero per conto di una nobile famiglia. Veste di seta e parla a bassa voce. |
 | T | **Tobia** | l'araldo | Araldo/a | Araldo del re: legge i bandi e porta i messaggi ai detenuti. Sa chi entra e chi esce. |
 | N | **Norberto** | il boia | Boia | Boia della torre: lavora quando serve, e quando non serve aspetta. Di Vivia era il collega più vicino. |
+| P | **Pierina** | la cuoca dei prigionieri | Fornaio | Cuoca dei prigionieri: porta ogni giorno la zuppa alle celle. Vivia le teneva la porta, e le raccontava tutto quello che vedeva. |
 | V | **Vivia** (vittima) | la vittima, carceriera | Poliziotto/a | 20 anni, carceriera della torre: tiene le chiavi di ogni cella. Giovane, ligia, spesso sola nei sotterranei. |
 
 ### Mappa
@@ -439,28 +467,29 @@ _I mobili pieni (14) occupano la loro casella; panche, sgabelli, giacigli, tappe
 Righe R1… dall'alto, colonne C1… da sinistra; una lettera per stanza.
 
 ```
-      C1 C2 C3 C4 C5 C6 C7 
-  R1  K  K  K  P  P  P  P  
-  R2  K  K  K  P  P  P  P  
-  R3  K  K  K  G  G  G  G  
-  R4  Z  Z  T  T  G  G  G  
-  R5  Z  Z  T  T  Y  Y  Y  
-  R6  Z  Z  T  T  Y  Y  Y  
-  R7  Z  Z  T  T  Y  Y  Y  
+      C1 C2 C3 C4 C5 C6 C7 C8 
+  R1  K  K  K  P  P  P  P  P  
+  R2  K  K  K  P  P  P  P  P  
+  R3  K  K  K  G  G  G  G  G  
+  R4  Z  Z  T  T  G  G  G  G  
+  R5  Z  Z  T  T  Y  Y  Y  Y  
+  R6  Z  Z  T  T  Y  Y  Y  Y  
+  R7  Z  Z  T  T  Y  Y  Y  Y  
+  R8  Z  Z  T  T  Y  Y  Y  Y  
 ```
 
 | Lettera | Stanza | Pavimento | Caselle | Mobili |
 |---|---|---|---|---|
 | K | La sala del capitano | Moquette blu | 9 | tavolo (R1C2), candelabro (R1C3), sedia (R2C1) |
-| P | Le celle | Lastre scure | 8 | gabbia (R1C6), gabbia (R2C4), giaciglio (R2C6), panca (R1C7) |
-| G | Il corpo di guardia | Lastre di pietra | 7 | armatura (R3C4), tavolo (R3C6), rastrelliera (R4C7), panca (R4C5) |
-| Z | La scala | Ardesia | 8 | candelabro (R5C1) |
-| T | La sala degli interrogatori | Listoni scuri | 8 | forziere (R5C4), gabbia (R7C3) |
-| Y | Il cortile della torre | Ghiaia | 9 | pozzo (R6C6) |
+| P | Le celle | Lastre scure | 10 | gabbia (R1C6), gabbia (R2C4), giaciglio (R2C7), panca (R1C8) |
+| G | Il corpo di guardia | Lastre di pietra | 9 | armatura (R3C4), tavolo (R3C6), rastrelliera (R4C8), panca (R4C5) |
+| Z | La scala | Ardesia | 10 | candelabro (R5C1) |
+| T | La sala degli interrogatori | Listoni scuri | 10 | forziere (R5C4), gabbia (R7C3), botte (R8C4) |
+| Y | Il cortile della torre | Ghiaia | 16 | pozzo (R6C6), carro (R7C8) |
 
-**Porte tra le stanze:** La sala del capitano – Il corpo di guardia; La sala del capitano – La scala; La sala del capitano – La sala degli interrogatori; Le celle – Il corpo di guardia (saracinesca); Il corpo di guardia – La sala degli interrogatori; Il corpo di guardia – Il cortile della torre; La scala – La sala degli interrogatori; La sala degli interrogatori – Il cortile della torre. **Finestre:** 4; feritoie: 2.
+**Porte tra le stanze:** La sala del capitano – Il corpo di guardia; La sala del capitano – La scala; La sala del capitano – La sala degli interrogatori; Le celle – Il corpo di guardia (saracinesca); Il corpo di guardia – La sala degli interrogatori; Il corpo di guardia – Il cortile della torre; La scala – La sala degli interrogatori; La sala degli interrogatori – Il cortile della torre. **Finestre:** 5; feritoie: 2.
 
-_I mobili pieni (11) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
+_I mobili pieni (13) occupano la loro casella; panche, sgabelli, giacigli, tappeti e troni si possono occupare._
 
 ### Dossier del caso
 
@@ -476,7 +505,7 @@ _I mobili pieni (11) occupano la loro casella; panche, sgabelli, giacigli, tappe
 
 ## Caso 9 — Il banchetto dell'erede · 8×8
 
-**Scena.** La sala grande, durante il banchetto. **Difficoltà:** difficile. **File:** `09-il-banchetto-dell-erede.murdoku.json`
+**Scena.** La sala grande, durante il banchetto. **Difficoltà:** undefined. **File:** `09-il-banchetto-dell-erede.murdoku.json`
 
 **Vittima:** Valdemaro — il maggiore, acclamato erede.
 

@@ -6,7 +6,7 @@ import { TAGS, LANGS } from "./casePolicy.js";
 
 export const PAGE_SIZE = 12;
 export const SIZE_BANDS = ["small", "medium", "large"];
-export const SORTS = ["new", "title"];
+export const SORTS = ["new", "title", "played", "liked", "solved"];
 export const SEARCH_MAX = 40;
 const DIFFICULTIES = ["very-easy", "easy", "medium", "hard", "expert"];
 
@@ -21,12 +21,17 @@ export const normalizeSearch = (text) =>
 const ORDERS = {
   new: ["createdAt", "desc"],
   title: ["titleLower", "asc"],
+  played: ["stats.opened", "desc"],
+  liked: ["stats.likes", "desc"],
+  solved: ["stats.solved", "desc"],
 };
+export const FEED_MAX = 30; // the authors a feed can show at once (Firestore's limit for an `in` filter)
 
 // filters: { scope, uid, authorUid, lang, difficulty, sizeBand, tag, search, sort }
 //   scope "gallery" (default): what is in the public list, narrowed by the filters; `authorUid` shows one author's cases
 //   scope "mine": all the cases of the signed-in author (`uid`), in the list or not, withdrawn too: newest first
 //   scope "all": every case, for an administrator: newest first
+//   scope "feed": the newest cases of the authors in `authors` (the ones a person follows, at most FEED_MAX)
 // -> { where: [[field, op, value], ...], orderBy: [field, direction], limit }
 // A filter with a value the page does not offer is ignored (nothing reaches Firestore that the rules would refuse).
 export function buildCaseQuery(filters = {}, limit = PAGE_SIZE) {
@@ -36,6 +41,18 @@ export function buildCaseQuery(filters = {}, limit = PAGE_SIZE) {
     return { where: [["authorUid", "==", filters.uid]], orderBy: ORDERS.new, limit };
   }
   if (scope === "all") return { where: [], orderBy: ORDERS.new, limit };
+  if (scope === "feed") {
+    const authors = (Array.isArray(filters.authors) ? filters.authors : []).filter((a) => typeof a === "string" && a).slice(0, FEED_MAX);
+    if (!authors.length) throw new Error("scope feed needs the authors");
+    return {
+      where: [
+        ["inGallery", "==", true],
+        ["authorUid", "in", authors],
+      ],
+      orderBy: ORDERS.new,
+      limit,
+    };
+  }
 
   const where = [["inGallery", "==", true]];
   if (filters.authorUid) {
@@ -57,7 +74,7 @@ export function buildCaseQuery(filters = {}, limit = PAGE_SIZE) {
 }
 
 // ---- the indexes ------------------------------------------------------------------------------------------------------
-const EQUALITY = (op) => op === "==" || op === "array-contains";
+const EQUALITY = (op) => op === "==" || op === "array-contains" || op === "in";
 
 // The composite indexes a query needs: for each "equal to" filter, an index on that field followed by the sort field.
 // Returns [{ fields: [[field, "asc"|"desc"|"contains"], [orderField, direction]] }].
@@ -90,6 +107,7 @@ export function allQueryShapes() {
   shapes.push(buildCaseQuery({ authorUid: "someone" }));
   shapes.push(buildCaseQuery({ scope: "mine", uid: "me" }));
   shapes.push(buildCaseQuery({ scope: "all" }));
+  shapes.push(buildCaseQuery({ scope: "feed", authors: ["a", "b"] }));
   return shapes;
 }
 
@@ -104,5 +122,15 @@ export function indexesFile() {
   const indexes = [...wanted.values()]
     .sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
     .map((pair) => ({ collectionGroup: "cases", queryScope: "COLLECTION", fields: pair.map(field) }));
-  return { indexes, fieldOverrides: [] };
+  // The server finds what a person liked or played across all the cases (to take it back when they delete their account): a
+  // query on the `uid` of every `likes` / `plays` document, which Firestore wants an index for.
+  const fieldOverrides = ["likes", "plays"].map((collectionGroup) => ({
+    collectionGroup,
+    fieldPath: "uid",
+    indexes: [
+      { order: "ASCENDING", queryScope: "COLLECTION" },
+      { order: "ASCENDING", queryScope: "COLLECTION_GROUP" },
+    ],
+  }));
+  return { indexes, fieldOverrides };
 }

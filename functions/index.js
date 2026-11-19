@@ -24,7 +24,8 @@ const store = {
     return read(await db.doc(path).get());
   },
   runTransaction(fn) {
-    return db.runTransaction((t) =>
+    // (async: the real Firestore wants a Promise back from the callback, even from a handler that only writes)
+    return db.runTransaction(async (t) =>
       fn({
         async get(path) {
           return read(await t.get(db.doc(path)));
@@ -37,6 +38,16 @@ const store = {
     );
   },
   deleteTree: (path) => db.recursiveDelete(db.doc(path)),
+  // reads outside a transaction: -> [{ path, data }]
+  async list(collection) {
+    return (await db.collection(collection).get()).docs.map((d) => ({ path: d.ref.path, data: d.data() }));
+  },
+  async where(collection, field, value) {
+    return (await db.collection(collection).where(field, "==", value).get()).docs.map((d) => ({ path: d.ref.path, data: d.data() }));
+  },
+  async groupWhere(group, field, value) {
+    return (await db.collectionGroup(group).where(field, "==", value).get()).docs.map((d) => ({ path: d.ref.path, data: d.data() }));
+  },
 };
 
 let ready = null;
@@ -68,3 +79,11 @@ export const publishCase = wrap("publishCase");
 export const updateCase = wrap("updateCase");
 export const withdrawCase = wrap("withdrawCase");
 export const deleteCase = wrap("deleteCase");
+export const setLike = wrap("setLike");
+export const recordPlay = wrap("recordPlay");
+export const followAuthor = wrap("followAuthor");
+export const setAuthorProfile = wrap("setAuthorProfile");
+export const reportCase = wrap("reportCase");
+export const moderateCase = wrap("moderateCase");
+export const dismissReports = wrap("dismissReports");
+export const prepareAccountDeletion = wrap("prepareAccountDeletion");

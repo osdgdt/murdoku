@@ -40,6 +40,19 @@ una chiave:
 3. Dall'account → **Chiavi → Aggiungi chiave → Crea nuova chiave → JSON**: scarica il file.
 4. GitHub → repository → **Settings → Secrets and variables → Actions → New repository secret**: nome
    `FIREBASE_SERVICE_ACCOUNT`, valore = **tutto il contenuto** del file JSON. Poi cancella il file scaricato dal tuo computer.
+   **Il modo più sicuro per incollare la chiave** (copiare a mano un file di 2300 caratteri a volte rovina la chiave privata: a
+   capo cambiati in spazi, un pezzo tagliato; il workflow ripara i danni di formato ma non i caratteri persi). Apri Cloud Shell
+   (icona `>_` in alto a destra nella console Google Cloud) e incolla:
+   ```bash
+   gcloud iam service-accounts keys create /tmp/key.json --iam-account=github-deploy@murdoku-61284.iam.gserviceaccount.com
+   base64 -w0 /tmp/key.json; echo
+   rm /tmp/key.json
+   ```
+   Il comando stampa **una sola riga lunga** (circa 3140 caratteri): selezionala tutta, copiala e incollala come valore del
+   segreto `FIREBASE_SERVICE_ACCOUNT` (il workflow accetta sia il file JSON sia questa riga in base64). Poi, in **Account di
+   servizio → Chiavi**, elimina le chiavi più vecchie che non usi più.
+   Se il passo «Check the service-account key» del workflow fallisce, il log dice cosa non va (chiave tagliata, di un altro
+   progetto, rifiutata da Google): ripeti la creazione della chiave.
 5. Abilita le API del progetto se non lo sono già (il primo rilascio ti dice quali): Cloud Functions, Cloud Build, Artifact
    Registry, Cloud Run.
 

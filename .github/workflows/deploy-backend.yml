@@ -59,23 +59,23 @@ jobs:
         run: |
           npm ci --prefix test/rules
           npm ci --prefix functions
-      # Says what is wrong with the key (empty, cut, wrong project, refused by Google) instead of firebase-tools' generic
-      # "Failed to authenticate"; it prints nothing secret.
+      # Repairs what a copy and paste can have done to the key (the secret may also be the file as one line of base64), says
+      # what is wrong when it cannot, and writes the clean key for the deploy: instead of firebase-tools' generic
+      # "Failed to authenticate" the log says why. It prints nothing secret.
       - name: Check the service-account key
         if: steps.key.outputs.present == 'true'
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: node tools/check-service-account.mjs "$FIREBASE_PROJECT"
+        run: node tools/check-service-account.mjs "$FIREBASE_PROJECT" "$RUNNER_TEMP/service-account.json"
       - name: Deploy functions, rules and indexes
         if: steps.key.outputs.present == 'true'
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           FIREBASE_TOOLS_DISABLE_UPDATE_CHECK: "true"
         run: |
-          umask 077
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/service-account.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/service-account.json"
           test/rules/node_modules/.bin/firebase deploy \
             --only functions,firestore:rules,firestore:indexes \
             --project "$FIREBASE_PROJECT" --non-interactive
-          rm -f "$RUNNER_TEMP/service-account.json"
+      - name: Remove the key file
+        if: always() && steps.key.outputs.present == 'true'
+        run: rm -f "$RUNNER_TEMP/service-account.json"

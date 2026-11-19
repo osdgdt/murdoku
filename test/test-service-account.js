@@ -3,11 +3,12 @@
 import { parseKeyText, cleanPem, describePem } from "../tools/lib/service-account.mjs";
 import { assert, assertEqual } from "./assert.js";
 
-// a made-up PKCS#8-looking body: 1624 base64 characters in lines of 64
-const body = Array.from(
-  { length: 1624 },
-  (_, i) => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(i * 7 + (i >> 3)) % 64]
-).join("");
+// a made-up PKCS#8-looking body: 1624 base64 characters in lines of 64, ending with "=" as a key whose length is not a multiple of 3 does
+const body =
+  Array.from({ length: 1623 }, (_, i) => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(i * 7 + (i >> 3)) % 64]).join(
+    ""
+  ) + "=";
+const wrapPem = (b) => `-----BEGIN PRIVATE KEY-----\n${b.match(/.{1,64}/g).join("\n")}\n-----END PRIVATE KEY-----\n`;
 const lines = body.match(/.{1,64}/g);
 const PEM = `-----BEGIN PRIVATE KEY-----\n${lines.join("\n")}\n-----END PRIVATE KEY-----\n`;
 const keyJson = (privateKey) =>
@@ -55,6 +56,12 @@ export const tests = [
         "rientri e righe vuote": PEM.replace(/\n/g, "\n  \n  "),
       };
       for (const [what, text] of Object.entries(damaged)) assertEqual(cleanPem(text), PEM, what);
+      // il caso trovato nella realtà: il «=» finale perso (1623 caratteri invece di 1624), che OpenSSL non perdona
+      assertEqual(cleanPem(wrapPem(body.slice(0, -1))), PEM, "il = finale ritrovato");
+      // con «==» in fondo, uno o tutti e due persi
+      const two = body.slice(0, -2) + "==";
+      for (const lost of [two.slice(0, -1), two.slice(0, -2)])
+        assertEqual(cleanPem(wrapPem(lost)), wrapPem(two), `${lost.length} caratteri`);
       // e attraverso il JSON, come arriva davvero (la chiave privata è una stringa JSON con i suoi \n)
       assertEqual(cleanPem(parseKeyText(keyJson(PEM.trimEnd().replace(/\n/g, " "))).key.private_key), PEM);
       assertEqual(cleanPem(parseKeyText(keyJson(PEM.replace(/\n/g, "\\n"))).key.private_key), PEM, "\\n doppiamente scritto");
@@ -76,11 +83,10 @@ export const tests = [
         false,
         "tagliata"
       );
-      assertEqual(
-        describePem(cleanPem(`-----BEGIN PRIVATE KEY-----\n${body.slice(0, 1623)}\n-----END PRIVATE KEY-----`)).looksComplete,
-        false,
-        "manca un carattere"
-      );
+      // un carattere perso IN MEZZO non si ripara: il testo non torna quello della chiave (e OpenSSL la rifiuterà)
+      assert(cleanPem(wrapPem(body.slice(0, 700) + body.slice(701))) !== PEM, "manca un carattere");
+      assertEqual(describePem(cleanPem(wrapPem(body.slice(0, 1200)))).looksComplete, false, "metà chiave");
+      assertEqual(describePem(cleanPem(wrapPem(body.slice(0, -1)))).looksComplete, true, "il = finale perso invece sì");
     },
   },
 ];

@@ -3,7 +3,7 @@
 //
 // What goes wrong when a key travels through a clipboard: the line breaks of the private key turn into spaces, or into the two
 // characters "\n", or are lost altogether; the whole file may be sent as one line of base64 on purpose. All of that is repaired
-// here. A character that is missing or changed cannot be repaired: `describePem` gives the numbers that show it.
+// here. A character that is missing or changed in the middle cannot be repaired: `describePem` gives the numbers that show it.
 
 const BEGIN = "-----BEGIN PRIVATE KEY-----";
 const END = "-----END PRIVATE KEY-----";
@@ -39,7 +39,8 @@ export function parseKeyText(raw) {
   };
 }
 
-// The private key as a clean PEM: line breaks, spaces, "\n" written as text and CRLF all rebuilt as 64-character lines.
+// The private key as a clean PEM: line breaks, spaces, "\n" written as text and CRLF all rebuilt as 64-character lines, and the
+// final "=" signs put back.
 // Returns null when there is no PEM at all.
 export function cleanPem(value) {
   const text = String(value ?? "")
@@ -48,8 +49,12 @@ export function cleanPem(value) {
   const start = text.indexOf(BEGIN);
   const end = text.indexOf(END);
   if (start < 0 || end < start) return null;
-  const body = text.slice(start + BEGIN.length, end).replace(/[^A-Za-z0-9+/=]/g, "");
-  if (!body) return null;
+  const raw = text.slice(start + BEGIN.length, end).replace(/[^A-Za-z0-9+/=]/g, "");
+  if (!raw.replace(/=/g, "")) return null;
+  // The "=" signs that end base64 are the first thing a clipboard loses, and OpenSSL refuses a body without them: the padding is
+  // put back according to the length (a missing character in the middle is not repairable, and stays a failure).
+  const bare = raw.replace(/=+$/, "");
+  const body = bare + ["", "", "==", "="][bare.length % 4];
   return `${BEGIN}\n${body.match(/.{1,64}/g).join("\n")}\n${END}\n`;
 }
 

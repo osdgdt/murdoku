@@ -227,6 +227,7 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
       difficulty: puzzle.difficulty || "",
       tags: [],
       license: entry?.license ?? "",
+      listed: true,
     };
   }
 
@@ -279,7 +280,9 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
       })
     );
 
+    const listedBox = el("input", { type: "checkbox", checked: values.listed !== false || undefined, "data-key": "publish-listed" });
     const readValues = () => ({
+      listed: listedBox.checked,
       title: titleInput.value,
       blurb: blurbInput.value,
       lang: langSelect.value,
@@ -315,6 +318,21 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
         t("Una o due frasi che invoglino a giocarlo, senza rivelare il colpevole (al massimo {max} caratteri).", { max: LIMITS.blurbMax })
       ),
       el("div", { class: "publish-row" }, [field(t("Lingua"), langSelect), field(t("Difficoltà"), diffSelect)]),
+      el("div", { class: "publish-field" }, [
+        el("label", { class: "publish-radio" }, [
+          listedBox,
+          el("span", {}, [
+            el("strong", {}, t("Mostra nell'elenco dei casi della community")),
+            el(
+              "small",
+              {},
+              t(
+                "Se la togli, il caso non compare nell'elenco e si apre solo con il codice o il link: utile per condividerlo con pochi amici. Tu lo vedi sempre in «I miei casi»."
+              )
+            ),
+          ]),
+        ]),
+      ]),
       el("fieldset", { class: "publish-field" }, [
         el("legend", {}, t("Tag (fino a {max})", { max: LIMITS.tagsMax })),
         el(
@@ -421,7 +439,15 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
       };
       registry.setPublished(puzzle.id, saved);
       announce(t("Caso pubblicato: codice {code}", { code: formatCode(result.code) }));
-      if (!closed) renderManage(saved, { notice: t("Fatto! Il caso è online."), card: null });
+      const cardOnly = mode === "update" && result.revisionChanged === false;
+      if (!closed)
+        renderManage(saved, {
+          notice: cardOnly
+            ? t("Scheda aggiornata. Il caso non è cambiato, quindi resta la revisione {n}.", { n: result.revision })
+            : t("Fatto! Il caso è online."),
+          card: null,
+          listed: values.listed,
+        });
     } catch (err) {
       if (closed) return;
       const reason = reasonOf(err);
@@ -447,6 +473,7 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
         difficulty: card.difficulty,
         tags: card.tags ?? [],
         license: card.license,
+        listed: card.listed !== false,
       });
     } catch {
       // keep the defaults
@@ -455,12 +482,20 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
   }
 
   // ---- a published case: code, link, QR, and what can be done with it ---------------------------------------------------
-  function renderManage(entry, { notice = "", error = "", card = undefined } = {}) {
+  function renderManage(entry, { notice = "", error = "", card = undefined, listed = undefined } = {}) {
     const note = noticeBox();
     if (notice) note.info(notice);
     if (error) note.error(error);
     const link = caseLink(entry.code, location.href);
-    const status = el("p", { class: "muted", "data-key": "publish-status" }, t("Revisione {n}", { n: entry.revision }));
+    const statusText = (revision, isWithdrawn, isListed) =>
+      [
+        t("Revisione {n}", { n: revision }),
+        isWithdrawn ? t("ritirato: non lo apre nessuno") : null,
+        isListed === false ? t("non in elenco: si apre solo con il codice") : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+    const status = el("p", { class: "muted", "data-key": "publish-status" }, statusText(entry.revision, false, listed));
     const qr = el("div", { class: "publish-qr", "data-key": "publish-qr" });
     try {
       const svg = qrSvg(link, { ecc: "M", scale: 4, title: t("Codice QR del link del caso") });
@@ -599,9 +634,7 @@ export function openPublishDialog({ getPuzzle, confirmPublishable, onPlay }) {
           if (closed || !status.isConnected) return;
           withdrawn = fresh.status === "withdrawn";
           toggle.textContent = withdrawn ? t("Rimetti online") : t("Ritira dal database");
-          status.textContent = [t("Revisione {n}", { n: fresh.revision }), withdrawn ? t("ritirato: non lo apre nessuno") : null]
-            .filter(Boolean)
-            .join(" · ");
+          status.textContent = statusText(fresh.revision, withdrawn, fresh.listed);
         })
         .catch(() => {});
     }

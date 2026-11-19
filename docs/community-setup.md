@@ -71,6 +71,24 @@ npm ci --prefix test/rules && npm ci --prefix functions
 test/rules/node_modules/.bin/firebase deploy --only functions,firestore:rules,firestore:indexes --project murdoku-61284
 ```
 
+## 4 bis. Aggiornare il backend dopo una nuova tappa (Cloud Shell)
+
+Ogni tappa che cambia le funzioni, le regole o gli indici richiede un nuovo rilascio. Da Cloud Shell (progetto
+`murdoku-61284`), con il tuo account già collegato la prima volta:
+
+```bash
+cd ~/murdoku && git pull && nvm use 22 && npm ci --prefix test/rules && npm ci --prefix functions
+test/rules/node_modules/.bin/firebase deploy --only functions,firestore:rules,firestore:indexes --project murdoku-61284
+```
+
+Se `firebase` risponde che non sei collegato, ripeti `test/rules/node_modules/.bin/firebase login --no-localhost`.
+**Gli indici nuovi si costruiscono in qualche minuto**: finché non sono pronti l'elenco dei casi dice «L'elenco si sta
+ancora preparando». Si controlla in Firebase → Firestore → Indici (stato «Abilitato»).
+
+**Casi pubblicati prima dell'elenco** (tappa 1) non hanno ancora la visibilità né la mini-mappa, quindi non compaiono
+nell'elenco: il loro autore apre il caso nell'editor, «🌐 Pubblica», «Pubblica le modifiche…» e conferma (anche senza
+cambiare nulla): la scheda si completa e il caso entra nell'elenco, senza nuova revisione.
+
 ## 5. Limiti regolabili senza rilasciare (facoltativo)
 
 Le funzioni leggono `config/limits` da Firestore (solo l'amministratore del progetto lo scrive dalla console). Valori di

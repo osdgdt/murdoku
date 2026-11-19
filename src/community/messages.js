@@ -106,9 +106,11 @@ export function describeReason(reason, details = {}) {
     case "no-such-case":
       return t("Non esiste nessun caso con questo codice.");
     case "not-available":
-      return t("Questo caso non è disponibile: l'autore l'ha ritirato o è stato nascosto.");
+      return t("Non trovo questo caso: controlla il codice. Se è giusto, l'autore l'ha ritirato o è stato nascosto.");
     case "bad-body":
       return t("Il caso salvato nel database non è leggibile.");
+    case "index-missing":
+      return t("L'elenco si sta ancora preparando (succede per qualche minuto dopo un aggiornamento): riprova tra poco.");
     case "network":
       return t("Connessione assente o instabile: riprova tra poco.");
     case "bad-code":

@@ -7,38 +7,15 @@ import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 import { firebaseApp } from "../firebaseConfig.js";
 import { FUNCTIONS_REGION } from "./config.js";
+import { CommunityError, toCommunityError } from "./errors.js";
+
+export { CommunityError };
 import { isCaseCode, sharedPuzzleId, LIMITS } from "./casePolicy.js";
 import { migratePuzzle } from "../model/migrations.js";
 import { validatePuzzleShape } from "../model/puzzle.js";
 
 const db = getFirestore(firebaseApp);
 const functions = getFunctions(firebaseApp, FUNCTIONS_REGION);
-
-// A refusal, in words the page can turn into a sentence: `reason` is one of the codes of functions/src/handlers.js
-// (sign-in-required, no-nickname, not-solved, invalid-meta, duplicate, limit-per-day, ...) or one of ours:
-//   network          the server could not be reached
-//   not-available    the case is not readable (withdrawn, hidden by moderation)
-//   no-such-case     there is no such code
-//   bad-body         the stored case is not a valid case
-export class CommunityError extends Error {
-  constructor(reason, details = {}) {
-    super(reason);
-    this.name = "CommunityError";
-    this.reason = reason;
-    this.details = details;
-  }
-}
-
-function toCommunityError(error) {
-  if (error instanceof CommunityError) return error;
-  const reason = error?.details?.reason;
-  if (typeof reason === "string") return new CommunityError(reason, error.details);
-  const code = String(error?.code ?? "");
-  if (code.endsWith("unavailable") || code.endsWith("deadline-exceeded") || code.includes("network")) return new CommunityError("network");
-  if (code.endsWith("unauthenticated")) return new CommunityError("sign-in-required");
-  if (code.endsWith("permission-denied")) return new CommunityError("not-available");
-  return new CommunityError("internal", { message: error?.message });
-}
 
 async function call(name, data) {
   try {

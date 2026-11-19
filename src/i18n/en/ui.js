@@ -753,4 +753,7 @@ export default {
   "Personaggi e strumenti": "Characters and tools",
   ", già piazzato": ", already placed",
   "Passa al tema ad alto contrasto": "Switch to the high-contrast theme",
+  "Casi della community": "Community cases",
+  "Sfoglia i casi pubblicati da altri giocatori e risolvili, senza accedere.":
+    "Browse the cases published by other players and solve them, no sign-in needed.",
 };

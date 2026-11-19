@@ -33,6 +33,7 @@ const PAGES = [
   "campaign.html",
   "campaign-editor.html",
   "daily.html",
+  "community.html",
 ];
 
 export const tests = [

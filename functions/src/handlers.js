@@ -59,6 +59,7 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
     contentHash,
     serializeBody,
     summarizePuzzle,
+    inGallery,
   } = policy;
   const dayKey = () => now().toISOString().slice(0, 10);
 
@@ -110,6 +111,8 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
     characters: summary.characters,
     clues: summary.clues,
     sizeBand: summary.sizeBand,
+    preview: summary.preview,
+    listed: meta.listed,
   });
 
   // ---- publish ------------------------------------------------------------------------------------------------------
@@ -159,6 +162,7 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
             authorNick: nickname,
             contentHash: hash,
             status: "active",
+            inGallery: inGallery("active", meta.listed),
             createdAt: when,
             updatedAt: when,
             stats: { opened: 0, solved: 0, likes: 0 },
@@ -186,7 +190,13 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
     return fail("internal", "no-free-code");
   }
 
-  // ---- a new revision -------------------------------------------------------------------------------------------------
+  // ---- a new revision, or just a new card -------------------------------------------------------------------------------
+  // What the author changes decides what happens:
+  //  - the case itself (map, cast, clues, solution), its title or its difficulty (they are written inside the case): a new
+  //    revision, which the readers who saved the case are told about;
+  //  - only the description, the language, the tags or the visibility: the card is updated, there is no new revision (nothing
+  //    changed for those who play it);
+  //  - nothing: refused ("unchanged").
   async function updateCase(data, ctx) {
     const uid = requireUser(ctx);
     if (!isCaseCode(data?.code)) fail("invalid-argument", "bad-code");
@@ -201,41 +211,68 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
     return store.runTransaction(async (tx) => {
       const card = await tx.get(casePath(code));
       if (!card.exists) fail("not-found", "no-such-case");
-      if (card.data.authorUid !== uid) fail("permission-denied", "not-the-author");
-      if (card.data.status === "hidden") fail("failed-precondition", "hidden-by-moderation");
-      if (meta.license !== card.data.license) fail("failed-precondition", "license-immutable", { license: card.data.license });
-      const revision = (card.data.revision || 1) + 1;
-      if (revision > limits.revisionsMax) fail("resource-exhausted", "limit-revisions", { max: limits.revisionsMax });
+      const current = card.data;
+      if (current.authorUid !== uid) fail("permission-denied", "not-the-author");
+      if (current.status === "hidden") fail("failed-precondition", "hidden-by-moderation");
+      if (meta.license !== current.license) fail("failed-precondition", "license-immutable", { license: current.license });
       // every read comes before the first write (a rule of Firestore transactions)
       const log = await tx.get(logPath(uid, day));
       const author = await tx.get(authorPath(uid));
+      const sameContent = hash === current.contentHash;
+      const newRevision = !sameContent || meta.title !== current.title || meta.difficulty !== current.difficulty;
+      const claim = sameContent ? null : await tx.get(hashPath(hash));
       const updates = log.exists ? log.data.updates || 0 : 0;
+      const bumpDay = () => tx.set(logPath(uid, day), { ...(log.exists ? log.data : {}), updates: updates + 1 });
+
+      if (!newRevision) {
+        const patch = {};
+        const tagsNow = JSON.stringify(current.tags ?? []);
+        if (meta.blurb !== current.blurb) patch.blurb = meta.blurb;
+        if (meta.lang !== current.lang) patch.lang = meta.lang;
+        if (JSON.stringify(meta.tags) !== tagsNow) patch.tags = meta.tags;
+        if (meta.listed !== (current.listed !== false)) patch.listed = meta.listed;
+        // the cards published before the gallery lack what it needs: filled in here
+        const backfill = {};
+        if (current.listed === undefined) backfill.listed = meta.listed;
+        if (current.preview === undefined) backfill.preview = summarizePuzzle(puzzle).preview;
+        if (Object.keys(patch).length === 0 && Object.keys(backfill).length === 0)
+          fail("already-exists", "unchanged", { code, yours: true });
+        if (updates >= limits.updatePerDay) fail("resource-exhausted", "limit-per-day", { max: limits.updatePerDay });
+        const merged = { ...patch, ...backfill };
+        const listedNow = "listed" in merged ? merged.listed : current.listed !== false;
+        tx.update(casePath(code), { ...merged, inGallery: inGallery(current.status, listedNow), updatedAt: when });
+        bumpDay();
+        return { code, revision: current.revision || 1, revisionChanged: false };
+      }
+
+      const revision = (current.revision || 1) + 1;
+      if (revision > limits.revisionsMax) fail("resource-exhausted", "limit-revisions", { max: limits.revisionsMax });
       if (updates >= limits.updatePerDay) fail("resource-exhausted", "limit-per-day", { max: limits.updatePerDay });
-      // the same content as the revision now published is not a revision
-      if (hash === card.data.contentHash) fail("already-exists", "unchanged", { code, yours: true });
-      const claim = await tx.get(hashPath(hash));
-      if (claim.exists) fail("already-exists", "duplicate", { code: claim.data.code, yours: claim.data.authorUid === uid });
+      if (claim?.exists) fail("already-exists", "duplicate", { code: claim.data.code, yours: claim.data.authorUid === uid });
 
       const body = serializeBody(
         preparePuzzleForPublish(puzzle, code, { author: nickname, title: meta.title, difficulty: meta.difficulty })
       );
       if (body.bytes > LIMITS.bodyMaxBytes) fail("invalid-argument", "too-big", { bytes: body.bytes, max: LIMITS.bodyMaxBytes });
-      const wasWithdrawn = card.data.status === "withdrawn";
+      const wasWithdrawn = current.status === "withdrawn";
       tx.update(casePath(code), {
         ...cardFields(meta, summarizePuzzle(puzzle)),
         revision,
         contentHash: hash,
         status: "active",
+        inGallery: inGallery("active", meta.listed),
         updatedAt: when,
         authorNick: nickname,
       });
       tx.create(revisionPath(code, revision), { json: body.json, bytes: body.bytes, createdAt: when });
-      tx.delete(hashPath(card.data.contentHash));
-      tx.create(hashPath(hash), { code, authorUid: uid });
+      if (!sameContent) {
+        tx.delete(hashPath(current.contentHash));
+        tx.create(hashPath(hash), { code, authorUid: uid });
+      }
       tx.update(publishedPath(uid, code), { title: meta.title, updatedAt: when });
       if (wasWithdrawn) tx.update(authorPath(uid), { caseCount: (author.exists ? author.data.caseCount || 0 : 0) + 1 });
-      tx.set(logPath(uid, day), { ...(log.exists ? log.data : {}), updates: updates + 1 });
-      return { code, revision };
+      bumpDay();
+      return { code, revision, revisionChanged: true };
     });
   }
 
@@ -254,11 +291,11 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
       const author = await tx.get(authorPath(uid));
       const active = author.exists ? author.data.caseCount || 0 : 0;
       if (withdrawn && card.data.status === "active") {
-        tx.update(casePath(code), { status: "withdrawn", updatedAt: now() });
+        tx.update(casePath(code), { status: "withdrawn", inGallery: false, updatedAt: now() });
         tx.update(authorPath(uid), { caseCount: Math.max(0, active - 1) });
       } else if (!withdrawn && card.data.status === "withdrawn") {
         if (active >= limits.activeCasesMax) fail("resource-exhausted", "limit-active", { max: limits.activeCasesMax });
-        tx.update(casePath(code), { status: "active", updatedAt: now() });
+        tx.update(casePath(code), { status: "active", inGallery: inGallery("active", card.data.listed), updatedAt: now() });
         tx.update(authorPath(uid), { caseCount: active + 1 });
       }
       return { code, status: withdrawn ? "withdrawn" : "active" };

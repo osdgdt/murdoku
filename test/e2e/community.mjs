@@ -206,6 +206,122 @@ try {
     await rp.evaluate((c) => JSON.parse(localStorage.getItem("murdoku:community:shared"))[c].revision === 2, code)
   );
 
+  // ===== the list of cases =====
+  db = await database(page);
+  const visitor = await newPerson(db);
+  const vp = visitor.page;
+  await vp.goto(`${base}/community.html`);
+  await vp.waitForSelector(".case-card");
+  check("list: the published case is in the list, with no sign-in", (await vp.locator(".case-card").count()) === 1);
+  const cardText = await vp.locator(".case-card").first().innerText();
+  check(
+    "list: the card has the title, the author, the size and the code",
+    /Lighthouse/.test(cardText) && /Maigret/.test(cardText) && /5×5/.test(cardText) && cardText.includes(shown),
+    cardText
+  );
+  check("list: the card has a little map of the rooms", (await vp.locator(".case-card svg.mini-map rect").count()) === 25);
+  check(
+    "list: it says remix is allowed and what the difficulty is",
+    /Remix consentito/.test(cardText) && /Facile/.test(cardText),
+    cardText
+  );
+  await vp.selectOption("[data-key=filter-lang]", "en");
+  await vp.waitForSelector("[data-key=notice] >> text=/Nessun caso corrisponde/");
+  check("list: a filter that matches nothing says so", (await vp.locator(".case-card").count()) === 0);
+  await vp.click("[data-key=reset]");
+  await vp.waitForSelector(".case-card");
+  check("list: clearing the filters brings the case back", (await vp.locator(".case-card").count()) === 1);
+  await vp.fill("[data-key=search]", "the light");
+  await vp.waitForFunction(() => document.querySelector("[data-key=status]")?.textContent === "1 caso");
+  check("list: a title search finds the case by the start of its title", (await vp.locator(".case-card").count()) === 1);
+  await vp.fill("[data-key=search]", "zzz");
+  await vp.waitForSelector("[data-key=notice] >> text=/Nessun caso corrisponde/");
+  check("list: ... and nothing for a title nobody has", (await vp.locator(".case-card").count()) === 0);
+  await vp.click("[data-key=reset]");
+  await vp.selectOption("[data-key=search-mode]", "author");
+  await vp.fill("[data-key=search]", "mai");
+  await vp.waitForSelector("[data-key=author-pick]");
+  check(
+    "list: searching an author shows the authors with their case count",
+    /Maigret \(1\)/.test(await vp.innerText("[data-key=authors-found]"))
+  );
+  await vp.click("[data-key=author-pick]");
+  await vp.waitForSelector("[data-key=author-chip]:not([hidden])");
+  await vp.waitForSelector(".case-card");
+  check(
+    "list: picking an author shows his cases",
+    /Maigret/.test(await vp.innerText("[data-key=author-chip]")) && (await vp.locator(".case-card").count()) === 1
+  );
+  await vp.click("[data-key=reset]");
+  await vp.click("[data-key=author-clear]").catch(() => {});
+  await vp.waitForSelector(".case-card [data-key=play]");
+  await vp.click(".case-card [data-key=play]");
+  await vp.waitForSelector("#board [role=gridcell]");
+  check("list: Play opens the case from its code", new URL(vp.url()).searchParams.get("c") === code);
+  await vp.goto(`${base}/player.html`);
+  await vp.waitForSelector("[data-key=community-link]");
+  check("list: the player's picker points to the list", (await vp.getAttribute("[data-key=community-link]", "href")) === "community.html");
+
+  // the author takes it out of the list (and only that: no new revision), and still sees it in "My cases"
+  await page.click("[data-key=publish-update]");
+  await page.waitForSelector("[data-key=publish-listed]");
+  check("unlisted: the form offers the choice, on by default", await page.isChecked("[data-key=publish-listed]"));
+  await page.uncheck("[data-key=publish-listed]");
+  await page.click("[data-key=publish-go]");
+  await page.waitForSelector("[data-key=publish-notice] >> text=/Scheda aggiornata/", { timeout: 60000 });
+  check(
+    "unlisted: changing only the visibility updates the card, not the case",
+    /Revisione 2/.test(await page.innerText("[data-key=publish-status]"))
+  );
+  db = await database(page);
+  const visitor2 = await newPerson(db);
+  await visitor2.page.goto(`${base}/community.html`);
+  await visitor2.page.waitForSelector("[data-key=notice] >> text=/Non c'è ancora nessun caso pubblicato/");
+  check("unlisted: the list no longer shows it", (await visitor2.page.locator(".case-card").count()) === 0);
+  await visitor2.page.goto(`${base}/player.html?c=${code}`);
+  await visitor2.page.waitForSelector("#board [role=gridcell]");
+  check("unlisted: but whoever has the code still opens it", true);
+  await page.keyboard.press("Escape");
+  await page.goto(`${base}/community.html`);
+  await page.waitForSelector("[data-key=tab-mine]");
+  await page.click("[data-key=tab-mine]");
+  await page.waitForSelector(".case-card");
+  const mineText = await page.locator(".case-card").first().innerText();
+  check("unlisted: the author still sees it in 'My cases', and what it is", /Non in elenco/.test(mineText), mineText);
+  check("unlisted: and can open it in the editor", (await page.locator(".case-card [data-key=edit]").count()) === 1);
+  check("unlisted: the administrator's tab is not there for an ordinary account", await page.locator("[data-key=tab-all]").isHidden());
+  await page.evaluate(() => {
+    const db = JSON.parse(localStorage.getItem("__fake_db"));
+    db["admins/uid-test"] = { since: 1 };
+    localStorage.setItem("__fake_db", JSON.stringify(db));
+  });
+  await page.reload();
+  await page.waitForSelector("[data-key=tab-all]:not([hidden])");
+  await page.click("[data-key=tab-all]");
+  await page.waitForSelector(".case-card");
+  check("admin: an administrator sees every case, listed or not", (await page.locator(".case-card").count()) === 1);
+  await page.evaluate(() => {
+    const db = JSON.parse(localStorage.getItem("__fake_db"));
+    delete db["admins/uid-test"];
+    localStorage.setItem("__fake_db", JSON.stringify(db));
+  });
+  // and the author puts it back in the list
+  await page.goto(`${base}/editor.html?id=${localId}`);
+  await page.waitForSelector("#board [role=gridcell]");
+  await page.click("#publish-btn");
+  await page.click("[data-key=publish-update]");
+  await page.waitForSelector("[data-key=publish-listed]");
+  check("unlisted: the form remembers it is not in the list", !(await page.isChecked("[data-key=publish-listed]")));
+  await page.check("[data-key=publish-listed]");
+  await page.click("[data-key=publish-go]");
+  await page.waitForSelector("[data-key=publish-notice] >> text=/Scheda aggiornata/", { timeout: 60000 });
+  db = await database(page);
+  const visitor3 = await newPerson(db);
+  await visitor3.page.goto(`${base}/community.html`);
+  await visitor3.page.waitForSelector(".case-card");
+  check("unlisted: back in the list", (await visitor3.page.locator(".case-card").count()) === 1);
+  await page.keyboard.press("Escape");
+
   // ===== withdrawn =====
   await page.reload();
   await page.waitForSelector("#board [role=gridcell]");
@@ -218,7 +334,7 @@ try {
   const stranger = await newPerson(db);
   await stranger.page.goto(`${base}/player.html?c=${code}`);
   await stranger.page.waitForSelector(".result-banner.hint-error", { timeout: 30000 });
-  check("withdraw: nobody else can open it any more", /non è disponibile/.test(await stranger.page.innerText(".result-banner")));
+  check("withdraw: nobody else can open it any more", /Non trovo questo caso/.test(await stranger.page.innerText(".result-banner")));
 
   // ... and back online
   await page.click("[data-key=publish-withdraw]");

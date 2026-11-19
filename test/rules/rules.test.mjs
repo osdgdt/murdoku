@@ -2,6 +2,7 @@
 // the global case statistics (caseStats) and the daily challenge (profiles, nicknames, daily entries). Nothing
 // else in the rules file is tested here (campaign progress/achievements are plain "owner only" rules).
 import { test, before, after, beforeEach } from "node:test";
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { initializeTestEnvironment, assertSucceeds, assertFails } from "@firebase/rules-unit-testing";
 import {
@@ -274,6 +275,7 @@ const card = (over = {}) => ({
   authorNick: "Gianna",
   license: "cc-by",
   revision: 1,
+  createdAt: 1, // (a query that orders by a field only returns the documents that have it)
   ...over,
 });
 const seedCase = (code, over = {}) =>
@@ -297,18 +299,55 @@ test("shared cases: anybody, signed in or not, reads an active case and its revi
   }
 });
 
-test("shared cases: the gallery lists only active cards, 30 at a time; the revisions are never listed", async () => {
-  await seedCase("ACDEFGHJ");
-  await seedCase("KMNPQRTU", { status: "withdrawn" });
+test("shared cases: anybody lists what is in the gallery, 30 at a time; the revisions are never listed", async () => {
+  await seedCase("ACDEFGHJ", { inGallery: true, listed: true });
+  await seedCase("KMNPQRTU", { status: "withdrawn", inGallery: false });
+  await seedCase("VWXY3469", { listed: false, inGallery: false }); // active, but only with its code
   const db = anon();
-  const active = collection(db, "cases");
-  await assertSucceeds(getDocs(query(active, where("status", "==", "active"), limit(30))));
-  await assertFails(getDocs(query(active, where("status", "==", "active"), limit(31))));
-  await assertFails(getDocs(query(active, where("status", "==", "active")))); // no limit: refused
-  await assertFails(getDocs(query(active, limit(10)))); // not restricted to the active ones: would show the others
-  await assertFails(getDocs(query(active, where("status", "==", "withdrawn"), limit(10))));
+  const cases = collection(db, "cases");
+  const gallery = where("inGallery", "==", true);
+  const found = await assertSucceeds(getDocs(query(cases, gallery, orderBy("createdAt", "desc"), limit(30))));
+  assert.deepEqual(
+    found.docs.map((d) => d.id),
+    ["ACDEFGHJ"]
+  );
+  await assertSucceeds(getDocs(query(cases, gallery, where("lang", "==", "it"), where("tags", "array-contains", "mistero"), limit(12))));
+  await assertSucceeds(
+    getDocs(query(cases, gallery, where("titleLower", ">=", "il"), where("titleLower", "<", "il\uf8ff"), orderBy("titleLower"), limit(12)))
+  );
+  await assertFails(getDocs(query(cases, gallery, limit(31))));
+  await assertFails(getDocs(query(cases, gallery))); // no limit: refused
+  await assertFails(getDocs(query(cases, limit(10)))); // not restricted to the gallery: would show the others
+  await assertFails(getDocs(query(cases, where("status", "==", "active"), limit(10)))); // active is not enough: it may be unlisted
+  await assertFails(getDocs(query(cases, where("inGallery", "==", false), limit(10))));
+  await assertFails(getDocs(query(cases, where("listed", "==", false), limit(10))));
   await assertFails(getDocs(collection(db, "cases", "ACDEFGHJ", "revisions")));
   await assertFails(getDocs(query(collection(db, "cases", "ACDEFGHJ", "revisions"), limit(5))));
+  // an unlisted case is still read by whoever has its code
+  await assertSucceeds(getDoc(doc(db, "cases", "VWXY3469")));
+  await assertSucceeds(getDoc(doc(db, "cases", "VWXY3469", "revisions", "1")));
+});
+
+test("shared cases: an author lists all their own cases (listed or not, withdrawn too), nobody else's; an admin lists everything", async () => {
+  await seedCase("ACDEFGHJ", { inGallery: true });
+  await seedCase("KMNPQRTU", { status: "withdrawn", inGallery: false });
+  await seedCase("VWXY3469", { listed: false, inGallery: false });
+  await seedCase("CDEFGHJK", { authorUid: "other", listed: false, inGallery: false });
+  await seed((db) => setDoc(doc(db, "admins", "moderator"), { since: 1 }));
+  const cases = (db) => collection(db, "cases");
+  const mine = await assertSucceeds(
+    getDocs(query(cases(as("author")), where("authorUid", "==", "author"), orderBy("createdAt", "desc"), limit(30)))
+  );
+  assert.deepEqual(mine.docs.map((d) => d.id).sort(), ["ACDEFGHJ", "KMNPQRTU", "VWXY3469"]);
+  await assertFails(getDocs(query(cases(as("author")), where("authorUid", "==", "other"), limit(10)))); // somebody else's
+  await assertFails(getDocs(query(cases(anon()), where("authorUid", "==", "author"), limit(10)))); // not signed in
+  await assertFails(getDocs(query(cases(as("author")), limit(10)))); // "mine" has to be said
+  await assertFails(getDocs(query(cases(as("reader")), where("authorUid", "==", "author"), limit(10))));
+  // the author's own cases through the gallery's filters are fine too (they are in it)
+  await assertSucceeds(getDocs(query(cases(as("reader")), where("inGallery", "==", true), where("authorUid", "==", "author"), limit(10))));
+  const everything = await assertSucceeds(getDocs(query(cases(as("moderator")), orderBy("createdAt", "desc"), limit(30))));
+  assert.equal(everything.size, 4);
+  await assertFails(getDocs(query(cases(as("moderator")), limit(31))));
 });
 
 test("shared cases: a withdrawn or hidden case, and its revisions, are for its author and the admins only", async () => {

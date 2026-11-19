@@ -163,7 +163,8 @@ service cloud.firestore {
     // page: publishing, revising, withdrawing and deleting go through the Cloud Functions (which use the admin SDK and so
     // are not subject to these rules), because only a server can enforce the limits per author, hand out codes without
     // collisions, keep the counters honest and check the case with the app's own validation.
-    //  - the card `cases/{code}` is small and public; it can be listed (only the active ones, 30 at a time: no scraping);
+    //  - the card `cases/{code}` is small and public; it can be listed 30 at a time (no scraping): anybody lists what is in the
+    //    gallery (`inGallery == true`: an active case its author wants listed), an author lists all their own, an admin all;
     //  - the case itself, `cases/{code}/revisions/{n}`, is read one revision at a time and never listed;
     //  - a case that is withdrawn or hidden is readable only by its author and by the admins.
     // Keep the bounds in step with LIMITS in src/community/casePolicy.js.
@@ -177,7 +178,11 @@ service cloud.firestore {
       allow get: if resource.data.status == 'active'
         || (isSignedIn() && resource.data.authorUid == request.auth.uid)
         || isOwner();
-      allow list: if resource.data.status == 'active' && request.query.limit <= 30;
+      // a query must itself say which of the three it is (where inGallery == true / where authorUid == me / an admin's)
+      allow list: if request.query.limit <= 30 && (
+        resource.data.inGallery == true
+        || (isSignedIn() && resource.data.authorUid == request.auth.uid)
+        || isOwner());
       allow write: if false;
       match /revisions/{revision} {
         allow get: if isActiveCase(code) || isCaseAuthor(code) || isOwner();

@@ -27,6 +27,8 @@ const EXTRA = {
   "player.html": ["community"],
   // (the list of the cases published by other players)
   "community.html": ["community"],
+  // (the administrators' page: reports and what to do with them)
+  "moderation.html": ["community"],
   "tutorial.html": ["tutorial"],
   "privacy.html": ["privacy"],
   "campaign.html": ["campaign"],

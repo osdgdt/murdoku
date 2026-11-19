@@ -49,6 +49,10 @@ const PAGES = {
     [...COMMON, "community"],
     ["Tutti i casi", "Non c'è ancora nessun caso pubblicato", "Pubblica un tuo caso"],
   ],
+  "moderation.html": [
+    [...COMMON, "community"],
+    ["Accedi con un account amministratore", "Moderazione"],
+  ],
   "editor.html": [
     [...COMMON, "glossary", "community"],
     ["Nuovo puzzle", "Valida soluzione"],

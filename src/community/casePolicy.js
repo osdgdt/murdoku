@@ -27,6 +27,10 @@ export const LICENSES = ["cc-by", "play-only"];
 export const TAGS = ["medievale", "moderno", "mistero", "horror", "umorismo", "famiglia", "storico", "fantasy-senza-magia"];
 const DIFFICULTIES = DIFFICULTY_LEVELS.map((d) => d.value).filter(Boolean);
 
+// The original owner of the project is an administrator even without a document in `admins` (the same uid as isOwner() in
+// firestore.rules and as OWNER_UIDS in functions/src/common.js: a test keeps the three alike).
+export const OWNER_UIDS = ["say3jOf6WkaXDmjyn3kmAKNYbCh1"];
+
 // What a report of a case can say (the reasons are codes: the page words them), and what the author's page can say.
 export const REPORT_REASONS = ["spoiler", "offensive", "spam", "broken", "copyright", "other"];
 

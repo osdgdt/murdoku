@@ -36,6 +36,17 @@ const META_FIELD = {
   tags: () => t("Puoi scegliere al massimo {max} tag.", { max: LIMITS.tagsMax }),
 };
 
+// What a reason for a report is called (the codes are casePolicy.js REPORT_REASONS).
+export const reportReasonLabel = (reason) =>
+  ({
+    spoiler: t("Rivela la soluzione o il colpevole nel testo"),
+    offensive: t("Contenuto offensivo"),
+    spam: t("Pubblicità o spam"),
+    broken: t("Il caso non funziona o è sbagliato"),
+    copyright: t("Copia un'opera di altri senza permesso"),
+    other: t("Altro (spiega nella nota)"),
+  })[reason] ?? reason;
+
 // The messages for the errors of validatePublishMeta ([{ field, code }]), one per field.
 export function describeMetaErrors(errors) {
   const seen = new Set();
@@ -109,6 +120,22 @@ export function describeReason(reason, details = {}) {
       return t("Non trovo questo caso: controlla il codice. Se è giusto, l'autore l'ha ritirato o è stato nascosto.");
     case "bad-body":
       return t("Il caso salvato nel database non è leggibile.");
+    case "own-case":
+      return t("Questo caso è tuo: non si può fare con i propri casi.");
+    case "already-reported":
+      return t("Hai già segnalato questo caso: grazie, ce ne occupiamo.");
+    case "invalid-report":
+      return t("Scegli un motivo (e, per «Altro», scrivi due righe).");
+    case "not-an-admin":
+      return t("Questa operazione è riservata agli amministratori.");
+    case "no-such-author":
+      return t("Questo autore non c'è più.");
+    case "follow-limit":
+      return t("Segui già {max} autori: smetti di seguirne uno per seguirne un altro.", { max: details.max ?? "" });
+    case "invalid-bio":
+      return t("La presentazione è troppo lunga (al massimo {max} caratteri).", { max: LIMITS.bioMax });
+    case "no-cases":
+      return t("Solo chi ha pubblicato almeno un caso ha una pagina da autore.");
     case "index-missing":
       return t("L'elenco si sta ancora preparando (succede per qualche minuto dopo un aggiornamento): riprova tra poco.");
     case "network":

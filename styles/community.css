@@ -270,3 +270,77 @@
     height: 72px;
   }
 }
+
+/* ---- Likes, counters, the page of an author, the feed's dot -------------------------------------------------------------- */
+.feed-dot {
+  color: var(--accent);
+  font-size: 0.8em;
+}
+.case-counters {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+}
+.like-button {
+  min-width: 4.5em;
+  font-variant-numeric: tabular-nums;
+}
+.like-button[aria-pressed="true"] {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.community-profile h2 {
+  margin: 0 0 0.2rem;
+}
+.profile-counts {
+  margin: 0 0 0.4rem;
+}
+.profile-bio {
+  margin: 0 0 0.6rem;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.community-profile textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  margin: 0.4rem 0;
+  padding: 0.5em 0.8em;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+/* ---- the line under the panel of a shared case in the player ------------------------------------------------------------ */
+.shared-social {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* ---- the administrators' page ------------------------------------------------------------------------------------------- */
+.mod-list {
+  grid-template-columns: 1fr;
+}
+.mod-reports {
+  margin-top: 0.5rem;
+}
+.mod-report {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+/* the signed-in account in the top bar: readable on the red band in every theme */
+.topbar .auth-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.topbar .auth-bar .muted {
+  color: #fdf3e6;
+  opacity: 1;
+}

@@ -50,9 +50,12 @@ export const limit = (n) => ({ __limit: n });
 export const where = (field, op, value) => ({ __where: [field, op, value] });
 export const startAfter = (snapshot) => ({ __after: snapshot });
 export const query = (col, ...parts) => ({ ...col, parts });
+const field = (data, path) => path.split(".").reduce((value, key) => value?.[key], data);
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const matches = (actual, op, value) => {
   if (op === "==") return actual === value;
+  if (op === "in") return Array.isArray(value) && value.includes(actual);
+  if (op === ">") return actual !== undefined && actual > value;
   if (op === "array-contains") return Array.isArray(actual) && actual.includes(value);
   if (op === ">=") return actual !== undefined && actual >= value;
   if (op === "<") return actual !== undefined && actual < value;
@@ -64,12 +67,12 @@ export const getDocs = async (q) => {
   const prefix = q.path + "/";
   const parts = q.parts || [];
   let rows = Object.entries(db).filter(([p]) => p.startsWith(prefix) && !p.slice(prefix.length).includes("/")).map(([p, data]) => ({ p, data }));
-  for (const part of parts) if (part.__where) rows = rows.filter(({ data }) => matches(data[part.__where[0]], part.__where[1], part.__where[2]));
+  for (const part of parts) if (part.__where) rows = rows.filter(({ data }) => matches(field(data, part.__where[0]), part.__where[1], part.__where[2]));
   const orders = parts.filter((part) => part.__order);
-  rows = rows.filter(({ data }) => orders.every((o) => data[o.__order] !== undefined));
+  rows = rows.filter(({ data }) => orders.every((o) => field(data, o.__order) !== undefined));
   rows.sort((a, b) => {
     for (const o of orders) {
-      const c = compare(a.data[o.__order], b.data[o.__order]);
+      const c = compare(field(a.data, o.__order), field(b.data, o.__order));
       if (c) return o.dir === "desc" ? -c : c;
     }
     return 0;

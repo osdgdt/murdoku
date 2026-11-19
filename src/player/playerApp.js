@@ -8,6 +8,7 @@ import { isCaseCode, normalizeCode, isSharedPuzzleId, SHARED_PREFIX } from "../c
 import * as sharedRegistry from "../community/localRegistry.js";
 import { openSharedCode } from "./sharedCase.js";
 import { renderSharedPanel } from "./sharedPanel.js";
+import { countPlay } from "./sharedActions.js";
 import { importPuzzleFromUrl } from "../storage/importExport.js";
 import { decodePuzzleFromFragment } from "../storage/shareLink.js";
 import { wireThemeToggle } from "../util/theme.js";
@@ -257,7 +258,10 @@ if (!puzzle) {
   pickerEl.classList.add("hidden");
   gameEl.classList.remove("hidden");
   titleEl.textContent = puzzle.title;
-  if (isSharedPuzzleId(puzzle.id)) renderSharedPanel(qs("#shared-panel"), puzzle);
+  if (isSharedPuzzleId(puzzle.id)) {
+    renderSharedPanel(qs("#shared-panel"), puzzle);
+    countPlay(puzzle.id.slice(SHARED_PREFIX.length), "opened");
+  }
   recentActivity.recordOpened({
     kind: "puzzle",
     id: puzzle.id,
@@ -270,6 +274,7 @@ if (!puzzle) {
     persistProgress,
     achievementKey: `puzzle:${puzzle.id}`,
     onSolved: (elapsedSeconds) => {
+      if (isSharedPuzzleId(puzzle.id)) countPlay(puzzle.id.slice(SHARED_PREFIX.length), "solved");
       puzzle.completed = true;
       if (puzzle.bestTimeSeconds == null || elapsedSeconds < puzzle.bestTimeSeconds) {
         puzzle.bestTimeSeconds = elapsedSeconds;

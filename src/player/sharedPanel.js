@@ -7,7 +7,10 @@ import * as store from "../storage/puzzleStore.js";
 import { SHARED_PREFIX, formatCode, caseLink } from "../community/casePolicy.js";
 import * as registry from "../community/localRegistry.js";
 import { duplicateCase } from "../community/remix.js";
-import { newerRevision, applyNewerRevision } from "./sharedCase.js";
+import { applyNewerRevision, loadCard } from "./sharedCase.js";
+import { likedByMe, withAccount } from "./sharedActions.js";
+import { describeReason } from "../community/messages.js";
+import { openReportDialog } from "../community/reportDialog.js";
 
 export function renderSharedPanel(container, puzzle) {
   const code = puzzle.id.slice(SHARED_PREFIX.length);
@@ -46,6 +49,7 @@ export function renderSharedPanel(container, puzzle) {
     info?.license === "cc-by" ? ` · ${t("Remix consentito (CC BY 4.0)")}` : ` · ${t("Solo da giocare")}`,
   ];
   const updateSlot = el("div", { class: "shared-update hidden", "data-key": "shared-update" });
+  const socialSlot = el("div", { class: "shared-social hidden", "data-key": "shared-social" });
   container.append(
     el("div", { class: "shared-row" }, [
       el("span", { class: "shared-who" }, who),
@@ -53,12 +57,16 @@ export function renderSharedPanel(container, puzzle) {
       info?.license === "cc-by" ? el("button", { type: "button", "data-key": "shared-remix", onClick: remix }, t("🧬 Rielabora")) : null,
       status,
     ]),
+    socialSlot,
     updateSlot
   );
 
-  // Has the author published a new revision since this copy was saved? (best effort: nothing is shown when it cannot be known)
-  newerRevision(code).then((card) => {
+  // What the database says about the case now (best effort: nothing is shown when it cannot be read): how many tried and solved
+  // it, the likes, whose it is, whether it is still public, and whether the author has published a newer revision.
+  loadCard(code).then(async (card) => {
     if (!card || !updateSlot.isConnected) return;
+    renderSocial(socialSlot, code, card);
+    if (!(card.revision > (info?.revision ?? card.revision))) return;
     const apply = async (button) => {
       if (!confirm(t("I progressi su questo caso ripartiranno da zero con la nuova versione. Continuare?"))) return;
       button.disabled = true;
@@ -84,4 +92,91 @@ export function renderSharedPanel(container, puzzle) {
     );
     announce(t("L'autore ha pubblicato una nuova versione di questo caso (revisione {n}).", { n: card.revision }));
   });
+}
+
+// The line under the panel: the counters, the heart, "Segnala", the author's page; and a note when the case is not public.
+function renderSocial(slot, code, card) {
+  clear(slot);
+  slot.classList.remove("hidden");
+  const stats = card.stats ?? {};
+  let count = Number.isInteger(stats.likes) ? stats.likes : 0;
+  let liked = false;
+  const heart = el("button", { type: "button", class: "like-button", "data-key": "shared-like", "aria-pressed": "false" });
+  const paint = () => {
+    heart.setAttribute("aria-pressed", String(liked));
+    heart.textContent = `${liked ? "♥" : "♡"} ${count}`;
+    heart.title = liked ? t("Non mi piace più") : t("Mi piace");
+    heart.setAttribute(
+      "aria-label",
+      liked ? t("Non mi piace più: {n} mi piace", { n: count }) : t("Mi piace: {n} mi piace finora", { n: count })
+    );
+  };
+  paint();
+  likedByMe(code).then((value) => {
+    liked = value;
+    paint();
+  });
+  heart.addEventListener("click", async () => {
+    heart.disabled = true;
+    try {
+      const ready = await withAccount();
+      if (!ready) return;
+      const out = await ready.community.setLike(code, !liked);
+      liked = out.liked;
+      count = out.likes;
+      paint();
+    } catch (error) {
+      announce(describeReason(error?.reason ?? "network", error?.details));
+      slot.append(el("span", { class: "violation", role: "alert" }, ` ${describeReason(error?.reason ?? "network", error?.details)}`));
+    } finally {
+      heart.disabled = false;
+    }
+  });
+  const report = el(
+    "button",
+    {
+      type: "button",
+      class: "link-button",
+      "data-key": "shared-report",
+      onClick: async () => {
+        const ready = await withAccount();
+        if (!ready) return;
+        openReportDialog({
+          submit: (r) => ready.community.reportCase({ code, ...r }),
+          onSent: () =>
+            slot.append(el("span", { role: "status", "data-key": "shared-report-done" }, ` ${t("Grazie: la segnalazione è arrivata.")}`)),
+        });
+      },
+    },
+    t("Segnala")
+  );
+  const counters = [
+    Number.isInteger(stats.opened) ? t("👥 {n} hanno provato", { n: stats.opened }) : null,
+    Number.isInteger(stats.solved) ? t("✓ {n} risolti", { n: stats.solved }) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const author =
+    typeof card.authorUid === "string" && card.authorUid !== "deleted" && card.authorNick
+      ? el(
+          "a",
+          { href: `community.html?author=${encodeURIComponent(card.authorUid)}`, "data-key": "shared-author" },
+          t("Altri casi di {nick}", { nick: String(card.authorNick).slice(0, 40) })
+        )
+      : null;
+  slot.append(
+    ...[
+      card.status && card.status !== "active"
+        ? el(
+            "strong",
+            { class: "violation", "data-key": "shared-not-public" },
+            `${t("Questo caso non è pubblico (ritirato o nascosto): lo vedi perché sei l'autore o un amministratore.")} `
+          )
+        : null,
+      counters ? el("span", { class: "muted", "data-key": "shared-counters" }, `${counters} `) : null,
+      heart,
+      report,
+      author,
+    ].filter(Boolean)
+  );
 }

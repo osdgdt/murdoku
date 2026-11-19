@@ -58,6 +58,37 @@ una chiave:
 
 Senza il segreto il workflow finisce in verde dicendo che non ha rilasciato niente: nessun danno.
 
+### 3 bis. Rilascio automatico senza chiavi (consigliato: sostituisce i punti 3-4)
+
+Con **Workload Identity** GitHub si presenta a Google con un token temporaneo, senza nessuna chiave da incollare. Una volta
+sola, da Cloud Shell (progetto `murdoku-61284`; l'account `github-deploy` del punto 1-2 deve già esistere, con i suoi ruoli):
+
+```bash
+PROJECT=murdoku-61284
+gcloud services enable iamcredentials.googleapis.com sts.googleapis.com --project $PROJECT
+gcloud iam workload-identity-pools create github --project=$PROJECT --location=global --display-name="GitHub"
+gcloud iam workload-identity-pools providers create-oidc murdoku --project=$PROJECT --location=global \
+  --workload-identity-pool=github --display-name="murdoku repo" --issuer-uri="https://token.actions.githubusercontent.com" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
+  --attribute-condition="assertion.repository=='osdgdt/murdoku'"
+NUMBER=$(gcloud projects describe $PROJECT --format='value(projectNumber)')
+gcloud iam service-accounts add-iam-policy-binding github-deploy@$PROJECT.iam.gserviceaccount.com --project=$PROJECT \
+  --role=roles/iam.workloadIdentityUser \
+  --member="principalSet://iam.googleapis.com/projects/$NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/osdgdt/murdoku"
+echo "projects/$NUMBER/locations/global/workloadIdentityPools/github/providers/murdoku"
+```
+
+L'ultimo comando stampa il nome del provider. Su GitHub, **Settings → Secrets and variables → Actions → scheda Variables →
+New repository variable**, due variabili (non sono segreti):
+
+| nome | valore |
+|---|---|
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | la riga stampata, `projects/…/providers/murdoku` |
+| `GCP_SERVICE_ACCOUNT` | `github-deploy@murdoku-61284.iam.gserviceaccount.com` |
+
+Poi **Actions → Backend → Run workflow**. Solo il repository `osdgdt/murdoku` può usare quell'accesso. Se le variabili sono
+impostate il workflow le usa e ignora il segreto `FIREBASE_SERVICE_ACCOUNT` (che si può eliminare).
+
 ## 4. Primo rilascio
 
 Dopo aver fatto il merge della PR: GitHub → **Actions → Backend → Run workflow** (sull'ultimo `main`). Controlla che il

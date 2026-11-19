@@ -1,9 +1,11 @@
 # Deploys the backend of the shared case database: the Cloud Functions (functions/), the Firestore rules and the indexes.
 # The site itself is published by pages.yml; this is the other half, and it only runs when the backend changes.
 #
-# It needs a secret, FIREBASE_SERVICE_ACCOUNT: the JSON key of a service account of the Firebase project allowed to deploy
-# (steps in docs/community-setup.md). Without it the job says so and finishes green: the site keeps working, the shared
-# case database just is not updated.
+# How it signs in to Google (steps in docs/community-setup.md), in order of preference:
+#   1. keyless (Workload Identity Federation): the repository variables GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_SERVICE_ACCOUNT
+#      are set; GitHub proves to Google who it is, no secret exists to paste, rot or leak;
+#   2. a key: the secret FIREBASE_SERVICE_ACCOUNT (the JSON key of the service account, or that file as one line of base64).
+# With neither the job says so and finishes green: the site keeps working, the shared case database just is not updated.
 name: Backend
 on:
   push:
@@ -24,6 +26,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # to ask GitHub for the token that Google exchanges for access (keyless sign-in)
 
 # one deploy at a time; a newer push waits instead of cancelling a deploy half way
 concurrency:
@@ -38,44 +41,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Is there a key to deploy with?
+      - name: How to sign in to Google
         id: key
         env:
+          PROVIDER: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::The FIREBASE_SERVICE_ACCOUNT secret is not set: the backend was not deployed (see docs/community-setup.md)."
+          if [ -n "$PROVIDER" ] && [ -n "$ACCOUNT" ]; then
+            echo "mode=keyless" >> "$GITHUB_OUTPUT"
+          elif [ -n "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "mode=key" >> "$GITHUB_OUTPUT"
           else
-            echo "present=true" >> "$GITHUB_OUTPUT"
+            echo "mode=none" >> "$GITHUB_OUTPUT"
+            echo "::notice::No way to sign in to Google is set (variables GCP_WORKLOAD_IDENTITY_PROVIDER and GCP_SERVICE_ACCOUNT, or the secret FIREBASE_SERVICE_ACCOUNT): the backend was not deployed (see docs/community-setup.md)."
           fi
       - uses: actions/setup-node@v6
-        if: steps.key.outputs.present == 'true'
+        if: steps.key.outputs.mode != 'none'
         with:
           node-version: 22
       # firebase-tools comes from the same lock file the rules tests use: the version that was tested is the one that deploys
       - name: Install firebase-tools and the functions' dependencies
-        if: steps.key.outputs.present == 'true'
+        if: steps.key.outputs.mode != 'none'
         run: |
           npm ci --prefix test/rules
           npm ci --prefix functions
-      # Repairs what a copy and paste can have done to the key (the secret may also be the file as one line of base64), says
-      # what is wrong when it cannot, and writes the clean key for the deploy: instead of firebase-tools' generic
-      # "Failed to authenticate" the log says why. It prints nothing secret.
+      # 1. keyless: GitHub's token for this very run, exchanged for access as the service account (it is what GOOGLE_APPLICATION_CREDENTIALS points to)
+      - name: Sign in to Google without a key
+        if: steps.key.outputs.mode == 'keyless'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      # 2. a key: repairs what a copy and paste can have done to it, says what is wrong when it cannot, and writes the clean key
+      #    for the deploy: instead of firebase-tools' generic "Failed to authenticate" the log says why. It prints nothing secret.
       - name: Check the service-account key
-        if: steps.key.outputs.present == 'true'
+        if: steps.key.outputs.mode == 'key'
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: node tools/check-service-account.mjs "$FIREBASE_PROJECT" "$RUNNER_TEMP/service-account.json"
       - name: Deploy functions, rules and indexes
-        if: steps.key.outputs.present == 'true'
+        if: steps.key.outputs.mode != 'none'
         env:
           FIREBASE_TOOLS_DISABLE_UPDATE_CHECK: "true"
+          MODE: ${{ steps.key.outputs.mode }}
         run: |
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/service-account.json"
+          if [ "$MODE" = "key" ]; then export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/service-account.json"; fi
           test/rules/node_modules/.bin/firebase deploy \
             --only functions,firestore:rules,firestore:indexes \
             --project "$FIREBASE_PROJECT" --non-interactive
       - name: Remove the key file
-        if: always() && steps.key.outputs.present == 'true'
+        if: always() && steps.key.outputs.mode == 'key'
         run: rm -f "$RUNNER_TEMP/service-account.json"

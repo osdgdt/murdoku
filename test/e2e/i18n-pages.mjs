@@ -45,6 +45,10 @@ const PAGES = {
   "privacy.html": [[...COMMON, "privacy"], ["Cancella i dati di questo dispositivo"]],
   "campaign.html": [[...COMMON, "campaign"], ["Accedi con Google"]],
   "daily.html": [COMMON, ["Nessuna sfida oggi"]],
+  "community.html": [
+    [...COMMON, "community"],
+    ["Tutti i casi", "Non c'è ancora nessun caso pubblicato", "Pubblica un tuo caso"],
+  ],
   "editor.html": [
     [...COMMON, "glossary", "community"],
     ["Nuovo puzzle", "Valida soluzione"],

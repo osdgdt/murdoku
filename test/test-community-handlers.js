@@ -308,7 +308,12 @@ export const tests = [
       assertEqual((await env.store.get(`caseHashes/${card.contentHash}`)).data.code, code);
       assertEqual((await env.store.get("users/u1/publishLog/2026-11-20")).data.updates, 1);
 
-      const same = await rejected(env.handlers.updateCase({ code, puzzle: edited, meta: META }, { uid: "u1" }));
+      const same = await rejected(
+        env.handlers.updateCase(
+          { code, puzzle: edited, meta: { ...META, title: "Il faro, seconda versione", blurb: "Migliorato." } },
+          { uid: "u1" }
+        )
+      );
       assertEqual(same.reason, "unchanged");
       assertEqual(
         (
@@ -443,6 +448,123 @@ export const tests = [
       await env.handlers.deleteCase({ code: withdrawn.code }, { uid: "u1" });
       assertEqual((await env.store.get("authors/u1")).data.caseCount, before, "era già ritirato: già non contava");
       assertEqual((await rejected(env.handlers.deleteCase({ code }, null))).code, "unauthenticated");
+    },
+  },
+  {
+    name: "galleria: la scheda porta visibilità e mini-mappa (solo stanze e colori); di default è in galleria, a scelta dell'autore no",
+    fn: async () => {
+      const env = await environment();
+      const { code } = await env.publish();
+      const card = (await env.store.get(`cases/${code}`)).data;
+      assertEqual(card.listed, true);
+      assertEqual(card.inGallery, true);
+      assertEqual(card.preview.cells.length, card.rows * card.cols, "un carattere per casella");
+      assert(/^[0-9a-z#-]+$/.test(card.preview.cells), "solo indici di stanza");
+      assert(card.preview.colors.length >= 1 && card.preview.colors.every((c) => /^#[0-9a-f]{6}$/.test(c)), "colori sicuri");
+      assert(!JSON.stringify(card.preview).includes("solution"), "niente che riguardi la soluzione");
+      // not in the list: the card exists, the code works, but the gallery does not show it
+      const hidden = await env.publish({ meta: { ...META, listed: false }, puzzle: variant(env.base, "zz") });
+      const hiddenCard = (await env.store.get(`cases/${hidden.code}`)).data;
+      assertEqual(hiddenCard.status, "active");
+      assertEqual(hiddenCard.listed, false);
+      assertEqual(hiddenCard.inGallery, false);
+      // a wrong kind of value is refused
+      assertEqual(
+        (await rejected(env.publish({ meta: { ...META, listed: "yes" }, puzzle: variant(env.base, "yy") }))).reason,
+        "invalid-meta"
+      );
+    },
+  },
+  {
+    name: "scheda: cambiare descrizione, lingua, tag o visibilità aggiorna la scheda senza nuova revisione; titolo o difficoltà sì (stanno nel caso)",
+    fn: async () => {
+      const env = await environment();
+      const { code } = await env.publish();
+      env.setClock("2026-11-20T12:00:00Z");
+      const hash = (await env.store.get(`cases/${code}`)).data.contentHash;
+      const out = await env.handlers.updateCase(
+        { code, puzzle: env.base, meta: { ...META, blurb: "Un'altra descrizione.", tags: ["horror"], listed: false } },
+        { uid: "u1" }
+      );
+      assertEqual(out.revision, 1);
+      assertEqual(out.revisionChanged, false);
+      const card = (await env.store.get(`cases/${code}`)).data;
+      assertEqual(card.blurb, "Un'altra descrizione.");
+      assertEqual(card.tags.join(), "horror");
+      assertEqual(card.listed, false);
+      assertEqual(card.inGallery, false, "tolto dalla galleria");
+      assertEqual(card.revision, 1);
+      assertEqual(card.contentHash, hash, "l'impronta non cambia");
+      assertEqual((await env.store.get(`cases/${code}/revisions/2`)).exists, false, "nessuna revisione nuova");
+      assertEqual((await env.store.get("users/u1/publishLog/2026-11-20")).data.updates, 1, "conta come un aggiornamento del giorno");
+      // and back in the list
+      await env.handlers.updateCase(
+        { code, puzzle: env.base, meta: { ...META, blurb: "Un'altra descrizione.", tags: ["horror"], listed: true } },
+        { uid: "u1" }
+      );
+      assertEqual((await env.store.get(`cases/${code}`)).data.inGallery, true);
+      // a new title is written inside the case: a revision, though the content is the same (and the fingerprint is not touched)
+      const retitled = await env.handlers.updateCase(
+        { code, puzzle: env.base, meta: { ...META, blurb: "Un'altra descrizione.", tags: ["horror"], title: "Un altro titolo" } },
+        { uid: "u1" }
+      );
+      assertEqual(retitled.revision, 2);
+      assertEqual(retitled.revisionChanged, true);
+      assertEqual(JSON.parse((await env.store.get(`cases/${code}/revisions/2`)).data.json).title, "Un altro titolo");
+      assertEqual((await env.store.get(`caseHashes/${hash}`)).data.code, code, "l'impronta resta di questo caso");
+      // nothing at all changed
+      const same = await rejected(
+        env.handlers.updateCase(
+          { code, puzzle: env.base, meta: { ...META, blurb: "Un'altra descrizione.", tags: ["horror"], title: "Un altro titolo" } },
+          { uid: "u1" }
+        )
+      );
+      assertEqual(same.reason, "unchanged");
+    },
+  },
+  {
+    name: "scheda: le schede di prima della galleria si completano (visibilità, mini-mappa) al primo aggiornamento, anche senza altre modifiche",
+    fn: async () => {
+      const env = await environment();
+      const { code } = await env.publish();
+      // a card as the first version wrote it
+      const old = { ...(await env.store.get(`cases/${code}`)).data };
+      for (const field of ["listed", "inGallery", "preview"]) delete old[field];
+      env.store.docs.set(`cases/${code}`, old);
+      const out = await env.handlers.updateCase({ code, puzzle: env.base, meta: META }, { uid: "u1" });
+      assertEqual(out.revisionChanged, false);
+      const card = (await env.store.get(`cases/${code}`)).data;
+      assertEqual(card.listed, true);
+      assertEqual(card.inGallery, true);
+      assertEqual(card.preview.cells.length, card.rows * card.cols);
+      assertEqual(
+        (await rejected(env.handlers.updateCase({ code, puzzle: env.base, meta: META }, { uid: "u1" }))).reason,
+        "unchanged",
+        "ora è completa"
+      );
+    },
+  },
+  {
+    name: "galleria: ritirare toglie il caso dall'elenco, rimetterlo online lo riporta com'era (in elenco o no); nuova revisione di un caso fuori elenco resta fuori",
+    fn: async () => {
+      const env = await environment();
+      const listed = await env.publish();
+      const unlisted = await env.publish({ meta: { ...META, listed: false }, puzzle: variant(env.base, "qq") });
+      const flag = async (code) => (await env.store.get(`cases/${code}`)).data.inGallery;
+      await env.handlers.withdrawCase({ code: listed.code }, { uid: "u1" });
+      await env.handlers.withdrawCase({ code: unlisted.code }, { uid: "u1" });
+      assertEqual(await flag(listed.code), false);
+      assertEqual(await flag(unlisted.code), false);
+      await env.handlers.withdrawCase({ code: listed.code, withdrawn: false }, { uid: "u1" });
+      await env.handlers.withdrawCase({ code: unlisted.code, withdrawn: false }, { uid: "u1" });
+      assertEqual(await flag(listed.code), true, "tornato in elenco");
+      assertEqual(await flag(unlisted.code), false, "e quello fuori elenco resta fuori");
+      const rev = await env.handlers.updateCase(
+        { code: unlisted.code, puzzle: variant(variant(env.base, "qq"), "rr"), meta: { ...META, listed: false } },
+        { uid: "u1" }
+      );
+      assertEqual(rev.revisionChanged, true);
+      assertEqual(await flag(unlisted.code), false, "una revisione non lo mette in elenco");
     },
   },
 ];

@@ -116,6 +116,10 @@ function renderCodeEntry() {
       el("button", { type: "button", class: "primary", "data-key": "code-go", onClick: open }, t("Apri")),
     ]),
     notice,
+    el("p", { class: "muted" }, [
+      `${t("Non hai un codice?")} `,
+      el("a", { href: "community.html", "data-key": "community-link" }, t("Sfoglia i casi della community")),
+    ]),
   ]);
 }
 

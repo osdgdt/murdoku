@@ -67,7 +67,10 @@
 :root[data-theme="contrast"] textarea { border: 2px solid #000000; box-shadow: none; }
 :root[data-theme="contrast"] button.primary,
 :root[data-theme="contrast"] .primary { background: #000000; color: #ffffff; }
-:root[data-theme="contrast"] main a:not(.play):not(.button):not(.tt-button) { color: #00007a; text-decoration: underline; }
+:root[data-theme="contrast"] main a:not(.play):not(.button):not(.tt-button):not(.button-link) { color: #00007a; text-decoration: underline; }
+/* A link that looks like a button (the list of community cases): the button's own plain heavy border */
+:root[data-theme="contrast"] a.button-link { border: 2px solid #000000; box-shadow: none; background: #ffffff; color: #000000; text-decoration: none; }
+:root[data-theme="contrast"] a.button-link.primary { background: #000000; color: #ffffff; }
 :root[data-theme="contrast"] .topbar, :root[data-theme="contrast"] .topbar a, :root[data-theme="contrast"] .topbar span { color: #ffffff; }
 
 /* The board: heavier lines, quiet floors. */

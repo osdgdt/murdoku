@@ -40,10 +40,54 @@ una chiave:
 3. Dall'account → **Chiavi → Aggiungi chiave → Crea nuova chiave → JSON**: scarica il file.
 4. GitHub → repository → **Settings → Secrets and variables → Actions → New repository secret**: nome
    `FIREBASE_SERVICE_ACCOUNT`, valore = **tutto il contenuto** del file JSON. Poi cancella il file scaricato dal tuo computer.
+   **Il modo più sicuro per incollare la chiave** (copiare a mano un file di 2300 caratteri a volte rovina la chiave privata: a
+   capo cambiati in spazi, un pezzo tagliato; il workflow ripara i danni di formato ma non i caratteri persi). Apri Cloud Shell
+   (icona `>_` in alto a destra nella console Google Cloud) e incolla:
+   ```bash
+   gcloud iam service-accounts keys create /tmp/key.json --iam-account=github-deploy@murdoku-61284.iam.gserviceaccount.com
+   base64 -w0 /tmp/key.json; echo
+   rm /tmp/key.json
+   ```
+   Il comando stampa **una sola riga lunga** (circa 3140 caratteri): selezionala tutta, copiala e incollala come valore del
+   segreto `FIREBASE_SERVICE_ACCOUNT` (il workflow accetta sia il file JSON sia questa riga in base64). Poi, in **Account di
+   servizio → Chiavi**, elimina le chiavi più vecchie che non usi più.
+   Se il passo «Check the service-account key» del workflow fallisce, il log dice cosa non va (chiave tagliata, di un altro
+   progetto, rifiutata da Google): ripeti la creazione della chiave.
 5. Abilita le API del progetto se non lo sono già (il primo rilascio ti dice quali): Cloud Functions, Cloud Build, Artifact
    Registry, Cloud Run.
 
 Senza il segreto il workflow finisce in verde dicendo che non ha rilasciato niente: nessun danno.
+
+### 3 bis. Rilascio automatico senza chiavi (consigliato: sostituisce i punti 3-4)
+
+Con **Workload Identity** GitHub si presenta a Google con un token temporaneo, senza nessuna chiave da incollare. Una volta
+sola, da Cloud Shell (progetto `murdoku-61284`; l'account `github-deploy` del punto 1-2 deve già esistere, con i suoi ruoli):
+
+```bash
+PROJECT=murdoku-61284
+gcloud services enable iamcredentials.googleapis.com sts.googleapis.com --project $PROJECT
+gcloud iam workload-identity-pools create github --project=$PROJECT --location=global --display-name="GitHub"
+gcloud iam workload-identity-pools providers create-oidc murdoku --project=$PROJECT --location=global \
+  --workload-identity-pool=github --display-name="murdoku repo" --issuer-uri="https://token.actions.githubusercontent.com" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
+  --attribute-condition="assertion.repository=='osdgdt/murdoku'"
+NUMBER=$(gcloud projects describe $PROJECT --format='value(projectNumber)')
+gcloud iam service-accounts add-iam-policy-binding github-deploy@$PROJECT.iam.gserviceaccount.com --project=$PROJECT \
+  --role=roles/iam.workloadIdentityUser \
+  --member="principalSet://iam.googleapis.com/projects/$NUMBER/locations/global/workloadIdentityPools/github/attribute.repository/osdgdt/murdoku"
+echo "projects/$NUMBER/locations/global/workloadIdentityPools/github/providers/murdoku"
+```
+
+L'ultimo comando stampa il nome del provider. Su GitHub, **Settings → Secrets and variables → Actions → scheda Variables →
+New repository variable**, due variabili (non sono segreti):
+
+| nome | valore |
+|---|---|
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | la riga stampata, `projects/…/providers/murdoku` |
+| `GCP_SERVICE_ACCOUNT` | `github-deploy@murdoku-61284.iam.gserviceaccount.com` |
+
+Poi **Actions → Backend → Run workflow**. Solo il repository `osdgdt/murdoku` può usare quell'accesso. Se le variabili sono
+impostate il workflow le usa e ignora il segreto `FIREBASE_SERVICE_ACCOUNT` (che si può eliminare).
 
 ## 4. Primo rilascio
 
@@ -57,6 +101,24 @@ In alternativa, dal tuo computer (serve Node 22 e `firebase login`):
 npm ci --prefix test/rules && npm ci --prefix functions
 test/rules/node_modules/.bin/firebase deploy --only functions,firestore:rules,firestore:indexes --project murdoku-61284
 ```
+
+## 4 bis. Aggiornare il backend dopo una nuova tappa (Cloud Shell)
+
+Ogni tappa che cambia le funzioni, le regole o gli indici richiede un nuovo rilascio. Da Cloud Shell (progetto
+`murdoku-61284`), con il tuo account già collegato la prima volta:
+
+```bash
+cd ~/murdoku && git pull && nvm use 22 && npm ci --prefix test/rules && npm ci --prefix functions
+test/rules/node_modules/.bin/firebase deploy --only functions,firestore:rules,firestore:indexes --project murdoku-61284
+```
+
+Se `firebase` risponde che non sei collegato, ripeti `test/rules/node_modules/.bin/firebase login --no-localhost`.
+**Gli indici nuovi si costruiscono in qualche minuto**: finché non sono pronti l'elenco dei casi dice «L'elenco si sta
+ancora preparando». Si controlla in Firebase → Firestore → Indici (stato «Abilitato»).
+
+**Casi pubblicati prima dell'elenco** (tappa 1) non hanno ancora la visibilità né la mini-mappa, quindi non compaiono
+nell'elenco: il loro autore apre il caso nell'editor, «🌐 Pubblica», «Pubblica le modifiche…» e conferma (anche senza
+cambiare nulla): la scheda si completa e il caso entra nell'elenco, senza nuova revisione.
 
 ## 5. Limiti regolabili senza rilasciare (facoltativo)
 

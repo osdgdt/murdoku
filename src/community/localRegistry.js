@@ -24,6 +24,11 @@ export function setPublished(puzzleId, entry) {
   return tryWriteJson(PUBLISHED_KEY, map);
 }
 
+// The local case published under `code` (if this browser is where it was made): its id, or null.
+export function findPublishedByCode(code) {
+  return Object.entries(readMap(PUBLISHED_KEY)).find(([, entry]) => entry?.code === code)?.[0] ?? null;
+}
+
 export function removePublished(puzzleId) {
   const map = readMap(PUBLISHED_KEY);
   delete map[puzzleId];

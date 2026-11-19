@@ -35,6 +35,7 @@
     "test:functions": "node test/functions/run.mjs",
     "bench": "node test/bench/solver-bench.mjs",
     "check:case": "node tools/check-case.mjs",
+    "make:indexes": "node tools/make-indexes.mjs",
     "make:library": "node tools/make-library.mjs"
   },
   "engines": {

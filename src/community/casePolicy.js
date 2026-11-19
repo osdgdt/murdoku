@@ -82,12 +82,28 @@ export function validatePublishMeta(raw) {
   const tags = Array.isArray(raw?.tags) ? [...new Set(raw.tags)] : [];
   if (tags.length > LIMITS.tagsMax) fail("tags", "too-many");
   if (tags.some((tag) => !TAGS.includes(tag))) fail("tags", "invalid");
+  // in the public list of cases, or only reachable with its code or link (absent = in the list)
+  if (raw?.listed !== undefined && typeof raw.listed !== "boolean") fail("listed", "invalid");
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
-    meta: { title, titleLower: title.toLowerCase(), blurb, lang: raw.lang, difficulty: raw.difficulty, license: raw.license, tags },
+    meta: {
+      title,
+      titleLower: title.toLowerCase(),
+      blurb,
+      lang: raw.lang,
+      difficulty: raw.difficulty,
+      license: raw.license,
+      tags,
+      listed: raw.listed !== false,
+    },
   };
 }
+
+// Is a case in the public gallery? Only an active case its author wants listed. The gallery asks Firestore for
+// `inGallery == true` (one field to filter on, one index per sort), so it is kept in step with `status` and `listed`
+// by whoever changes either of them: the functions, always through this.
+export const inGallery = (status, listed) => status === "active" && listed !== false;
 
 // ---- the case itself ----------------------------------------------------------------------------------------------
 // Checks a case before it is published: the app's own shape check (grid, characters, ids, colours...) plus the limits
@@ -184,7 +200,24 @@ export function summarizePuzzle(puzzle) {
     characters: puzzle.characters.length,
     clues: puzzle.clues.length,
     sizeBand: Math.max(rows, cols) <= 5 ? "small" : Math.max(rows, cols) <= 8 ? "medium" : "large",
+    preview: buildPreview(puzzle),
   };
+}
+
+// The little map on the card of a case: which room every cell belongs to and what colour each room is, nothing else (no
+// objects, no names, nothing about the solution). `cells` has one character per cell, row after row: the index of the
+// room in base 36, "-" for a cell with no room, "#" for a blocked one. null when the map does not fit (more than 36 rooms).
+const ROOM_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
+export function buildPreview(puzzle) {
+  const grid = puzzle?.grid;
+  const zones = Array.isArray(grid?.zones) ? grid.zones : [];
+  if (!zones.length || zones.length > ROOM_SYMBOLS.length) return null;
+  const index = new Map(zones.map((zone, i) => [zone.id, i]));
+  let cells = "";
+  for (const row of grid.cells)
+    for (const cell of row) cells += cell.blocked ? "#" : index.has(cell.zoneId) ? ROOM_SYMBOLS[index.get(cell.zoneId)] : "-";
+  const colors = zones.map((zone) => (/^#[0-9a-fA-F]{6}$/.test(zone.color) ? zone.color.toLowerCase() : "#c9c0b0"));
+  return { cells, colors };
 }
 
 // The text of the link a person shares: what they paste in a chat.

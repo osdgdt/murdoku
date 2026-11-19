@@ -49,4 +49,6 @@ export default {
     "Note: “Delete my cloud data” does not delete the cases you have published: they stay online under your nickname until you delete them from the database.",
   "Attenzione: hai {count} casi pubblicati nel database dei casi. Cancellare i dati NON li elimina: restano online col tuo nickname finché non li elimini dalla finestra «Pubblica» dell'editor.":
     "Note: you have {count} cases published in the case database. Deleting your data does NOT delete them: they stay online under your nickname until you delete them from the editor's “Publish” window.",
+  "Un caso pubblicato compare nell'elenco dei casi della community, che chiunque può sfogliare e filtrare (anche per nickname dell'autore). Se non vuoi che compaia nell'elenco togli la spunta «Mostra nell'elenco dei casi della community» nella finestra «Pubblica»: il caso resta raggiungibile solo da chi ne conosce il codice o il link, e tu lo vedi sempre in «I miei casi».":
+    "A published case appears in the list of community cases, which anyone can browse and filter (also by the author's nickname). If you do not want it in the list, untick “Show in the list of community cases” in the “Publish” window: the case is then reachable only by those who know its code or link, and you always see it in “My cases”.",
 };

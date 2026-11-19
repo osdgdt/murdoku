@@ -25,6 +25,8 @@ const EXTRA = {
   "editor.html": ["glossary", "community"],
   // (publishing and opening a case by its code)
   "player.html": ["community"],
+  // (the list of the cases published by other players)
+  "community.html": ["community"],
   "tutorial.html": ["tutorial"],
   "privacy.html": ["privacy"],
   "campaign.html": ["campaign"],

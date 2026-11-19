@@ -16,6 +16,8 @@ import {
   contentHash,
   serializeBody,
   summarizePuzzle,
+  buildPreview,
+  inGallery,
   caseLink,
 } from "../src/community/casePolicy.js";
 import { readRepoFile } from "./helpers/read-file.js";
@@ -217,6 +219,54 @@ export const tests = [
         caseLink("ACDEFGHJ", "https://esempio.github.io/murdoku/editor.html"),
         "https://esempio.github.io/murdoku/player.html?c=ACDEFGHJ"
       );
+    },
+  },
+  {
+    name: "visibilità: di default un caso è in elenco; `listed` deve essere vero o falso; in galleria solo un caso attivo e in elenco",
+    fn: () => {
+      assertEqual(validatePublishMeta(goodMeta).meta.listed, true);
+      assertEqual(validatePublishMeta({ ...goodMeta, listed: false }).meta.listed, false);
+      assertEqual(validatePublishMeta({ ...goodMeta, listed: true }).meta.listed, true);
+      assertEqual(codes(validatePublishMeta({ ...goodMeta, listed: "no" })), "listed:invalid");
+      assertEqual(codes(validatePublishMeta({ ...goodMeta, listed: 0 })), "listed:invalid");
+      assertEqual(inGallery("active", true), true);
+      assertEqual(inGallery("active", undefined), true, "una scheda di prima della galleria è in elenco");
+      assertEqual(inGallery("active", false), false);
+      for (const status of ["withdrawn", "hidden"]) assertEqual(inGallery(status, true), false, status);
+    },
+  },
+  {
+    name: "mini-mappa: una lettera per casella (stanza in base 36, «-» senza stanza, «#» bloccata) e i colori delle stanze; niente altro",
+    fn: async () => {
+      const puzzle = await load("faro.en");
+      const preview = buildPreview(puzzle);
+      const { rows, cols } = puzzle.grid.size;
+      assertEqual(preview.cells.length, rows * cols);
+      assertEqual(preview.colors.length, puzzle.grid.zones.length);
+      assert(preview.colors.every((c) => /^#[0-9a-f]{6}$/.test(c)));
+      assertEqual(summarizePuzzle(puzzle).preview.cells, preview.cells, "la scheda la porta");
+      // the first cell's room is the room it says
+      const first = puzzle.grid.cells[0][0];
+      assertEqual(
+        preview.cells[0],
+        first.zoneId ? "0123456789abcdefghijklmnopqrstuvwxyz"[puzzle.grid.zones.findIndex((z) => z.id === first.zoneId)] : "-"
+      );
+      // blocked cells, cells with no room, an unsafe colour
+      const odd = JSON.parse(JSON.stringify(puzzle));
+      odd.grid.cells[0][0] = { zoneId: null, objectId: null, blocked: true };
+      odd.grid.cells[0][1] = { zoneId: null, objectId: null, blocked: false };
+      odd.grid.zones[0].color = "red; background:url(x)";
+      const out = buildPreview(odd);
+      assertEqual(out.cells.slice(0, 2), "#-");
+      assertEqual(out.colors[0], "#c9c0b0", "un colore strano diventa un grigio");
+      // no rooms at all, or too many: no preview
+      const none = JSON.parse(JSON.stringify(puzzle));
+      none.grid.zones = [];
+      assertEqual(buildPreview(none), null);
+      const many = JSON.parse(JSON.stringify(puzzle));
+      many.grid.zones = Array.from({ length: 37 }, (_, i) => ({ id: `z${i}`, name: `z${i}`, color: "#aabbcc" }));
+      assertEqual(buildPreview(many), null);
+      assertEqual(buildPreview(null), null);
     },
   },
 ];

@@ -45,16 +45,40 @@ export const setDoc = async (ref, value, options) => {
   save(db);
 };
 export const deleteDoc = async (ref) => { const db = load(); delete db[ref.path]; save(db); };
-export const orderBy = (field) => ({ __order: field });
+export const orderBy = (field, dir = "asc") => ({ __order: field, dir });
 export const limit = (n) => ({ __limit: n });
+export const where = (field, op, value) => ({ __where: [field, op, value] });
+export const startAfter = (snapshot) => ({ __after: snapshot });
 export const query = (col, ...parts) => ({ ...col, parts });
+const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+const matches = (actual, op, value) => {
+  if (op === "==") return actual === value;
+  if (op === "array-contains") return Array.isArray(actual) && actual.includes(value);
+  if (op === ">=") return actual !== undefined && actual >= value;
+  if (op === "<") return actual !== undefined && actual < value;
+  throw new Error("fake Firestore: unsupported operator " + op);
+};
+// (like the real one: a query ordered by a field only returns the documents that have it)
 export const getDocs = async (q) => {
   const db = load();
   const prefix = q.path + "/";
+  const parts = q.parts || [];
   let rows = Object.entries(db).filter(([p]) => p.startsWith(prefix) && !p.slice(prefix.length).includes("/")).map(([p, data]) => ({ p, data }));
-  for (const part of q.parts || []) if (part.__order) rows.sort((a, b) => a.data[part.__order] - b.data[part.__order]);
-  for (const part of q.parts || []) if (part.__limit) rows = rows.slice(0, part.__limit);
-  return { docs: rows.map(({ p, data }) => snap({ id: p.split("/").pop(), path: p }, data)) };
+  for (const part of parts) if (part.__where) rows = rows.filter(({ data }) => matches(data[part.__where[0]], part.__where[1], part.__where[2]));
+  const orders = parts.filter((part) => part.__order);
+  rows = rows.filter(({ data }) => orders.every((o) => data[o.__order] !== undefined));
+  rows.sort((a, b) => {
+    for (const o of orders) {
+      const c = compare(a.data[o.__order], b.data[o.__order]);
+      if (c) return o.dir === "desc" ? -c : c;
+    }
+    return 0;
+  });
+  const after = parts.find((part) => part.__after);
+  if (after) rows = rows.slice(rows.findIndex((r) => r.p === after.__after.ref.path) + 1);
+  const cap = parts.find((part) => part.__limit);
+  if (cap) rows = rows.slice(0, cap.__limit);
+  return { docs: rows.map(({ p, data }) => snap({ id: p.split("/").pop(), path: p }, data)), size: rows.length };
 };
 export const writeBatch = () => {
   const ops = [];

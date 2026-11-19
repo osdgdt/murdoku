@@ -5,6 +5,8 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
+import { installFakeFirebase } from "./lib/fakeFirebase.mjs";
+import { sampleCases } from "./lib/sampleCases.mjs";
 
 const root = path.resolve(import.meta.dirname, "../..");
 const axeSource = await readFile(path.join(root, "node_modules/axe-core/axe.min.js"), "utf8");
@@ -85,6 +87,16 @@ const PAGES = [
     },
     ".publish-dialog [data-key=publish-qr] svg",
   ],
+  // the list of the cases other players published (with a made-up Firebase and a few cards in it)
+  [
+    "community (list)",
+    "community.html",
+    async (page) => {
+      await page.evaluate((cards) => localStorage.setItem("__fake_db", JSON.stringify(cards)), sampleCases());
+      await page.reload();
+    },
+    ".case-card [data-key=play]",
+  ],
   ["privacy", "privacy.html"],
   ["tutorial", "tutorial.html"],
 ];
@@ -94,6 +106,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 try {
   const context = await browser.newContext({ locale: "en-US", viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
   const page = await context.newPage();
+  await installFakeFirebase(page);
   await page.goto(`${base}/player.html?import=test/fixtures/tutorial.en.murdoku.json`);
   await page.waitForSelector("#board [role=gridcell]");
   const tutorialId = new URL(page.url()).searchParams.get("id");

@@ -59,6 +59,13 @@ jobs:
         run: |
           npm ci --prefix test/rules
           npm ci --prefix functions
+      # Says what is wrong with the key (empty, cut, wrong project, refused by Google) instead of firebase-tools' generic
+      # "Failed to authenticate"; it prints nothing secret.
+      - name: Check the service-account key
+        if: steps.key.outputs.present == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node tools/check-service-account.mjs "$FIREBASE_PROJECT"
       - name: Deploy functions, rules and indexes
         if: steps.key.outputs.present == 'true'
         env:

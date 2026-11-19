@@ -188,7 +188,27 @@ service cloud.firestore {
         allow get: if isActiveCase(code) || isCaseAuthor(code) || isOwner();
         allow list, write: if false;
       }
+      // "I like it": the page asks whether THIS person did (to show the heart); only the functions write it, and the counts
+      // are in the card. Who played is the server's, nobody reads it.
+      match /likes/{userId} {
+        allow get: if isSignedIn() && request.auth.uid == userId;
+        allow list, write: if false;
+      }
+      match /plays/{userId} { allow read, write: if false; }
     }
+    // Reports of a case (who sent them and what they say): only the administrators read them, only the functions write them.
+    match /reports/{reportId} {
+      allow get: if isOwner();
+      allow list: if isOwner() && request.query.limit <= 50;
+      allow write: if false;
+    }
+    // Who a person follows (for their feed): theirs to read, written by the functions that also count the followers.
+    match /users/{userId}/following/{authorId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if isSignedIn() && request.auth.uid == userId && request.query.limit <= 30;
+      allow write: if false;
+    }
+    match /users/{userId}/social/{doc} { allow read, write: if false; }
     // The author's public name and how many cases they have out.
     match /authors/{userId} {
       allow get: if true;

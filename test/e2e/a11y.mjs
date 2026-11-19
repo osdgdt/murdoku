@@ -97,6 +97,36 @@ const PAGES = [
     },
     ".case-card [data-key=play]",
   ],
+  // the window to report a case (signed in, with a nickname), and the administrators' page (an administrator, a case with reports)
+  [
+    "community (report window)",
+    "community.html",
+    async (page) => {
+      await page.evaluate((cards) => {
+        localStorage.setItem("__fake_db", JSON.stringify({ ...cards, "profiles/uid-r": { nickname: "Lettore", key: "lettore" } }));
+        localStorage.setItem("__fake_user", JSON.stringify({ uid: "uid-r", email: "r@esempio.test" }));
+      }, sampleCases());
+      await page.reload();
+      await page.waitForSelector(".case-card [data-key=report]");
+      await page.locator(".case-card [data-key=report]").first().click();
+    },
+    "dialog [data-key=report-go]",
+  ],
+  [
+    "moderation (administrator)",
+    "moderation.html",
+    async (page) => {
+      const cards = sampleCases();
+      cards["cases/CDEFGHJK"].status = "hidden";
+      cards["cases/CDEFGHJK"].reportsOpen = 3;
+      await page.evaluate((docs) => {
+        localStorage.setItem("__fake_db", JSON.stringify({ ...docs, "admins/adm": { since: 1 } }));
+        localStorage.setItem("__fake_user", JSON.stringify({ uid: "adm", email: "adm@esempio.test" }));
+      }, cards);
+      await page.reload();
+    },
+    "[data-key=mod-list] .case-card",
+  ],
   ["privacy", "privacy.html"],
   ["tutorial", "tutorial.html"],
 ];

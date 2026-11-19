@@ -1,4 +1,5 @@
-// The server side of the shared case database: publish a case, publish a new revision of it, withdraw or delete it.
+// The server side of the shared case database: publish a case, publish a new revision of it, withdraw or delete it (this
+// file); likes, who played, following (social.js); reports, moderation, deleting an account (moderation.js).
 // Everything that matters is decided HERE, with the same rules module the page uses (casePolicy.js, copied into
 // functions/shared by tools/build-functions.mjs): the page's own checks are a courtesy to the author.
 //
@@ -10,6 +11,9 @@
 //   store.runTransaction(async (tx))   tx.get(path) -> { exists, data }; tx.create(path, data) (fails if it exists);
 //                                      tx.set(path, data); tx.update(path, patch); tx.delete(path)
 //   store.deleteTree(path)             deletes a document and everything below it
+//   store.list(collection)             -> [{ path, data }] every document of a collection
+//   store.where(collection, field, v)  -> [{ path, data }] the documents of a collection whose `field` equals v
+//   store.groupWhere(group, field, v)  -> [{ path, data }] the same across every collection called `group`
 //
 // Paths written (see firestore.rules, "Shared cases"):
 //   cases/{CODE}                       the public card of the case (title, summary, author, counters, status...)
@@ -19,36 +23,25 @@
 //   users/{uid}/published/{CODE}       the author's own list (also what the account deletion needs)
 //   users/{uid}/publishLog/{day}       how many times today (the per-day limits)
 
-export class CaseError extends Error {
-  // `code` is a Firebase callable error code ("invalid-argument", "failed-precondition", ...), `reason` says what
-  // exactly, for the page to word it.
-  constructor(code, reason, details = {}) {
-    super(`${code}: ${reason}`);
-    this.name = "CaseError";
-    this.code = code;
-    this.reason = reason;
-    this.details = { reason, ...details };
-  }
-}
-const fail = (code, reason, details) => {
-  throw new CaseError(code, reason, details);
-};
+import {
+  CaseError,
+  fail,
+  DEFAULT_LIMITS,
+  makeContext,
+  casePath,
+  revisionPath,
+  hashPath,
+  authorPath,
+  publishedPath,
+  logPath,
+} from "./common.js";
+import { createSocialHandlers } from "./social.js";
+import { createModerationHandlers } from "./moderation.js";
 
-export const DEFAULT_LIMITS = {
-  publishPerDay: 5,
-  updatePerDay: 20,
-  activeCasesMax: 100,
-  revisionsMax: 50,
-};
+export { CaseError, DEFAULT_LIMITS };
 
-const casePath = (code) => `cases/${code}`;
-const revisionPath = (code, n) => `cases/${code}/revisions/${n}`;
-const hashPath = (hash) => `caseHashes/${hash}`;
-const authorPath = (uid) => `authors/${uid}`;
-const publishedPath = (uid, code) => `users/${uid}/published/${code}`;
-const logPath = (uid, day) => `users/${uid}/publishLog/${day}`;
-
-export function createHandlers({ store, policy, now = () => new Date(), randomInt, limitsOverride = null }) {
+export function createHandlers(deps) {
+  const { store, policy, now = () => new Date(), randomInt } = deps;
   const {
     LIMITS,
     isCaseCode,
@@ -61,24 +54,7 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
     summarizePuzzle,
     inGallery,
   } = policy;
-  const dayKey = () => now().toISOString().slice(0, 10);
-
-  async function readLimits() {
-    if (limitsOverride) return { ...DEFAULT_LIMITS, ...limitsOverride };
-    const config = await store.get("config/limits");
-    return { ...DEFAULT_LIMITS, ...(config.exists ? config.data : {}) };
-  }
-
-  const requireUser = (ctx) => {
-    if (!ctx?.uid) fail("unauthenticated", "sign-in-required");
-    return ctx.uid;
-  };
-
-  async function requireNickname(uid) {
-    const profile = await store.get(`profiles/${uid}`);
-    if (!profile.exists || typeof profile.data.nickname !== "string" || !profile.data.nickname) fail("failed-precondition", "no-nickname");
-    return profile.data.nickname;
-  }
+  const { dayKey, readLimits, requireUser, requireNickname } = makeContext(deps);
 
   // The case as it will be stored, or a refusal that names what is wrong.
   function checkInput(data) {
@@ -316,9 +292,10 @@ export function createHandlers({ store, policy, now = () => new Date(), randomIn
       tx.delete(hashPath(card.data.contentHash));
       tx.delete(publishedPath(uid, code));
     });
-    await store.deleteTree(casePath(code)); // the card and all its revisions
+    await store.deleteTree(casePath(code)); // the card, its revisions and who liked or played it
+    for (const report of await store.where("reports", "caseCode", code)) await store.runTransaction((tx) => tx.delete(report.path));
     return { code, deleted: true };
   }
 
-  return { publishCase, updateCase, withdrawCase, deleteCase };
+  return { publishCase, updateCase, withdrawCase, deleteCase, ...createSocialHandlers(deps), ...createModerationHandlers(deps) };
 }

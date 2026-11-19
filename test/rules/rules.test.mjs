@@ -366,6 +366,65 @@ test("shared cases: a withdrawn or hidden case, and its revisions, are for its a
   }
 });
 
+test("shared cases: a person reads only their own 'I like it' marker; who played, the reports and the follow summary are not for the page", async () => {
+  await seedCase("ACDEFGHJ", { inGallery: true });
+  await seed(async (db) => {
+    await setDoc(doc(db, "cases", "ACDEFGHJ", "likes", "reader"), { uid: "reader" });
+    await setDoc(doc(db, "cases", "ACDEFGHJ", "plays", "reader"), { uid: "reader", opened: true });
+    await setDoc(doc(db, "reports", "ACDEFGHJ_reader"), { caseCode: "ACDEFGHJ", reporterUid: "reader", reason: "spam", status: "open" });
+    await setDoc(doc(db, "admins", "moderator"), { since: 1 });
+    await setDoc(doc(db, "users", "reader", "following", "author"), { authorUid: "author", nick: "Gianna" });
+    await setDoc(doc(db, "users", "reader", "social", "summary"), { following: 1 });
+  });
+  await assertSucceeds(getDoc(doc(as("reader"), "cases", "ACDEFGHJ", "likes", "reader")));
+  await assertFails(getDoc(doc(as("author"), "cases", "ACDEFGHJ", "likes", "reader")));
+  await assertFails(getDoc(doc(anon(), "cases", "ACDEFGHJ", "likes", "reader")));
+  await assertFails(getDocs(query(collection(as("reader"), "cases", "ACDEFGHJ", "likes"), limit(5))));
+  await assertFails(setDoc(doc(as("reader"), "cases", "ACDEFGHJ", "likes", "reader"), { uid: "reader" }));
+  await assertFails(deleteDoc(doc(as("reader"), "cases", "ACDEFGHJ", "likes", "reader")));
+  for (const who of [anon(), as("reader"), as("author"), as("moderator")]) {
+    await assertFails(getDoc(doc(who, "cases", "ACDEFGHJ", "plays", "reader")));
+    await assertFails(getDoc(doc(who, "users", "reader", "social", "summary")));
+  }
+  // reports: the administrators only, and nobody writes them from the page
+  await assertSucceeds(getDoc(doc(as("moderator"), "reports", "ACDEFGHJ_reader")));
+  await assertSucceeds(getDocs(query(collection(as("moderator"), "reports"), where("caseCode", "==", "ACDEFGHJ"), limit(50))));
+  await assertFails(getDocs(query(collection(as("moderator"), "reports"), limit(51))));
+  for (const who of [anon(), as("reader"), as("author")]) {
+    await assertFails(getDoc(doc(who, "reports", "ACDEFGHJ_reader")));
+    await assertFails(getDocs(query(collection(who, "reports"), limit(10))));
+  }
+  await assertFails(setDoc(doc(as("reader"), "reports", "ACDEFGHJ_reader2"), { caseCode: "ACDEFGHJ", reporterUid: "reader" }));
+  await assertFails(setDoc(doc(as("moderator"), "reports", "ACDEFGHJ_x"), { caseCode: "ACDEFGHJ" }));
+  // who a person follows: theirs to read (30 at a time), nobody writes it from the page
+  await assertSucceeds(getDoc(doc(as("reader"), "users", "reader", "following", "author")));
+  await assertSucceeds(getDocs(query(collection(as("reader"), "users", "reader", "following"), limit(30))));
+  await assertFails(getDocs(query(collection(as("reader"), "users", "reader", "following"), limit(31))));
+  await assertFails(getDoc(doc(as("author"), "users", "reader", "following", "author")));
+  await assertFails(getDoc(doc(anon(), "users", "reader", "following", "author")));
+  await assertFails(setDoc(doc(as("reader"), "users", "reader", "following", "other"), { authorUid: "other" }));
+  await assertFails(deleteDoc(doc(as("reader"), "users", "reader", "following", "author")));
+});
+
+test("shared cases: the feed of the authors a person follows is a query on the gallery (in list, 30 authors)", async () => {
+  await seedCase("ACDEFGHJ", { inGallery: true, authorUid: "a1" });
+  await seedCase("KMNPQRTU", { inGallery: false, listed: false, authorUid: "a1" });
+  await seedCase("VWXY3466", { inGallery: true, authorUid: "a2" });
+  const feed = await assertSucceeds(
+    getDocs(
+      query(
+        collection(as("reader"), "cases"),
+        where("inGallery", "==", true),
+        where("authorUid", "in", ["a1", "a2"]),
+        orderBy("createdAt", "desc"),
+        limit(12)
+      )
+    )
+  );
+  assert.deepEqual(feed.docs.map((d) => d.id).sort(), ["ACDEFGHJ", "VWXY3466"]);
+  await assertFails(getDocs(query(collection(as("reader"), "cases"), where("authorUid", "in", ["a1", "a2"]), limit(12)))); // without the gallery
+});
+
 test("shared cases: authors are public (listed 30 at a time), the author's own list is private, the server's bookkeeping is out of reach", async () => {
   await seed(async (db) => {
     await setDoc(doc(db, "authors", "author"), { nick: "Gianna", nickLower: "gianna", caseCount: 1 });

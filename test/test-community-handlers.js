@@ -567,4 +567,17 @@ export const tests = [
       assertEqual(await flag(unlisted.code), false, "una revisione non lo mette in elenco");
     },
   },
+  {
+    name: "amministratore: il titolare è lo stesso uid nelle regole, nelle funzioni e nella pagina",
+    fn: async () => {
+      const rules = await readRepoFile("firestore.rules");
+      const common = await readRepoFile("functions/src/common.js");
+      for (const uid of policy.OWNER_UIDS) {
+        assert(rules.includes(`"${uid}"`), "è nelle regole (isOwner)");
+        assert(common.includes(`"${uid}"`), "è nelle funzioni (OWNER_UIDS)");
+      }
+      assertEqual(policy.OWNER_UIDS.length, 1, "un solo titolare, in tutti e tre i posti");
+      assertEqual((rules.match(/request\.auth\.uid == "[A-Za-z0-9]+"/g) ?? []).length, 1);
+    },
+  },
 ];

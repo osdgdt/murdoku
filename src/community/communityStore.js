@@ -37,6 +37,23 @@ export const withdrawCase = (code, withdrawn = true) => call("withdrawCase", { c
 // -> { code, deleted: true }
 export const deleteCase = (code) => call("deleteCase", { code });
 
+// ---- the social side (signed in; the functions count, the page only asks) ------------------------------------------------
+// -> { code, liked, likes }
+export const setLike = (code, liked = true) => call("setLike", { code, liked });
+// event: "opened" | "solved" -> { counted, stats } (nothing is counted for the author's own plays or a case that is not public)
+export const recordPlay = (code, event) => call("recordPlay", { code, event });
+// -> { authorUid, following, followers }
+export const followAuthor = (authorUid, follow = true) => call("followAuthor", { authorUid, follow });
+// -> { bio }
+export const setAuthorProfile = (bio) => call("setAuthorProfile", { bio });
+// -> { code, reported, hidden }
+export const reportCase = ({ code, reason, note }) => call("reportCase", { code, reason, note });
+// the administrator's: action "hide" | "restore" | "delete" -> { code, status } or { code, deleted }
+export const moderateCase = (code, action) => call("moderateCase", { code, action });
+export const dismissReports = (code) => call("dismissReports", { code });
+// keepCases: true keeps the person's cases signed "Account eliminato"; false deletes them. -> what was done
+export const prepareAccountDeletion = (keepCases) => call("prepareAccountDeletion", { keepCases });
+
 // ---- reading (everybody) ------------------------------------------------------------------------------------------------
 // The card of a case: title, author, licence, revision... (small). Throws no-such-case / not-available. `any`: also
 // a case that is not online (withdrawn): only its author can read it (the rules), and the author's own dialog wants to.
@@ -57,8 +74,8 @@ export async function fetchCard(code, { any = false } = {}) {
 
 // The case itself, at the revision the card names: -> { card, puzzle } (the puzzle migrated, checked and with the id
 // every reader gives it: `shared_<CODE>`). The text is untrusted: size-capped and run through the shape check.
-export async function fetchCase(code) {
-  const card = await fetchCard(code);
+export async function fetchCase(code, { any = false } = {}) {
+  const card = await fetchCard(code, { any });
   let snap;
   try {
     snap = await getDoc(doc(db, "cases", code, "revisions", String(card.revision)));

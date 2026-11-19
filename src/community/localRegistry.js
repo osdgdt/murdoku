@@ -52,3 +52,10 @@ export function removeShared(code) {
 }
 
 export const listShared = () => Object.values(readMap(SHARED_KEY));
+
+// ---- whether this browser has seen a signed-in person --------------------------------------------------------------------
+// The player does not load Firebase for somebody who never signed in; once a page has seen a signed-in account it says so here,
+// and then the player counts the plays (and shows the heart as theirs). Only a hint: the server decides who is who.
+const SIGNED_IN_KEY = "murdoku:community:signedIn";
+export const wasSignedIn = () => readJson(SIGNED_IN_KEY, false) === true;
+export const setSignedIn = (value) => tryWriteJson(SIGNED_IN_KEY, Boolean(value));

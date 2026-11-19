@@ -18,6 +18,7 @@ export const LIMITS = {
   tagsMax: 3,
   bodyMaxBytes: 256 * 1024, // the case as published (the file limit of the app is 1 MiB; real cases are 7-22 KB)
   clueMax: 200,
+  noteMax: 280, // the note of a report
 };
 
 export const LANGS = ["it", "en"];
@@ -25,6 +26,35 @@ export const LICENSES = ["cc-by", "play-only"];
 // What an author can tag a case with (a fixed list: the gallery filters on it).
 export const TAGS = ["medievale", "moderno", "mistero", "horror", "umorismo", "famiglia", "storico", "fantasy-senza-magia"];
 const DIFFICULTIES = DIFFICULTY_LEVELS.map((d) => d.value).filter(Boolean);
+
+// The original owner of the project is an administrator even without a document in `admins` (the same uid as isOwner() in
+// firestore.rules and as OWNER_UIDS in functions/src/common.js: a test keeps the three alike).
+export const OWNER_UIDS = ["say3jOf6WkaXDmjyn3kmAKNYbCh1"];
+
+// What a report of a case can say (the reasons are codes: the page words them), and what the author's page can say.
+export const REPORT_REASONS = ["spoiler", "offensive", "spam", "broken", "copyright", "other"];
+
+// -> { ok: true, report: { reason, note } } or { ok: false, errors: [{ field, code }] }
+export function validateReport(raw) {
+  const errors = [];
+  if (!REPORT_REASONS.includes(raw?.reason)) errors.push({ field: "reason", code: "invalid" });
+  const note = raw?.note === undefined || raw?.note === null ? "" : String(raw.note).replace(/\s+/g, " ").trim();
+  if (note.length > LIMITS.noteMax) errors.push({ field: "note", code: "too-long" });
+  if (raw?.reason === "other" && note.length === 0) errors.push({ field: "note", code: "too-short" });
+  if (errors.length) return { ok: false, errors };
+  return { ok: true, report: { reason: raw.reason, note } };
+}
+
+// -> { ok: true, bio } (cleaned; may be empty) or { ok: false }
+export function validateBio(raw) {
+  const bio = String(raw ?? "")
+    // eslint-disable-next-line no-control-regex -- control characters are exactly what is being removed
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return bio.length > LIMITS.bioMax ? { ok: false } : { ok: true, bio };
+}
 
 // ---- the code -----------------------------------------------------------------------------------------------------
 // 8 characters from an alphabet without the look-alikes (no 0/O, 1/I/L, 5/S, 2/Z, 8/B) so that it can be read out

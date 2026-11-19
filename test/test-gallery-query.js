@@ -102,7 +102,15 @@ export const tests = [
         }
       }
       assert(checked > 1000, "le forme sono tutte controllate");
-      assertEqual(onDisk.indexes.length, 11, "undici indici: 5 filtri x 2 ordini + i casi di un autore");
+      assertEqual(onDisk.indexes.length, 26, "ventisei indici: 5 filtri x 5 ordini + i casi di un autore (e del feed)");
+      assertEqual(
+        onDisk.fieldOverrides
+          .map((o) => o.collectionGroup)
+          .sort()
+          .join(),
+        "likes,plays",
+        "chi ha messo mi piace o giocato, per cancellare l'account"
+      );
       // a few by hand, independent of the generator
       for (const wanted of [
         "inGallery:ASCENDING|createdAt:DESCENDING",
@@ -110,8 +118,35 @@ export const tests = [
         "lang:ASCENDING|createdAt:DESCENDING",
         "tags:CONTAINS|titleLower:ASCENDING",
         "authorUid:ASCENDING|createdAt:DESCENDING",
+        "lang:ASCENDING|stats.likes:DESCENDING",
+        "tags:CONTAINS|stats.opened:DESCENDING",
+        "inGallery:ASCENDING|stats.solved:DESCENDING",
       ])
         assert(have.has(wanted), `manca ${wanted}`);
+    },
+  },
+  {
+    name: "galleria: ordini per più giocati, più apprezzati e più risolti; il feed degli autori seguiti (al massimo 30, in elenco, dal più recente)",
+    fn: () => {
+      assertEqual(text(buildCaseQuery({ sort: "played" }).orderBy), text(["stats.opened", "desc"]));
+      assertEqual(text(buildCaseQuery({ sort: "liked" }).orderBy), text(["stats.likes", "desc"]));
+      assertEqual(text(buildCaseQuery({ sort: "solved" }).orderBy), text(["stats.solved", "desc"]));
+      const many = Array.from({ length: 40 }, (_, i) => `a${i}`);
+      const feed = buildCaseQuery({ scope: "feed", authors: many, lang: "it" });
+      assertEqual(text(feed.where[0]), text(["inGallery", "==", true]));
+      assertEqual(feed.where[1][1], "in");
+      assertEqual(feed.where[1][2].length, 30, "il tetto di Firestore per un `in`");
+      assertEqual(text(feed.orderBy), text(["createdAt", "desc"]));
+      assertEqual(feed.where.length, 2, "il feed non ha altri filtri");
+      for (const bad of [undefined, [], [""], [null, 5]]) {
+        let threw = false;
+        try {
+          buildCaseQuery({ scope: "feed", authors: bad });
+        } catch {
+          threw = true;
+        }
+        assert(threw, `senza autori non c'è un feed (${text(bad)})`);
+      }
     },
   },
 ];

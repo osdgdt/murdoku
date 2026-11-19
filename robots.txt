@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /campaign-editor.html
 Disallow: /print.html
+Disallow: /moderation.html
 
 Sitemap: https://osdgdt.github.io/murdoku/sitemap.xml

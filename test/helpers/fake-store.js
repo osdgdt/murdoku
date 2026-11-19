@@ -49,6 +49,25 @@ export function createFakeStore(initial = {}) {
       }
       return result;
     },
+    // reads outside a transaction (what the account deletion and the administrator's actions need)
+    async list(collection) {
+      const prefix = `${collection}/`;
+      return [...docs.entries()]
+        .filter(([path]) => path.startsWith(prefix) && !path.slice(prefix.length).includes("/"))
+        .map(([path, data]) => ({ path, data: clone(data) }));
+    },
+    async where(collection, field, value) {
+      return (await this.list(collection)).filter((doc) => doc.data[field] === value);
+    },
+    async groupWhere(group, field, value) {
+      return [...docs.entries()]
+        .filter(([path]) => {
+          const parts = path.split("/");
+          return parts.length % 2 === 0 && parts[parts.length - 2] === group;
+        })
+        .filter(([, data]) => data[field] === value)
+        .map(([path, data]) => ({ path, data: clone(data) }));
+    },
     async deleteTree(path) {
       for (const key of [...docs.keys()]) if (key === path || key.startsWith(`${path}/`)) docs.delete(key);
     },

@@ -102,6 +102,24 @@ npm ci --prefix test/rules && npm ci --prefix functions
 test/rules/node_modules/.bin/firebase deploy --only functions,firestore:rules,firestore:indexes --project murdoku-61284
 ```
 
+## 4 ter. «Mi piace», segnalazioni e moderazione (tappe 3 e 4)
+
+- **Chi è amministratore.** Il titolare del progetto (l'`uid` scritto in `firestore.rules` e in `functions/src/common.js`) e chi ha un
+  documento `admins/{uid}` in Firestore (si crea a mano dalla console, come per le campagne). Gli amministratori vedono in
+  **Casi della community** la scheda «Tutti, anche nascosti» e il pulsante **🛡 Moderazione** (`moderation.html`), dove ci sono i
+  casi con segnalazioni aperte e quelli nascosti, con le segnalazioni di ciascuno e i pulsanti Nascondi, Ripristina, Respingi le
+  segnalazioni, Elimina.
+- **Segnalazioni.** Chiunque abbia accesso e nickname segnala un caso (un motivo e una nota); **a 3 persone diverse il caso si
+  nasconde da solo** finché un amministratore non lo controlla. Si regola con `reportThreshold` in `config/limits`
+  (anche `reportsPerDay`, `followMax`).
+- **Contatori.** «Hanno provato» e «risolti» contano ogni persona con accesso una volta sola (mai l'autore); «mi piace» uno per
+  persona. Sono numeri nella scheda del caso, calcolati dalle funzioni: non si scrivono dal browser.
+- **Cancellazione dell'account.** Da Privacy, «Cancella i miei dati nel cloud» chiede cosa fare dei casi pubblicati (eliminarli o
+  lasciarli con autore «Account eliminato», senza il nickname nemmeno nel testo delle revisioni); la funzione
+  `prepareAccountDeletion` toglie anche «mi piace», segnalazioni, autori seguiti. Se fallisce non si cancella nient'altro.
+- **Indici.** Il rilascio crea anche gli indici per gli ordini «più giocati / apprezzati / risolti» e per le novità degli autori
+  seguiti, e un'eccezione sul campo `uid` dei «mi piace» e delle partite, che serve alla cancellazione dell'account.
+
 ## 4 bis. Aggiornare il backend dopo una nuova tappa (Cloud Shell)
 
 Ogni tappa che cambia le funzioni, le regole o gli indici richiede un nuovo rilascio. Da Cloud Shell (progetto

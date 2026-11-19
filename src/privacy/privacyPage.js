@@ -44,19 +44,33 @@ qs("#clear-cloud-btn").addEventListener("click", async () => {
     if (
       !confirm(
         t(
-          "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati, i contrassegni delle statistiche e il nickname con le partite della sfida del giorno dell'account {email}?",
+          "Cancellare dal cloud i progressi delle campagne, i traguardi sincronizzati, i contrassegni delle statistiche e il nickname con le partite della sfida del giorno dell'account {email}? Verranno tolti anche i tuoi «mi piace», le tue segnalazioni e gli autori che segui.",
           { email: current.email }
-        ) +
-          (published > 0
-            ? "\n\n" +
-              t(
-                "Attenzione: hai {count} casi pubblicati nel database dei casi. Cancellare i dati NON li elimina: restano online col tuo nickname finché non li elimini dalla finestra «Pubblica» dell'editor.",
-                { count: published }
-              )
-            : "")
+        )
       )
     )
       return;
+    // The cases this person published: delete them or leave them, signed "Account eliminato"? Asked only when there are some.
+    let keepCases = false;
+    if (published > 0) {
+      const choice = await askWhatToDoWithCases(published);
+      if (!choice) return;
+      keepCases = choice === "keep";
+    }
+    // What only the server can delete (the cases, the author's page, likes, follows, reports) goes first, and if it fails nothing
+    // else is deleted: a half-deleted account is worse than a clear "try again".
+    try {
+      const { prepareAccountDeletion } = await import("../community/communityStore.js");
+      await prepareAccountDeletion(keepCases);
+    } catch (err) {
+      say(
+        t("Non sono riuscito a cancellare i dati del database dei casi ({reason}): non ho cancellato nient'altro. Riprova tra poco.", {
+          reason: err?.reason ?? "?",
+        }),
+        "violation"
+      );
+      return;
+    }
     const removed = await deleteCloudData(current.uid);
     let message = t("Fatto: {count} elementi cancellati dal cloud.", { count: removed });
     if (confirm(t("Vuoi anche eliminare l'accesso con Google a questo sito (l'account Google resta invariato)?"))) {
@@ -76,3 +90,41 @@ qs("#clear-cloud-btn").addEventListener("click", async () => {
     say(t("Operazione non riuscita: {message}", { message: describeAuthError(err) }), "violation");
   }
 });
+
+// "What do I do with the cases I published?": delete them, or leave them signed "Account eliminato", or stop. -> "delete" | "keep" | null
+function askWhatToDoWithCases(count) {
+  return new Promise((resolve) => {
+    const dialog = el("dialog", { class: "publish-dialog", "aria-labelledby": "keep-title" });
+    let answer = null;
+    const pick = (value) => () => {
+      answer = value;
+      dialog.close();
+    };
+    dialog.append(
+      el("h2", { id: "keep-title" }, t("Cosa faccio dei tuoi casi pubblicati?")),
+      el(
+        "p",
+        {},
+        count === 1
+          ? t(
+              "Hai pubblicato 1 caso. Puoi eliminarlo oppure lasciarlo online con autore «Account eliminato»: il tuo nickname sparisce dal caso e da ogni sua revisione."
+            )
+          : t(
+              "Hai pubblicato {count} casi. Puoi eliminarli oppure lasciarli online con autore «Account eliminato»: il tuo nickname sparisce dai casi e da ogni loro revisione.",
+              { count }
+            )
+      ),
+      el("div", { class: "publish-actions" }, [
+        el("button", { type: "button", "data-key": "keep-cancel", onClick: pick(null) }, t("Annulla")),
+        el("button", { type: "button", "data-key": "keep-keep", onClick: pick("keep") }, t("Lasciali come «Account eliminato»")),
+        el("button", { type: "button", class: "danger", "data-key": "keep-delete", onClick: pick("delete") }, t("Eliminali")),
+      ])
+    );
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      resolve(answer);
+    });
+    document.body.appendChild(dialog);
+    dialog.showModal();
+  });
+}

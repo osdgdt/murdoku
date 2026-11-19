@@ -25,6 +25,7 @@ function saveCopy(code, card, puzzle) {
     title: card.title,
     savedAt: Date.now(),
     remixOf: card.remixOf ?? null,
+    status: card.status ?? "active", // not "active" when it is the author or an administrator looking at a case that is not public
   });
 }
 
@@ -36,8 +37,17 @@ export async function openSharedCode(raw) {
   if (store.get(puzzleId)) return { puzzleId, code };
   try {
     const { fetchCase } = await loadCommunity();
-    const { card, puzzle } = await fetchCase(code);
-    saveCopy(code, card, puzzle);
+    let found;
+    try {
+      found = await fetchCase(code);
+    } catch (err) {
+      // A case that is withdrawn or hidden is readable by its author and by the administrators (the rules decide): they are
+      // tried only by a browser that has seen a signed-in account, with the sign-in module loaded so that the request carries it.
+      if (reasonOf(err) !== "not-available" || !registry.wasSignedIn()) throw err;
+      await import("../auth/googleAuth.js");
+      found = await fetchCase(code, { any: true });
+    }
+    saveCopy(code, found.card, found.puzzle);
     return { puzzleId, code };
   } catch (err) {
     return { error: describeReason(reasonOf(err), err?.details) };
@@ -64,4 +74,15 @@ export async function applyNewerRevision(code) {
   store.remove(sharedPuzzleId(code));
   saveCopy(code, card, puzzle);
   return card;
+}
+
+// The card of a case, for the panel above the board: the counters, the author. null when it cannot be read.
+export async function loadCard(code) {
+  try {
+    if (registry.wasSignedIn()) await import("../auth/googleAuth.js"); // so that the request carries the account (a case that is not public)
+    const { fetchCard } = await loadCommunity();
+    return await fetchCard(code, { any: registry.wasSignedIn() });
+  } catch {
+    return null;
+  }
 }

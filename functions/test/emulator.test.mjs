@@ -150,3 +150,56 @@ test("limiti: oltre le pubblicazioni del giorno si rifiuta (letti da config/limi
   assert.equal(third.error?.details?.reason, "limit-per-day");
   await db.doc("config/limits").delete();
 });
+
+test("sociale e moderazione per davvero: mi piace e giocato sul Firestore vero, tre segnalazioni nascondono il caso, l'amministratore lo ripristina, la cancellazione dell'account trova i mi piace tra tutti i casi", async () => {
+  const author = await signUp("autore@esempio.it");
+  await setup(author, "Autrice");
+  const published = await call("publishCase", { puzzle: variant("soc"), puzzleId: fixture.id, meta: META }, author);
+  const code = published.result.code;
+  const readers = [];
+  for (const [i, nick] of ["Uno", "Due", "Tre"].entries()) {
+    const reader = await signUp(`lettore${i}@esempio.it`);
+    await db.doc(`profiles/${reader.uid}`).set({ nickname: nick, key: nick.toLowerCase() });
+    readers.push(reader);
+  }
+  const [one, two] = readers;
+
+  assert.equal((await call("setLike", { code, liked: true }, one)).result.likes, 1);
+  assert.equal((await call("setLike", { code, liked: true }, one)).result.likes, 1, "ripetere non cambia nulla");
+  assert.equal((await call("recordPlay", { code, event: "solved" }, one)).result.counted, true);
+  assert.equal((await call("setLike", { code, liked: true }, author)).error?.details?.reason, "own-case");
+  let card = (await db.doc(`cases/${code}`).get()).data();
+  assert.deepEqual({ ...card.stats }, { opened: 1, solved: 1, likes: 1 });
+
+  assert.equal((await call("followAuthor", { authorUid: author.uid }, two)).result.followers, 1);
+  assert.equal((await db.doc(`authors/${author.uid}`).get()).data().followers, 1);
+
+  // three different people report it: hidden at once
+  for (const reader of readers) await call("reportCase", { code, reason: "spam" }, reader);
+  card = (await db.doc(`cases/${code}`).get()).data();
+  assert.equal(`${card.status}/${card.inGallery}/${card.reportsOpen}`, "hidden/false/3");
+  assert.equal((await db.collection("reports").where("caseCode", "==", code).get()).size, 3);
+
+  // an ordinary account is not an administrator; an account listed in `admins` is
+  assert.equal((await call("moderateCase", { code, action: "restore" }, one)).error?.status, "PERMISSION_DENIED");
+  const admin = await signUp("capo@esempio.it");
+  await db.doc(`admins/${admin.uid}`).set({ since: 1 });
+  assert.equal((await call("dismissReports", { code }, admin)).result.status, "active");
+  card = (await db.doc(`cases/${code}`).get()).data();
+  assert.equal(`${card.status}/${card.inGallery}/${card.reportsOpen}`, "active/true/0");
+
+  // the reader who liked it deletes the account: the like is found among all the cases (a collection group query)
+  const out = await call("prepareAccountDeletion", { keepCases: false }, one);
+  assert.equal(out.result.likes, 1, JSON.stringify(out));
+  card = (await db.doc(`cases/${code}`).get()).data();
+  assert.equal(card.stats.likes, 0);
+  assert.equal((await db.doc(`cases/${code}/likes/${one.uid}`).get()).exists, false);
+
+  // the author deletes the account keeping the case: anonymous, and the revision text too
+  const kept = await call("prepareAccountDeletion", { keepCases: true }, author);
+  assert.equal(kept.result.casesKept, 1, JSON.stringify(kept));
+  card = (await db.doc(`cases/${code}`).get()).data();
+  assert.equal(card.authorNick, "Account eliminato");
+  assert.equal(JSON.parse((await db.doc(`cases/${code}/revisions/1`).get()).data().json).author, "");
+  assert.equal((await db.doc(`authors/${author.uid}`).get()).exists, false);
+});

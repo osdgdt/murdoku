@@ -18,6 +18,7 @@ import { migratePuzzle } from "../src/model/migrations.js";
 import { solvePuzzle } from "../src/solver/solver.js";
 import { proposeClueSet, withClues, rng } from "../src/solver/composer.js";
 import { isOccupiable } from "../src/model/grid.js";
+import { isIntroductory } from "./lib/case-report.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const args = process.argv.slice(2);
@@ -87,7 +88,7 @@ if (!generate) {
     const { result, ms } = measure(puzzle);
     const level = result.status === "solved" ? result.level : `(${result.status}${result.level ? `, ${result.level}` : ""})`;
     console.log(
-      short(file).slice(0, 33).padEnd(34),
+      (short(file) + (isIntroductory(puzzle) ? " (introduttivo)" : "")).slice(0, 33).padEnd(34),
       String(puzzle.difficulty || "-").padEnd(11),
       String(level).padEnd(8),
       String(result.hardest ?? "-").padEnd(18),

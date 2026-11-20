@@ -64,6 +64,9 @@ export function pairProblems(it, en) {
 const levelIndex = (value) => DIFFICULTY_LEVELS.findIndex((d) => d.value === (value || ""));
 
 // `library`: also apply the house rules of library cases. `lang` is "it" | "en" (alphabetical order, accents).
+// The tutorial cases (ids `tutorial_*`, see src/player/libraryPanel.js) are introductory.
+export const isIntroductory = (puzzle) => typeof puzzle.id === "string" && puzzle.id.startsWith("tutorial_");
+
 export async function reportCase(raw, { lang = "it", library = true, maxNodes = 3_000_000, timeMs = null } = {}) {
   const errors = [];
   const warnings = [];
@@ -95,7 +98,12 @@ export async function reportCase(raw, { lang = "it", library = true, maxNodes = 
     const how = human
       ? `il ragionamento più difficile è «${techniqueName(human.hardest)}»`
       : `${analysis.forced} su ${analysis.total} personaggi si deducono subito, ${analysis.nodes} nodi`;
-    if (puzzle.difficulty && Math.abs(levelIndex(estimated) - levelIndex(puzzle.difficulty)) >= 2) {
+    // The tutorial is introductory: it teaches the reasonings one by one, so it stays «very easy» for a beginner even though
+    // one of its clues needs a Medium reasoning. It never gets a warning about its difficulty.
+    metrics.introductory = isIntroductory(puzzle);
+    if (metrics.introductory) {
+      // nothing to say
+    } else if (puzzle.difficulty && Math.abs(levelIndex(estimated) - levelIndex(puzzle.difficulty)) >= 2) {
       warnings.push(
         `difficoltà dichiarata «${difficultyLabel(puzzle.difficulty)}», ma il solutore la stima «${difficultyLabel(estimated)}» (${how}): ricontrolla`
       );

@@ -100,7 +100,9 @@ const EXAMPLES = {
     t("Bruno è già nella riga 2 e nella colonna 3: nessun altro può stare in nessuna casella di quella riga o di quella colonna."),
   onlyCandidate: () => t("Dopo gli altri ragionamenti a Carla resta una sola casella in cui gli indizi sono veri: è lì."),
   relationalKnown: () =>
-    t("«Bruno è in diagonale rispetto ad Anna» e Anna è già in B2: Bruno può stare solo in A1, C1, A3 o C3, se sono libere."),
+    t(
+      "«Bruno è in diagonale rispetto ad Anna» e Anna è già piazzata: Bruno può stare solo nelle caselle in diagonale rispetto a lei, se sono libere."
+    ),
   roomCapacity: () =>
     t("La cantina ha una sola casella libera e nessun altro può arrivarci: la vittima non può stare in cantina, perché lì sarebbe sola."),
   victimRule: () =>
@@ -113,7 +115,7 @@ const EXAMPLES = {
     t(
       "Ci sono sei personaggi su una griglia 6×6, quindi ogni riga ha una persona. Nella riga 4 solo Carla può ancora arrivare: Carla è nella riga 4."
     ),
-  subsets: () => t("Anna e Bruno possono stare solo in B2 o in C3: quelle due caselle sono loro, e Carla non può usarle."),
+  subsets: () => t("Anna e Bruno possono stare solo in due stesse caselle: quelle due caselle sono loro, e Carla non può usarle."),
   mutualSupport: () =>
     t(
       "«Bruno è nella stessa stanza di Anna», e nessuno dei due è ancora piazzato: Bruno può stare solo nelle stanze in cui Anna può davvero stare."
@@ -125,12 +127,15 @@ const EXAMPLES = {
     ),
   finishedBoard: () =>
     t(
-      "Restano da piazzare Carla e Dario. Provando le poche disposizioni possibili, «Carla è da sola con Dario» è vero solo se Carla sta in B2: altrove sarebbe falso."
+      "Restano da piazzare Carla e Dario. Provando le poche disposizioni possibili, «Carla è da sola con Dario» è vero solo con Carla in una certa casella: altrove sarebbe falso."
     ),
-  hypothesis: () => t("Si prova «Anna è in B2»: da lì Bruno non ha più nessuna casella. È una contraddizione, quindi Anna non è in B2."),
+  hypothesis: () =>
+    t(
+      "Si prova a mettere Anna in una casella: da lì Bruno non ha più nessuna casella. È una contraddizione, quindi Anna non può stare lì."
+    ),
   nestedHypothesis: () =>
     t(
-      "Si prova «Anna è in B2» e, dentro questa ipotesi, anche «Bruno è in C3»: solo allora si arriva a una contraddizione, e si scopre che Bruno non può stare in C3 se Anna è in B2."
+      "Si prova un'ipotesi e, dentro quell'ipotesi, un'altra: solo allora si arriva a una contraddizione, e la seconda ipotesi si rivela impossibile."
     ),
   exhaustive: () =>
     t("Quando nessun ragionamento basta, si provano le possibilità una per una fino a trovare l'unica che rispetta tutti gli indizi."),

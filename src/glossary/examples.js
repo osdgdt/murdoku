@@ -21,7 +21,7 @@ import { objectTypeTargetId } from "../model/icons.js";
 const OPEN = [".....", ".....", ".....", ".....", "....."];
 const TWO_ROOMS = ["AAABB", "AAABB", "AAABB", "AAABB", "AAABB"];
 const FOUR_ROOMS = ["AAABB", "AAABB", "CCCDD", "CCCDD", "CCCDD"];
-const ROOM_NAMES = () => ({ A: t("Cucina"), B: t("Salotto"), C: t("Studio"), D: t("Bagno") });
+export const ROOM_NAMES = () => ({ A: t("Cucina"), B: t("Salotto"), C: t("Studio"), D: t("Bagno") });
 
 // The stock cast: Anna is the one the clue is about ("owner"); the others are
 // there to make the board look like a real case.
@@ -630,7 +630,7 @@ export const ENTRIES = [
 
 // --- building a world and judging a clue -------------------------------------------
 
-function resolveRefs(value, ctx) {
+export function resolveRefs(value, ctx) {
   if (Array.isArray(value)) return value.map((v) => resolveRefs(v, ctx));
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, resolveRefs(v, ctx)]));
   if (typeof value !== "string" || value[0] !== "@") return value;
@@ -642,9 +642,10 @@ function resolveRefs(value, ctx) {
   throw new Error(`riferimento sconosciuto ${value}`);
 }
 
-// Turns an entry into { puzzle, clue, owner, fixed, layouts… }. Pure: no DOM.
-export function buildExample(entry) {
-  const world = entry.world;
+// A world ({ map, rooms, objects, cast }) as a real little puzzle: the grid with its rooms and objects, and the characters of
+// the cast (the owner first, if any). Pure: no DOM. Used by the clue examples (buildExample) and by the reasoning examples
+// (reasoning.js).
+export function buildWorld(world, ownerKey = null) {
   const rows = world.map.length;
   const cols = world.map[0].length;
   const puzzle = createPuzzle("Glossario");
@@ -673,13 +674,19 @@ export function buildExample(entry) {
   // Characters: the owner first (if any), then the rest of the cast in key order.
   const characters = {};
   const cast = world.cast || {};
-  const keys = [...(entry.owner ? [entry.owner] : []), ...Object.keys(cast).filter((k) => k !== entry.owner)];
+  const keys = [...(ownerKey ? [ownerKey] : []), ...Object.keys(cast).filter((k) => k !== ownerKey)];
   for (const key of keys) {
     const base = CAST[key];
     const character = addCharacter(puzzle, t(base.name), base.icon, !!cast[key]?.victim);
     if (cast[key]?.gender) character.gender = cast[key].gender;
     characters[key] = character;
   }
+  return { puzzle, grid, zones, objects, characters, cast };
+}
+
+// Turns an entry into { puzzle, clue, owner, fixed, layouts… }. Pure: no DOM.
+export function buildExample(entry) {
+  const { puzzle, grid, zones, objects, characters, cast } = buildWorld(entry.world, entry.owner);
 
   const ctx = { characters, objects, zones };
   const params = resolveRefs(entry.paramsOverride ? { ...entry.params, ...entry.paramsOverride } : entry.params, ctx);

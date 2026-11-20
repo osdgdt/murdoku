@@ -7,6 +7,9 @@
 //   - a case needs more than 25% more WORK than the baseline. Work is clue evaluations plus a charge per node
 //     (see lib.mjs): it does not depend on the machine and, unlike the node count, stays comparable when the
 //     search strategy changes (a node with forward checking costs ~15 times one without).
+// A third group measures the HUMAN solver (src/solver/techniques): the editor cases and the test fixtures, with the level it
+// finds, the hardest reasoning it needs and its work. It FAILS when a case that was solved is no longer solved, or its level
+// changes (the catalogue moved on purpose: rewrite the baseline), or it needs more than 25% more work.
 // Times are shown and compared as a warning only (they do depend on the machine): a case more than twice as
 // slow per unit of work as the baseline is flagged.
 // `npm run bench -- --update` rewrites the baseline (do it on purpose, after a change that should
@@ -18,6 +21,7 @@ globalThis.__MURDOKU_LANG__ = "it";
 const { benchCase, measure } = await import("./lib.mjs");
 const { migratePuzzle } = await import("../../src/model/migrations.js");
 const { SETTLE_MIN_REMAINING } = await import("../../src/solver/limits.js");
+const { humanSolve } = await import("../../src/solver/techniques/engine.js");
 
 const BASELINE = path.join(import.meta.dirname, "baseline.json");
 const CASES_DIR = path.join(import.meta.dirname, "cases");
@@ -26,6 +30,8 @@ const WORK_CAP = 5_000_000;
 const EDITOR_WORK_CAP = 200_000_000;
 const STRATEGY = { maxNodes: Infinity, forwardCheckMinRemaining: SETTLE_MIN_REMAINING };
 const WORK_TOLERANCE = 1.25;
+const HUMAN_WORK_CAP = 100_000_000;
+const FIXTURES_DIR = path.join(import.meta.dirname, "..", "fixtures");
 export const CASES = [
   [10, [1, 3, 4, 5, 6]],
   [12, [1, 2, 3, 4, 5]],
@@ -35,16 +41,18 @@ export const CASES = [
 
 const update = process.argv.includes("--update");
 let baseline = {
-  version: 3,
+  version: 4,
   workCap: WORK_CAP,
   editorWorkCap: EDITOR_WORK_CAP,
   strategy: { forwardCheckMinRemaining: SETTLE_MIN_REMAINING },
   cases: [],
   editorCases: [],
+  humanCases: [],
 };
 if (!update) baseline = JSON.parse(await readFile(BASELINE, "utf8"));
 const known = new Map(baseline.cases.map((c) => [`${c.n}/${c.seed}`, c]));
 const knownEditor = new Map((baseline.editorCases ?? []).map((c) => [c.file, c]));
+const knownHuman = new Map((baseline.humanCases ?? []).map((c) => [c.file, c]));
 
 let failed = false;
 
@@ -100,10 +108,54 @@ for (const file of files) {
   );
 }
 
+console.log("\nsolver umano (livello e ragionamento più difficile):");
+const humanRows = [];
+const humanFiles = [
+  ...files.map((f) => ({ file: f, dir: CASES_DIR })),
+  ...(await readdir(FIXTURES_DIR))
+    .filter((f) => f.endsWith(".murdoku.json"))
+    .sort()
+    .map((f) => ({ file: f, dir: FIXTURES_DIR })),
+];
+for (const { file, dir } of humanFiles) {
+  const puzzle = JSON.parse(await readFile(path.join(dir, file), "utf8"));
+  migratePuzzle(puzzle);
+  const t0 = performance.now();
+  const result = humanSolve(puzzle, { maxWork: HUMAN_WORK_CAP });
+  const now = {
+    file,
+    status: result.status,
+    level: result.level,
+    hardest: result.hardest,
+    work: result.work,
+    ms: Math.round(performance.now() - t0),
+  };
+  const before = knownHuman.get(file);
+  const notes = [];
+  if (before && !update) {
+    if (now.status !== before.status || now.level !== before.level || now.hardest !== before.hardest) {
+      failed = true;
+      notes.push(
+        `REGRESSIONE: prima ${before.status}/${before.level}/${before.hardest}, ora ${now.status}/${now.level}/${now.hardest} (se il catalogo è cambiato apposta: --update)`
+      );
+    } else if (now.work > before.work * WORK_TOLERANCE + 200) {
+      failed = true;
+      notes.push(`REGRESSIONE: lavoro ${before.work} → ${now.work} (+${Math.round((now.work / before.work - 1) * 100)}%)`);
+    }
+  }
+  humanRows.push(now);
+  console.log(
+    `${file.replace(".murdoku.json", "")}: ${now.status} · ${now.level ?? "-"} · ${now.hardest ?? "-"} · lavoro ${String(now.work).padStart(9)} · ${String(now.ms).padStart(6)} ms${
+      before ? `  (baseline: ${before.status}/${before.level}, lavoro ${before.work}, ${before.ms} ms)` : ""
+    }` + (notes.length ? "\n    " + notes.join("\n    ") : "")
+  );
+}
+
 if (update) {
   const keep = ({ solutions, capped, nodes, evaluations, work, ms }) => ({ solutions, capped, nodes, evaluations, work, ms });
   baseline.cases = rows.map((r) => ({ n: r.n, seed: r.seed, ...keep(r) }));
   baseline.editorCases = editorRows.map((r) => ({ file: r.file, ...keep(r) }));
+  baseline.humanCases = humanRows;
   await writeFile(BASELINE, JSON.stringify(baseline, null, 2) + "\n");
   console.log(`\nbaseline aggiornata: ${BASELINE}`);
 } else if (failed) {

@@ -62,6 +62,21 @@ export const tests = [
     },
   },
   {
+    name: "controllo caso: il tutorial è un caso introduttivo, nessun avviso sulla difficoltà anche se richiede un ragionamento di livello medio",
+    fn: async () => {
+      const puzzle = await load("tutorial.en");
+      const { errors, warnings, metrics } = await reportCase(puzzle, { lang: "en", library: false });
+      assertEqual(errors.length, 0, errors.join("; "));
+      assertEqual(metrics.introductory, true);
+      assertEqual(metrics.estimated, "medium", "il solutore umano lo vede Media");
+      assert(!has(warnings, /difficolt/), `nessun avviso sulla difficoltà atteso: ${warnings.join("; ")}`);
+      // an ordinary case with the same declared level does get the warning
+      const other = await load("faro.en");
+      other.difficulty = "expert";
+      assert(has((await reportCase(other, { lang: "en", library: false })).warnings, /difficoltà dichiarata/), "gli altri casi sì");
+    },
+  },
+  {
     name: "regole della libreria: un indizio sulla vittima, la vittima non ultima e un nome senza V sono segnalati",
     fn: async () => {
       const puzzle = await load("monastero.en");

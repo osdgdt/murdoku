@@ -10,6 +10,7 @@ import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
 import { CLUE_TYPES } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
+import { buildReasoningExample } from "./reasoning.js";
 import { LEVELS, TECHNIQUES } from "../solver/techniques/catalog.js";
 import { techniqueName, techniqueText, techniqueExample, levelLabel } from "../solver/techniques/names.js";
 import { FAMILIES, ENTRIES, buildExample, evaluateCells, evaluateGeneral, targetCells, exampleSentence, castName } from "./examples.js";
@@ -189,17 +190,63 @@ const LEVEL_BLURBS = {
   expert: () => t("Nessuna deduzione diretta basta: si prova un'ipotesi e si guarda se porta a una contraddizione."),
 };
 
+// The figure of a reasoning: a tiny real case and the step the solver makes on it, with the cells it keeps (green) and the
+// ones it rules out (×), and the clues it rests on.
+function reasoningFigure(tech) {
+  const example = buildReasoningExample(tech.id);
+  if (!example) return null;
+  const { puzzle, grid, focus, remaining, eliminated, placed, rings, clues, withNames } = example;
+  const statusByCell = new Map();
+  for (const key of remaining) statusByCell.set(key, "ok");
+  for (const { row, col } of eliminated) statusByCell.set(`${row},${col}`, "rule");
+  const fixed = new Map(example.placedBefore);
+  if (placed) fixed.set(focus.id, placed);
+  const built = { puzzle, grid };
+  const figure = el("figure", { class: "gl-figure" });
+  figure.appendChild(el("p", { class: "gl-sentence-label" }, t("Un esempio vero")));
+  figure.appendChild(castRow(built));
+  figure.appendChild(miniBoard(built, { statusByCell, fixed, targets: rings, labels: false }));
+  const items = [
+    legendItem(
+      "ok",
+      placed ? t("Qui {name} deve stare.", { name: focus.name }) : t("Qui {name} può ancora stare.", { name: focus.name }),
+      "✓"
+    ),
+  ];
+  if (eliminated.length > 0) items.push(legendItem("rule", t("Esclusa da questo ragionamento."), "×"));
+  if (rings.length > 0) items.push(legendItem("target", t("Ciò a cui punta un indizio.")));
+  figure.appendChild(el("ul", { class: "gl-legend" }, items));
+  if (withNames.length > 0) {
+    figure.appendChild(el("p", { class: "gl-caption" }, t("Il ragionamento guarda anche: {names}.", { names: withNames.join(", ") })));
+  }
+  figure.appendChild(el("p", { class: "gl-caption" }, t("Le altre caselle erano già escluse, da un indizio o da chi è già collocato.")));
+  if (clues.length > 0) {
+    figure.appendChild(
+      el("figcaption", { class: "gl-caption" }, [
+        el("strong", {}, t("Indizi usati:")),
+        el(
+          "ul",
+          { class: "gl-clue-list" },
+          clues.map((c) => el("li", {}, c.text))
+        ),
+      ])
+    );
+  }
+  return figure;
+}
+
 function renderTechniqueCard(tech) {
   const name = techniqueName(tech.id);
   const text = techniqueText(tech.id);
   const example = techniqueExample(tech.id);
-  const card = el("article", { class: "gl-card text-only", id: `reasoning-${tech.id}` }, [
+  const card = el("article", { class: "gl-card", id: `reasoning-${tech.id}` }, [
     el("header", { class: "gl-card-head" }, [el("h3", {}, name), el("span", { class: "gl-badge general" }, levelLabel(tech.level))]),
     el("div", { class: "gl-body" }, [
       el("div", { class: "gl-text" }, [
         el("p", { class: "gl-explain" }, text),
         el("blockquote", { class: "gl-sentence" }, [el("span", { class: "gl-sentence-label" }, t("Esempio")), el("p", {}, example)]),
       ]),
+      reasoningFigure(tech),
     ]),
   ]);
   card.dataset.search = [name, text, example, levelLabel(tech.level)].join(" ").toLowerCase();

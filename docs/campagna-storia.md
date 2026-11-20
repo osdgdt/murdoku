@@ -39,13 +39,13 @@ Otto sospettati più la vittima (il 9×9 del finale ha nove persone). Le inizial
 | Iniziale | Nome | Chi è | Perché è sospettato |
 |---|---|---|---|
 | A | **Adela** | la regina | la moglie tradita, e quella che lo trova per prima |
-| M | **Matilde** | nobildonna, vedova di un conte; madre di 3 dei figli del re | promesse di nozze non mantenute |
-| G | **Gemma** | locandiera di Borgocenere; madre di 2 figli | il re la lasciò con i debiti |
 | B | **Berta** | sarta, ex novizia; madre di 2 figli | fu cacciata dall'abbazia per colpa sua |
-| R | **Ruggero** | cancelliere del regno | teme di perdere il potere se il trono cambia mano |
+| C | **Cecilia** | cameriera della regina | entra ed esce dalla camera coniugale |
+| D | **Dagoberto** | cancelliere del regno | teme di perdere il potere se il trono cambia mano |
 | E | **Eustachio** | medico di corte e coroner | ha firmato un referto falso |
-| U | **Ugolino** | coppiere del re | porta il bicchiere serale |
-| Z | **Zita** | cameriera della regina | entra ed esce dalla camera coniugale |
+| F | **Florio** | coppiere del re | porta il bicchiere serale |
+| G | **Gemma** | locandiera di Borgocenere; madre di 2 figli | il re la lasciò con i debiti |
+| H | **Hilda** | nobildonna, vedova di un conte; madre di 3 dei figli del re | promesse di nozze non mantenute |
 | — | **Victor** | il re, la vittima | |
 
 I due figli senza madre nel cast hanno le madri morte o lontane.
@@ -60,20 +60,20 @@ Il caso *n* (dall'1 al 9) si chiude con il ritrovamento dell'oggetto che la vitt
 
 | Caso | Oggetto custodito | Testimonianza | Su chi | Spunto di indizio per il 10 |
 |---|---|---|---|---|
-| 1 | gettone di ferro cavo | «Il coppiere non entrò mai nella camera: lasciò il calice sul tavolo dell'anticamera e tornò in dispensa.» | Ugolino | Ugolino è accanto a una botte (dispensa) |
-| 2 | erbario con foglie pressate | «La cameriera rammendava davanti al camino dell'anticamera.» | Zita | Zita è davanti al camino dell'anticamera |
+| 1 | gettone di ferro cavo | «Il coppiere non entrò mai nella camera: lasciò il calice sul tavolo dell'anticamera e tornò in dispensa.» | Florio | Florio è accanto a una botte (dispensa) |
+| 2 | erbario con foglie pressate | «La cameriera rammendava davanti al camino dell'anticamera.» | Cecilia | Cecilia è davanti al camino dell'anticamera |
 | 3 | pennino d'argento (cavo) | «Il medico pregava nella cappella, accanto all'altare, mentre il re moriva.» | Eustachio | Eustachio è accanto all'altare |
 | 4 | medaglia da soldato | «La sarta cuciva nel corridoio, vicino all'armatura.» | Berta | Berta è accanto all'armatura |
 | 5 | boccale di peltro con doppio fondo | «L'ostessa era nel cortile, accanto al pozzo, a scaricare il vino.» | Gemma | Gemma è accanto al pozzo |
-| 6 | rosario | «La nobildonna aspettava udienza nella sala del consiglio, davanti al trono.» | Matilde | Matilde è davanti al trono |
-| 7 | cucchiaio d'argento (manico cavo) | «Il cancelliere scriveva nell'anticamera, vicino al candelabro.» | Ruggero | Ruggero è accanto al candelabro |
+| 6 | rosario | «La nobildonna aspettava udienza nella sala del consiglio, davanti al trono.» | Hilda | Hilda è davanti al trono |
+| 7 | cucchiaio d'argento (manico cavo) | «Il cancelliere scriveva nell'anticamera, vicino al candelabro.» | Dagoberto | Dagoberto è accanto al candelabro |
 | 8 | anello di chiavi | «La regina pregò nella cappella prima di cena.» (indizio *neutro*: ti sembra irrilevante) | Adela | Adela è nella cappella (prima, non a quell'ora) |
 | 9 | anello col sigillo | «Il re dormiva nel letto vicino alla finestra; quello vicino al camino era della regina.» | il letto del re | Victor è nel letto della finestra |
 
 Sono spunti: adattali alla mappa che disegni. L'unica regola che conta: nella soluzione unica del caso 10 **solo Adela può essere sola con il re** nell'ora del delitto, ma le testimonianze, una per volta, sembrano riguardare altri.
 
 **Consigli per il caso 10.**
-- Tutti hanno accesso e un movente: lascia diversi indizi «normali» (visibili da subito) che sembrano accusare Ruggero o Eustachio.
+- Tutti hanno accesso e un movente: lascia diversi indizi «normali» (visibili da subito) che sembrano accusare Dagoberto o Eustachio.
 - L'indizio sul letto del re (caso 9) è quello che chiude il cerchio: tienilo tra gli ultimi.
 - Misure già fatte: con 8 sospettati servono circa 12-14 indizi personali per una soluzione unica; nove arrivano dai casi precedenti.
 
@@ -97,88 +97,88 @@ Adela non è mai tra i sospettati dei casi 1-9, ma compare in ogni introduzione 
 
 Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un nome che inizia per V (V è riservata a re Victor e ai suoi figli). Nello stesso caso, iniziali tutte diverse.
 
-### Caso 1 — Il garzone della forgia · 4×4
+### Caso 1 — Il garzone della forgia · 6×6
 - **Vittima**: Vanni, 19 anni, garzone fabbro.
 - **Scena**: la forgia di Borgocenere. Oggetti: incudine, camino (la fornace), botte, rastrelliera.
 - **Colpevole**: Bertoldo, il maestro fabbro. **Movente**: Vanni aveva scoperto che vendeva lame difettose al presidio.
-- **Altri sospettati** (3 in tutto, con il colpevole): Lupo (lavorante), Mabilia (moglie del fabbro).
+- **Altri sospettati** (5 in tutto, con il colpevole): Arnaldo (lavorante), Clelia (moglie del fabbro), Duccio (carbonaio), Egidia (figlia del vasaio).
 - **Oggetto**: gettone di ferro cavo con lo stemma di Victor; fa capire che Vanni era figlio del re.
 
-**Introduzione.** La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e tre persone giurano di non aver visto niente.
+**Introduzione.** La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.
 
 **Epilogo.** Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.
 
-### Caso 2 — L'orto dell'abbazia · 4×4
+### Caso 2 — L'orto dell'abbazia · 6×6
 - **Vittima**: Violante, 20 anni, erborista.
 - **Scena**: l'orto e l'infermeria di San Ilario. Oggetti: pozzo, panca, statua, calderone.
 - **Colpevole**: fra Anselmo, l'infermiere. **Movente**: Violante aveva trovato il suo registro dei veleni, che vendeva di nascosto.
-- **Altri sospettati** (3 in tutto): suor Clemenza, Gherardo (giardiniere).
+- **Altri sospettati** (5 in tutto): suor Clemenza, Bonifacio (giardiniere), Dionigi (frate portinaio), Eufemia (cuoca del refettorio).
 - **Oggetto**: erbario con foglie pressate.
 
-**Introduzione.** All'abbazia di San Ilario una giovane erborista è stata trovata morta nell'orto, tra le aiuole. La regina ti ha scritto: «Il mio giardino è pieno delle stesse piante; fammi sapere se qualcuno le usa male.» L'abate ti riceve a denti stretti.
+**Introduzione.** All'abbazia di San Ilario una giovane erborista è stata trovata morta nell'orto, tra le aiuole. La regina ti ha scritto: «Il mio giardino è pieno delle stesse piante; fammi sapere se qualcuno le usa male.» L'abate ti riceve a denti stretti, e cinque persone ti dicono di non aver visto niente.
 
 **Epilogo.** Fra Anselmo cede quando ti mostri il suo registro dei veleni: lo smerciava ai nobili del borgo. Nell'erbario di Violante, fra le foglie di digitale, una nota: «La cameriera rammendava davanti al camino». Due figli del re morti in pochi giorni: sai già che non saranno gli ultimi.
 
-### Caso 3 — Lo scriptorium · 5×5
+### Caso 3 — Lo scriptorium · 6×6
 - **Vittima**: Valerio, 22 anni, scrivano.
 - **Scena**: lo scriptorium dell'abbazia. Oggetti: leggio, forziere, candelabro, panca.
 - **Colpevole**: Ambrogio, segretario dell'abate. **Movente**: falsificava atti di proprietà; Valerio se n'era accorto.
-- **Altri sospettati** (4 in tutto): Benvenuto (copista), Teobaldo (miniatore), Perpetua (monaca bibliotecaria).
+- **Altri sospettati** (5 in tutto): Benvenuto (copista), Cosimo (miniatore), Domitilla (monaca bibliotecaria), Eligio (rilegatore).
 - **Oggetto**: pennino d'argento cavo.
 
-**Introduzione.** Un copista è stato ucciso nello scriptorium, con il pennino ancora sul foglio. La regina ti fa dire di essere discreto: «Le carte di un monastero sono delicate, e tanti vi si fidano più che del re». Quattro persone sospette, e un solo libro mastro in disordine.
+**Introduzione.** Un copista è stato ucciso nello scriptorium, con il pennino ancora sul foglio. La regina ti fa dire di essere discreto: «Le carte di un monastero sono delicate, e tanti vi si fidano più che del re». Cinque persone sospette, e un solo libro mastro in disordine.
 
 **Epilogo.** Ambrogio aveva falsificato una trentina di atti e Valerio l'aveva scoperto. Dentro il pennino d'argento un foglietto: «Il medico pregava nella cappella mentre il re moriva». Il medico di corte, ti avverte la regina, è un uomo onesto: non perdere tempo.
 
-### Caso 4 — La taverna dei Tre Corvi · 5×5
+### Caso 4 — La taverna dei Tre Corvi · 7×7
 - **Vittima**: Vitale, 21 anni, mercenario.
 - **Scena**: la taverna di Borgocenere. Oggetti: botti, camino, panche.
-- **Colpevole**: Rodolfo il Guercio, soldato di ventura. **Movente**: un debito di gioco, e Vitale lo aveva sorpreso a barare ai dadi.
-- **Altri sospettati** (4 in tutto): Gisulfo (mercante), Orsola (cameriera), Drogone (mandriano).
+- **Colpevole**: Aimone il Guercio, soldato di ventura. **Movente**: un debito di gioco, e Vitale lo aveva sorpreso a barare ai dadi.
+- **Altri sospettati** (6 in tutto): Camillo (mercante), Brigida (cameriera), Drogone (mandriano), Elvira (lavandaia), Fiorenzo (cantiniere).
 - **Oggetto**: medaglia da soldato.
 
-**Introduzione.** Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.»
+**Introduzione.** Alla taverna dei Tre Corvi si è sparsa una voce e un cadavere: un mercenario, steso tra le panche con una daga nel fianco. «Lì si gioca, si beve, si dice di tutto», ti fa sapere la regina. «Ascolta tutto, e non fidarti di nessuno.» Sei persone giurano di non aver visto niente.
 
-**Epilogo.** Rodolfo ammette tutto, con una risata amara. Sotto la medaglia di Vitale, un foglietto: «La sarta cuciva nel corridoio, vicino all'armatura». La regina annuisce piano quando glielo racconti: «Un'altra giovane vita sprecata».
+**Epilogo.** Aimone ammette tutto, con una risata amara. Sotto la medaglia di Vitale, un foglietto: «La sarta cuciva nel corridoio, vicino all'armatura». La regina annuisce piano quando glielo racconti: «Un'altra giovane vita sprecata».
 
-### Caso 5 — Le scuderie reali · 6×6
+### Caso 5 — Le scuderie reali · 7×7
 - **Vittima**: Venanzia, 21 anni, palafreniera della corte.
 - **Scena**: le scuderie e il campo del torneo. Oggetti: carro, stendardo, rastrelliera, panca.
 - **Colpevole**: ser Aldobrando, cavaliere. **Movente**: Venanzia aveva visto che truccava la lancia nei tornei.
-- **Altri sospettati** (5 in tutto): Sigfrido (scudiero), Brunone (garzone di stalla), Isolda (dama), Ermengarda (guardarobiera).
+- **Altri sospettati** (6 in tutto): Fabiano (scudiero), Brunone (garzone di stalla), Delia (dama), Ermengarda (guardarobiera), Corrado (maniscalco).
 - **Oggetto**: boccale di peltro con doppio fondo.
 
-**Introduzione.** Ai margini del campo del torneo hanno trovato una palafreniera, uccisa tra le stalle. La regina conosce già alcuni dettagli della scena e se ne scusa: «Gli stallieri parlano con me». Tu annoti la cosa e passi oltre.
+**Introduzione.** Ai margini del campo del torneo hanno trovato una palafreniera, uccisa tra le stalle. La regina conosce già alcuni dettagli della scena e se ne scusa: «Gli stallieri parlano con me». Tu annoti la cosa e passi oltre. Sei sospettati, e tutti a due passi dal luogo del delitto.
 
 **Epilogo.** Ser Aldobrando cade sul tuo argomento più semplice: la lancia truccata. Nel doppio fondo del boccale di Venanzia, un biglietto: «L'ostessa era nel cortile, accanto al pozzo». Cinque figli del re, ormai, e tutti morti.
 
-### Caso 6 — La cripta · 6×6
+### Caso 6 — La cripta · 7×7
 - **Vittima**: Valeria, 20 anni, novizia.
 - **Scena**: la cripta dell'abbazia. Oggetti: altare, sarcofago, lapide, candelabro.
-- **Colpevole**: Odorico, il sagrestano. **Movente**: rubava l'argento dei reliquiari; Valeria lo vide.
-- **Altri sospettati** (5 in tutto): abate Leopoldo, Rinaldo (becchino), Eleonora (pellegrina), Martino (pellegrino).
+- **Colpevole**: Amedeo, il sagrestano. **Movente**: rubava l'argento dei reliquiari; Valeria lo vide.
+- **Altri sospettati** (6 in tutto): abate Benedetto, Cassiano (becchino), Donata (pellegrina), Eusebio (pellegrino), Fortunato (frate cercatore).
 - **Oggetto**: rosario.
 
-**Introduzione.** Nella cripta dell'abbazia, dove il re sarà sepolto, una novizia è stata trovata ai piedi di un sarcofago. La regina vi si recherà per le esequie, e vuole una risposta prima di allora. Il sagrestano, ti avvertono, parla poco.
+**Introduzione.** Nella cripta dell'abbazia, dove il re sarà sepolto, una novizia è stata trovata ai piedi di un sarcofago. La regina vi si recherà per le esequie, e vuole una risposta prima di allora. Il sagrestano, ti avvertono, parla poco; gli altri cinque parlano solo per dire che non c'erano.
 
 **Epilogo.** Il sagrestano vende l'argento delle reliquie da anni, e Valeria lo ha visto. Nel rosario, in una perla vuota: «La nobildonna aspettava udienza davanti al trono». Intorno alla bara del re, i figli che restano sono sempre meno.
 
-### Caso 7 — Le cucine · 7×7
+### Caso 7 — Le cucine · 8×8
 - **Vittima**: Valdo, 22 anni, cuoco.
 - **Scena**: le cucine del castello. Oggetti: calderone, pozzo, botti, camino.
 - **Colpevole**: Agnese, la dispensiera. **Movente**: gelosia; Valdo era stato promosso cuoco del re al suo posto.
-- **Altri sospettati** (6 in tutto): Tommaso (sguattero), Lorenzo (maestro di cucina), Zaccaria (macellaio), Nicola (fornaio), Ginevra (lavandaia).
+- **Altri sospettati** (7 in tutto): Bruno (sguattero), Damiano (maestro di cucina), Ezio (macellaio), Filippo (fornaio), Ginevra (lavandaia), Cesare (trinciante).
 - **Oggetto**: cucchiaio d'argento a manico cavo.
 
-**Introduzione.** Un cuoco è morto nelle cucine del castello, vicino al calderone. La regina ti riceve nella sala, ti offre un calice di vino e beve per prima: «Qui non ci si fida di nessuno, nemmeno dei cuochi». Fuori, il castello sa già che si indaga.
+**Introduzione.** Un cuoco è morto nelle cucine del castello, vicino al calderone. La regina ti riceve nella sala, ti offre un calice di vino e beve per prima: «Qui non ci si fida di nessuno, nemmeno dei cuochi». Fuori, il castello sa già che si indaga, e sette persone avevano accesso alle cucine.
 
 **Epilogo.** La dispensiera crolla: la promozione di Valdo le aveva bruciato dentro. Nel manico del cucchiaio d'argento, un foglietto: «Il cancelliere scriveva nell'anticamera, vicino al candelabro». Sette figli morti: ti chiedi chi, a corte, ci guadagna.
 
-### Caso 8 — La torre delle prigioni · 7×7
+### Caso 8 — La torre delle prigioni · 8×8
 - **Vittima**: Vivia, 20 anni, carceriera.
 - **Scena**: la torre. Oggetti: gabbia, armatura, sarcofago (cella), candelabro.
-- **Colpevole**: Manfredo, capitano della guardia. **Movente**: Vivia sapeva che lasciava fuggire prigionieri dietro compenso.
-- **Altri sospettati** (6 in tutto): Sveva (guardia), Aldo (ladro in cella), Cunegonda (dama), Tobia (araldo), Norberto (boia).
+- **Colpevole**: Alderico, capitano della guardia. **Movente**: Vivia sapeva che lasciava fuggire prigionieri dietro compenso.
+- **Altri sospettati** (7 in tutto): Brunilde (guardia), Dino (ladro in cella), Cunegonda (dama), Ettore (araldo), Fausto (boia), Giuditta (cuoca dei prigionieri).
 - **Oggetto**: anello di chiavi.
 
 **Introduzione.** Una carceriera giace in fondo alla torre delle prigioni, con le chiavi mancanti. La regina ti nota stanco e ti prende le mani: «I pretendenti sono quasi finiti», dice piano. E lo ripete, come per convincersene.
@@ -188,13 +188,13 @@ Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un
 ### Caso 9 — Il banchetto dell'erede · 8×8
 - **Vittima**: Valdemaro, 23 anni, il maggiore, acclamato erede al banchetto.
 - **Scena**: la sala grande. Oggetti: trono, stendardi, candelabri, panche.
-- **Colpevole**: lord Folco di Valgrigia, nobile di un'altra casata. **Movente**: impedire l'incoronazione e restare a corte.
+- **Colpevole**: lord Alboino di Valgrigia, nobile di un'altra casata. **Movente**: impedire l'incoronazione e restare a corte.
 - **Altri sospettati** (7 in tutto): araldo, giullare, bardo, contessa, cavaliere, prete.
 - **Oggetto**: anello col sigillo del re.
 
 **Introduzione.** Nella sala grande, al banchetto, i nobili hanno appena acclamato Valdemaro come erede quando lui crolla tra i candelabri. Davanti al trono vuoto, la regina piange. Ti volti, e per un attimo sorride.
 
-**Epilogo.** Lord Folco confessa: voleva evitare un'incoronazione che lo avrebbe escluso. Sotto il castone dell'anello col sigillo trovi l'ultimo foglietto: «Il re dormiva nel letto vicino alla finestra; quello vicino al camino era della regina». Hai nove testimonianze e una stanza da ricostruire.
+**Epilogo.** Lord Alboino confessa: voleva evitare un'incoronazione che lo avrebbe escluso. Sotto il castone dell'anello col sigillo trovi l'ultimo foglietto: «Il re dormiva nel letto vicino alla finestra; quello vicino al camino era della regina». Hai nove testimonianze e una stanza da ricostruire.
 
 ### Caso 10 — La notte del re · 9×9
 - **Vittima**: il re Victor.
@@ -221,7 +221,8 @@ Dopo il caso 10 il giocatore sceglie tra due epiloghi. Entrambi sono amari.
 ## 7. Regole di coerenza per scrivere i casi
 
 - **Nessuna V tra i sospettati** (solo il re e i suoi figli). Nello stesso caso, iniziali tutte diverse.
+- **Sospettati in ordine alfabetico**: in ogni caso (finale compreso) il primo sospettato ha il nome che inizia per A, il secondo per B, il terzo per C e così via. Fa eccezione solo la vittima, che è l'ultima del cast e ha sempre un nome che inizia per V.
 - **Nessuna magia**: niente maghi, rune, sfere di cristallo né creature. Gli oggetti sono quelli terreni (incudine, calderone, altare, sarcofago, gabbia...).
-- **Difficoltà**: griglie 4, 4, 5, 5, 6, 6, 7, 7, 8, poi 9×9. Una griglia N×N ha N persone: **N−1 sospettati più la vittima** (4×4 = 3 sospettati, 9×9 = 8). Gli indizi personali necessari per una soluzione unica crescono in fretta (circa 4-5 per i primi casi, 12-14 per il finale).
+- **Difficoltà**: griglie 6, 6, 6, 7, 7, 7, 8, 8, 8, poi 9×9. Una griglia N×N ha N persone: **N−1 sospettati più la vittima** (6×6 = 5 sospettati, 9×9 = 8). Gli indizi personali necessari per una soluzione unica crescono in fretta (circa 8-9 per i primi casi, 12-14 per il finale).
 - **Spoiler**: i file dei casi (`.murdoku.json`) sono pubblici e contengono la soluzione; non metterci nel titolo o nel briefing il nome del colpevole.
 - **Testi nell'app**: titolo della campagna «Il Re è morto»; etichette dei casi «1. Il garzone della forgia», «2. L'orto dell'abbazia»... fino a «10. La notte del re»; descrizione: «Il re Victor di Carvenna è stato trovato morto nel suo letto. Tutti dicono che il cuore ha ceduto; nessuno ci crede. La regina ti ha scelto come investigatore di corte: scopri la verità, ovunque ti porti.»

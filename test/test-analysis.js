@@ -30,6 +30,16 @@ export const tests = [
     },
   },
   {
+    name: "analisi: un caso con una sola soluzione porta anche il riassunto dei ragionamenti usati dal solver umano",
+    fn: async () => {
+      const result = analyzePuzzle(await tutorial(), { maxNodes: 100000 });
+      assertEqual(result.status, "unique");
+      assertEqual(result.human.status, "solved");
+      assert(result.human.hardest && result.human.counts[result.human.hardest] > 0 && result.human.firstStep[result.human.hardest] > 0);
+      assertEqual(analyzePuzzle(await tutorial(), { maxNodes: 100000, humanMaxWork: 1 }).human.status, "limit");
+    },
+  },
+  {
     name: "analisi: un caso con una sola soluzione è «unique», con i nodi e le deduzioni immediate",
     fn: async () => {
       const result = analyzePuzzle(await tutorial(), { maxNodes: 100000 });
@@ -79,6 +89,23 @@ export const tests = [
       const unique = describeAnalysis({ status: "unique", nodes: 40, forced: 2, total: 4 });
       assertEqual(unique.tone, "ok");
       assert(/Soluzione unica/.test(unique.text) && /40 nodi/.test(unique.text) && /2 su 4/.test(unique.text), unique.text);
+      // with the human solver's answer the line names the hardest reasoning and lists every reasoning used
+      const human = {
+        status: "solved",
+        level: "medium",
+        hardest: "relationalKnown",
+        counts: { clueFilter: 3, onlyCandidate: 4, relationalKnown: 1 },
+        firstStep: { clueFilter: 1, onlyCandidate: 4, relationalKnown: 6 },
+      };
+      const withHuman = describeAnalysis({ status: "unique", nodes: 40, forced: 2, total: 4, human });
+      assertEqual(withHuman.tone, "ok");
+      assert(/Media/.test(withHuman.text) && /Indizio con riferimento noto/.test(withHuman.text), withHuman.text);
+      assertEqual(withHuman.details.map((d) => d.id).join(","), "clueFilter,onlyCandidate,relationalKnown", "in ordine di catalogo");
+      assertEqual(withHuman.details[2].first, 6);
+      // a human solver that gave up leaves the rough estimate
+      assert(
+        /Difficoltà stimata/.test(describeAnalysis({ status: "unique", nodes: 40, forced: 2, total: 4, human: { status: "limit" } }).text)
+      );
       assertEqual(describeAnalysis({ status: "ambiguous" }).tone, "warn");
       assertEqual(describeAnalysis({ status: "none" }).tone, "bad");
       assertEqual(describeAnalysis({ status: "contradiction" }).tone, "bad");

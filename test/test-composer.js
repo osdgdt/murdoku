@@ -1,4 +1,5 @@
 import { proposeClueSet, composeClues, rng, withoutVictim, BANNED_TYPES } from "../src/solver/composer.js";
+import { humanSolve } from "../src/solver/techniques/engine.js";
 import { checkUniqueness } from "../src/solver/validator.js";
 import { suggestClues, declaredPlacementMap } from "../src/solver/suggestions.js";
 import { readRepoFile } from "./helpers/read-file.js";
@@ -22,6 +23,35 @@ export const tests = [
           assert(check.solutionCount === 1 && check.exhausted, `${name} ${mode}: la soluzione deve essere unica`);
         }
       }
+    },
+  },
+  {
+    name: "generatore: il set proposto dà un caso del livello chiesto secondo il solver umano (o dice quale livello è)",
+    fn: async () => {
+      for (const name of ["faro.en", "monastero.en"]) {
+        for (const mode of ["easy", "medium", "hard"]) {
+          const puzzle = await load(name);
+          puzzle.clues = [];
+          const result = proposeClueSet(puzzle, { mode, seed: 5, keepExisting: false, timeMs: 30000 });
+          assertEqual(result.status, "ok", `${name} ${mode}`);
+          assertEqual(result.requested, mode);
+          const human = humanSolve(Object.assign(puzzle, { clues: asClues(result.clues) }));
+          assertEqual(human.status, "solved", `${name} ${mode}: risolvibile dal solver umano`);
+          if (result.exact) assertEqual(human.level, mode, `${name} ${mode}: «exact» vuol dire proprio quel livello`);
+          assertEqual(result.level, human.level, `${name} ${mode}: il livello dichiarato è quello vero`);
+        }
+      }
+    },
+  },
+  {
+    name: "generatore: un livello fuori portata dà comunque un set, dichiarato come di un altro livello",
+    fn: async () => {
+      const puzzle = await load("tutorial.en");
+      puzzle.clues = [];
+      const result = proposeClueSet(puzzle, { mode: "expert", seed: 1, keepExisting: false, timeMs: 20000 });
+      assertEqual(result.status, "ok");
+      assertEqual(result.exact, false);
+      assert(result.level !== "expert", "il livello vero non è quello chiesto");
     },
   },
   {

@@ -10,6 +10,8 @@ import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
 import { CLUE_TYPES } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
+import { LEVELS, TECHNIQUES } from "../solver/techniques/catalog.js";
+import { techniqueName, techniqueText, techniqueExample, levelLabel } from "../solver/techniques/names.js";
 import { FAMILIES, ENTRIES, buildExample, evaluateCells, evaluateGeneral, targetCells, exampleSentence, castName } from "./examples.js";
 
 wireThemeToggle();
@@ -179,6 +181,31 @@ function renderCard(entry) {
   return card;
 }
 
+// The reasonings the solver (and the hints) use, by level: how hard a case is depends on the hardest one it cannot do without.
+const LEVEL_BLURBS = {
+  easy: () => t("I ragionamenti di base: ogni indizio si legge da solo, senza guardare dove sono gli altri."),
+  medium: () => t("Servono più indizi insieme, oppure si guarda dove sono già gli altri e come sono fatte le stanze."),
+  hard: () => t("Indizi che legano più personaggi ancora aperti, indizi «oppure» e indizi sull'intera scena."),
+  expert: () => t("Nessuna deduzione diretta basta: si prova un'ipotesi e si guarda se porta a una contraddizione."),
+};
+
+function renderTechniqueCard(tech) {
+  const name = techniqueName(tech.id);
+  const text = techniqueText(tech.id);
+  const example = techniqueExample(tech.id);
+  const card = el("article", { class: "gl-card text-only", id: `reasoning-${tech.id}` }, [
+    el("header", { class: "gl-card-head" }, [el("h3", {}, name), el("span", { class: "gl-badge general" }, levelLabel(tech.level))]),
+    el("div", { class: "gl-body" }, [
+      el("div", { class: "gl-text" }, [
+        el("p", { class: "gl-explain" }, text),
+        el("blockquote", { class: "gl-sentence" }, [el("span", { class: "gl-sentence-label" }, t("Esempio")), el("p", {}, example)]),
+      ]),
+    ]),
+  ]);
+  card.dataset.search = [name, text, example, levelLabel(tech.level)].join(" ").toLowerCase();
+  return card;
+}
+
 function howToRead() {
   const items = [
     legendItem("ok", t("Verde: le caselle in cui {name} può stare perché l'indizio sia vero.", { name: castName("a") }), "✓"),
@@ -243,6 +270,20 @@ function build() {
     sections.push({ section, cards, family });
     toc.appendChild(el("a", { href: `#family-${family.id}` }, [family.title(), el("span", { class: "gl-toc-n" }, String(entries.length))]));
   }
+  // the reasonings of the human solver, by level
+  for (const level of LEVELS) {
+    const techniques = TECHNIQUES.filter((tech) => tech.level === level);
+    const cards = techniques.map(renderTechniqueCard);
+    const title = t("Ragionamenti: {level}", { level: levelLabel(level) });
+    const section = el("section", { class: "gl-section", id: `reasoning-level-${level}` }, [
+      el("h2", {}, title),
+      el("p", { class: "gl-blurb" }, LEVEL_BLURBS[level]()),
+      ...cards,
+    ]);
+    content.appendChild(section);
+    sections.push({ section, cards });
+    toc.appendChild(el("a", { href: `#reasoning-level-${level}` }, [title, el("span", { class: "gl-toc-n" }, String(techniques.length))]));
+  }
   const empty = el("p", { class: "gl-empty hidden" }, t("Nessun indizio corrisponde alla ricerca."));
   content.appendChild(empty);
 
@@ -262,7 +303,7 @@ function build() {
       section.classList.toggle("hidden", !any);
     }
     empty.classList.toggle("hidden", shown > 0);
-    count.textContent = q ? t("{n} risultati", { n: shown }) : t("{n} voci", { n: ENTRIES.length });
+    count.textContent = q ? t("{n} risultati", { n: shown }) : t("{n} voci", { n: ENTRIES.length + TECHNIQUES.length });
   }
   search.addEventListener("input", applyFilter);
   applyFilter();

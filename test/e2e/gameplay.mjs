@@ -171,6 +171,8 @@ const scenarios = [
       if ((await page.locator("#hint-panel .hint-explain").count()) !== 0) throw new Error("level 1 already lists the clues");
       await page.click("#hint-more-btn"); // level 2: clues
       await page.waitForSelector("#hint-panel .hint-explain");
+      // the hint names the reasoning that explains it (the catalogue's name, then what it does)
+      if ((await page.locator("#hint-panel .hint-technique strong").count()) === 0) throw new Error("level 2 does not name the reasoning");
       const label = await page.locator("#hint-more-btn").innerText();
       if (!/cell/i.test(label)) throw new Error(`level 2 button should offer the cell, got "${label}"`);
       await page.click("#hint-more-btn"); // level 3: everything

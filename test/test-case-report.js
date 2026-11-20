@@ -43,19 +43,20 @@ export const tests = [
     name: "controllo caso: gli indizi superflui sono un avviso (non un errore) e la difficoltà molto lontana dalla stima è segnalata",
     fn: async () => {
       const puzzle = await load("faro.en");
-      puzzle.difficulty = "expert"; // il solutore la stima molto facile: cinque personaggi, tutti dedotti subito
+      puzzle.difficulty = "expert"; // il solutore la stima facile: bastano filtri, righe occupate e unico candidato
       const { errors, warnings, metrics } = await reportCase(puzzle, { lang: "en", library: false });
       assertEqual(errors.length, 0, errors.join("; "));
       assert(has(warnings, /indizi superflui/), `atteso l'avviso sugli indizi superflui: ${warnings.join("; ")}`);
       assert(has(warnings, /difficoltà dichiarata/), `atteso l'avviso sulla difficoltà: ${warnings.join("; ")}`);
-      assertEqual(metrics.estimated, "very-easy");
+      assertEqual(metrics.estimated, "easy", "il solutore umano la giudica facile");
+      assert(metrics.hardest, "e dice il ragionamento più difficile");
     },
   },
   {
     name: "controllo caso: una difficoltà vicina alla stima (un solo livello) non dà avvisi",
     fn: async () => {
       const puzzle = await load("faro.en");
-      puzzle.difficulty = "easy"; // stima molto facile: un livello di distanza
+      puzzle.difficulty = "medium"; // stima facile: un livello di distanza
       const { warnings } = await reportCase(puzzle, { lang: "en", library: false });
       assert(!has(warnings, /difficoltà/), `nessun avviso sulla difficoltà atteso: ${warnings.join("; ")}`);
     },

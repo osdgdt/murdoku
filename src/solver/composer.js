@@ -10,6 +10,8 @@
 //    (`withoutVictim`) and she is placed last, in the one cell that remains;
 //  - "is closer to X than to Y" is not used.
 import { buildPredicate } from "./predicates/index.js";
+import { humanSolve } from "./techniques/engine.js";
+import { levelIndex } from "./techniques/catalog.js";
 import { checkUniqueness } from "./validator.js";
 import { solvePuzzle } from "./solver.js";
 import { propagate } from "./propagation.js";
@@ -228,6 +230,7 @@ export function proposeClueSet(
   const deadline = timeMs == null ? null : now() + timeMs;
   const timeIsUp = () => deadline !== null && now() >= deadline;
   const settings = MODES[mode] ?? MODES.medium;
+  const level = MODES[mode] ? mode : "medium"; // the level the set is judged against
   const hasVictim = puzzle.characters.some((c) => c.isVictim);
   const dropVictim = victimFree && hasVictim;
   const view = dropVictim ? withoutVictim(puzzle) : JSON.parse(JSON.stringify(puzzle));
@@ -250,8 +253,16 @@ export function proposeClueSet(
 
   // The victim is not in the search (see the house rules), so a set that settles the suspects can still leave her
   // more than one place; then another draw is tried, until one works or the time is up.
+  // A set that works is then judged by the HUMAN solver (techniques/engine.js): it counts only if the case needs the
+  // reasonings of exactly the level asked for (none harder, at least one of that level). A set of another level is kept as
+  // the fallback, and the next attempt leans the other way: when the case came out too hard, the clues are pruned less (more
+  // of them stay, so each step is easier); when too easy, every clue is pruned and every type is allowed.
   const attempts = 12;
   let lastFailure = { status: "failed", reason: timeIsUp() ? "time" : "no-candidate" };
+  let pruneChance = settings.pruneChance;
+  let allowType = settings.allowType;
+  let tooEasyInARow = 0;
+  let fallback = null; // the closest set found so far: { clues, nodes, rank }
   // an attempt that fails starts another one: the bar is shared out between an unknown number of attempts
   // (progress.js), and the last twentieth of the attempt is the proof on the whole case
   for (let attempt = 0; attempt < attempts && !timeIsUp(); attempt++) {
@@ -259,11 +270,11 @@ export function proposeClueSet(
     const inAttempt = onProgress ? (fraction) => onProgress(staged(attempt, fraction)) : null;
     const added = composeClues(view, pool, {
       random: rng(seed + attempt * 7919),
-      allowType: settings.allowType,
+      allowType,
       negateChance: settings.negateChance,
       sample: 24,
       maxClues: Math.max(12, puzzle.characters.length * 4),
-      pruneChance: settings.pruneChance,
+      pruneChance,
       fixed: existing,
       maxNodes,
       deadline,
@@ -293,12 +304,51 @@ export function proposeClueSet(
       lastFailure = { status: "failed", reason: "not-unique" };
       continue;
     }
+    const plain = added.map(({ type, characterId, params, negate }) => ({ type, characterId, params, negate: !!negate }));
+    const verdict = judgeLevel(withClues(puzzle, finalClues), level, deadline);
+    const found = { clues: plain, nodes: check.nodesVisited };
+    if (verdict.rank === 0) {
+      onProgress?.(1);
+      return { status: "ok", ...found, level: verdict.level, hardest: verdict.hardest, requested: level, exact: true };
+    }
+    if (!fallback || Math.abs(verdict.rank) < Math.abs(fallback.rank)) fallback = { ...found, rank: verdict.rank };
+    if (verdict.rank > 0) {
+      pruneChance = Math.max(0, pruneChance * 0.5);
+      tooEasyInARow = 0;
+    } else {
+      pruneChance = 1;
+      if (++tooEasyInARow >= 2) allowType = MODES.hard.allowType;
+    }
+  }
+  if (fallback) {
+    // not the level asked for: say which one it is
+    const real = humanSolve(withClues(puzzle, [...(keepExisting ? existing : []), ...fallback.clues]), {
+      maxWork: HUMAN_JUDGE_WORK,
+      deadline,
+    });
     onProgress?.(1);
     return {
       status: "ok",
-      clues: added.map(({ type, characterId, params, negate }) => ({ type, characterId, params, negate: !!negate })),
-      nodes: check.nodesVisited,
+      clues: fallback.clues,
+      nodes: fallback.nodes,
+      level: real.status === "solved" ? real.level : null,
+      hardest: real.status === "solved" ? real.hardest : null,
+      requested: level,
+      exact: false,
     };
   }
   return lastFailure;
+}
+
+// Work the human solver may spend judging one set of clues (about a second at most on a 9x9 case).
+const HUMAN_JUDGE_WORK = 3_000_000;
+
+// How does a finished case compare with the level asked for? rank: 0 it is exactly that level (everything solved with
+// reasonings up to it, at least one of its own level), -1 easier, 1 harder (or too heavy to tell). `level`/`hardest` as
+// found when it was solved within the level.
+function judgeLevel(finalPuzzle, mode, deadline) {
+  const result = humanSolve(finalPuzzle, { maxLevel: mode, maxWork: HUMAN_JUDGE_WORK, deadline });
+  if (result.status !== "solved") return { rank: 1, level: null, hardest: null };
+  const rank = levelIndex(result.level) - levelIndex(mode);
+  return { rank: rank === 0 ? 0 : -1, level: result.level, hardest: result.hardest };
 }

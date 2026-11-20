@@ -15,28 +15,31 @@ export const AREA_LOADERS = {
   privacy: () => import("./en/privacy.js"),
   campaign: () => import("./en/campaign.js"),
   community: () => import("./en/community.js"),
+  reasoning: () => import("./en/reasoning.js"),
 };
 
 const COMMON = ["ui", "clues", "medieval"];
 // what a page needs on top of the common areas
 const EXTRA = {
   // (the glossary examples are little cases whose cast and rooms are translated in the tutorial's area)
-  "glossary.html": ["glossary", "tutorial"],
-  "editor.html": ["glossary", "community"],
+  "glossary.html": ["glossary", "tutorial", "reasoning"],
+  "editor.html": ["glossary", "community", "reasoning"],
   // (publishing and opening a case by its code)
-  "player.html": ["community"],
+  "player.html": ["community", "reasoning"],
   // (the list of the cases published by other players)
   "community.html": ["community"],
   // (the administrators' page: reports and what to do with them)
   "moderation.html": ["community"],
   "tutorial.html": ["tutorial"],
   "privacy.html": ["privacy"],
-  "campaign.html": ["campaign"],
+  "campaign.html": ["campaign", "reasoning"],
   "campaign-editor.html": ["campaign"],
+  // (the daily challenge is played with the hints, which name the reasoning)
+  "daily.html": ["reasoning"],
 };
 // pages that are known to need nothing else; any other name (a renamed page, a host that serves the home at "/")
 // gets every area, which is always correct
-const PLAIN_PAGES = new Set(["", "index.html", "print.html", "achievements.html", "daily.html"]);
+const PLAIN_PAGES = new Set(["", "index.html", "print.html", "achievements.html"]);
 
 // The areas of the page at `pathname` (e.g. "/murdoku/glossary.html").
 export function areasForPage(pathname) {

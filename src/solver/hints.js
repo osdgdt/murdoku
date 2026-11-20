@@ -1,4 +1,5 @@
 import { solvePuzzle } from "./solver.js";
+import { attachTechniques } from "./techniques/hintTechniques.js";
 import { isOccupiable } from "../model/grid.js";
 import { buildPredicates } from "./predicates/index.js";
 import { propagate } from "./propagation.js";
@@ -400,6 +401,7 @@ export function computeHintChain(puzzle, currentPlacements, candidates = new Map
     budget,
     onProgress ? (fraction) => onProgress(WAVES_SHARE + (1 - WAVES_SHARE) * fraction) : null
   );
+  attachTechniques(puzzle, steps, currentPlacements);
   return steps;
 }
 

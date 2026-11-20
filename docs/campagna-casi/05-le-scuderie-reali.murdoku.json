@@ -1,210 +1,277 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwm9lr4f9au00p1n",
+  "id": "puzzle_mwo3vm5hy3fpd89u",
   "title": "Le scuderie reali",
   "author": "",
   "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Ai margini del campo del torneo hanno trovato una palafreniera, uccisa tra le stalle. La regina conosce già alcuni dettagli della scena e se ne scusa: «Gli stallieri parlano con me». Tu annoti la cosa e passi oltre.",
+  "briefing": "Ai margini del campo del torneo hanno trovato una palafreniera, uccisa tra le stalle. La regina conosce già alcuni dettagli della scena e se ne scusa: «Gli stallieri parlano con me». Tu annoti la cosa e passi oltre. Sei sospettati, e tutti a due passi dal luogo del delitto.",
   "resolutionNote": "Ser Aldobrando cade sul tuo argomento più semplice: la lancia truccata. Nel doppio fondo del boccale di Venanzia, un biglietto: «L'ostessa era nel cortile, accanto al pozzo». Cinque figli del re, ormai, e tutti morti.",
   "tense": "past",
-  "createdAt": 1795015032207,
-  "updatedAt": 1795015032207,
+  "createdAt": 1795126346981,
+  "updatedAt": 1795126346981,
   "grid": {
     "size": {
-      "rows": 6,
-      "cols": 6
+      "rows": 7,
+      "cols": 7
     },
     "cells": [
       [
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": "obj_mwm9lr4fal29npna",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
+          "objectId": "obj_mwo3vm5hc64elfql",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": "obj_mwm9lr4ffltr0ztc",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": null,
+          "zoneId": "zone_mwo3vm5hczugfvm8",
+          "objectId": "obj_mwo3vm5h0ri4ftba",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": "obj_mwm9lr4fkwx93wa8",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": "obj_mwm9lr4ftf5rmzib",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fufnplgf1",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4ftj8etcms",
-          "objectId": "obj_mwm9lr4fl5g8dvyw",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ftj8etcms",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ftj8etcms",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fgp7riesk",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
+          "objectId": "obj_mwo3vm5h0sbaurue",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fgp7riesk",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
+          "objectId": "obj_mwo3vm5h5g5gjt9g",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fgp7riesk",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4ftj8etcms",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ftj8etcms",
-          "objectId": "obj_mwm9lr4fiyvax7iu",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ftj8etcms",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fgp7riesk",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fgp7riesk",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fgp7riesk",
-          "objectId": "obj_mwm9lr4fx0hc8dvd",
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4fmja8vq6w",
-          "objectId": "obj_mwm9lr4f8hfvblq1",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fmja8vq6w",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
-          "objectId": "obj_mwm9lr4ftebl39ee",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
+          "zoneId": "zone_mwo3vm5hczugfvm8",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4fmja8vq6w",
+          "zoneId": "zone_mwo3vm5h9fon40p1",
+          "objectId": "obj_mwo3vm5hd8hqaf0y",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5h9fon40p1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fmja8vq6w",
-          "objectId": "obj_mwm9lr4fe1qy0b71",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
+          "zoneId": "zone_mwo3vm5h9fon40p1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
-          "objectId": "obj_mwm9lr4f1o3dzhtz",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
+          "zoneId": "zone_mwo3vm5h9fon40p1",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4fu61bovbs",
+          "zoneId": "zone_mwo3vm5htipnk3ze",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5htipnk3ze",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5htipnk3ze",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5h9fon40p1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5h9fon40p1",
+          "objectId": "obj_mwo3vm5hlbs487yk",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5h9fon40p1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5h9fon40p1",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5htipnk3ze",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5htipnk3ze",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5htipnk3ze",
+          "objectId": "obj_mwo3vm5h8w99x7qv",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5heedfif7l",
+          "objectId": "obj_mwo3vm5hk1fu4x1l",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5heedfif7l",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ht7f9l93i",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ht7f9l93i",
+          "objectId": "obj_mwo3vm5hsncc8ydp",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": "obj_mwo3vm5h5gq477if",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5heedfif7l",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5heedfif7l",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ht7f9l93i",
+          "objectId": "obj_mwo3vm5hun78qd5n",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ht7f9l93i",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": "obj_mwo3vm5hbeoagqzo",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5heedfif7l",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5heedfif7l",
+          "objectId": "obj_mwo3vm5hkydfx1d7",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ht7f9l93i",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ht7f9l93i",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": "obj_mwo3vm5hofvllccc",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5hhkfyts4j",
           "objectId": null,
           "blocked": false
         }
@@ -212,185 +279,223 @@
     ],
     "zones": [
       {
-        "id": "zone_mwm9lr4fufnplgf1",
+        "id": "zone_mwo3vm5hczugfvm8",
         "name": "Il campo del torneo",
         "color": "#f4c2c2",
         "textureId": "grass"
       },
       {
-        "id": "zone_mwm9lr4ftj8etcms",
+        "id": "zone_mwo3vm5h9fon40p1",
         "name": "Le scuderie",
         "color": "#c2e0f4",
         "textureId": "straw"
       },
       {
-        "id": "zone_mwm9lr4fgp7riesk",
+        "id": "zone_mwo3vm5htipnk3ze",
         "name": "Il fienile",
         "color": "#c9f4c2",
         "textureId": "rough_planks"
       },
       {
-        "id": "zone_mwm9lr4fmja8vq6w",
+        "id": "zone_mwo3vm5heedfif7l",
         "name": "L'armeria",
         "color": "#f4ecc2",
         "textureId": "flagstone_dark"
       },
       {
-        "id": "zone_mwm9lr4fu61bovbs",
-        "name": "La selleria",
+        "id": "zone_mwo3vm5ht7f9l93i",
+        "name": "Il maniscalco",
         "color": "#e0c2f4",
+        "textureId": "terracotta"
+      },
+      {
+        "id": "zone_mwo3vm5hhkfyts4j",
+        "name": "La selleria",
+        "color": "#f4d3c2",
         "textureId": "planks_dark"
       }
     ],
     "objects": [
       {
-        "id": "obj_mwm9lr4fal29npna",
+        "id": "obj_mwo3vm5hc64elfql",
         "typeId": "banner",
         "row": 0,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4ffltr0ztc",
+        "id": "obj_mwo3vm5h0ri4ftba",
         "typeId": "banner",
         "row": 0,
-        "col": 4
+        "col": 5
       },
       {
-        "id": "obj_mwm9lr4fkwx93wa8",
+        "id": "obj_mwo3vm5h0sbaurue",
         "typeId": "bench",
         "row": 1,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4ftf5rmzib",
+        "id": "obj_mwo3vm5h5g5gjt9g",
         "typeId": "bench",
         "row": 1,
-        "col": 3
+        "col": 4
       },
       {
-        "id": "obj_mwm9lr4fiyvax7iu",
+        "id": "obj_mwo3vm5hlbs487yk",
         "typeId": "pallet",
         "row": 3,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4fl5g8dvyw",
+        "id": "obj_mwo3vm5hd8hqaf0y",
         "typeId": "stool",
         "row": 2,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4fx0hc8dvd",
+        "id": "obj_mwo3vm5h8w99x7qv",
         "typeId": "cart",
         "row": 3,
-        "col": 5
+        "col": 6
       },
       {
-        "id": "obj_mwm9lr4f8hfvblq1",
+        "id": "obj_mwo3vm5hk1fu4x1l",
         "typeId": "weapon_rack",
         "row": 4,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4fe1qy0b71",
+        "id": "obj_mwo3vm5hkydfx1d7",
         "typeId": "armor",
-        "row": 5,
+        "row": 6,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4ftebl39ee",
-        "typeId": "chest",
-        "row": 4,
-        "col": 4
+        "id": "obj_mwo3vm5hun78qd5n",
+        "typeId": "anvil",
+        "row": 5,
+        "col": 2
       },
       {
-        "id": "obj_mwm9lr4f1o3dzhtz",
-        "typeId": "bench",
-        "row": 5,
+        "id": "obj_mwo3vm5hsncc8ydp",
+        "typeId": "fireplace",
+        "row": 4,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4f6rx0bnqi",
+        "id": "obj_mwo3vm5h5gq477if",
+        "typeId": "chest",
+        "row": 4,
+        "col": 6
+      },
+      {
+        "id": "obj_mwo3vm5hofvllccc",
+        "typeId": "bench",
+        "row": 6,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm5hbeoagqzo",
+        "typeId": "barrel",
+        "row": 5,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3vm5hrbpgrfcm",
         "typeId": "door",
         "row": 1,
-        "col": 1,
+        "col": 2,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4fhxw061eq",
+        "id": "obj_mwo3vm5hroj2xadq",
         "typeId": "door",
         "row": 1,
-        "col": 4,
+        "col": 5,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4fe71vuq7o",
+        "id": "obj_mwo3vm5h80hljhas",
         "typeId": "door",
         "row": 3,
-        "col": 2,
+        "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4f80cvj0rn",
+        "id": "obj_mwo3vm5hkp1f4r6t",
         "typeId": "door",
         "row": 3,
         "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4ffmywqygs",
+        "id": "obj_mwo3vm5h0anrwy8h",
         "typeId": "door",
         "row": 3,
-        "col": 2,
+        "col": 3,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4fg2ehwag0",
+        "id": "obj_mwo3vm5hm5pd1c7d",
         "typeId": "door",
         "row": 3,
-        "col": 4,
+        "col": 5,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4f42ujgark",
+        "id": "obj_mwo3vm5hkm62nqg5",
+        "typeId": "door",
+        "row": 5,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5hw8xzd8pl",
         "typeId": "door",
         "row": 5,
         "col": 1,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4fl84axho2",
+        "id": "obj_mwo3vm5hmzaxgj7s",
         "typeId": "window",
         "row": 2,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr4f6bqwwotc",
+        "id": "obj_mwo3vm5h6i9zqcfo",
         "typeId": "window",
         "row": 4,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr4fblc785x4",
+        "id": "obj_mwo3vm5h8fulvutv",
         "typeId": "window",
-        "row": 5,
-        "col": 5,
+        "row": 6,
+        "col": 0,
+        "side": "W"
+      },
+      {
+        "id": "obj_mwo3vm5hb42pvhi2",
+        "typeId": "window",
+        "row": 6,
+        "col": 6,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4for1zn49t",
+        "id": "obj_mwo3vm5hy966v2cs",
         "typeId": "window",
         "row": 3,
-        "col": 5,
+        "col": 6,
         "side": "E"
       }
     ]
   },
   "characters": [
     {
-      "id": "char_mwm9lr4fpoly7048",
+      "id": "char_mwo3vm5hp0xz58oa",
       "name": "Aldobrando",
       "iconId": "knight",
       "isVictim": false,
@@ -399,26 +504,26 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4faksvoub8",
-      "name": "Sigfrido",
-      "iconId": "soldier",
-      "isVictim": false,
-      "bio": "Scudiero di ser Aldobrando: lucida le armi e porta la lancia. Fedele, o abituato a esserlo.",
-      "color": "#ea558a",
-      "gender": "male"
-    },
-    {
-      "id": "char_mwm9lr4fdgctbndg",
+      "id": "char_mwo3vm5hm61ehod3",
       "name": "Brunone",
       "iconId": "construction",
       "isVictim": false,
       "bio": "Garzone di stalla, tutto muscoli e poco cervello. Venanzia lo sgridava per il fieno sprecato.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5hom9cknai",
+      "name": "Corrado",
+      "iconId": "blacksmith",
+      "isVictim": false,
+      "bio": "Maniscalco delle scuderie: ferra i cavalli dei cavalieri e conosce il peso di ogni lancia. Venanzia gli portava i cavalli zoppi, e lui le dava sempre ragione.",
       "color": "#158060",
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4fvu13dm04",
-      "name": "Isolda",
+      "id": "char_mwo3vm5hibcj4izj",
+      "name": "Delia",
       "iconId": "princess",
       "isVictim": false,
       "bio": "Dama della corte, appassionata di tornei: siede sempre in prima fila. Frequenta le scuderie più di quanto sia decoroso.",
@@ -426,7 +531,7 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4f30zog340",
+      "id": "char_mwo3vm5hwzyo19i4",
       "name": "Ermengarda",
       "iconId": "maid",
       "isVictim": false,
@@ -435,12 +540,21 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4fpk0m2en7",
+      "id": "char_mwo3vm5hmmy56u2x",
+      "name": "Fabiano",
+      "iconId": "soldier",
+      "isVictim": false,
+      "bio": "Scudiero di ser Aldobrando: lucida le armi e porta la lancia. Fedele, o abituato a esserlo.",
+      "color": "#4a6aca",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5hiksf5e16",
       "name": "Venanzia",
       "iconId": "cowboy",
       "isVictim": true,
       "bio": "21 anni, palafreniera della corte. Conosce ogni cavallo per nome e ogni cavaliere per i suoi vizi.",
-      "color": "#4a6aca",
+      "color": "#9f80b5",
       "gender": "female"
     }
   ],

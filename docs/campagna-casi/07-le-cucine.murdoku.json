@@ -1,321 +1,398 @@
 {
   "schemaVersion": 4,
-  "id": "puzzle_mwm9lr4isixgm8q5",
+  "id": "puzzle_mwo3vm5j5ixxh6ts",
   "title": "Le cucine",
   "author": "",
   "difficulty": "hard",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "Un cuoco è morto nelle cucine del castello, vicino al calderone. La regina ti riceve nella sala, ti offre un calice di vino e beve per prima: «Qui non ci si fida di nessuno, nemmeno dei cuochi». Fuori, il castello sa già che si indaga.",
+  "briefing": "Un cuoco è morto nelle cucine del castello, vicino al calderone. La regina ti riceve nella sala, ti offre un calice di vino e beve per prima: «Qui non ci si fida di nessuno, nemmeno dei cuochi». Fuori, il castello sa già che si indaga, e sette persone avevano accesso alle cucine.",
   "resolutionNote": "La dispensiera crolla: la promozione di Valdo le aveva bruciato dentro. Nel manico del cucchiaio d'argento, un foglietto: «Il cancelliere scriveva nell'anticamera, vicino al candelabro». Sette figli morti: ti chiedi chi, a corte, ci guadagna.",
   "tense": "past",
-  "createdAt": 1795015032210,
-  "updatedAt": 1795015032210,
+  "createdAt": 1795126346983,
+  "updatedAt": 1795126346983,
   "grid": {
     "size": {
-      "rows": 7,
-      "cols": 7
+      "rows": 8,
+      "cols": 8
     },
     "cells": [
       [
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
-          "objectId": "obj_mwm9lr4i7zp1p856",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
+          "objectId": "obj_mwo3vm5j047s7yp8",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ipu9ldh5g",
-          "objectId": "obj_mwm9lr4i1rq38pi9",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
+          "objectId": "obj_mwo3vm5jkbzhfzym",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ipu9ldh5g",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ipu9ldh5g",
-          "objectId": "obj_mwm9lr4iijliifm2",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jdxa767j9",
+          "objectId": "obj_mwo3vm5jr5ehtfv4",
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
-          "objectId": "obj_mwm9lr4i5i26h1s2",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
+          "objectId": "obj_mwo3vm5j1avljwtw",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ipu9ldh5g",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ipu9ldh5g",
-          "objectId": "obj_mwm9lr4ix2cj8sgi",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ipu9ldh5g",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
-          "objectId": "obj_mwm9lr4iutykpoq8",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
-          "objectId": "obj_mwm9lr4imizseigy",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
+          "objectId": "obj_mwo3vm5jc349tu62",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4im82lxr1x",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ihi9tr6a7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ihi9tr6a7",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ihi9tr6a7",
+          "zoneId": "zone_mwo3vm5jdxa767j9",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4isscpvet0",
-          "objectId": "obj_mwm9lr4ivzadxhxf",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
+          "objectId": "obj_mwo3vm5jso979q5w",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4isscpvet0",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i9a07tbmi",
+          "zoneId": "zone_mwo3vm5jfftdoj27",
+          "objectId": "obj_mwo3vm5j8pfyer6e",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfftdoj27",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i9a07tbmi",
+          "zoneId": "zone_mwo3vm5js960z6kn",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ihi9tr6a7",
+          "zoneId": "zone_mwo3vm5js960z6kn",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4ihi9tr6a7",
-          "objectId": "obj_mwm9lr4i9irvh5uf",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4ihi9tr6a7",
-          "objectId": null,
-          "blocked": false
-        }
-      ],
-      [
-        {
-          "zoneId": "zone_mwm9lr4isscpvet0",
+          "zoneId": "zone_mwo3vm5js960z6kn",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4isscpvet0",
-          "objectId": "obj_mwm9lr4itu8jxnpn",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4i9a07tbmi",
-          "objectId": "obj_mwm9lr4i0ks30jbo",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4i9a07tbmi",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
-          "objectId": null,
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
+          "zoneId": "zone_mwo3vm5js960z6kn",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4isb927mhd",
-          "objectId": "obj_mwm9lr4iz6hbomzd",
+          "zoneId": "zone_mwo3vm5jfkzd5omm",
+          "objectId": "obj_mwo3vm5jajs83ob9",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4isb927mhd",
+          "zoneId": "zone_mwo3vm5jfkzd5omm",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4isb927mhd",
-          "objectId": "obj_mwm9lr4ihrofuh2d",
-          "blocked": false
-        },
-        {
-          "zoneId": "zone_mwm9lr4i9a07tbmi",
+          "zoneId": "zone_mwo3vm5jfkzd5omm",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
+          "zoneId": "zone_mwo3vm5j6dqbih7i",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
-          "objectId": "obj_mwm9lr4itd488ye8",
+          "zoneId": "zone_mwo3vm5js960z6kn",
+          "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
+          "zoneId": "zone_mwo3vm5js960z6kn",
+          "objectId": "obj_mwo3vm5jtdjpi0dj",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5js960z6kn",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5js960z6kn",
           "objectId": null,
           "blocked": false
         }
       ],
       [
         {
-          "zoneId": "zone_mwm9lr4isb927mhd",
+          "zoneId": "zone_mwo3vm5jfkzd5omm",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4isb927mhd",
-          "objectId": "obj_mwm9lr4ij50qgb44",
+          "zoneId": "zone_mwo3vm5jfkzd5omm",
+          "objectId": "obj_mwo3vm5j15pch4b0",
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4isb927mhd",
+          "zoneId": "zone_mwo3vm5jfkzd5omm",
+          "objectId": "obj_mwo3vm5jez85u2yn",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j6dqbih7i",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i9a07tbmi",
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
           "objectId": null,
           "blocked": false
         },
         {
-          "zoneId": "zone_mwm9lr4i8r3mj5ai",
-          "objectId": "obj_mwm9lr4iux9idqk5",
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": "obj_mwo3vm5j300z779k",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": "obj_mwo3vm5jcrexf9xg",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j6dqbih7i",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": "obj_mwo3vm5j80rdqn9m",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": "obj_mwo3vm5j4zh20ij3",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": "obj_mwo3vm5jdpj9036m",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5j9fnyatwu",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5jfec0bkxx",
+          "objectId": "obj_mwo3vm5jnw1f3odb",
           "blocked": false
         }
       ]
     ],
     "zones": [
       {
-        "id": "zone_mwm9lr4im82lxr1x",
+        "id": "zone_mwo3vm5jfftdoj27",
         "name": "La cucina grande",
         "color": "#f4c2c2",
         "textureId": "brick"
       },
       {
-        "id": "zone_mwm9lr4ipu9ldh5g",
+        "id": "zone_mwo3vm5jdxa767j9",
         "name": "La dispensa",
         "color": "#c2e0f4",
         "textureId": "flagstone_moss"
       },
       {
-        "id": "zone_mwm9lr4ihi9tr6a7",
+        "id": "zone_mwo3vm5js960z6kn",
         "name": "La macelleria",
         "color": "#c9f4c2",
         "textureId": "terracotta"
       },
       {
-        "id": "zone_mwm9lr4isscpvet0",
+        "id": "zone_mwo3vm5jfkzd5omm",
         "name": "Il forno",
         "color": "#f4ecc2",
         "textureId": "herringbone"
       },
       {
-        "id": "zone_mwm9lr4i9a07tbmi",
+        "id": "zone_mwo3vm5j6dqbih7i",
         "name": "La lavanderia",
         "color": "#e0c2f4",
         "textureId": "stone"
       },
       {
-        "id": "zone_mwm9lr4i8r3mj5ai",
+        "id": "zone_mwo3vm5jfec0bkxx",
         "name": "Il cortile",
         "color": "#f4d3c2",
         "textureId": "cobble"
       },
       {
-        "id": "zone_mwm9lr4isb927mhd",
+        "id": "zone_mwo3vm5j9fnyatwu",
         "name": "La cantina",
         "color": "#c2f4e8",
         "textureId": "dirt"
@@ -323,211 +400,231 @@
     ],
     "objects": [
       {
-        "id": "obj_mwm9lr4i5i26h1s2",
+        "id": "obj_mwo3vm5j1avljwtw",
         "typeId": "cauldron",
         "row": 1,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4i7zp1p856",
+        "id": "obj_mwo3vm5j047s7yp8",
         "typeId": "fireplace",
         "row": 0,
         "col": 3
       },
       {
-        "id": "obj_mwm9lr4imizseigy",
+        "id": "obj_mwo3vm5j8pfyer6e",
         "typeId": "table",
         "row": 2,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4iutykpoq8",
+        "id": "obj_mwo3vm5jso979q5w",
         "typeId": "bench",
         "row": 2,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4i1rq38pi9",
+        "id": "obj_mwo3vm5jkbzhfzym",
         "typeId": "shelf",
         "row": 0,
         "col": 4
       },
       {
-        "id": "obj_mwm9lr4iijliifm2",
+        "id": "obj_mwo3vm5jr5ehtfv4",
         "typeId": "shelf",
         "row": 0,
+        "col": 7
+      },
+      {
+        "id": "obj_mwo3vm5jc349tu62",
+        "typeId": "barrel",
+        "row": 1,
         "col": 6
       },
       {
-        "id": "obj_mwm9lr4ix2cj8sgi",
-        "typeId": "barrel",
-        "row": 1,
-        "col": 5
-      },
-      {
-        "id": "obj_mwm9lr4i9irvh5uf",
+        "id": "obj_mwo3vm5jtdjpi0dj",
         "typeId": "table",
         "row": 3,
         "col": 5
       },
       {
-        "id": "obj_mwm9lr4ivzadxhxf",
+        "id": "obj_mwo3vm5jajs83ob9",
         "typeId": "fireplace",
         "row": 3,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4itu8jxnpn",
+        "id": "obj_mwo3vm5j15pch4b0",
         "typeId": "bench",
         "row": 4,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4i0ks30jbo",
+        "id": "obj_mwo3vm5jez85u2yn",
         "typeId": "cauldron",
         "row": 4,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4iz6hbomzd",
+        "id": "obj_mwo3vm5j300z779k",
         "typeId": "barrel",
         "row": 5,
         "col": 0
       },
       {
-        "id": "obj_mwm9lr4ij50qgb44",
+        "id": "obj_mwo3vm5j4zh20ij3",
         "typeId": "barrel",
         "row": 6,
         "col": 1
       },
       {
-        "id": "obj_mwm9lr4ihrofuh2d",
+        "id": "obj_mwo3vm5jcrexf9xg",
         "typeId": "barrel",
         "row": 5,
         "col": 2
       },
       {
-        "id": "obj_mwm9lr4itd488ye8",
+        "id": "obj_mwo3vm5j80rdqn9m",
         "typeId": "well",
         "row": 5,
-        "col": 5
-      },
-      {
-        "id": "obj_mwm9lr4iux9idqk5",
-        "typeId": "cart",
-        "row": 6,
         "col": 6
       },
       {
-        "id": "obj_mwm9lr4ifrzc07v2",
+        "id": "obj_mwo3vm5jnw1f3odb",
+        "typeId": "cart",
+        "row": 7,
+        "col": 7
+      },
+      {
+        "id": "obj_mwo3vm5jdpj9036m",
+        "typeId": "chest",
+        "row": 7,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3vm5jpkrr7qud",
         "typeId": "door",
         "row": 1,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4izy3j9339",
+        "id": "obj_mwo3vm5jajvnekoh",
         "typeId": "door",
         "row": 2,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4ijbydwi02",
+        "id": "obj_mwo3vm5jlorexubg",
         "typeId": "door",
         "row": 2,
         "col": 1,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4i35lmj1eb",
+        "id": "obj_mwo3vm5jw73qjbwg",
         "typeId": "door",
         "row": 2,
         "col": 3,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4ip61w8lgn",
+        "id": "obj_mwo3vm5jn073z0nn",
         "typeId": "door",
         "row": 1,
-        "col": 5,
+        "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4i0s6l4dpu",
+        "id": "obj_mwo3vm5jekxhxj7y",
         "typeId": "door",
         "row": 3,
         "col": 3,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4ic39nmcqd",
+        "id": "obj_mwo3vm5j7gm7dyuq",
         "typeId": "door",
         "row": 3,
-        "col": 5,
+        "col": 6,
         "side": "S"
       },
       {
-        "id": "obj_mwm9lr4i1110ld0i",
+        "id": "obj_mwo3vm5j2e09dasi",
         "typeId": "door",
         "row": 4,
-        "col": 1,
-        "side": "E"
-      },
-      {
-        "id": "obj_mwm9lr4i1l0km160",
-        "typeId": "door",
-        "row": 5,
-        "col": 3,
-        "side": "E"
-      },
-      {
-        "id": "obj_mwm9lr4ic11g99id",
-        "typeId": "door",
-        "row": 6,
         "col": 2,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4iwg8162ma",
+        "id": "obj_mwo3vm5jznlhfsyh",
+        "typeId": "door",
+        "row": 5,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5jyrgtq4t2",
+        "typeId": "door",
+        "row": 5,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3vm5j2gwjrwdf",
+        "typeId": "door",
+        "row": 7,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5joecjys0w",
         "typeId": "window",
         "row": 0,
         "col": 0,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4icdrkz0ve",
+        "id": "obj_mwo3vm5jwumrcqq1",
         "typeId": "window",
         "row": 0,
-        "col": 5,
+        "col": 6,
         "side": "N"
       },
       {
-        "id": "obj_mwm9lr4i552tus9k",
+        "id": "obj_mwo3vm5japsjqbcp",
         "typeId": "window",
         "row": 3,
         "col": 0,
         "side": "W"
       },
       {
-        "id": "obj_mwm9lr4iayybjxzd",
+        "id": "obj_mwo3vm5jlcrfk6mv",
         "typeId": "window",
-        "row": 6,
-        "col": 6,
+        "row": 7,
+        "col": 7,
         "side": "E"
       },
       {
-        "id": "obj_mwm9lr4ikvlifi68",
+        "id": "obj_mwo3vm5j4rryaafw",
         "typeId": "window",
-        "row": 6,
+        "row": 7,
         "col": 0,
         "side": "W"
+      },
+      {
+        "id": "obj_mwo3vm5jgbr1vuk7",
+        "typeId": "window",
+        "row": 4,
+        "col": 7,
+        "side": "E"
       }
     ]
   },
   "characters": [
     {
-      "id": "char_mwm9lr4ip5yfqsdq",
+      "id": "char_mwo3vm5ju33hw6g6",
       "name": "Agnese",
       "iconId": "maid",
       "isVictim": false,
@@ -536,8 +633,8 @@
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4iury0400n",
-      "name": "Tommaso",
+      "id": "char_mwo3vm5jbhjcv8b9",
+      "name": "Bruno",
       "iconId": "waiter",
       "isVictim": false,
       "bio": "Sguattero: lava le pentole e porta l'acqua. Valdo lo trattava meglio di quanto meritasse, dice.",
@@ -545,48 +642,57 @@
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4irlinl6ny",
-      "name": "Lorenzo",
-      "iconId": "butler",
+      "id": "char_mwo3vm5j7970qmph",
+      "name": "Cesare",
+      "iconId": "bartender",
       "isVictim": false,
-      "bio": "Maestro di cucina, capo di tutti i fornelli. Aveva proposto un altro per il posto di cuoco del re.",
+      "bio": "Trinciante del re: taglia le carni a tavola e le assaggia prima di tutti. Valdo gli aveva portato via il posto accanto al re, e lui non lo ha scordato.",
       "color": "#158060",
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4ilnruiqvx",
-      "name": "Zaccaria",
-      "iconId": "butcher",
+      "id": "char_mwo3vm5jyidkqi2e",
+      "name": "Damiano",
+      "iconId": "butler",
       "isVictim": false,
-      "bio": "Macellaio del castello: fornisce la carne e conosce i coltelli meglio di chiunque.",
+      "bio": "Maestro di cucina, capo di tutti i fornelli. Aveva proposto un altro per il posto di cuoco del re.",
       "color": "#9f5595",
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4i2kld7ez3",
-      "name": "Nicola",
-      "iconId": "baker",
+      "id": "char_mwo3vm5j8d4nrmqs",
+      "name": "Ezio",
+      "iconId": "butcher",
       "isVictim": false,
-      "bio": "Fornaio: all'alba è già al forno. Passa dalle cucine per le farine e per le uova.",
+      "bio": "Macellaio del castello: fornisce la carne e conosce i coltelli meglio di chiunque.",
       "color": "#bf8020",
       "gender": "male"
     },
     {
-      "id": "char_mwm9lr4ilqhoejr0",
+      "id": "char_mwo3vm5jw9mi7puz",
+      "name": "Filippo",
+      "iconId": "baker",
+      "isVictim": false,
+      "bio": "Fornaio: all'alba è già al forno. Passa dalle cucine per le farine e per le uova.",
+      "color": "#4a6aca",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5jdq2gjk7r",
       "name": "Ginevra",
       "iconId": "farmer",
       "isVictim": false,
       "bio": "Lavandaia: porta i panni puliti e si ferma volentieri a chiacchierare.",
-      "color": "#4a6aca",
+      "color": "#9f80b5",
       "gender": "female"
     },
     {
-      "id": "char_mwm9lr4iy4aj4izm",
+      "id": "char_mwo3vm5jvkjfshch",
       "name": "Valdo",
       "iconId": "chef",
       "isVictim": true,
       "bio": "22 anni, cuoco: promosso da poco cuoco personale del re. Ambizioso, orgoglioso del suo posto.",
-      "color": "#9f80b5",
+      "color": "#6a9560",
       "gender": "male"
     }
   ],

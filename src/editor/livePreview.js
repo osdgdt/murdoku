@@ -12,6 +12,7 @@ import { estimateDifficulty, difficultyLabel } from "../model/puzzle.js";
 import { analyzePuzzleAsync } from "../solver/solverClient.js";
 import { limitsFor, searchBudget } from "../solver/limits.js";
 import { startProgress } from "../util/progressBanner.js";
+import { createReplayView } from "./replayView.js";
 import { TECHNIQUES } from "../solver/techniques/catalog.js";
 import { techniqueName, techniqueText, levelLabel } from "../solver/techniques/names.js";
 import { t } from "../i18n/i18n.js";
@@ -37,6 +38,7 @@ export function describeAnalysis(result) {
         technique: techniqueName(human.hardest),
       }),
       details,
+      trace: human.trace ?? null,
     };
   }
   if (status === "unique") {
@@ -57,7 +59,7 @@ export function describeAnalysis(result) {
 }
 
 // The reasonings a case needs, as a list the author can open under the line.
-function detailsList(details) {
+function detailsList(details, replay) {
   return el("details", { class: "difficulty-details" }, [
     el("summary", {}, t("Come si risolve, ragionamento per ragionamento")),
     el(
@@ -65,7 +67,19 @@ function detailsList(details) {
       {},
       details.map((d) =>
         el("li", { class: `technique-${d.level}` }, [
-          el("strong", {}, `${techniqueName(d.id)} `),
+          replay
+            ? el(
+                "button",
+                {
+                  type: "button",
+                  class: "replay-link",
+                  title: t("Vai a questo passo nella griglia"),
+                  onClick: () => replay.goToTechnique(d.id, d.first),
+                },
+                techniqueName(d.id)
+              )
+            : el("strong", {}, techniqueName(d.id)),
+          " ",
           el("span", { class: "muted" }, `(${levelLabel(d.level)}) `),
           el("span", {}, t("{count}× · il primo al passo {first}", { count: d.count, first: d.first })),
           el("br"),
@@ -73,6 +87,7 @@ function detailsList(details) {
         ])
       )
     ),
+    replay ? replay.node : null,
   ]);
 }
 
@@ -83,6 +98,7 @@ export function createLivePreview({ container, getPuzzle }) {
   let sequence = 0;
   let progress = null; // the bar shown while a long analysis runs
   let revealTimer = null;
+  let replayView = null; // the board of the human, under the details (its timer stops when the line is redrawn)
 
   function stopProgress() {
     clearTimeout(revealTimer);
@@ -91,8 +107,10 @@ export function createLivePreview({ container, getPuzzle }) {
     progress = null;
   }
 
-  function show(tone, text, action = null, details = null) {
+  function show(tone, text, action = null, details = null, replay = null) {
     stopProgress();
+    if (replayView && replayView !== replay) replayView.destroy();
+    replayView = replay;
     clear(container);
     container.appendChild(
       el(
@@ -101,12 +119,13 @@ export function createLivePreview({ container, getPuzzle }) {
         action ? [text, " ", el("button", { type: "button", class: "difficulty-retry", onClick: action.run }, action.label)] : text
       )
     );
-    if (details?.length) container.appendChild(detailsList(details));
+    if (details?.length) container.appendChild(detailsList(details, replay));
   }
 
   async function run() {
     const puzzle = getPuzzle();
     const mine = ++sequence;
+    const analysed = JSON.parse(JSON.stringify(puzzle)); // the case as it is now: the board of the human is drawn from it
     if (puzzle.characters.length < 2 || puzzle.clues.length === 0) {
       show("info", t("Aggiungi personaggi e indizi per vedere qui quante soluzioni restano e quanto è difficile."));
       return;
@@ -141,8 +160,8 @@ export function createLivePreview({ container, getPuzzle }) {
         },
       });
       if (mine !== sequence) return; // a newer edit has started its own analysis
-      const { tone, text, details } = describeAnalysis(result);
-      show(tone, text, null, details);
+      const { tone, text, details, trace } = describeAnalysis(result);
+      show(tone, text, null, details, details && trace ? createReplayView({ puzzle: analysed, trace }) : null);
     } catch (err) {
       if (mine !== sequence) return;
       if (err?.name === "AbortError") {

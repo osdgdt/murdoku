@@ -43,6 +43,17 @@ const PAGES = [
   ["editor (fixture case)", null], // opened via the saved case's id, below
   // the room's name and colour controls only exist while a room is selected
   ["editor (a room selected)", null, (page) => page.locator(".swatch").first().click(), "#zone-rename-input"],
+  // «Come si risolve»: the difficulty detail open, with the board of the human a few steps in
+  [
+    "editor (how it is solved, step by step)",
+    null,
+    async (page) => {
+      await page.waitForSelector("#difficulty-preview .difficulty-details", { timeout: 30000 });
+      await page.locator("#difficulty-preview summary").click();
+      for (let i = 0; i < 3; i++) await page.locator("#difficulty-preview .replay-bar .replay-btn").nth(2).click(); // ▶
+    },
+    "#difficulty-preview .replay-board",
+  ],
   // the clue wizard: its two steps (the type list, then the sentence with its controls)
   [
     "editor (clue wizard, step 1)",

@@ -107,4 +107,23 @@ export default {
   "Indizi usati:": "Clues used:",
   "Un esempio vero": "A real example",
   "Il ragionamento guarda anche: {names}.": "The reasoning also looks at: {names}.",
+  "Torna all'inizio": "Back to the start",
+  "Passo precedente": "Previous step",
+  "Passo successivo": "Next step",
+  "Vai alla fine": "Go to the end",
+  Passo: "Step",
+  "Passo {n} di {m}": "Step {n} of {m}",
+  "Ragionamento successivo": "Next reasoning",
+  "Piazzamento successivo": "Next placement",
+  "▶ Riproduci": "▶ Play",
+  "⏸ Pausa": "⏸ Pause",
+  "Mostra le note di tutti": "Show everybody's notes",
+  "Vai a questo passo nella griglia": "Go to this step on the board",
+  "Prima di cominciare: ogni personaggio è una nota su ogni casella.": "Before starting: every character is a note on every cell.",
+  "Si vedono solo le note del personaggio del passo: «Mostra le note di tutti» le mostra tutte.":
+    "Only the notes of the character of the step are shown: «Show everybody's notes» shows them all.",
+  "{name} sta nella casella evidenziata: si trova provando le possibilità.":
+    "{name} is in the outlined cell: found by trying the possibilities.",
+  "{name} deve stare nella casella evidenziata: è l'unica rimasta.": "{name} must be in the outlined cell: it is the only one left.",
+  "{name}: {count} caselle in meno tra le sue note.": "{name}: {count} fewer cells among their notes.",
 };

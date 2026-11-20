@@ -32,12 +32,14 @@ const EXTRA = {
   "moderation.html": ["community"],
   "tutorial.html": ["tutorial"],
   "privacy.html": ["privacy"],
-  "campaign.html": ["campaign"],
+  "campaign.html": ["campaign", "reasoning"],
   "campaign-editor.html": ["campaign"],
+  // (the daily challenge is played with the hints, which name the reasoning)
+  "daily.html": ["reasoning"],
 };
 // pages that are known to need nothing else; any other name (a renamed page, a host that serves the home at "/")
 // gets every area, which is always correct
-const PLAIN_PAGES = new Set(["", "index.html", "print.html", "achievements.html", "daily.html"]);
+const PLAIN_PAGES = new Set(["", "index.html", "print.html", "achievements.html"]);
 
 // The areas of the page at `pathname` (e.g. "/murdoku/glossary.html").
 export function areasForPage(pathname) {

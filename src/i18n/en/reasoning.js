@@ -55,4 +55,5 @@ export default {
     "⚠ I could not make a {requested} case: this one is {level}. Generate again to retry.",
   "⚠ Non sono riuscito a ottenere un caso di livello {requested}: questo è più difficile. Rigenera per riprovare.":
     "⚠ I could not make a {requested} case: this one is harder. Generate again to retry.",
+  "Ragionamento:": "Reasoning:",
 };

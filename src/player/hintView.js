@@ -3,7 +3,17 @@
 import { el } from "../util/dom.js";
 import { describeClue } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
+import { techniqueName, techniqueText } from "../solver/techniques/names.js";
 import { HINT_LEVELS, isGradedStep, gradedHintMessage } from "./hintLogic.js";
+
+// The reasoning that gets to the deduction (its name and what it does), when the human solver could name it.
+function techniqueBlock(result) {
+  if (!result.technique) return null;
+  return el("div", { class: "hint-technique" }, [
+    el("div", { class: "hint-explain-label" }, t("Ragionamento:")),
+    el("p", { class: "hint-explain-note" }, [el("strong", {}, techniqueName(result.technique)), ` — ${techniqueText(result.technique)}`]),
+  ]);
+}
 
 // Which specific clues (by name, prefixed with the owning character when it's
 // not the step's own subject) make the deduction certain. Returns null when
@@ -30,21 +40,27 @@ export function renderHintExplanation(puzzle, result) {
     return el(
       "div",
       { class: "hint-explain" },
-      el(
-        "p",
-        { class: "hint-explain-note" },
-        t("Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso.")
-      )
+      [
+        techniqueBlock(result),
+        el(
+          "p",
+          { class: "hint-explain-note" },
+          t("Questa deduzione non viene da un indizio specifico, ma da un'analisi completa e approfondita dell'intero caso.")
+        ),
+      ].filter(Boolean)
     );
   }
   if (result.jointlyDetermined) {
     return el(
       "div",
       { class: "hint-explain" },
-      el("p", { class: "hint-explain-note" }, t("Questa deduzione dipende dalla combinazione di più indizi insieme."))
+      [
+        techniqueBlock(result),
+        el("p", { class: "hint-explain-note" }, t("Questa deduzione dipende dalla combinazione di più indizi insieme.")),
+      ].filter(Boolean)
     );
   }
-  const blocks = [];
+  const blocks = [techniqueBlock(result)].filter(Boolean);
   if (result.involvedClues?.length) {
     blocks.push(el("div", { class: "hint-explain-label" }, t("Perché:")));
     blocks.push(

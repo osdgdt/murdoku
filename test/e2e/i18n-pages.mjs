@@ -43,8 +43,8 @@ const PAGES = {
   "glossary.html": [[...COMMON, "glossary", "tutorial", "reasoning"], ["Glossario degli indizi"]],
   "tutorial.html": [[...COMMON, "tutorial"], ["Come si gioca"]],
   "privacy.html": [[...COMMON, "privacy"], ["Cancella i dati di questo dispositivo"]],
-  "campaign.html": [[...COMMON, "campaign"], ["Accedi con Google"]],
-  "daily.html": [COMMON, ["Nessuna sfida oggi"]],
+  "campaign.html": [[...COMMON, "campaign", "reasoning"], ["Accedi con Google"]],
+  "daily.html": [[...COMMON, "reasoning"], ["Nessuna sfida oggi"]],
   "community.html": [
     [...COMMON, "community"],
     ["Tutti i casi", "Non c'è ancora nessun caso pubblicato", "Pubblica un tuo caso"],

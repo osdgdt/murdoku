@@ -2,6 +2,8 @@ import { createPuzzle, addCharacter, addClue, setSolutionPlacement } from "../sr
 import { addZone, paintCellZone, placeObject, resizeGrid } from "../src/model/grid.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import { computeHint, computeHintChain } from "../src/solver/hints.js";
+import { techniqueById } from "../src/solver/techniques/catalog.js";
+import { readRepoFile } from "./helpers/read-file.js";
 import { assert, assertEqual } from "./assert.js";
 
 // The unified form of the old "not…" clue types: the positive type + `negate`.
@@ -49,6 +51,21 @@ function eliminatedCellPuzzle() {
 }
 
 export const tests = [
+  {
+    name: "suggerimenti: ogni deduzione porta il nome del ragionamento del catalogo che la spiega",
+    fn: async () => {
+      const puzzle = JSON.parse(await readRepoFile("test/fixtures/tutorial.en.murdoku.json"));
+      const chain = computeHintChain(puzzle, new Map());
+      const deductions = chain.filter((s) => s.type === "forcedPlacement" || s.type === "eliminatedCell");
+      assert(deductions.length > 0, "il caso ha deduzioni");
+      for (const step of deductions.filter((s) => s.type === "forcedPlacement")) {
+        assert(step.technique && techniqueById(step.technique), `un ragionamento valido per ${step.characterId}: ${step.technique}`);
+      }
+      // a board with a wrong placement gives no names (the human solver cannot start from a contradiction), and no error
+      const wrong = new Map([[puzzle.characters[0].id, { row: 0, col: 0 }]]);
+      computeHintChain(puzzle, wrong).forEach((s) => assert(!s.technique || techniqueById(s.technique)));
+    },
+  },
   {
     name: "computeHint: forcedPlacement quando un personaggio ha una sola cella compatibile",
     fn: () => {

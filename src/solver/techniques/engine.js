@@ -599,7 +599,7 @@ function closure(ctx, state, rec, allowedIds) {
 
 export function humanSolve(
   puzzle,
-  { maxLevel = "expert", maxWork = Infinity, deadline = null, shouldStop = null, onProgress = null } = {}
+  { maxLevel = "expert", maxWork = Infinity, deadline = null, shouldStop = null, onProgress = null, placements = null } = {}
 ) {
   const ctx = buildContext(puzzle, { maxWork, deadline, shouldStop });
   const rec = { steps: [] };
@@ -627,6 +627,13 @@ export function humanSolve(
 
   if (total === 0) return result("solved");
   try {
+    // somebody is already placed (a player's board): start from there
+    if (placements) {
+      for (const [characterId, cell] of placements) {
+        if (state.confirmed.has(characterId) || !state.domains.has(characterId)) continue;
+        place(ctx, state, characterId, cell);
+      }
+    }
     let lastReported = -1;
     // The loop is closure() written out, to report progress and to hand over to the exhaustive search at the end.
     const order = TECHNIQUES.filter((t) => allowed.includes(t.id) && RUNNERS[t.id]).map((t) => t.id);

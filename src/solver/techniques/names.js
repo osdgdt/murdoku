@@ -93,6 +93,50 @@ const TEXTS = {
   },
 };
 
+// A small worked example of each reasoning (the glossary shows it).
+const EXAMPLES = {
+  clueFilter: () => t("«Anna è in cucina» e la cucina ha solo due caselle libere: Anna può stare solo in quelle due."),
+  rowColTaken: () =>
+    t("Bruno è già nella riga 2 e nella colonna 3: nessun altro può stare in nessuna casella di quella riga o di quella colonna."),
+  onlyCandidate: () => t("Dopo gli altri ragionamenti a Carla resta una sola casella in cui gli indizi sono veri: è lì."),
+  relationalKnown: () =>
+    t("«Bruno è in diagonale rispetto ad Anna» e Anna è già in B2: Bruno può stare solo in A1, C1, A3 o C3, se sono libere."),
+  roomCapacity: () =>
+    t("La cantina ha una sola casella libera e nessun altro può arrivarci: la vittima non può stare in cantina, perché lì sarebbe sola."),
+  victimRule: () =>
+    t("Nella sala ci sono già la vittima e Anna: nessun altro può entrare nella sala, perché la vittima ha una sola compagna."),
+  roomCount: () =>
+    t(
+      "«Nessuno è in biblioteca»: tutte le caselle della biblioteca sono escluse per tutti. «Una sola persona è accanto al camino»: una seconda lì non può stare."
+    ),
+  lastInLine: () =>
+    t(
+      "Ci sono sei personaggi su una griglia 6×6, quindi ogni riga ha una persona. Nella riga 4 solo Carla può ancora arrivare: Carla è nella riga 4."
+    ),
+  subsets: () => t("Anna e Bruno possono stare solo in B2 o in C3: quelle due caselle sono loro, e Carla non può usarle."),
+  mutualSupport: () =>
+    t(
+      "«Bruno è nella stessa stanza di Anna», e nessuno dei due è ancora piazzato: Bruno può stare solo nelle stanze in cui Anna può davvero stare."
+    ),
+  alternatives: () => t("«Anna è in cucina oppure nel salone»: una casella che non è né in cucina né nel salone è esclusa per Anna."),
+  globalCount: () =>
+    t(
+      "«Esattamente due stanze sono vuote»: una casella che riempirebbe una terza stanza vuota, rendendo le stanze vuote troppo poche, è esclusa."
+    ),
+  finishedBoard: () =>
+    t(
+      "Restano da piazzare Carla e Dario. Provando le poche disposizioni possibili, «Carla è da sola con Dario» è vero solo se Carla sta in B2: altrove sarebbe falso."
+    ),
+  hypothesis: () => t("Si prova «Anna è in B2»: da lì Bruno non ha più nessuna casella. È una contraddizione, quindi Anna non è in B2."),
+  nestedHypothesis: () =>
+    t(
+      "Si prova «Anna è in B2» e, dentro questa ipotesi, anche «Bruno è in C3»: solo allora si arriva a una contraddizione, e si scopre che Bruno non può stare in C3 se Anna è in B2."
+    ),
+  exhaustive: () =>
+    t("Quando nessun ragionamento basta, si provano le possibilità una per una fino a trovare l'unica che rispetta tutti gli indizi."),
+};
+
+export const techniqueExample = (id) => EXAMPLES[id]?.() ?? "";
 export const techniqueName = (id) => TEXTS[id]?.name() ?? id;
 export const techniqueText = (id) => TEXTS[id]?.text() ?? "";
 // "Facile", "Media", "Difficile", "Esperto"

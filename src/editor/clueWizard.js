@@ -22,6 +22,7 @@ import { buildPredicate } from "../solver/predicates/index.js";
 import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { declaredPlacementMap, suggestClues } from "../solver/suggestions.js";
 import { composeCluesAsync } from "../solver/solverClient.js";
+import { techniqueName, levelLabel } from "../solver/techniques/names.js";
 import { startProgress } from "../util/progressBanner.js";
 import {
   newDraft,
@@ -1019,6 +1020,7 @@ function renderGenerator(body, footer, puzzle) {
           t("✓ {count} indizi: con questi la soluzione è unica.", { count: result.clues.length })
         )
       );
+      body.appendChild(levelNote(result));
       body.appendChild(
         el(
           "ul",
@@ -1079,6 +1081,34 @@ function renderGenerator(body, footer, puzzle) {
           t("Aggiungi i selezionati")
         )
       : null
+  );
+}
+
+// What the generator says about the level of the set it found: the reasoning the case needs at most, or, when it could not
+// make a case of the level asked for, which level it is instead.
+function levelNote(result) {
+  if (!result.requested) return el("span");
+  if (result.exact) {
+    return el(
+      "p",
+      { class: "muted" },
+      t("Livello {level}: il ragionamento più difficile è «{technique}».", {
+        level: levelLabel(result.level),
+        technique: techniqueName(result.hardest),
+      })
+    );
+  }
+  return el(
+    "p",
+    { class: "violation", role: "status" },
+    result.level
+      ? t("⚠ Non sono riuscito a ottenere un caso di livello {requested}: questo è di livello {level}. Rigenera per riprovare.", {
+          requested: levelLabel(result.requested),
+          level: levelLabel(result.level),
+        })
+      : t("⚠ Non sono riuscito a ottenere un caso di livello {requested}: questo è più difficile. Rigenera per riprovare.", {
+          requested: levelLabel(result.requested),
+        })
   );
 }
 

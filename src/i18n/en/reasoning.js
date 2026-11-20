@@ -50,4 +50,9 @@ export default {
     "✓ Unique solution · Estimated difficulty: {level} · hardest reasoning: {technique}",
   "Come si risolve, ragionamento per ragionamento": "How it is solved, reasoning by reasoning",
   "{count}× · il primo al passo {first}": "{count}× · the first at step {first}",
+  "Livello {level}: il ragionamento più difficile è «{technique}».": "Level {level}: the hardest reasoning is «{technique}».",
+  "⚠ Non sono riuscito a ottenere un caso di livello {requested}: questo è di livello {level}. Rigenera per riprovare.":
+    "⚠ I could not make a {requested} case: this one is {level}. Generate again to retry.",
+  "⚠ Non sono riuscito a ottenere un caso di livello {requested}: questo è più difficile. Rigenera per riprovare.":
+    "⚠ I could not make a {requested} case: this one is harder. Generate again to retry.",
 };

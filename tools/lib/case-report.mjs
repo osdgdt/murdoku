@@ -6,6 +6,7 @@
 //             rule, a house rule of generated cases is not respected.
 //   warnings  worth a look, never blocking: superfluous clues, a declared difficulty far from what the solver
 //             measures, a search that did not finish.
+import { techniqueName } from "../../src/solver/techniques/names.js";
 import { validatePuzzleShape, DIFFICULTY_LEVELS, estimateDifficulty, difficultyLabel } from "../../src/model/puzzle.js";
 import { migratePuzzle } from "../../src/model/migrations.js";
 import { validateSolution, checkUniqueness } from "../../src/solver/validator.js";
@@ -86,14 +87,20 @@ export async function reportCase(raw, { lang = "it", library = true, maxNodes = 
     errors.push(`la ricerca non è finita entro il limite (${analysis.nodes} nodi): non posso dire se la soluzione è unica`);
 
   if (analysis.status === "unique") {
-    const estimated = estimateDifficulty({ forced: analysis.forced, total: analysis.total, nodes: analysis.nodes });
+    // the human solver's level when it settled the case (the hardest reasoning it needed), else the rough estimate
+    const human = analysis.human?.status === "solved" ? analysis.human : null;
+    const estimated = human?.level ?? estimateDifficulty({ forced: analysis.forced, total: analysis.total, nodes: analysis.nodes });
     metrics.estimated = estimated;
+    metrics.hardest = human?.hardest ?? null;
+    const how = human
+      ? `il ragionamento più difficile è «${techniqueName(human.hardest)}»`
+      : `${analysis.forced} su ${analysis.total} personaggi si deducono subito, ${analysis.nodes} nodi`;
     if (puzzle.difficulty && Math.abs(levelIndex(estimated) - levelIndex(puzzle.difficulty)) >= 2) {
       warnings.push(
-        `difficoltà dichiarata «${difficultyLabel(puzzle.difficulty)}», ma il solutore la stima «${difficultyLabel(estimated)}» (${analysis.forced} su ${analysis.total} personaggi si deducono subito, ${analysis.nodes} nodi): ricontrolla`
+        `difficoltà dichiarata «${difficultyLabel(puzzle.difficulty)}», ma il solutore la stima «${difficultyLabel(estimated)}» (${how}): ricontrolla`
       );
     } else if (!puzzle.difficulty) {
-      warnings.push(`difficoltà non specificata (il solutore stima «${difficultyLabel(estimated)}», ${analysis.nodes} nodi)`);
+      warnings.push(`difficoltà non specificata (il solutore stima «${difficultyLabel(estimated)}»: ${how})`);
     }
     const redundancy = await findRedundantClues(puzzle, async (candidate) =>
       checkUniqueness(candidate, { maxSolutions: 2, forwardCheck: true, maxNodes })

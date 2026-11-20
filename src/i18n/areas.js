@@ -15,16 +15,17 @@ export const AREA_LOADERS = {
   privacy: () => import("./en/privacy.js"),
   campaign: () => import("./en/campaign.js"),
   community: () => import("./en/community.js"),
+  reasoning: () => import("./en/reasoning.js"),
 };
 
 const COMMON = ["ui", "clues", "medieval"];
 // what a page needs on top of the common areas
 const EXTRA = {
   // (the glossary examples are little cases whose cast and rooms are translated in the tutorial's area)
-  "glossary.html": ["glossary", "tutorial"],
-  "editor.html": ["glossary", "community"],
+  "glossary.html": ["glossary", "tutorial", "reasoning"],
+  "editor.html": ["glossary", "community", "reasoning"],
   // (publishing and opening a case by its code)
-  "player.html": ["community"],
+  "player.html": ["community", "reasoning"],
   // (the list of the cases published by other players)
   "community.html": ["community"],
   // (the administrators' page: reports and what to do with them)

@@ -39,8 +39,8 @@ const COMMON = ["ui", "clues", "medieval"];
 // page -> [areas it must load, Italian phrases that must NOT be visible]
 const PAGES = {
   "index.html": [COMMON, ["Crea e gioca i tuoi casi Murdoku"]],
-  "player.html": [[...COMMON, "community"], ["Scegli un caso da giocare"]],
-  "glossary.html": [[...COMMON, "glossary", "tutorial"], ["Glossario degli indizi"]],
+  "player.html": [[...COMMON, "community", "reasoning"], ["Scegli un caso da giocare"]],
+  "glossary.html": [[...COMMON, "glossary", "tutorial", "reasoning"], ["Glossario degli indizi"]],
   "tutorial.html": [[...COMMON, "tutorial"], ["Come si gioca"]],
   "privacy.html": [[...COMMON, "privacy"], ["Cancella i dati di questo dispositivo"]],
   "campaign.html": [[...COMMON, "campaign"], ["Accedi con Google"]],
@@ -54,7 +54,7 @@ const PAGES = {
     ["Accedi con un account amministratore", "Moderazione"],
   ],
   "editor.html": [
-    [...COMMON, "glossary", "community"],
+    [...COMMON, "glossary", "community", "reasoning"],
     ["Nuovo puzzle", "Valida soluzione"],
   ],
 };

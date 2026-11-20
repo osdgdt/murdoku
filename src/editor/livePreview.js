@@ -12,6 +12,8 @@ import { estimateDifficulty, difficultyLabel } from "../model/puzzle.js";
 import { analyzePuzzleAsync } from "../solver/solverClient.js";
 import { limitsFor, searchBudget } from "../solver/limits.js";
 import { startProgress } from "../util/progressBanner.js";
+import { TECHNIQUES } from "../solver/techniques/catalog.js";
+import { techniqueName, techniqueText, levelLabel } from "../solver/techniques/names.js";
 import { t } from "../i18n/i18n.js";
 
 const DEBOUNCE_MS = 700;
@@ -19,7 +21,24 @@ const SHOW_PROGRESS_AFTER_MS = 1000;
 
 // What to write for an analysis result (pure, so it is tested without a page): { tone, text }.
 export function describeAnalysis(result) {
-  const { status, forced, total, nodes } = result;
+  const { status, forced, total, nodes, human } = result;
+  if (status === "unique" && human?.status === "solved" && human.hardest) {
+    // the reasonings the case needs, in the order of the catalogue (the easiest first), each with how often and from which step
+    const details = TECHNIQUES.filter((tech) => human.counts[tech.id]).map((tech) => ({
+      id: tech.id,
+      level: tech.level,
+      count: human.counts[tech.id],
+      first: human.firstStep?.[tech.id] ?? 1,
+    }));
+    return {
+      tone: "ok",
+      text: t("✓ Soluzione unica · Difficoltà stimata: {level} · il ragionamento più difficile: {technique}", {
+        level: levelLabel(human.level),
+        technique: techniqueName(human.hardest),
+      }),
+      details,
+    };
+  }
   if (status === "unique") {
     const label = difficultyLabel(estimateDifficulty({ forced, total, nodes }));
     return {
@@ -37,6 +56,26 @@ export function describeAnalysis(result) {
   return { tone: "info", text: t("… Analisi non conclusa entro il limite: aggiungi indizi per restringere la ricerca") };
 }
 
+// The reasonings a case needs, as a list the author can open under the line.
+function detailsList(details) {
+  return el("details", { class: "difficulty-details" }, [
+    el("summary", {}, t("Come si risolve, ragionamento per ragionamento")),
+    el(
+      "ul",
+      {},
+      details.map((d) =>
+        el("li", { class: `technique-${d.level}` }, [
+          el("strong", {}, `${techniqueName(d.id)} `),
+          el("span", { class: "muted" }, `(${levelLabel(d.level)}) `),
+          el("span", {}, t("{count}× · il primo al passo {first}", { count: d.count, first: d.first })),
+          el("br"),
+          el("span", { class: "muted" }, techniqueText(d.id)),
+        ])
+      )
+    ),
+  ]);
+}
+
 // `container`: where the line goes; `getPuzzle()`: the current puzzle.
 export function createLivePreview({ container, getPuzzle }) {
   let timer = null;
@@ -52,7 +91,7 @@ export function createLivePreview({ container, getPuzzle }) {
     progress = null;
   }
 
-  function show(tone, text, action = null) {
+  function show(tone, text, action = null, details = null) {
     stopProgress();
     clear(container);
     container.appendChild(
@@ -62,6 +101,7 @@ export function createLivePreview({ container, getPuzzle }) {
         action ? [text, " ", el("button", { type: "button", class: "difficulty-retry", onClick: action.run }, action.label)] : text
       )
     );
+    if (details?.length) container.appendChild(detailsList(details));
   }
 
   async function run() {
@@ -101,8 +141,8 @@ export function createLivePreview({ container, getPuzzle }) {
         },
       });
       if (mine !== sequence) return; // a newer edit has started its own analysis
-      const { tone, text } = describeAnalysis(result);
-      show(tone, text);
+      const { tone, text, details } = describeAnalysis(result);
+      show(tone, text, null, details);
     } catch (err) {
       if (mine !== sequence) return;
       if (err?.name === "AbortError") {

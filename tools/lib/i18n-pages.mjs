@@ -7,7 +7,7 @@ import path from "node:path";
 import { PAGE_AREAS } from "../../src/i18n/areas.js";
 
 const root = path.resolve(import.meta.dirname, "../..");
-const AREA_FILES = ["ui", "clues", "medieval", "glossary", "tutorial", "privacy", "campaign", "community"];
+const AREA_FILES = ["ui", "clues", "medieval", "glossary", "tutorial", "privacy", "campaign", "community", "reasoning"];
 
 const unescape = (s) => s.replace(/\\(["'`\\])/g, "$1").replace(/\\n/g, "\n");
 const T_CALL = /\bt\(\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g;

@@ -1835,3 +1835,26 @@
   align-items: center;
   min-height: 44px;
 }
+
+/* The reasonings a case needs, under the difficulty line */
+.difficulty-details {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
+.difficulty-details summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.difficulty-details ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.difficulty-details .muted {
+  color: var(--ink-soft);
+}

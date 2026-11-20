@@ -219,8 +219,8 @@ async function livePreview() {
   await page.waitForSelector("#difficulty-preview .difficulty-line.ok", { timeout: 30000 });
   const text = await page.innerText("#difficulty-preview");
   check(
-    "live preview: a unique case says so, with the difficulty and the deductions",
-    /Soluzione unica/.test(text) && /Difficoltà stimata/.test(text) && /dedotti subito/.test(text),
+    "live preview: a unique case says so, with the difficulty and the hardest reasoning",
+    /Soluzione unica/.test(text) && /Difficoltà stimata/.test(text) && /ragionamento più difficile/.test(text),
     text
   );
   check("live preview: it is a polite live region", (await page.getAttribute("#difficulty-preview", "aria-live")) === "polite");

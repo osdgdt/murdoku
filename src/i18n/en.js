@@ -9,5 +9,6 @@ import glossary from "./en/glossary.js";
 import tutorial from "./en/tutorial.js";
 import medieval from "./en/medieval.js";
 import community from "./en/community.js";
+import reasoning from "./en/reasoning.js";
 
-export default { ...campaign, ...clues, ...ui, ...privacy, ...glossary, ...tutorial, ...medieval, ...community };
+export default { ...campaign, ...clues, ...ui, ...privacy, ...glossary, ...tutorial, ...medieval, ...community, ...reasoning };

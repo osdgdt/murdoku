@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "workCap": 5000000,
   "editorWorkCap": 200000000,
   "strategy": {
@@ -196,6 +196,48 @@
       "evaluations": 11097688,
       "work": 14661964,
       "ms": 3962
+    }
+  ],
+  "humanCases": [
+    {
+      "file": "tragedia-piastra-pendolina.murdoku.json",
+      "status": "solved",
+      "level": "expert",
+      "hardest": "exhaustive",
+      "work": 7492182,
+      "ms": 5496
+    },
+    {
+      "file": "faro.en.murdoku.json",
+      "status": "solved",
+      "level": "easy",
+      "hardest": "onlyCandidate",
+      "work": 150,
+      "ms": 1
+    },
+    {
+      "file": "monastero.en.murdoku.json",
+      "status": "solved",
+      "level": "medium",
+      "hardest": "lastInLine",
+      "work": 507,
+      "ms": 2
+    },
+    {
+      "file": "tutorial.en.murdoku.json",
+      "status": "solved",
+      "level": "medium",
+      "hardest": "relationalKnown",
+      "work": 121,
+      "ms": 0
+    },
+    {
+      "file": "tutorial.it.murdoku.json",
+      "status": "solved",
+      "level": "medium",
+      "hardest": "relationalKnown",
+      "work": 121,
+      "ms": 0
     }
   ]
 }

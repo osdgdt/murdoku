@@ -6,6 +6,7 @@
 // change makes the SEARCH worse (a weaker pruning, a lost optimisation); time is left to `npm run bench`.
 import { benchCase, measure } from "./bench/lib.mjs";
 import { SETTLE_MIN_REMAINING } from "../src/solver/limits.js";
+import { humanSolve } from "../src/solver/techniques/engine.js";
 import { readRepoFile } from "./helpers/read-file.js";
 import { assert, assertEqual } from "./assert.js";
 
@@ -19,7 +20,7 @@ const CASES = [
 ];
 const FACTOR = 3;
 
-export const tests = CASES.map(([n, seed]) => ({
+const searchTests = CASES.map(([n, seed]) => ({
   name: `benchmark ${n}x${n} (caso ${seed}): il solutore chiude la ricerca entro ${FACTOR} volte il lavoro della baseline`,
   fn: async () => {
     const baseline = JSON.parse(await readRepoFile("test/bench/baseline.json"));
@@ -34,3 +35,21 @@ export const tests = CASES.map(([n, seed]) => ({
     assert(result.work <= budget, `lavoro ${result.work} oltre ${budget} (baseline ${before.work}): la ricerca è peggiorata`);
   },
 }));
+
+// The human solver (src/solver/techniques): the fixture cases keep the level, the hardest reasoning and (within a factor) the
+// work of the baseline; `npm run bench` also measures the heavy editor case.
+export const humanTests = ["faro.en", "monastero.en", "tutorial.en", "tutorial.it"].map((name) => ({
+  name: `benchmark del solver umano (${name}): stesso livello, stesso ragionamento più difficile, lavoro entro ${FACTOR} volte la baseline`,
+  fn: async () => {
+    const baseline = JSON.parse(await readRepoFile("test/bench/baseline.json"));
+    const before = baseline.humanCases.find((c) => c.file === `${name}.murdoku.json`);
+    assert(before, "il caso deve essere nella baseline");
+    const result = humanSolve(JSON.parse(await readRepoFile(`test/fixtures/${name}.murdoku.json`)));
+    assertEqual(result.status, before.status);
+    assertEqual(result.level, before.level, "il livello è cambiato: se è voluto, aggiorna la baseline (npm run bench -- --update)");
+    assertEqual(result.hardest, before.hardest);
+    assert(result.work <= Math.max(2000, before.work * FACTOR), `lavoro ${result.work} oltre la baseline ${before.work}`);
+  },
+}));
+
+export const tests = [...searchTests, ...humanTests];

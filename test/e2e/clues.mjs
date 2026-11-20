@@ -225,6 +225,53 @@ async function livePreview() {
   );
   check("live preview: it is a polite live region", (await page.getAttribute("#difficulty-preview", "aria-live")) === "polite");
   check("live preview: the old estimate button is gone", (await page.locator("#estimate-btn").count()) === 0);
+  // «Come si risolve»: the board of the human, step by step
+  await page.locator("#difficulty-preview summary").click();
+  const counter = () => page.innerText("#difficulty-preview .replay-counter");
+  check("replay: it starts before the first step", /^Passo 0 di \d+/.test(await counter()), await counter());
+  check(
+    "replay: at the start no note is drawn (only the character of the step has any)",
+    (await page.locator("#difficulty-preview .replay-board .candidate-mark").count()) === 0
+  );
+  await page.click('#difficulty-preview .replay-btn[aria-label="Passo successivo"]');
+  await page.click('#difficulty-preview .replay-btn[aria-label="Passo successivo"]');
+  check("replay: ▶ goes on a step at a time", /^Passo 2 di/.test(await counter()), await counter());
+  check(
+    "replay: the step is explained in words",
+    /Indizio|Filtro|Unico|Riga|Posti|Regola|Conteggio|Gruppo|Disposizioni/.test(await page.innerText("#difficulty-preview .replay-explain"))
+  );
+  check("replay: the cells of the step are outlined", (await page.locator("#difficulty-preview .replay-board .step-changed").count()) > 0);
+  check(
+    "replay: the notes of the character of the step are drawn",
+    (await page.locator("#difficulty-preview .replay-board .candidate-mark").count()) > 0
+  );
+  await page.check("#replay-everybody");
+  const everybody = await page.locator("#difficulty-preview .replay-board .candidate-mark").count();
+  await page.uncheck("#replay-everybody");
+  check(
+    "replay: «show everybody's notes» draws more of them",
+    everybody > (await page.locator("#difficulty-preview .replay-board .candidate-mark").count())
+  );
+  await page.click('#difficulty-preview .replay-btn[aria-label="Vai alla fine"]');
+  const characters = await page.locator("#difficulty-preview .gl-cast, #clue-panel .clue-owner").count();
+  check(
+    "replay: at the end everybody is placed and X's mark the rest",
+    (await page.locator("#difficulty-preview .replay-board .char-token").count()) >= 4 &&
+      (await page.locator("#difficulty-preview .replay-board .x-mark").count()) > 0,
+    String(characters)
+  );
+  await page.click('#difficulty-preview .replay-btn[aria-label="Torna all\'inizio"]');
+  await page.locator("#difficulty-preview .replay-link").last().click();
+  check("replay: clicking a reasoning of the list goes to its first step", !/^Passo 0 di/.test(await counter()), await counter());
+  await page.click('#difficulty-preview .replay-btn[aria-label="Torna all\'inizio"]');
+  await page.click("#difficulty-preview .replay-jumps .replay-btn:last-child");
+  await page.waitForFunction(
+    () => /^Passo [1-9]/.test(document.querySelector("#difficulty-preview .replay-counter")?.innerText || ""),
+    null,
+    { timeout: 8000 }
+  );
+  await page.click("#difficulty-preview .replay-jumps .replay-btn:last-child"); // pause
+  check("replay: ▶ Play goes on by itself and Pause stops it", true);
   // drop clues one by one: the line changes by itself, and with none left it asks for clues
   while ((await page.locator("#clue-panel .clue-row").count()) > 0)
     await page.locator('#clue-panel .clue-row [aria-label="Rimuovi indizio"]').first().click();

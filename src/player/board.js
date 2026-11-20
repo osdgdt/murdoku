@@ -140,7 +140,7 @@ export function handleLineTap(state, kind, index, tool = state.selectedTool) {
 // else) — skips cells that aren't occupiable, are already occupied, or are
 // already X-marked. Returns the list of cells it actually marked, so the
 // caller can undo — or later retract — them together with the placement.
-function autoMarkRowCol(state, grid, row, col) {
+export function autoMarkRowCol(state, grid, row, col) {
   const marked = [];
   const tryMark = (r, c) => {
     const k = key(r, c);

@@ -6,6 +6,7 @@ import { propagate } from "./propagation.js";
 import { checkUniqueness } from "./validator.js";
 import { humanSolve } from "./techniques/engine.js";
 import { monotonic } from "./progress.js";
+import { compactSteps } from "./techniques/replay.js";
 
 // status: "contradiction" (the clues cannot all hold: propagation alone shows it), "none" (searched to the end, no
 // solution), "unique", "ambiguous" (two or more found), "limit" (stopped by a limit before the answer was known).
@@ -55,6 +56,8 @@ export function analyzePuzzle(
 // and the line falls back on the rough estimate).
 export const HUMAN_MAX_WORK = 30_000_000;
 
+const MAX_TRACE_STEPS = 3000;
+
 // What the page needs of the human solver's answer: the level, the hardest reasoning, how many steps used each reasoning
 // and at which step each was first used (small, so it travels from the worker cheaply).
 function summarizeHuman(human) {
@@ -62,5 +65,14 @@ function summarizeHuman(human) {
   human.steps.forEach((step, i) => {
     if (!(step.technique in firstStep)) firstStep[step.technique] = i + 1;
   });
-  return { status: human.status, level: human.level, hardest: human.hardest, counts: human.counts, firstStep, steps: human.steps.length };
+  return {
+    status: human.status,
+    level: human.level,
+    hardest: human.hardest,
+    counts: human.counts,
+    firstStep,
+    steps: human.steps.length,
+    // every step, compact, for the board of the human that the editor shows step by step (replay.js); not for a huge case
+    trace: human.steps.length <= MAX_TRACE_STEPS ? compactSteps(human.steps) : null,
+  };
 }

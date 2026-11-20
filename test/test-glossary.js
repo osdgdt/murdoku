@@ -1,10 +1,40 @@
 import { CLUE_TYPES } from "../src/model/clueTypes.js";
 import { FAMILIES, ENTRIES, buildExample, evaluateCells, evaluateGeneral, exampleSentence } from "../src/glossary/examples.js";
+import { TECHNIQUES } from "../src/solver/techniques/catalog.js";
+import { buildReasoningExample, hasReasoningWorld } from "../src/glossary/reasoning.js";
 import { assert, assertEqual } from "./assert.js";
 
 const typeEntries = ENTRIES.filter((e) => e.type);
 
 export const tests = [
+  {
+    name: "glossario dei ragionamenti: ogni esempio disegnato è un passo vero del solver umano, coerente con quello che dice (celle rimaste ed escluse)",
+    fn: () => {
+      let shown = 0;
+      for (const tech of TECHNIQUES) {
+        if (!hasReasoningWorld(tech.id)) continue;
+        const example = buildReasoningExample(tech.id);
+        assert(example, `${tech.id}: l'esempio non si costruisce o il solver umano non lo risolve`);
+        assertEqual(example.step.technique, tech.id, `${tech.id}: il passo mostrato è di un altro ragionamento`);
+        assert(example.remaining.size >= 1, `${tech.id}: la figura non mostra nessuna casella rimasta`);
+        if (example.placed) assertEqual(example.remaining.size, 1, `${tech.id}: un piazzamento lascia una sola casella`);
+        else assert(example.eliminated.length >= 1, `${tech.id}: la figura non esclude nessuna casella`);
+        for (const cell of example.eliminated)
+          assert(!example.remaining.has(`${cell.row},${cell.col}`), `${tech.id}: una casella è sia esclusa sia rimasta`);
+        shown++;
+      }
+      assert(shown >= 10, `servono esempi per quasi tutti i ragionamenti (${shown})`);
+    },
+  },
+  {
+    name: "glossario dei ragionamenti: solo «provare le possibilità» (la ricerca esaustiva) resta senza figura",
+    fn: () => {
+      for (const tech of TECHNIQUES) {
+        if (tech.id === "exhaustive") assert(!hasReasoningWorld(tech.id), "la ricerca non ha una figura");
+        else assert(hasReasoningWorld(tech.id), `manca l'esempio disegnato di ${tech.id}`);
+      }
+    },
+  },
   {
     name: "glossario: ogni tipo di indizio (anche obsoleto) ha una voce, e non ci sono voci per tipi inesistenti",
     fn: () => {

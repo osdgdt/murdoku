@@ -23,6 +23,7 @@
     import { tests as hintTests } from "./test-hints.js";
     import { tests as propagationTests } from "./test-propagation.js";
     import { tests as humanSolverTests } from "./test-human-solver.js";
+    import { tests as replayTests } from "./test-replay.js";
     import { tests as campaignTests } from "./test-campaign.js";
     import { tests as geometryTests } from "./test-geometry.js";
     import { tests as deriveSolutionTests } from "./test-derive-solution.js";
@@ -78,7 +79,7 @@
     import { tests as miniMapTests } from "./test-mini-map.js";
     import { tests as communitySocialTests } from "./test-community-social.js";
 
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...texturesTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...glossaryTests, ...tenseTests, ...tutorialTests, ...medievalTests, ...loginHelpTests, ...clueDraftTests, ...statsTests, ...announcementsTests, ...contrastTests, ...themeHeadsTests, ...ciConfigTests, ...caseReportTests, ...predicatePruningTests, ...solverProgressTests, ...casePolicyTests, ...qrTests, ...communityHandlersTests, ...communityLocalTests, ...serviceAccountTests, ...galleryQueryTests, ...miniMapTests, ...communitySocialTests, ...i18nPagesTests, ...dailyTests, ...clueSetsTests, ...analysisTests, ...composerTests, ...solverDifferentialTests, ...solverLimitsTests, ...dependenciesTests, ...solverBenchTests, ...humanSolverTests];
+    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...texturesTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...glossaryTests, ...tenseTests, ...tutorialTests, ...medievalTests, ...loginHelpTests, ...clueDraftTests, ...statsTests, ...announcementsTests, ...contrastTests, ...themeHeadsTests, ...ciConfigTests, ...caseReportTests, ...predicatePruningTests, ...solverProgressTests, ...casePolicyTests, ...qrTests, ...communityHandlersTests, ...communityLocalTests, ...serviceAccountTests, ...galleryQueryTests, ...miniMapTests, ...communitySocialTests, ...i18nPagesTests, ...dailyTests, ...clueSetsTests, ...analysisTests, ...composerTests, ...solverDifferentialTests, ...solverLimitsTests, ...dependenciesTests, ...solverBenchTests, ...humanSolverTests, ...replayTests];
     const resultsEl = document.getElementById("results");
     let passed = 0;
 

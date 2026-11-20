@@ -37,6 +37,14 @@ export const tests = [
       assertEqual(result.human.status, "solved");
       assert(result.human.hardest && result.human.counts[result.human.hardest] > 0 && result.human.firstStep[result.human.hardest] > 0);
       assertEqual(analyzePuzzle(await tutorial(), { maxNodes: 100000, humanMaxWork: 1 }).human.status, "limit");
+      // the steps, compact, for the board of the human shown in the editor (replay.js)
+      const { trace, steps } = result.human;
+      assertEqual(trace.length, steps, "un passo compatto per ogni passo");
+      assert(
+        trace.every((step) => step.t && step.c && (step.p || step.e)),
+        "ogni passo piazza o esclude qualcosa"
+      );
+      assert(JSON.stringify(trace).length < 20000, "resta piccolo");
     },
   },
   {

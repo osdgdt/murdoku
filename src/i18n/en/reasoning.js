@@ -62,8 +62,8 @@ export default {
     "Ben is already in row 2 and column 3: nobody else can stand in any cell of that row or that column.",
   "Dopo gli altri ragionamenti a Carla resta una sola casella in cui gli indizi sono veri: è lì.":
     "After the other reasonings Clara has a single cell where the clues are true: she is there.",
-  "«Bruno è in diagonale rispetto ad Anna» e Anna è già in B2: Bruno può stare solo in A1, C1, A3 o C3, se sono libere.":
-    "«Ben is diagonal to Alice» and Alice is already in B2: Ben can only be in A1, C1, A3 or C3, if they are free.",
+  "«Bruno è in diagonale rispetto ad Anna» e Anna è già piazzata: Bruno può stare solo nelle caselle in diagonale rispetto a lei, se sono libere.":
+    "«Ben is diagonal to Alice» and Alice is already placed: Ben can only be in the cells diagonal to her, if they are free.",
   "La cantina ha una sola casella libera e nessun altro può arrivarci: la vittima non può stare in cantina, perché lì sarebbe sola.":
     "The cellar has a single free cell and nobody else can get there: the victim cannot be in the cellar, because she would be alone.",
   "Nella sala ci sono già la vittima e Anna: nessun altro può entrare nella sala, perché la vittima ha una sola compagna.":
@@ -72,20 +72,20 @@ export default {
     "«Nobody is in the library»: every cell of the library is ruled out for everybody. «Only one person is next to the fireplace»: a second one cannot be there.",
   "Ci sono sei personaggi su una griglia 6×6, quindi ogni riga ha una persona. Nella riga 4 solo Carla può ancora arrivare: Carla è nella riga 4.":
     "There are six characters on a 6×6 grid, so every row holds somebody. Only Clara can still reach row 4: Clara is in row 4.",
-  "Anna e Bruno possono stare solo in B2 o in C3: quelle due caselle sono loro, e Carla non può usarle.":
-    "Alice and Ben can only be in B2 or C3: those two cells are theirs, and Clara cannot use them.",
+  "Anna e Bruno possono stare solo in due stesse caselle: quelle due caselle sono loro, e Carla non può usarle.":
+    "Alice and Ben can only be in the same two cells: those two cells are theirs, and Clara cannot use them.",
   "«Bruno è nella stessa stanza di Anna», e nessuno dei due è ancora piazzato: Bruno può stare solo nelle stanze in cui Anna può davvero stare.":
     "«Ben is in the same room as Alice», and neither is placed yet: Ben can only be in rooms where Alice can really be.",
   "«Anna è in cucina oppure nel salone»: una casella che non è né in cucina né nel salone è esclusa per Anna.":
     "«Alice is in the kitchen or in the hall»: a cell that is neither in the kitchen nor in the hall is ruled out for Alice.",
   "«Esattamente due stanze sono vuote»: una casella che riempirebbe una terza stanza vuota, rendendo le stanze vuote troppo poche, è esclusa.":
     "«Exactly two rooms are empty»: a cell that would fill a third empty room, leaving too few empty rooms, is ruled out.",
-  "Restano da piazzare Carla e Dario. Provando le poche disposizioni possibili, «Carla è da sola con Dario» è vero solo se Carla sta in B2: altrove sarebbe falso.":
-    "Clara and David are left. Trying the few possible arrangements, «Clara is alone with David» is true only if Clara is in B2: elsewhere it would be false.",
-  "Si prova «Anna è in B2»: da lì Bruno non ha più nessuna casella. È una contraddizione, quindi Anna non è in B2.":
-    "«Alice is in B2» is tried: from there Ben has no cell left. It is a contradiction, so Alice is not in B2.",
-  "Si prova «Anna è in B2» e, dentro questa ipotesi, anche «Bruno è in C3»: solo allora si arriva a una contraddizione, e si scopre che Bruno non può stare in C3 se Anna è in B2.":
-    "«Alice is in B2» is tried and, inside it, also «Ben is in C3»: only then does a contradiction appear, and Ben cannot be in C3 if Alice is in B2.",
+  "Restano da piazzare Carla e Dario. Provando le poche disposizioni possibili, «Carla è da sola con Dario» è vero solo con Carla in una certa casella: altrove sarebbe falso.":
+    "Clara and David are left. Trying the few possible arrangements, «Clara is alone with David» is true only with Clara in a certain cell: elsewhere it would be false.",
+  "Si prova a mettere Anna in una casella: da lì Bruno non ha più nessuna casella. È una contraddizione, quindi Anna non può stare lì.":
+    "Alice is tried in a cell: from there Ben has no cell left. It is a contradiction, so Alice cannot be there.",
+  "Si prova un'ipotesi e, dentro quell'ipotesi, un'altra: solo allora si arriva a una contraddizione, e la seconda ipotesi si rivela impossibile.":
+    "A hypothesis is tried and, inside it, another: only then does a contradiction appear, and the second hypothesis turns out to be impossible.",
   "Quando nessun ragionamento basta, si provano le possibilità una per una fino a trovare l'unica che rispetta tutti gli indizi.":
     "When no reasoning is enough, the possibilities are tried one by one until the only one that respects every clue is found.",
   "I ragionamenti di base: ogni indizio si legge da solo, senza guardare dove sono gli altri.":
@@ -98,4 +98,32 @@ export default {
     "No direct deduction is enough: a hypothesis is tried and one looks for a contradiction.",
   "Ragionamenti: {level}": "Reasonings: {level}",
   Esempio: "Example",
+  "Qui {name} deve stare.": "{name} must be here.",
+  "Qui {name} può ancora stare.": "{name} can still be here.",
+  "Esclusa da questo ragionamento.": "Ruled out by this reasoning.",
+  "Ciò a cui punta un indizio.": "What a clue points at.",
+  "Le altre caselle erano già escluse, da un indizio o da chi è già collocato.":
+    "The other cells were already ruled out, by a clue or by somebody already placed.",
+  "Indizi usati:": "Clues used:",
+  "Un esempio vero": "A real example",
+  "Il ragionamento guarda anche: {names}.": "The reasoning also looks at: {names}.",
+  "Torna all'inizio": "Back to the start",
+  "Passo precedente": "Previous step",
+  "Passo successivo": "Next step",
+  "Vai alla fine": "Go to the end",
+  Passo: "Step",
+  "Passo {n} di {m}": "Step {n} of {m}",
+  "Ragionamento successivo": "Next reasoning",
+  "Piazzamento successivo": "Next placement",
+  "▶ Riproduci": "▶ Play",
+  "⏸ Pausa": "⏸ Pause",
+  "Mostra le note di tutti": "Show everybody's notes",
+  "Vai a questo passo nella griglia": "Go to this step on the board",
+  "Prima di cominciare: ogni personaggio è una nota su ogni casella.": "Before starting: every character is a note on every cell.",
+  "Si vedono solo le note del personaggio del passo: «Mostra le note di tutti» le mostra tutte.":
+    "Only the notes of the character of the step are shown: «Show everybody's notes» shows them all.",
+  "{name} sta nella casella evidenziata: si trova provando le possibilità.":
+    "{name} is in the outlined cell: found by trying the possibilities.",
+  "{name} deve stare nella casella evidenziata: è l'unica rimasta.": "{name} must be in the outlined cell: it is the only one left.",
+  "{name}: {count} caselle in meno tra le sue note.": "{name}: {count} fewer cells among their notes.",
 };

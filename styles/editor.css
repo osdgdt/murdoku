@@ -1858,3 +1858,84 @@
 .difficulty-details .muted {
   color: var(--ink-soft);
 }
+
+/* «Come si risolve»: the board of the human, step by step (src/editor/replayView.js) */
+.replay {
+  margin-top: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.replay-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.replay-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+.replay-jumps .replay-btn {
+  flex: 1 1 auto;
+}
+.replay-counter {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+}
+.replay-slider {
+  width: 100%;
+  min-height: 32px;
+}
+.replay-check {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.replay-board.board-grid {
+  margin: 0;
+  padding: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+  pointer-events: none;
+}
+.replay-board .board-label {
+  font-size: 0.65rem;
+}
+.replay-board .room-name {
+  font-size: 9px;
+  padding: 0 4px;
+}
+.replay-board .board-cell.step-changed {
+  outline: 3px solid var(--gold);
+  outline-offset: -3px;
+  z-index: 2;
+}
+.replay-explain {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.replay-explain p {
+  margin: 0 0 0.35rem;
+}
+.replay-clues {
+  margin: 0.2rem 0 0;
+  padding-left: 1.2rem;
+}
+.replay-link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font: inherit;
+  font-weight: 800;
+  color: var(--accent-dark, var(--ink));
+  text-decoration: underline;
+  cursor: pointer;
+}

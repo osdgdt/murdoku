@@ -116,7 +116,7 @@ function hasPerfectMatching(subsetChars, unionCells, domains) {
 // `opsBudget`, which is shared across the whole call and checked before each
 // subset's cost is spent; hitting the cap is always safe (whatever was found
 // already stands, nothing more is claimed).
-function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
+export function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
   const n = unplaced.length;
   if (n < 2) return { contradiction: null };
 
@@ -219,7 +219,7 @@ function popcount(x) {
   return c;
 }
 
-function createOpsBudget(max) {
+export function createOpsBudget(max) {
   let spent = 0;
   return {
     max,

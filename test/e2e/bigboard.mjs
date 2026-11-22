@@ -101,9 +101,7 @@ try {
     const { context, page, errors } = await open({ width: 1280, height: 800 });
     const cell = page.locator('#board [data-row="3"][data-col="4"]');
     const noteSlots = async () =>
-      cell.evaluate((node) =>
-        [...node.querySelectorAll(".candidate-slot")].map((slot, i) => (slot.querySelector(".candidate-mark") ? i + 1 : 0)).filter(Boolean)
-      );
+      cell.evaluate((node) => [...node.querySelectorAll(".candidate-slot")].map((slot) => Number(slot.dataset.slot)));
     await page.keyboard.press("[");
     check(
       "[ with nothing selected picks the last character (16th)",
@@ -112,8 +110,8 @@ try {
     await cell.click();
     check("its note is in the 16th slot (not dropped)", (await noteSlots()).join() === "16", (await noteSlots()).join());
     check(
-      "a cell with notes has 16 slots (a 4×4 box)",
-      (await cell.locator(".candidate-slot").count()) === 16,
+      "a cell with notes lays them out in a 4×4 box (only the slots in use exist)",
+      (await cell.locator(".candidate-grid.notes-4").count()) === 1 && (await cell.locator(".candidate-slot").count()) === 1,
       String(await cell.locator(".candidate-slot").count())
     );
     await page.keyboard.press("0");

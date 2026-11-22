@@ -252,13 +252,15 @@ export function createGameScreen({
     });
   }
 
+  // Snapshotted at the instant a press begins and read back — instead of the
+  // live state.selectedTool — when the hold timer fires: selectedTool can be
+  // reassigned while a hold is pending (e.g. showHintStep() auto-selecting a
+  // character via a second touch), and pinning it here is what makes
+  // handleCellHold's own `tool` override meaningful. (Outside the render: the board is
+  // drawn in place now, and its handlers are the ones of the last render.)
+  let pressStartTool = null;
+
   function renderBoardAndClues() {
-    // Snapshotted at the instant a press begins and read back — instead of the
-    // live state.selectedTool — when the hold timer fires: selectedTool can be
-    // reassigned while a hold is pending (e.g. showHintStep() auto-selecting a
-    // character via a second touch), and pinning it here is what makes
-    // handleCellHold's own `tool` override meaningful.
-    let pressStartTool = null;
     renderPlayerBoard(
       boardEl,
       puzzle,

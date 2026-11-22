@@ -7,7 +7,36 @@ import { t } from "../i18n/i18n.js";
 
 // `handlers`: { selectTool(tool), showCharacterHover(id), clearHover() }.
 export function renderToolbar(toolbarEl, puzzle, state, handlers) {
+  // Built once per case; after that only what a move can change is updated in place (which chip is selected, who is already
+  // placed): rebuilding ~250 nodes of icons at every move, and putting the focus back on a chip (which also fired its hover
+  // preview on a board about to be drawn again), was a good part of the wait on a phone.
+  if (toolbarEl.__builtFor === puzzle && toolbarEl.isConnected && updateToolbar(toolbarEl, puzzle, state)) return;
   keepFocus(toolbarEl, ".char-chip", () => buildToolbar(toolbarEl, puzzle, state, handlers));
+  toolbarEl.__builtFor = puzzle;
+}
+
+// -> false when the toolbar does not look as expected (then it is rebuilt)
+function updateToolbar(toolbarEl, puzzle, state) {
+  const chips = [...toolbarEl.querySelectorAll(".char-chip")];
+  if (chips.length !== puzzle.characters.length + 2) return false;
+  const tool = state.selectedTool;
+  const setSelected = (chip, on) => {
+    chip.classList.toggle("selected", on);
+    chip.setAttribute("aria-pressed", String(on));
+  };
+  puzzle.characters.forEach((character, index) => {
+    const chip = chips[index];
+    const placed = state.placements.has(character.id);
+    chip.classList.toggle("used", placed);
+    setSelected(chip, tool?.kind === "character" && tool.id === character.id);
+    chip.setAttribute("aria-label", character.name + (character.isVictim ? t(" (vittima)") : "") + (placed ? t(", già piazzato") : ""));
+  });
+  setSelected(chips[chips.length - 2], tool?.kind === "x");
+  setSelected(chips[chips.length - 1], tool?.kind === "erase");
+  // the one tab stop of the toolbar: the selected tool, else the first (a chip that has the focus keeps it)
+  const current = chips.find((c) => c.classList.contains("selected")) || chips[0];
+  chips.forEach((c) => (c.tabIndex = c === current ? 0 : -1));
+  return true;
 }
 
 // The toolbar pattern: one tab stop (the selected tool, or the first), Left/Right/Home/End move between the chips.

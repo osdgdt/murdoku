@@ -3,10 +3,10 @@
   "id": "puzzle_mwo3vm59s258jbv4",
   "title": "Il garzone della forgia",
   "author": "",
-  "difficulty": "easy",
+  "difficulty": "medium",
   "completed": false,
   "bestTimeSeconds": null,
-  "briefing": "La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.",
+  "briefing": "La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La fornace è ancora calda, e cinque persone giurano di non aver visto niente.",
   "resolutionNote": "Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.",
   "tense": "past",
   "createdAt": 1795126346973,
@@ -431,9 +431,100 @@
       "gender": "male"
     }
   ],
-  "clues": [],
+  "clues": [
+    {
+      "id": "clue_mwrv7iwkkordry91",
+      "characterId": "char_mwo3vm5bcmr20q80",
+      "type": "inFrontOfWindow",
+      "params": {}
+    },
+    {
+      "id": "clue_mwrv7iwkirif504b",
+      "characterId": "char_mwo3vm5bjkma17nb",
+      "type": "aloneWithPersonProperty",
+      "params": {
+        "property": "adjacentTo",
+        "objectTypeId": "chair",
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwlcugqghyj",
+      "characterId": "char_mwo3vm5bz6d5ldaz",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:well"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwlnapr9qyt",
+      "characterId": "char_mwo3vm5bcqj1like",
+      "type": "aloneInRoom",
+      "params": {
+        "zoneId": "zone_mwo3vm5951h3r9lr"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwl7slx4qes",
+      "characterId": "char_mwo3vm5bcmr20q80",
+      "type": "someoneInRoomWithProperty",
+      "params": {
+        "property": "male",
+        "objectTypeId": "chair"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwl2tns3spn",
+      "characterId": "char_mwo3vm5b6eekfbid",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 5
+      }
+    },
+    {
+      "id": "clue_mwrv7iwlpog3lvsb",
+      "characterId": "char_mwo3vm5bcqj1like",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 1
+      }
+    }
+  ],
   "solution": {
-    "placements": []
+    "placements": [
+      {
+        "characterId": "char_mwo3vm5bzv31ixiv",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "characterId": "char_mwo3vm5bcqj1like",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "characterId": "char_mwo3vm5bcmr20q80",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "characterId": "char_mwo3vm5b6eekfbid",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwo3vm5bz6d5ldaz",
+        "row": 5,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwo3vm5bjkma17nb",
+        "row": 3,
+        "col": 1
+      }
+    ]
   },
   "manualHints": []
 }

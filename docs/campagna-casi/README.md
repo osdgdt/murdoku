@@ -2,7 +2,7 @@
 
 > **Attenzione, spoiler.** Ogni caso dice chi deve essere il colpevole e il dossier di chiusura (epilogo) ne rivela il nome. Non condividere questi file con chi deve giocare la campagna. La storia completa è in [campagna-storia.md](../campagna-storia.md).
 
-Questi sono i nove casi della campagna prima del finale, **senza indizi e senza soluzione**: ogni file `.murdoku.json` contiene la mappa (stanze, pavimenti, mobili, porte e finestre), i personaggi con la loro descrizione, la vittima e il **dossier del caso** (testo introduttivo ed epilogo). Gli indizi e la soluzione li scrivi tu.
+Questi sono i nove casi della campagna prima del finale, **senza indizi e senza soluzione** (tranne il caso 1, già completo): ogni file `.murdoku.json` contiene la mappa (stanze, pavimenti, mobili, porte e finestre), i personaggi con la loro descrizione, la vittima e il **dossier del caso** (testo introduttivo ed epilogo). Gli indizi e la soluzione li scrivi tu.
 
 ## Come si usano
 
@@ -15,7 +15,7 @@ Regole rispettate: una griglia N×N ha N persone (N−1 sospettati più la vitti
 
 | Caso | Titolo | Griglia | Difficoltà | Vittima | Colpevole | File |
 |---|---|---|---|---|---|---|
-| 1 | Il garzone della forgia | 6×6 | facile | Vanni | Bertoldo | `01-il-garzone-della-forgia.murdoku.json` |
+| 1 | Il garzone della forgia | 6×6 | media | Vanni | Bertoldo | `01-il-garzone-della-forgia.murdoku.json` |
 | 2 | L'orto dell'abbazia | 6×6 | facile | Violante | fra Anselmo | `02-l-orto-dell-abbazia.murdoku.json` |
 | 3 | Lo scriptorium | 6×6 | media | Valerio | Ambrogio | `03-lo-scriptorium.murdoku.json` |
 | 4 | La taverna dei Tre Corvi | 7×7 | media | Vitale | Aimone il Guercio | `04-la-taverna-dei-tre-corvi.murdoku.json` |
@@ -29,7 +29,7 @@ Regole rispettate: una griglia N×N ha N persone (N−1 sospettati più la vitti
 
 ## Caso 1 — Il garzone della forgia · 6×6
 
-**Scena.** La forgia di Borgocenere, la casa del fabbro e la carbonaia. **Difficoltà:** facile. **File:** `01-il-garzone-della-forgia.murdoku.json`
+**Scena.** La forgia di Borgocenere, la casa del fabbro e la carbonaia. **Difficoltà:** media (indizi e soluzione già nel file: sette indizi, soluzione unica; il solver umano la stima Media, senza ipotesi). **File:** `01-il-garzone-della-forgia.murdoku.json`
 
 **Vittima:** Vanni — garzone fabbro.
 
@@ -76,7 +76,7 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 **Introduzione** (mostrata al giocatore prima degli indizi):
 
-> La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.
+> La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La fornace è ancora calda, e cinque persone giurano di non aver visto niente.
 
 **Epilogo** (nota di chiusura, mostrata dopo la soluzione):
 

@@ -104,7 +104,7 @@ Griglia, personaggi e oggetti sono consigli. **Nessun sospettato** deve avere un
 - **Altri sospettati** (5 in tutto, con il colpevole): Arnaldo (lavorante), Clelia (moglie del fabbro), Duccio (carbonaio), Egidia (figlia del vasaio).
 - **Oggetto**: gettone di ferro cavo con lo stemma di Victor; fa capire che Vanni era figlio del re.
 
-**Introduzione.** La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.
+**Introduzione.** La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La fornace è ancora calda, e cinque persone giurano di non aver visto niente.
 
 **Epilogo.** Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.
 

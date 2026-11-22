@@ -15,7 +15,7 @@ export function renderToolbar(toolbarEl, puzzle, state, handlers) {
   toolbarEl.__builtFor = puzzle;
 }
 
-// «Nota | Piazza»: what a tap does with a character selected. Only shown then.
+// «Nota | Piazza | Riserva»: what a tap does with a character selected. Only shown then.
 function updatePenMode(toolbarEl, state) {
   const box = toolbarEl.querySelector(".pen-mode");
   if (!box) return;
@@ -182,6 +182,7 @@ function buildToolbar(toolbarEl, puzzle, state, handlers) {
   const penMode = el("div", { class: "pen-mode hidden", role: "group", "aria-label": t("Cosa fa un tocco") }, [
     el("button", { type: "button", "data-mode": "note", onClick: () => setPenMode("note") }, t("Nota")),
     el("button", { type: "button", "data-mode": "place", onClick: () => setPenMode("place") }, t("Piazza")),
+    el("button", { type: "button", "data-mode": "reserve", onClick: () => setPenMode("reserve") }, t("Riserva")),
   ]);
   toolbarEl.appendChild(penMode);
   updatePenMode(toolbarEl, state);

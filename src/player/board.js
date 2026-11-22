@@ -7,9 +7,12 @@ export function createBoardState() {
     candidates: new Map(), // "row,col" -> Set<characterId>
     lineNotes: new Map(), // "row:N" / "col:N" -> Set<characterId> — notes on a whole row/column, drawn on the board's outer edge
     autoXByCharacter: new Map(), // characterId -> [{row,col}...] X's auto-marked alongside that placement
+    reservations: new Map(), // "row,col" -> characterId — cells kept for ONE character: nobody else can note, cross or place there
+    reservedLines: new Map(), // "row:N" / "col:N" -> characterId — the rows/columns that were reserved as a whole (for the label's sign)
     undoStack: [],
+    stroke: null, // an object that identifies the press in progress, so that a dragged stroke is ONE undo step; not saved
     selectedTool: null, // {kind:'character', id} | {kind:'x'} | {kind:'erase'} | null (nothing: a finger scrolls the page)
-    penMode: "note", // what a tap does with a character selected: "note" (a note on the cell) or "place" (the character goes there); not saved
+    penMode: "note", // what a tap does with a character selected: "note" (a note on the cell), "place" (the character goes there) or "reserve"; not saved
     // Count of hint-button clicks that disclosed real information during
     // this solve (see gameScreen.js's onHint). Unlike undoStack/selectedTool,
     // this DOES need to survive serialize/deserialize + reload: the "solved
@@ -38,6 +41,8 @@ export function serializeBoardState(state) {
     candidates: [...state.candidates.entries()].map(([k, set]) => [k, [...set]]),
     lineNotes: [...state.lineNotes.entries()].map(([k, set]) => [k, [...set]]),
     autoXByCharacter: [...state.autoXByCharacter.entries()],
+    reservations: [...state.reservations.entries()],
+    reservedLines: [...state.reservedLines.entries()],
     hintsUsed: state.hintsUsed,
     activeSeconds: state.activeSeconds,
     checks: state.checks,
@@ -57,6 +62,9 @@ export function deserializeBoardState(saved) {
     state.autoXByCharacter = new Map(saved.autoXByCharacter || []);
     // Saved before row/column notes existed: none.
     state.lineNotes = new Map((saved.lineNotes || []).map(([k, arr]) => [k, new Set(arr)]));
+    // Saved before reservations existed: none.
+    state.reservations = new Map((saved.reservations || []).filter(([k, id]) => typeof k === "string" && typeof id === "string"));
+    state.reservedLines = new Map((saved.reservedLines || []).filter(([k, id]) => typeof k === "string" && typeof id === "string"));
     // Progress saved before this feature existed lacks `hintsUsed` — fall
     // back to 0 (assume hint-free) instead of leaving it undefined.
     state.hintsUsed = Number.isFinite(saved.hintsUsed) && saved.hintsUsed >= 0 ? saved.hintsUsed : 0;
@@ -102,6 +110,123 @@ function toggleCandidate(state, characterId, row, col) {
 
 function lineKey(kind, index) {
   return `${kind}:${index}`;
+}
+
+// ---- Reservations: cells kept for ONE character -------------------------------------------------------------------------
+// «Anna's, and nobody else's»: the other characters' notes on those cells go away and none can be put there again (a note, a
+// cross or a placement of somebody else is refused with `reason: "reserved"`), until the reservation is undone or taken off.
+
+export const reservedFor = (state, row, col) => state.reservations.get(key(row, col)) ?? null;
+
+// The cells of a row/column that a character can stand on (the board's own walls and blocked cells are left out).
+export function lineCells(grid, kind, index) {
+  const cells = [];
+  const n = kind === "row" ? grid.size.cols : grid.size.rows;
+  for (let i = 0; i < n; i++) {
+    const row = kind === "row" ? index : i;
+    const col = kind === "row" ? i : index;
+    if (isOccupiable(grid, row, col)) cells.push({ row, col });
+  }
+  return cells;
+}
+
+// Reserves cells for a character: takes the others' notes off them and puts the character's own note on. A cell somebody else
+// stands on, or is crossed out, or is reserved by another is not reserved. `stroke` (optional): one undo step for a whole drag.
+// -> { ok, reserved: [keys], blockedBy: characterId|null }
+function reserveCells(state, characterId, cells, { stroke = null, lineKey = null } = {}) {
+  const reserved = [];
+  const removedNotes = [];
+  const addedNotes = [];
+  let blockedBy = null;
+  for (const { row, col } of cells) {
+    const k = key(row, col);
+    const holder = state.reservations.get(k);
+    if (holder && holder !== characterId) {
+      blockedBy = blockedBy ?? holder;
+      continue;
+    }
+    const occupant = occupiedBy(state, row, col);
+    if ((occupant && occupant !== characterId) || state.xMarks.has(k)) continue;
+    if (holder === characterId) continue; // already
+    state.reservations.set(k, characterId);
+    reserved.push(k);
+    const notes = state.candidates.get(k);
+    if (notes) {
+      const others = [...notes].filter((id) => id !== characterId);
+      if (others.length > 0) removedNotes.push({ k, ids: others });
+      for (const id of others) notes.delete(id);
+      if (notes.size === 0) state.candidates.delete(k);
+    }
+    if (!occupant && !state.candidates.get(k)?.has(characterId)) {
+      let set = state.candidates.get(k);
+      if (!set) {
+        set = new Set();
+        state.candidates.set(k, set);
+      }
+      set.add(characterId);
+      addedNotes.push(k);
+    }
+  }
+  if (lineKey) state.reservedLines.set(lineKey, characterId);
+  if (reserved.length === 0 && !lineKey) return { ok: false, reserved, blockedBy };
+  const last = state.undoStack[state.undoStack.length - 1];
+  if (
+    stroke &&
+    last &&
+    last.type === "reserve" &&
+    last.stroke === stroke &&
+    last.characterId === characterId &&
+    !lineKey &&
+    !last.lineKey
+  ) {
+    last.cells.push(...reserved);
+    last.removedNotes.push(...removedNotes);
+    last.addedNotes.push(...addedNotes);
+  } else {
+    state.undoStack.push({ type: "reserve", characterId, cells: reserved, removedNotes, addedNotes, lineKey, stroke });
+  }
+  return { ok: true, reserved, blockedBy };
+}
+
+// Takes the reservation off cells (those held by `characterId`).
+function unreserveCells(state, characterId, cells, lineKey = null) {
+  const freed = [];
+  for (const { row, col } of cells) {
+    const k = key(row, col);
+    if (state.reservations.get(k) !== characterId) continue;
+    state.reservations.delete(k);
+    freed.push(k);
+  }
+  const hadLine = lineKey && state.reservedLines.get(lineKey) === characterId;
+  if (hadLine) state.reservedLines.delete(lineKey);
+  if (freed.length === 0 && !hadLine) return { ok: false };
+  state.undoStack.push({ type: "unreserve", characterId, cells: freed, lineKey: hadLine ? lineKey : null });
+  return { ok: true };
+}
+
+// A reserved cell someone else cannot touch -> the refusal to give back.
+const refuseIfReserved = (state, row, col, characterId = null) => {
+  const holder = state.reservations.get(key(row, col));
+  return holder && holder !== characterId ? { ok: false, reason: "reserved", by: holder } : null;
+};
+
+const reserveOne = (state, characterId, row, col, stroke = null) => {
+  const result = reserveCells(state, characterId, [{ row, col }], { stroke });
+  return result.ok ? { ok: true } : { ok: false, reason: "cell-unavailable" };
+};
+
+// The long press on a row/column label with a character selected: the whole line is reserved for them (again: taken off).
+// A line with a cell reserved by another character is refused.
+export function handleLineHold(state, grid, kind, index, tool = state.selectedTool) {
+  if (!tool || tool.kind !== "character") return { ok: false };
+  const k = lineKey(kind, index);
+  const cells = lineCells(grid, kind, index);
+  const holder = state.reservedLines.get(k);
+  if (holder === tool.id) return unreserveCells(state, tool.id, cells, k);
+  if (holder) return { ok: false, reason: "reserved", by: holder };
+  const other = cells.map(({ row, col }) => state.reservations.get(key(row, col))).find((id) => id && id !== tool.id);
+  if (other) return { ok: false, reason: "reserved", by: other };
+  return reserveCells(state, tool.id, cells, { lineKey: k });
 }
 
 // A tap on a row/column label (the board's outer edge): the same note toggle a
@@ -223,13 +348,22 @@ export function handleCellTap(state, grid, row, col, tool = state.selectedTool) 
   if (tool.kind === "character") {
     // «Piazza» mode: a tap does what a long press does (places the character, or takes them off a cell they are already on)
     if (state.penMode === "place") return handleCellHold(state, grid, row, col, tool);
+    // «Riserva» mode: a tap reserves the cell for the character (or, if it is already theirs, frees it)
+    if (state.penMode === "reserve") {
+      if (state.reservations.get(key(row, col)) === tool.id) return unreserveCells(state, tool.id, [{ row, col }]);
+      return refuseIfReserved(state, row, col, tool.id) ?? reserveOne(state, tool.id, row, col);
+    }
     if (occupiedBy(state, row, col)) return { ok: false, reason: "cell-occupied" };
+    const refused = refuseIfReserved(state, row, col, tool.id);
+    if (refused) return refused;
     toggleCandidate(state, tool.id, row, col);
     return { ok: true };
   }
 
   if (tool.kind === "x") {
     if (occupiedBy(state, row, col)) return { ok: false, reason: "cell-occupied" };
+    const refused = refuseIfReserved(state, row, col);
+    if (refused) return refused;
     const k = key(row, col);
     if (state.xMarks.has(k)) {
       state.xMarks.delete(k);
@@ -248,6 +382,9 @@ export function handleCellTap(state, grid, row, col, tool = state.selectedTool) 
       return { ok: true };
     }
     const k = key(row, col);
+    // a reserved cell: the eraser takes the reservation off first (the notes stay; a second pass clears them)
+    const holder = state.reservations.get(k);
+    if (holder) return unreserveCells(state, holder, [{ row, col }]);
     if (state.xMarks.has(k)) {
       state.xMarks.delete(k);
       state.undoStack.push({ type: "unmark", row, col });
@@ -286,6 +423,8 @@ export function handleCellHold(state, grid, row, col, tool = state.selectedTool)
   if (tool.kind !== "character") return handleCellTap(state, grid, row, col, tool);
 
   const occupant = occupiedBy(state, row, col);
+  const refused = refuseIfReserved(state, row, col, tool.id);
+  if (refused && occupant !== tool.id) return refused;
   if (occupant === tool.id) {
     // Holding the cell they're already confirmed in removes them.
     removePlacement(state, tool.id);
@@ -320,7 +459,16 @@ export function handleCellDrag(state, grid, row, col) {
 
   if (tool.kind === "character") {
     if (state.penMode === "place") return { ok: false }; // in «Piazza» mode a drag places nobody
+    if (state.penMode === "reserve") {
+      // a stroke reserves every cell it crosses (never frees one), and is ONE undo step
+      const refused = refuseIfReserved(state, row, col, tool.id);
+      if (refused) return refused;
+      if (state.reservations.get(key(row, col)) === tool.id) return { ok: true };
+      return reserveOne(state, tool.id, row, col, state.stroke);
+    }
     if (occupiedBy(state, row, col)) return { ok: false };
+    const refused = refuseIfReserved(state, row, col, tool.id);
+    if (refused) return refused;
     const k = key(row, col);
     let set = state.candidates.get(k);
     if (set && set.has(tool.id)) return { ok: true };
@@ -335,6 +483,8 @@ export function handleCellDrag(state, grid, row, col) {
 
   if (tool.kind === "x") {
     if (occupiedBy(state, row, col)) return { ok: false, reason: "cell-occupied" };
+    const refused = refuseIfReserved(state, row, col);
+    if (refused) return refused;
     const k = key(row, col);
     if (!state.xMarks.has(k)) {
       state.xMarks.add(k);
@@ -425,6 +575,25 @@ export function undo(state) {
     }
   } else if (action.type === "lineNotes-clear") {
     state.lineNotes.set(action.key, new Set(action.before));
+  } else if (action.type === "reserve") {
+    for (const k of action.cells) state.reservations.delete(k);
+    if (action.lineKey) state.reservedLines.delete(action.lineKey);
+    for (const k of action.addedNotes) {
+      const set = state.candidates.get(k);
+      set?.delete(action.characterId);
+      if (set && set.size === 0) state.candidates.delete(k);
+    }
+    for (const { k, ids } of action.removedNotes) {
+      let set = state.candidates.get(k);
+      if (!set) {
+        set = new Set();
+        state.candidates.set(k, set);
+      }
+      for (const id of ids) set.add(id);
+    }
+  } else if (action.type === "unreserve") {
+    for (const k of action.cells) state.reservations.set(k, action.characterId);
+    if (action.lineKey) state.reservedLines.set(action.lineKey, action.characterId);
   }
 }
 
@@ -433,6 +602,8 @@ export function clearAll(state) {
   state.xMarks.clear();
   state.candidates.clear();
   state.lineNotes.clear();
+  state.reservations.clear();
+  state.reservedLines.clear();
   state.autoXByCharacter.clear();
   state.undoStack = [];
   // hintsUsed is deliberately NOT reset here: "pulisci tutto" wipes the

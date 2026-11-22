@@ -742,8 +742,8 @@ export default {
   Suggerimento: "Hint",
   Esito: "Result",
   "Griglia di gioco": "Game board",
-  "Frecce per muoversi tra le caselle, Invio per segnare una nota, Maiusc+Invio per piazzare il personaggio selezionato. Tasti 1-9 e 0 scelgono un personaggio, X segna una X, E gomma, U annulla, H suggerimento.":
-    "Arrow keys move between cells, Enter marks a note, Shift+Enter places the selected character. Keys 1-9 and 0 pick a character, X marks a cross, E is the eraser, U undoes, H gives a hint.",
+  "Frecce per muoversi tra le caselle, Invio per segnare una nota, Maiusc+Invio per piazzare il personaggio selezionato. Tasti 1-9 e 0 scelgono un personaggio, X segna una X, E gomma, U annulla, H suggerimento. Sull'etichetta di una riga o colonna Invio segna una nota, Maiusc+Invio la riserva al personaggio selezionato; R alterna la modalità Riserva.":
+    "Arrow keys move between cells, Enter marks a note, Shift+Enter places the selected character. Keys 1-9 and 0 pick a character, X marks a cross, E is the eraser, U undoes, H gives a hint. On a row or column label Enter marks a note and Shift+Enter reserves it for the selected character; R toggles Reserve mode.",
   "Passo precedente": "Previous step",
   "Passo successivo": "Next step",
   "Ancora in calcolo: {seconds} secondi": "Still working: {seconds} seconds",
@@ -757,10 +757,10 @@ export default {
   "Casi della community": "Community cases",
   "Sfoglia i casi pubblicati da altri giocatori e risolvili, senza accedere.":
     "Browse the cases published by other players and solve them, no sign-in needed.",
-  "Scorciatoie: 1-9 e 0 scelgono un personaggio ([ ] scorrono) · P nota o piazza · X segna · E gomma · U annulla · H suggerimento.":
-    "Shortcuts: 1-9 and 0 pick a character ([ ] step through) · P note or place · X mark · E eraser · U undo · H hint.",
-  "Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo (mezzo secondo) su una casella per piazzarci il personaggio selezionato, oppure scegli «Piazza» e basta un tocco: le sue note esistenti verranno cancellate. Con «✋ Scorri» il dito scorre la pagina.":
-    "Click a cell to add/remove a note. Hold the mouse and drag to mark several. Press and hold (half a second) on a cell to place the selected character there, or pick «Place» and a tap is enough: its existing notes will be cleared. With «✋ Scroll» your finger scrolls the page.",
+  "Scorciatoie: 1-9 e 0 scelgono un personaggio ([ ] scorrono) · P nota o piazza · R riserva · X segna · E gomma · U annulla · H suggerimento.":
+    "Shortcuts: 1-9 and 0 pick a character ([ ] step through) · P note or place · R reserve · X mark · E eraser · U undo · H hint.",
+  "Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo (mezzo secondo) su una casella per piazzarci il personaggio selezionato, oppure scegli «Piazza» e basta un tocco: le sue note esistenti verranno cancellate. Con «Riserva» le caselle toccate o trascinate sono solo del personaggio selezionato: le note degli altri spariscono e non se ne possono mettere (la gomma toglie la riserva). Tieni premuto sul nome di una riga o colonna (R1, C1…) per riservarla tutta. Con «✋ Scorri» il dito scorre la pagina.":
+    "Click a cell to add/remove a note. Hold the mouse and drag to mark several. Press and hold (half a second) on a cell to place the selected character there, or pick «Place» and a tap is enough: its existing notes will be cleared. With «Reserve» the cells you tap or drag belong to the selected character alone: the others' notes there disappear and none can be added (the eraser takes the reservation off). Press and hold a row or column name (R1, C1…) to reserve all of it. With «✋ Scroll» your finger scrolls the page.",
   "Nessuno strumento: il dito scorre la pagina": "No tool: your finger scrolls the page",
   "Un tocco piazza il personaggio": "A tap places the character",
   "Un tocco segna una nota": "A tap adds a note",
@@ -769,4 +769,17 @@ export default {
   "Cosa fa un tocco": "What a tap does",
   Nota: "Note",
   Piazza: "Place",
+  Riserva: "Reserve",
+  "Riservata a {name}": "Reserved for {name}",
+  "Riservata a {name}: per cambiarla usa la gomma o annulla": "Reserved for {name}: use the eraser or undo to change it",
+  "Questa casella non si può riservare: c'è una X o un altro personaggio":
+    "This cell cannot be reserved: it has a cross or another character",
+  "Un tocco riserva la casella al personaggio": "A tap reserves the cell for the character",
+  "riservata a {name}": "reserved for {name}",
+  "Riga {n} riservata a {name}": "Row {n} reserved for {name}",
+  "Colonna {n} riservata a {name}": "Column {n} reserved for {name}",
+  "Riserva tolta da una riga o colonna": "Reservation taken off a row or column",
+  "{count} caselle riservate": "{count} cells reserved",
+  "Casella {place} riservata a {name}": "Cell {place} reserved for {name}",
+  "Riserva tolta": "Reservation taken off",
 };

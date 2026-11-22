@@ -49,6 +49,8 @@ function trackDensity(container) {
 // into the row/column labels when they can be tapped), Home/End jump along the row, PageUp/PageDown
 // along the column, Ctrl+Home/End to the first/last cell. The board is rebuilt on every change, so the
 // current position is remembered per container and focus is put back after a rebuild.
+// How long a press on a row/column label must stay still to be a hold (as on the cells: boardGestures.js).
+const LABEL_HOLD_MS = 500;
 const navConfig = new WeakMap(); // container -> { grid, hasLabelNav, activateCell, activateCellHold, roving }
 
 const cellNodeAt = (container, r, c) => container.querySelector(`.board-cell[data-row="${r}"][data-col="${c}"]`);
@@ -207,6 +209,7 @@ export function renderBoard(
     decorateCell,
     decorateLabel,
     onLabelTap,
+    onLabelHold,
     showLabels = true,
   } = {}
 ) {
@@ -364,11 +367,42 @@ export function renderBoard(
         "aria-label",
         kind === "col" ? t("Note sulla colonna {n}", { n: index + 1 }) : t("Note sulla riga {n}", { n: index + 1 })
       );
-      node.addEventListener("click", () => onLabelTap(kind, index));
+      // A press that stays still on the label for the hold time is a "hold" (reserve the whole line); a short one is the click.
+      let holdTimer = null;
+      let held = false;
+      const cancelHold = () => {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+        node.classList.remove("holding");
+      };
+      if (onLabelHold) {
+        node.addEventListener("pointerdown", (e) => {
+          if (e.button > 0) return;
+          held = false;
+          cancelHold();
+          node.classList.add("holding");
+          holdTimer = setTimeout(() => {
+            holdTimer = null;
+            held = true;
+            node.classList.remove("holding");
+            onLabelHold(kind, index);
+          }, LABEL_HOLD_MS);
+        });
+        for (const type of ["pointerup", "pointercancel", "pointerleave"]) node.addEventListener(type, cancelHold);
+        node.addEventListener("contextmenu", (e) => held && e.preventDefault());
+      }
+      node.addEventListener("click", () => {
+        if (held) {
+          held = false; // the click that ends a hold is not a tap
+          return;
+        }
+        onLabelTap(kind, index);
+      });
       node.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onLabelTap(kind, index);
+          if (e.shiftKey && onLabelHold) onLabelHold(kind, index);
+          else onLabelTap(kind, index);
         }
       });
     }

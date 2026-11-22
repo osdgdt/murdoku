@@ -155,4 +155,25 @@ export const tests = [
       assertEqual(aborted, 0, "il calcolo non andava fermato");
     },
   },
+  {
+    name: "annunci: una cella riservata lo dice; riservare una riga, una cella e togliere la riserva sono frasi diverse",
+    fn: () => {
+      const { puzzle, anna, state } = scene();
+      const empty = snapshotBoard(state);
+      state.reservations.set("0,1", anna.id);
+      assert(describeCellContent(puzzle, state, 0, 1).includes("riservata a Anna"), "la cella dice a chi è riservata");
+      assertEqual(describeBoardChange(puzzle, empty, snapshotBoard(state)), "Casella riga 1, colonna 2 riservata a Anna");
+      const one = snapshotBoard(state);
+      state.reservations.set("0,2", anna.id);
+      assertEqual(describeBoardChange(puzzle, one, snapshotBoard(state)), "Casella riga 1, colonna 3 riservata a Anna");
+      state.reservedLines.set("row:2", anna.id);
+      assertEqual(describeBoardChange(puzzle, empty, snapshotBoard(state)), "Riga 3 riservata a Anna");
+      const withLine = snapshotBoard(state);
+      state.reservedLines.delete("row:2");
+      assertEqual(describeBoardChange(puzzle, withLine, snapshotBoard(state)), "Riserva tolta da una riga o colonna");
+      const before = snapshotBoard(state);
+      state.reservations.clear();
+      assertEqual(describeBoardChange(puzzle, before, snapshotBoard(state)), "Riserva tolta");
+    },
+  },
 ];

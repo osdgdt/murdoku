@@ -61,8 +61,13 @@ for (const [name, file, moves] of [
   const rows = (await page.locator('#board [data-col="0"]').count()) || 1;
 
   // the board as drawn now (cells and labels; the floors' <style> and its id are not part of the comparison)
+  // (a style attribute that was edited in place is written back with other spaces and semicolons: compared without them)
   const snapshot = () =>
-    page.evaluate(() => [...document.querySelectorAll("#board .board-cell, #board .board-label")].map((n) => n.outerHTML));
+    page.evaluate(() =>
+      [...document.querySelectorAll("#board .board-cell, #board .board-label")].map((n) =>
+        n.outerHTML.replace(/style="([^"]*)"/g, (m, v) => `style="${v.replace(/\s+/g, "").replace(/;$/, "")}"`)
+      )
+    );
   // throw the in-place state away and draw again from nothing, without changing anything on the board: re-select the tool
   const redraw = async (key) => {
     await page.evaluate(() => {
@@ -82,7 +87,15 @@ for (const [name, file, moves] of [
     const c = Math.floor(random() * side);
     const roll = random();
     const target = page.locator(`#board [data-row="${r}"][data-col="${c}"]`);
-    if (roll < 0.35)
+    const extra = random();
+    if (extra < 0.12) {
+      await page.keyboard.press("r"); // «Riserva» mode on/off (only with a character selected)
+    } else if (extra < 0.24) {
+      // a whole row or column reserved (Shift+Enter on its label), or taken off again
+      const label = page.locator(`#board .board-label[data-nav-kind="${random() < 0.5 ? "row" : "col"}"][data-nav-index="${r}"]`);
+      await label.focus();
+      await page.keyboard.press("Shift+Enter");
+    } else if (roll < 0.35)
       await target.click(); // a note (or a cross, or an erase, whatever the tool is)
     else if (roll < 0.5) {
       // a placement from the keyboard

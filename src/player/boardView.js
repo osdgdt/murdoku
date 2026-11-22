@@ -6,6 +6,7 @@ import { characterIcon } from "../model/icons.js";
 import { characterColor } from "../model/puzzle.js";
 import { key, occupiedBy } from "./board.js";
 import { cellAriaLabel } from "./announcements.js";
+import { t } from "../i18n/i18n.js";
 
 // One note badge: a paper-colored disc ringed in the character's own color with
 // their initial on it, so it reads on ANY floor (the old bare colored letter
@@ -59,6 +60,21 @@ function renderCandidateGrid(cellNode, puzzle, candidateSet, highlightId, compac
   cellNode.appendChild(grid);
 }
 
+const markColor = (character) => (character.isVictim ? "var(--danger)" : characterColor(character));
+const initialOf = (character) => character.name.charAt(0).toUpperCase();
+
+// The sign of a row/column reserved for one character: a small badge in their colour, in the label on the board's edge.
+function renderLineReserve(labelNode, puzzle, characterId) {
+  const character = characterId && puzzle.characters.find((c) => c.id === characterId);
+  if (!character) return;
+  const badge = document.createElement("span");
+  badge.className = "line-reserve";
+  badge.style.setProperty("--mark-color", markColor(character));
+  badge.title = t("Riservata a {name}", { name: character.name });
+  badge.textContent = initialOf(character);
+  labelNode.appendChild(badge);
+}
+
 // Notes on a whole row/column, drawn inside its label on the board's edge.
 function renderLineNotes(labelNode, puzzle, set, highlightId) {
   if (!set || set.size === 0) return;
@@ -77,21 +93,25 @@ const HINT_MARKS = ".hint-target,.hint-info,.hint-culprit";
 
 // What is drawn in a cell, as a short string: when it is the same as last time, the cell is left alone.
 function cellSignature(state, row, col, selectedId) {
-  const occupant = occupiedBy(state, row, col);
-  if (occupant) return `o:${occupant}`;
   const k = key(row, col);
-  if (state.xMarks.has(k)) return "x";
+  const reserved = state.reservations.get(k);
+  const tail = reserved ? `@${reserved}` : "";
+  const occupant = occupiedBy(state, row, col);
+  if (occupant) return `o:${occupant}${tail}`;
+  if (state.xMarks.has(k)) return `x${tail}`;
   const notes = state.candidates.get(k);
-  if (!notes || notes.size === 0) return "-";
-  return `n:${[...notes].sort().join(",")}|${selectedId && notes.has(selectedId) ? selectedId : ""}`;
+  if (!notes || notes.size === 0) return `-${tail}`;
+  return `n:${[...notes].sort().join(",")}|${selectedId && notes.has(selectedId) ? selectedId : ""}${tail}`;
 }
 
-const labelSignature = (set, selectedId) =>
-  set && set.size > 0 ? `${[...set].sort().join(",")}|${selectedId && set.has(selectedId) ? selectedId : ""}` : "";
+const labelSignature = (set, selectedId, reservedBy) =>
+  (set && set.size > 0 ? `${[...set].sort().join(",")}|${selectedId && set.has(selectedId) ? selectedId : ""}` : "") +
+  (reservedBy ? `@${reservedBy}` : "");
 
 // Token, X or notes of one cell (and its label for a screen reader).
 function paintCell(cellNode, puzzle, state, row, col, selectedId, baseLabel) {
   cellNode.setAttribute("aria-label", cellAriaLabel(baseLabel, puzzle, state, row, col));
+  paintReservation(cellNode, puzzle, state.reservations.get(key(row, col)));
   const occupant = occupiedBy(state, row, col);
   if (occupant) {
     const character = puzzle.characters.find((c) => c.id === occupant);
@@ -117,18 +137,41 @@ function paintCell(cellNode, puzzle, state, row, col, selectedId, baseLabel) {
   }
 }
 
+// A reserved cell: a border in the character's colour and their initial in a corner.
+function paintReservation(cellNode, puzzle, characterId) {
+  const character = characterId && puzzle.characters.find((c) => c.id === characterId);
+  if (!character) return;
+  cellNode.classList.add("reserved");
+  cellNode.style.setProperty("--reserve-color", markColor(character));
+  const tag = document.createElement("span");
+  tag.className = "reserve-tag";
+  tag.setAttribute("aria-hidden", "true");
+  tag.textContent = initialOf(character);
+  cellNode.appendChild(tag);
+}
+
 function clearCell(cellNode) {
   for (const child of [...cellNode.children])
-    if (child.classList.contains("char-token") || child.classList.contains("candidate-grid")) child.remove();
-  cellNode.classList.remove("x-mark", "notes-compact");
+    if (child.classList.contains("char-token") || child.classList.contains("candidate-grid") || child.classList.contains("reserve-tag"))
+      child.remove();
+  cellNode.classList.remove("x-mark", "notes-compact", "reserved");
+  cellNode.style.removeProperty("--reserve-color");
+}
+
+// What a label shows besides its text: the reservation sign, then the notes.
+function decorateLabelNode(labelNode, puzzle, state, kind, index, selectedId) {
+  const id = `${kind}:${index}`;
+  renderLineReserve(labelNode, puzzle, state.reservedLines.get(id));
+  renderLineNotes(labelNode, puzzle, state.lineNotes.get(id), selectedId);
+  labelNode.classList.toggle("reserved", state.reservedLines.has(id));
 }
 
 function paintLabel(labelNode, puzzle, state, kind, index, selectedId) {
-  labelNode.querySelector(":scope > .line-notes")?.remove();
-  renderLineNotes(labelNode, puzzle, state.lineNotes.get(`${kind}:${index}`), selectedId);
+  for (const old of labelNode.querySelectorAll(":scope > .line-notes, :scope > .line-reserve")) old.remove();
+  decorateLabelNode(labelNode, puzzle, state, kind, index, selectedId);
   // right after the text, where a fresh draw puts them (the room names of a row label come after the notes)
-  const notes = labelNode.querySelector(":scope > .line-notes");
-  if (notes) labelNode.querySelector(":scope > .label-text")?.after(notes);
+  const added = [...labelNode.querySelectorAll(":scope > .line-reserve, :scope > .line-notes")];
+  labelNode.querySelector(":scope > .label-text")?.after(...added);
 }
 
 // `onCellTap` fires on a plain tap (or Enter/Space from the keyboard);
@@ -145,8 +188,8 @@ function paintLabel(labelNode, puzzle, state, kind, index, selectedId) {
 // The first call (or a different map) builds the board; every later call for the same map only redraws the cells and labels whose
 // content changed, and puts back the transient marks (hint, hover, pinned clue...) as a fresh draw would, because the page
 // applies them again right after. The handlers of the LAST call are the ones used, whichever call built the board.
-export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter, onPressStart, onLineTap) {
-  const handlers = { onCellTap, onCellHold, onCellEnter, onPressStart, onLineTap };
+export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHold, onCellEnter, onPressStart, onLineTap, onLineHold) {
+  const handlers = { onCellTap, onCellHold, onCellEnter, onPressStart, onLineTap, onLineHold };
   const selectedId = state.selectedTool?.kind === "character" ? state.selectedTool.id : null;
   const known = container.__playerBoard;
   if (known && known.grid === puzzle.grid && known.characterCount === puzzle.characters.length && container.isConnected) {
@@ -172,7 +215,8 @@ export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHol
       board.handlers[name]?.(...args);
   renderBoard(container, puzzle.grid, {
     onLabelTap: onLineTap ? call("onLineTap") : undefined,
-    decorateLabel: (node, kind, index) => renderLineNotes(node, puzzle, state.lineNotes.get(`${kind}:${index}`), selectedId),
+    onLabelHold: onLineHold ? call("onLineHold") : undefined,
+    decorateLabel: (node, kind, index) => decorateLabelNode(node, puzzle, state, kind, index, selectedId),
     onCellTap: onCellTap ? call("onCellTap") : undefined,
     onCellHold: onCellHold ? call("onCellHold") : undefined,
     onCellEnter: onCellEnter ? call("onCellEnter") : undefined,
@@ -188,7 +232,7 @@ export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHol
   for (const node of container.querySelectorAll(".board-label[data-nav-kind]")) {
     const id = `${node.dataset.navKind}:${node.dataset.navIndex}`;
     board.labels.set(id, node);
-    board.labelSignatures.set(id, labelSignature(state.lineNotes.get(id), selectedId));
+    board.labelSignatures.set(id, labelSignature(state.lineNotes.get(id), selectedId, state.reservedLines.get(id)));
   }
 }
 
@@ -209,7 +253,7 @@ function updateBoard(container, board, puzzle, state, selectedId) {
   }
   for (const [id, labelNode] of board.labels) {
     const [kind, index] = id.split(":");
-    const signature = labelSignature(state.lineNotes.get(id), selectedId);
+    const signature = labelSignature(state.lineNotes.get(id), selectedId, state.reservedLines.get(id));
     if (signature === board.labelSignatures.get(id)) continue;
     paintLabel(labelNode, puzzle, state, kind, Number(index), selectedId);
     board.labelSignatures.set(id, signature);

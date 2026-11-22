@@ -98,6 +98,47 @@ try {
     await context.close();
   }
 
+  // ---- reservations with a finger: the «Riserva» mode (tap, drag), a long press on a row label, the refusal message
+  {
+    const { context, page, errors } = await phone();
+    await page.goto(`${base}/player.html?import=test/fixtures/monastero.en.murdoku.json`);
+    await page.waitForSelector("#board [role=gridcell]");
+    const finger = await touchOn(page);
+    await finger.tap(page.locator(".char-chip").nth(0));
+    await finger.tap(page.locator('.pen-mode [data-mode="reserve"]'));
+    const first = page.locator('#board [data-row="0"][data-col="0"]');
+    await finger.tap(first);
+    check("touch: in «Riserva» mode a tap reserves the cell", (await first.evaluate((n) => n.classList.contains("reserved"))) === true);
+    check("touch: the reserved cell shows the character's initial", (await first.locator(".reserve-tag").textContent()) === "A");
+    await finger.drag(page.locator('#board [data-row="1"][data-col="0"]'), 100, 0);
+    const reservedCells = await page.locator("#board .board-cell.reserved").count();
+    check("touch: dragging in «Riserva» mode reserves every cell it crosses", reservedCells >= 3, String(reservedCells));
+    await finger.tap(page.locator(".undo-chip"));
+    check(
+      "touch: one undo takes back the whole stroke",
+      (await page.locator("#board .board-cell.reserved").count()) === 1,
+      String(await page.locator("#board .board-cell.reserved").count())
+    );
+    // somebody else cannot put a note there: a message says why
+    await finger.tap(page.locator(".char-chip").nth(1));
+    await finger.tap(page.locator('.pen-mode [data-mode="note"]'));
+    await finger.tap(first);
+    check(
+      "touch: a note on a cell reserved for someone else is refused with a message",
+      /Riservata a Ambrose/.test((await page.locator(".board-notice").textContent()) || "") &&
+        (await first.locator(".candidate-mark").count()) <= 1
+    );
+    // a long press on a row's label reserves the whole row for the selected character
+    const label = page.locator('#board .board-label[data-nav-kind="row"][data-nav-index="1"]');
+    await finger.hold(label, 800);
+    check("touch: a long press on a row label reserves the row", (await label.evaluate((n) => n.classList.contains("reserved"))) === true);
+    check("touch: ...and its cells carry the border", (await page.locator('#board .board-cell.reserved[data-row="1"]').count()) >= 3);
+    await finger.tap(label);
+    check("touch: a short tap on the label is still a note on the row", (await label.locator(".line-notes .candidate-mark").count()) === 1);
+    check("touch: no page errors", errors.length === 0, errors.join("; "));
+    await context.close();
+  }
+
   // ---- the clue wizard in the editor, by touch only
   {
     const { context, page, errors } = await phone();

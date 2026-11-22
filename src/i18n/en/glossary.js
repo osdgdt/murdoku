@@ -115,6 +115,8 @@ export default {
     "No character is in the given row or column: that line stays empty.",
   "Nessuno sta accanto al bersaglio. Come sempre, «accanto» non include le diagonali.":
     "Nobody is next to the target. As always, “next to” doesn't include diagonals.",
+  "Esattamente due persone stanno accanto al bersaglio: né una sola, né di più. Se il bersaglio è un tipo di oggetto (un tavolo) vale uno qualsiasi, oppure lo stesso per tutte se lo scegli.":
+    "Exactly two people stand next to the target: not just one, not more. If the target is a type of object (a table), any of them counts, or the same one for everybody if you choose that.",
   "Una sola persona sta accanto al bersaglio: né nessuna, né due o più.":
     "Exactly one person is next to the target: not none, not two or more.",
   "Due persone precise si trovano nella stessa stanza (il resto della scena non importa).":

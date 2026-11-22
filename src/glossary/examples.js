@@ -553,6 +553,23 @@ export const ENTRIES = [
     falseCast: { b: [2, 1] },
   },
   {
+    id: "peopleNear",
+    type: "peopleNear",
+    family: "scene",
+    owner: null,
+    params: { count: 2, targetId: "@o:0", together: "any" },
+    explain: () =>
+      t(
+        "Esattamente due persone stanno accanto al bersaglio: né una sola, né di più. Se il bersaglio è un tipo di oggetto (un tavolo) vale uno qualsiasi, oppure lo stesso per tutte se lo scegli."
+      ),
+    world: {
+      map: OPEN,
+      objects: [{ type: "table", at: [2, 2] }],
+      cast: { a: { at: [1, 2] }, b: { at: [2, 3] }, c: { at: [4, 4] } },
+    },
+    falseCast: { b: [0, 0] },
+  },
+  {
     id: "sameRoomTogether",
     type: "sameRoomTogether",
     family: "scene",

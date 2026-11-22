@@ -3,7 +3,7 @@
 import { createPuzzle, addCharacter, addClue } from "../src/model/puzzle.js";
 import { addZone, paintCellZone, resizeGrid } from "../src/model/grid.js";
 import { humanSolve } from "../src/solver/techniques/engine.js";
-import { TECHNIQUES, LEVELS, levelOfTechnique, techniquesUpTo } from "../src/solver/techniques/catalog.js";
+import { TECHNIQUES, LEVELS, levelIndex, levelOfTechnique, techniquesUpTo } from "../src/solver/techniques/catalog.js";
 import { referenceSolutions } from "./reference-solver.js";
 import { randomPuzzle } from "./helpers/random-puzzle.js";
 import { uniqueCase, placementsOf } from "./helpers/unique-case.js";
@@ -124,6 +124,23 @@ export const tests = [
       addCharacter(loose, "A", "person1");
       addCharacter(loose, "B", "person2");
       assertEqual(humanSolve(loose).status, "ambiguous");
+    },
+  },
+  {
+    name: "solver umano: «Il garzone della forgia» (caso reale dell'autore) è Medio, senza ipotesi, e gli indizi diretti sono filtri facili",
+    fn: async () => {
+      const puzzle = await load("test/bench/cases/garzone-forgia.murdoku.json");
+      const result = humanSolve(puzzle);
+      assertEqual(result.status, "solved");
+      assertEqual(result.level, "medium", "il livello");
+      assert(!result.steps.some((s) => levelIndex(s.level) > levelIndex("medium")), "nessun passo difficile o da esperto");
+      assert(!result.counts.hypothesis && !result.counts.exhaustive, "niente ipotesi né ricerca a tappeto");
+      // «Arnaldo è l'unico nella forgia» e «in colonna 1», «Clelia in riga 5»: tolgono celle agli altri subito, come filtri
+      const early = result.steps.slice(0, 14);
+      assert(
+        early.every((s) => s.technique === "clueFilter"),
+        "i primi passi sono tutti filtri d'indizio: " + early.map((s) => s.technique).join(", ")
+      );
     },
   },
   {

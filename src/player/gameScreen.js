@@ -3,18 +3,6 @@ import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, handleLin
 import { renderPlayerBoard } from "./boardView.js";
 import { renderClueCards, renderSelectedClue } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
-import { renderHintStep } from "./hintView.js";
-import { renderWinPanel } from "./winPanel.js";
-import {
-  createEffectiveSolution,
-  murdererName,
-  SOLUTION_UNSATISFIABLE_MSG,
-  SOLUTION_AMBIGUOUS_MSG,
-  SOLUTION_INCONCLUSIVE_MSG,
-} from "./effectiveSolution.js";
-import { chainDisclosesSomething, buildManualHintChain, extendChainWithOracleStep, isGradedStep, HINT_LEVELS } from "./hintLogic.js";
-import { computeHintChainAsync } from "../solver/solverClient.js";
-import { resolveClueHoverCells, resolveCharacterHoverDomain, resolveCharacterTargetCells } from "../solver/hoverTargets.js";
 import { formatElapsed } from "../util/time.js";
 import { createActiveClock } from "./activeClock.js";
 import * as achievementsStore from "../storage/achievementsStore.js";
@@ -23,10 +11,33 @@ import { characterIndexForKey, stepForKey, steppedCharacter } from "./characterK
 import { announce } from "../util/announcer.js";
 import { snapshotBoard, describeBoardChange, describeSelection } from "./announcements.js";
 import { describeClue } from "../model/clueTypes.js";
-import { monotonic, staged } from "../solver/progress.js";
 import { startProgress } from "../util/progressBanner.js";
 import { notifyInTitle } from "../util/tabTitle.js";
 import { t } from "../i18n/i18n.js";
+
+// What is only needed after the board is on screen — the hint logic, the solver (hints, the solution check, highlighting what a clue
+// refers to) and the win panel, about a quarter of the page's code — is loaded afterwards, in the idle time right after the first
+// paint (or at once, if the player asks for a hint or checks the solution before that). `H` holds what they export, once loaded.
+let H = null;
+let heavyLoading = null;
+function loadHeavy() {
+  heavyLoading ??= Promise.all([
+    import("./hintLogic.js"),
+    import("./hintView.js"),
+    import("./winPanel.js"),
+    import("./effectiveSolution.js"),
+    import("../solver/solverClient.js"),
+    import("../solver/progress.js"),
+    import("../solver/hoverTargets.js"),
+  ]).then(
+    (modules) => (H = Object.assign({}, ...modules)),
+    (err) => {
+      heavyLoading = null; // offline, say: the next try loads again
+      throw err;
+    }
+  );
+  return heavyLoading;
+}
 
 // Shared orchestration for a single puzzle-solving screen: toolbar, timer,
 // hint-chain stepping, and submit-check. player.html and campaign.html's
@@ -93,7 +104,8 @@ export function createGameScreen({
     state.activeSeconds = clock.seconds();
     saveBoard();
   };
-  const effectiveSolution = createEffectiveSolution(answerPuzzle);
+  let effectiveSolution = null; // made when first needed (it comes with the solver)
+  const solution = () => (effectiveSolution ??= H.createEffectiveSolution(answerPuzzle));
   let hintAbort = null; // AbortController of the hint being worked out, if any
   let submitAbort = null; // ... and of the solution check
 
@@ -167,11 +179,11 @@ export function createGameScreen({
   }
   function showCharacterHover(characterId) {
     clearHover();
-    applyHoverCells(resolveCharacterHoverDomain(puzzle, characterId, state.placements));
+    if (H) applyHoverCells(H.resolveCharacterHoverDomain(puzzle, characterId, state.placements));
   }
   function showClueHover(clue) {
     clearHover();
-    applyHoverCells(resolveClueHoverCells(clue, puzzle, state.placements));
+    if (H) applyHoverCells(H.resolveClueHoverCells(clue, puzzle, state.placements));
   }
 
   // Dims every other cell while a hint is showing (see player.css) so the
@@ -199,8 +211,8 @@ export function createGameScreen({
   // to — a whole room, every plant, a row… Derived from state.selectedTool,
   // never stored. Skipped while a hint is showing so it can't compete with it.
   function applySelectedCharacterTargets() {
-    if (hintHighlight || state.selectedTool?.kind !== "character") return;
-    for (const { row, col } of resolveCharacterTargetCells(puzzle, state.selectedTool.id, state.placements)) {
+    if (!H || hintHighlight || state.selectedTool?.kind !== "character") return;
+    for (const { row, col } of H.resolveCharacterTargetCells(puzzle, state.selectedTool.id, state.placements)) {
       const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
       if (node) node.classList.add("char-target");
     }
@@ -210,8 +222,8 @@ export function createGameScreen({
   // from `pinnedClueId` on every render; skipped while a hint is showing.
   function applyPinnedClue() {
     const clue = puzzle.clues.find((c) => c.id === pinnedClueId);
-    if (!clue || hintHighlight) return;
-    for (const { row, col } of resolveClueHoverCells(clue, puzzle, state.placements)) {
+    if (!H || !clue || hintHighlight) return;
+    for (const { row, col } of H.resolveClueHoverCells(clue, puzzle, state.placements)) {
       const node = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
       if (node) node.classList.add("clue-pin");
     }
@@ -344,9 +356,9 @@ export function createGameScreen({
     hintHighlight = null;
     // Computed deductions come in levels (see hintLogic.js): before the last one
     // only the character is selected, no cell is highlighted.
-    const level = isGradedStep(result) ? (hintLevels[hintChainIndex] ?? 1) : HINT_LEVELS;
+    const level = H.isGradedStep(result) ? (hintLevels[hintChainIndex] ?? 1) : H.HINT_LEVELS;
 
-    if (level < HINT_LEVELS) {
+    if (level < H.HINT_LEVELS) {
       state.selectedTool = { kind: "character", id: result.characterId };
     } else if (result.type === "forcedPlacement") {
       hintHighlight = { cells: [{ row: result.row, col: result.col, cls: "hint-target" }] };
@@ -364,7 +376,7 @@ export function createGameScreen({
     }
 
     clear(hintPanel);
-    for (const node of renderHintStep(puzzle, hintChain, hintChainIndex, {
+    for (const node of H.renderHintStep(puzzle, hintChain, hintChainIndex, {
       onPrev: () => {
         hintChainIndex--;
         showHintStep();
@@ -375,7 +387,7 @@ export function createGameScreen({
       },
       level,
       onMore: () => {
-        hintLevels[hintChainIndex] = Math.min(HINT_LEVELS, level + 1);
+        hintLevels[hintChainIndex] = Math.min(H.HINT_LEVELS, level + 1);
         showHintStep();
       },
     }))
@@ -389,7 +401,7 @@ export function createGameScreen({
   // nav buttons re-showing an already-computed chain (they call
   // showHintStep() directly, never onHint()).
   function countHintIfReal() {
-    if (chainDisclosesSomething(hintChain)) {
+    if (H.chainDisclosesSomething(hintChain)) {
       state.hintsUsed++;
       persistProgress();
     }
@@ -397,12 +409,21 @@ export function createGameScreen({
 
   async function onHint() {
     hintBtn.disabled = true;
+    try {
+      await loadHeavy();
+    } catch (err) {
+      const message = t("Non sono riuscito a calcolare un suggerimento: {message}. Riprova.", { message: err.message });
+      clear(hintPanel);
+      hintPanel.appendChild(el("div", { class: "result-banner hint-error" }, message));
+      hintBtn.disabled = false;
+      return;
+    }
     clear(hintPanel);
     hintLevels = [];
 
     // No Web Worker round-trip for author-written hints: the content is
     // already fully known synchronously.
-    const manualChain = buildManualHintChain(puzzle);
+    const manualChain = H.buildManualHintChain(puzzle);
     if (manualChain) {
       hintChain = manualChain;
       countHintIfReal();
@@ -422,19 +443,19 @@ export function createGameScreen({
     });
     // a hint may need two jobs one after the other (the deduction, then the full solution when the deduction is stuck):
     // they share the bar as the stages of one (solver/progress.js)
-    const bar = monotonic(progress.update);
+    const bar = H.monotonic(progress.update);
     hintPanel.appendChild(progress.node);
     hintPanel.setAttribute("aria-busy", "true");
     try {
       // no time limit: the hint is worked out until it is ready or the player cancels
-      hintChain = await computeHintChainAsync(puzzle, state.placements, state.candidates, {
+      hintChain = await H.computeHintChainAsync(puzzle, state.placements, state.candidates, {
         signal: mine.signal,
-        onProgress: (fraction) => bar(staged(0, fraction)),
+        onProgress: (fraction) => bar(H.staged(0, fraction)),
       });
-      await extendChainWithOracleStep(hintChain, {
+      await H.extendChainWithOracleStep(hintChain, {
         puzzle,
         placements: state.placements,
-        getEffectiveSolution: () => effectiveSolution.get({ signal: mine.signal, onProgress: (fraction) => bar(staged(1, fraction)) }),
+        getEffectiveSolution: () => solution().get({ signal: mine.signal, onProgress: (fraction) => bar(H.staged(1, fraction)) }),
       });
       countHintIfReal();
       hintChainIndex = 0;
@@ -461,6 +482,14 @@ export function createGameScreen({
   async function onSubmit() {
     clear(resultEl);
     submitBtn.disabled = true;
+    try {
+      await loadHeavy();
+    } catch (err) {
+      const message = t("Non sono riuscito a verificare la soluzione: {message}. Riprova.", { message: err.message });
+      resultEl.appendChild(el("div", { class: "result-banner hint-error" }, message));
+      submitBtn.disabled = solved;
+      return;
+    }
     submitAbort = new AbortController();
     const mine = submitAbort;
     const progress = startProgress({
@@ -471,15 +500,15 @@ export function createGameScreen({
     resultEl.appendChild(progress.node);
     resultEl.setAttribute("aria-busy", "true");
     try {
-      const effective = await effectiveSolution.get({ signal: mine.signal, onProgress: progress.update });
+      const effective = await solution().get({ signal: mine.signal, onProgress: progress.update });
       clear(resultEl);
       if (effective.status !== "unique") {
         const message =
           effective.status === "unsatisfiable"
-            ? SOLUTION_UNSATISFIABLE_MSG
+            ? H.SOLUTION_UNSATISFIABLE_MSG
             : effective.status === "ambiguous"
-              ? SOLUTION_AMBIGUOUS_MSG
-              : SOLUTION_INCONCLUSIVE_MSG;
+              ? H.SOLUTION_AMBIGUOUS_MSG
+              : H.SOLUTION_INCONCLUSIVE_MSG;
         const cls = effective.status === "inconclusive" ? "hint-warning" : "hint-error";
         resultEl.appendChild(el("div", { class: `result-banner ${cls}` }, message));
         announce(message, "assertive");
@@ -505,9 +534,9 @@ export function createGameScreen({
         await onSolved(elapsed, { hintsUsed, checks });
         const newlyUnlocked = achievementsStore.recordSolve({ key: achievementKey, elapsedSeconds: elapsed, hintsUsed });
         solveHistory.recordSolveEntry({ key: achievementKey, title: puzzle.title, elapsedSeconds: elapsed, hintsUsed, checks });
-        const winNode = renderWinPanel({
+        const winNode = H.renderWinPanel({
           puzzle,
-          murderer: murdererName(puzzle, effective),
+          murderer: H.murdererName(puzzle, effective),
           elapsed,
           previousBest,
           hintsUsed,
@@ -522,7 +551,9 @@ export function createGameScreen({
         winNode.tabIndex = -1;
         announce(
           t("Caso risolto! {murderer} Tempo: {time}.", {
-            murderer: murdererName(puzzle, effective) ? t("L'assassino è: {murderer}", { murderer: murdererName(puzzle, effective) }) : "",
+            murderer: H.murdererName(puzzle, effective)
+              ? t("L'assassino è: {murderer}", { murderer: H.murdererName(puzzle, effective) })
+              : "",
             time: formatElapsed(elapsed),
           }),
           "assertive"
@@ -662,6 +693,15 @@ export function createGameScreen({
     });
     solveHistory.recordStart({ key: achievementKey, title: puzzle.title });
     onStart?.();
+    // the rest of the code (hints, solver, win panel) comes in the idle time after the first paint; then what a selected character or
+    // a pinned clue points at is drawn, if the player already chose one
+    const idle = typeof requestIdleCallback === "function" ? requestIdleCallback : (fn) => setTimeout(fn, 200);
+    idle(() =>
+      loadHeavy().then(
+        () => renderBoardAndClues(),
+        () => {}
+      )
+    );
   }
 
   return { start };

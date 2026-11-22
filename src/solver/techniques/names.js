@@ -8,7 +8,10 @@ import { difficultyLabel } from "../../model/puzzle.js";
 const TEXTS = {
   clueFilter: {
     name: () => t("Filtro d'indizio"),
-    text: () => t("Un indizio che parla solo di questo personaggio esclude le celle in cui non può stare."),
+    text: () =>
+      t(
+        "Un indizio che parla solo di questo personaggio esclude le celle in cui non può stare; se lo mette in una riga o in una colonna, o da solo in una stanza, quelle celle sono escluse anche per tutti gli altri."
+      ),
   },
   rowColTaken: {
     name: () => t("Riga e colonna occupate"),

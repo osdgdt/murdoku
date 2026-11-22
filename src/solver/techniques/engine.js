@@ -318,6 +318,37 @@ function* combinations(n, k, start = 0, chosen = []) {
 }
 
 // `members` own the given rows (or columns): every other open character loses its cells there. One step per character.
+// What a clue that speaks of ONE character also says about everybody else, read straight off the clue:
+//   «X was the only person in the room R»  X is in R and nobody else may be anywhere in R
+//   «X was in row/column N»                X takes the whole line: nobody else may be anywhere in it
+// Reads nothing but the clues: what is taken out of the others stays out.
+function readOwnClues(ctx, state, rec) {
+  let total = 0;
+  for (const { clue } of ctx.infos) {
+    if (clue.negate || !clue.characterId) continue;
+    let outside;
+    if (clue.type === "aloneInRoom" && clue.params?.zoneId) {
+      outside = (cell) => zoneAt(ctx.puzzle, cell) === clue.params.zoneId;
+    } else if (clue.type === "inRowOrCol" && Number.isInteger(clue.params?.index)) {
+      const axis = clue.params.axis === "row" ? "row" : "col";
+      outside = (cell) => cell[axis] === clue.params.index - 1;
+    } else continue;
+    for (const other of unplacedCharacters(ctx, state)) {
+      if (other.id === clue.characterId) continue;
+      const removed = state.domains.get(other.id).filter(outside);
+      if (removed.length === 0) continue;
+      total += removeCells(state, other.id, removed);
+      record(ctx, rec, "clueFilter", {
+        characterId: other.id,
+        eliminated: removed,
+        clueIds: [clue.id],
+        byCharacterIds: [clue.characterId],
+      });
+    }
+  }
+  return total;
+}
+
 function takeLinesFromOthers(ctx, state, rec, technique, members, axis, indexes) {
   const memberIds = new Set(members.map((m) => m.id));
   const lines = new Set(indexes);
@@ -340,8 +371,16 @@ function takeLinesFromOthers(ctx, state, rec, technique, members, axis, indexes)
 
 const RUNNERS = {
   clueFilter(ctx, state, rec) {
-    return eliminateByEvaluation(ctx, state, rec, "clueFilter", (character) =>
-      depInfos(ctx).filter((i) => !i.isOr && i.dep.ids.has(character.id) && i.dep.ids.size === 1)
+    // «alone in the room R» is first of all «in R» (the rest of the clue, nobody else there, is read below)
+    const inRoom = (character) =>
+      ctx.infos.filter(
+        (i) => i.clue.characterId === character.id && i.clue.type === "aloneInRoom" && !i.clue.negate && i.clue.params?.zoneId
+      );
+    return (
+      eliminateByEvaluation(ctx, state, rec, "clueFilter", (character) => [
+        ...depInfos(ctx).filter((i) => !i.isOr && i.dep.ids.has(character.id) && i.dep.ids.size === 1),
+        ...inRoom(character),
+      ]) + readOwnClues(ctx, state, rec)
     );
   },
 

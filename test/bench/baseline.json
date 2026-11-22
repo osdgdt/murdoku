@@ -189,6 +189,15 @@
   ],
   "editorCases": [
     {
+      "file": "garzone-forgia.murdoku.json",
+      "solutions": 1,
+      "capped": false,
+      "nodes": 33,
+      "evaluations": 1889,
+      "work": 1922,
+      "ms": 1
+    },
+    {
       "file": "tragedia-piastra-pendolina.murdoku.json",
       "solutions": 1,
       "capped": false,
@@ -199,6 +208,14 @@
     }
   ],
   "humanCases": [
+    {
+      "file": "garzone-forgia.murdoku.json",
+      "status": "solved",
+      "level": "medium",
+      "hardest": "lineConfined",
+      "work": 421,
+      "ms": 3
+    },
     {
       "file": "tragedia-piastra-pendolina.murdoku.json",
       "status": "solved",

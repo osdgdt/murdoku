@@ -17,9 +17,12 @@ function showUpdateBanner() {
 }
 
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  });
+  // After the page has loaded (so the worker's install does not compete with the page's own files) — or at once, when the
+  // module is only evaluated after that (it waits for the language to load, and a page with its files preloaded can be "complete"
+  // by then: the load event would never come).
+  const register = () => navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (document.readyState === "complete") register();
+  else window.addEventListener("load", register);
   // The first controller is just the install, not an update.
   let hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {

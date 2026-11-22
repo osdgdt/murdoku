@@ -1,8 +1,8 @@
 // The names and explanations of the reasonings of the human solver (src/solver/techniques/names.js).
 export default {
   "Filtro d'indizio": "Clue filter",
-  "Un indizio che parla solo di questo personaggio esclude le celle in cui non può stare.":
-    "A clue about this character alone rules out the cells where they cannot be.",
+  "Un indizio che parla solo di questo personaggio esclude le celle in cui non può stare; se lo mette in una riga o in una colonna, o da solo in una stanza, quelle celle sono escluse anche per tutti gli altri.":
+    "A clue about this character alone rules out the cells where they cannot be; if it puts them in a row or a column, or alone in a room, those cells are ruled out for everybody else too.",
   "Riga e colonna occupate": "Row and column taken",
   "Chi è già piazzato occupa la sua riga e la sua colonna: nessun altro può stare lì.":
     "Somebody already placed takes their row and column: nobody else can stand there.",

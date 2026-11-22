@@ -63,28 +63,78 @@ try {
     await page.goto(`${base}/player.html?import=/__big.murdoku.json`);
     await page.waitForSelector("#board [role=gridcell]");
     const finger = await touchOn(page);
-    check("touch: the Move button is offered on a 16x16 board", await page.locator("#pan-btn:not(.hidden)").isVisible());
-    await finger.tap(page.locator("#pan-btn"));
-    check("touch: tapping Move turns pan mode on", (await page.locator("#board.pan-mode").count()) === 1);
+    check("touch: with no tool selected the board is in scroll mode", (await page.locator("#board.no-tool").count()) === 1);
     const before = await page.evaluate(() => document.querySelector("#board").scrollLeft);
     await finger.drag(page.locator('#board [data-row="3"][data-col="3"]'), -150, 0);
     const after = await page.evaluate(() => document.querySelector("#board").scrollLeft);
     check("touch: dragging a finger moves the board", after > before + 20, `${before} -> ${after}`);
-    check("touch: in pan mode nothing was marked", (await page.locator("#board .candidate-mark, #board .char-token").count()) === 0);
-    await finger.tap(page.locator("#pan-btn"));
+    check("touch: with no tool nothing was marked", (await page.locator("#board .candidate-mark, #board .char-token").count()) === 0);
     await finger.tap(page.locator(".char-chip").nth(1));
     const cell = page.locator('#board [data-row="2"][data-col="2"]');
     await finger.tap(cell);
     check("touch: a tap on a cell jots a note", (await cell.locator(".candidate-mark").count()) === 1);
+    // (the toolbar is fixed at the bottom of the screen on a phone: bring the cell to the middle, clear of it)
+    await page.locator('#board [data-row="4"][data-col="4"]').evaluate((n) => n.scrollIntoView({ block: "center", inline: "center" }));
     await finger.hold(page.locator('#board [data-row="4"][data-col="4"]'));
     check(
       "touch: a long press places the selected character",
       (await page.locator('#board [data-row="4"][data-col="4"] .char-token').count()) === 1
     );
+    // «Piazza»: a single tap places the character, no long press needed
+    await finger.tap(page.locator('.pen-mode [data-mode="place"]'));
+    const spot = page.locator('#board [data-row="6"][data-col="6"]');
+    await page.locator('#board [data-row="6"][data-col="6"]').evaluate((n) => n.scrollIntoView({ block: "center", inline: "center" }));
+    await finger.tap(spot);
+    check("touch: in «Piazza» mode a single tap places the character", (await spot.locator(".char-token").count()) === 1);
+    await finger.tap(page.locator('.pen-mode [data-mode="note"]'));
+    // the «Scorri» chip gives the finger back to the page
+    await finger.tap(page.locator(".scroll-chip"));
+    check("touch: the «Scorri» chip brings scroll mode back", (await page.locator("#board.no-tool").count()) === 1);
     check(
       "touch: the page does not scroll sideways",
       await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)
     );
+    check("touch: no page errors", errors.length === 0, errors.join("; "));
+    await context.close();
+  }
+
+  // ---- reservations with a finger: the «Riserva» mode (tap, drag), a long press on a row label, the refusal message
+  {
+    const { context, page, errors } = await phone();
+    await page.goto(`${base}/player.html?import=test/fixtures/monastero.en.murdoku.json`);
+    await page.waitForSelector("#board [role=gridcell]");
+    const finger = await touchOn(page);
+    await finger.tap(page.locator(".char-chip").nth(0));
+    await finger.tap(page.locator('.pen-mode [data-mode="reserve"]'));
+    const first = page.locator('#board [data-row="0"][data-col="0"]');
+    await finger.tap(first);
+    check("touch: in «Riserva» mode a tap reserves the cell", (await first.evaluate((n) => n.classList.contains("reserved"))) === true);
+    check("touch: the reserved cell shows the character's initial", (await first.locator(".reserve-tag").textContent()) === "A");
+    await finger.drag(page.locator('#board [data-row="1"][data-col="0"]'), 100, 0);
+    const reservedCells = await page.locator("#board .board-cell.reserved").count();
+    check("touch: dragging in «Riserva» mode reserves every cell it crosses", reservedCells >= 3, String(reservedCells));
+    await finger.tap(page.locator(".undo-chip"));
+    check(
+      "touch: one undo takes back the whole stroke",
+      (await page.locator("#board .board-cell.reserved").count()) === 1,
+      String(await page.locator("#board .board-cell.reserved").count())
+    );
+    // somebody else cannot put a note there: a message says why
+    await finger.tap(page.locator(".char-chip").nth(1));
+    await finger.tap(page.locator('.pen-mode [data-mode="note"]'));
+    await finger.tap(first);
+    check(
+      "touch: a note on a cell reserved for someone else is refused with a message",
+      /Riservata a Ambrose/.test((await page.locator(".board-notice").textContent()) || "") &&
+        (await first.locator(".candidate-mark").count()) <= 1
+    );
+    // a long press on a row's label reserves the whole row for the selected character
+    const label = page.locator('#board .board-label[data-nav-kind="row"][data-nav-index="1"]');
+    await finger.hold(label, 800);
+    check("touch: a long press on a row label reserves the row", (await label.evaluate((n) => n.classList.contains("reserved"))) === true);
+    check("touch: ...and its cells carry the border", (await page.locator('#board .board-cell.reserved[data-row="1"]').count()) >= 3);
+    await finger.tap(label);
+    check("touch: a short tap on the label is still a note on the row", (await label.locator(".line-notes .candidate-mark").count()) === 1);
     check("touch: no page errors", errors.length === 0, errors.join("; "));
     await context.close();
   }

@@ -20,6 +20,26 @@ function tinyPuzzle(size) {
 
 export const tests = [
   {
+    name: "solver umano: set di indizi che una persona risolve con la logica (e che prima uscivano «Esperto» per ipotesi) ora hanno il livello giusto, con le soluzioni giuste",
+    fn: async () => {
+      const fixtures = JSON.parse(await readRepoFile("test/fixtures/false-expert.json"));
+      const seen = new Set();
+      for (const { name, level, hardest, puzzle } of fixtures) {
+        const result = humanSolve(puzzle, { maxWork: 5e6 });
+        assertEqual(result.status, "solved", name);
+        assert(result.level !== "expert", `${name}: non deve più andare per ipotesi (${result.hardest})`);
+        assertEqual(result.level, level, `${name}: livello`);
+        assertEqual(result.hardest, hardest, `${name}: ragionamento più difficile`);
+        for (const p of puzzle.solution.placements) {
+          assertEqual(result.placements.get(p.characterId)?.row, p.row, `${name}: riga di ${p.characterId}`);
+          assertEqual(result.placements.get(p.characterId)?.col, p.col, `${name}: colonna di ${p.characterId}`);
+        }
+        seen.add(hardest);
+      }
+      for (const id of ["sceneUnary", "lineConfined", "pairSupport", "lineGroups"]) assert(seen.has(id), `nessun esempio per ${id}`);
+    },
+  },
+  {
     name: "catalogo: ogni ragionamento ha un livello valido, gli id sono unici e i livelli non scendono lungo l'elenco",
     fn: () => {
       const ids = new Set();

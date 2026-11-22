@@ -13,7 +13,21 @@ import { t } from "../i18n/i18n.js";
 // `pin` ({ clueId, onToggle }), when passed, makes every clue line clickable: a
 // click keeps that clue's cells highlighted on the board until it is clicked
 // again (the hover only lasts while the pointer is over the line).
+// What the cards and the selected clue show, as a short string: unless it changes the DOM is left as it is (a move that only
+// adds a note or a cross used to rebuild every card, ~400 nodes of icons, for nothing).
+const cardsSignature = (puzzle, state, pin) =>
+  JSON.stringify([
+    puzzle.id,
+    puzzle.clues.length,
+    state?.selectedTool?.kind === "character" ? state.selectedTool.id : null,
+    state ? [...state.placements.keys()] : null,
+    pin?.clueId ?? null,
+  ]);
+
 export function renderClueCards(container, puzzle, state, onClueHover, onClueHoverEnd, pin) {
+  const signature = cardsSignature(puzzle, state, pin);
+  if (container.__cardsSignature === signature && container.isConnected) return;
+  container.__cardsSignature = signature;
   keepFocus(container, ".clue-line", () => buildClueCards(container, puzzle, state, onClueHover, onClueHoverEnd, pin));
 }
 
@@ -108,6 +122,9 @@ function clueLine(clue, puzzle, onClueHover, onClueHoverEnd, pin) {
 // the selected character's clues, big and alone, so there is nothing to hunt
 // for in the full list below. With nobody selected it says how to get one.
 export function renderSelectedClue(container, puzzle, state, onClueHover, onClueHoverEnd, pin) {
+  const signature = cardsSignature(puzzle, state, pin);
+  if (container.__cardsSignature === signature && container.isConnected) return;
+  container.__cardsSignature = signature;
   keepFocus(container, ".clue-line", () => buildSelectedClue(container, puzzle, state, onClueHover, onClueHoverEnd, pin));
 }
 

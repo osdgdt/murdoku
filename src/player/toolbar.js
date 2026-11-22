@@ -7,7 +7,52 @@ import { t } from "../i18n/i18n.js";
 
 // `handlers`: { selectTool(tool), showCharacterHover(id), clearHover() }.
 export function renderToolbar(toolbarEl, puzzle, state, handlers) {
+  // Built once per case; after that only what a move can change is updated in place (which chip is selected, who is already
+  // placed): rebuilding ~250 nodes of icons at every move, and putting the focus back on a chip (which also fired its hover
+  // preview on a board about to be drawn again), was a good part of the wait on a phone.
+  if (toolbarEl.__builtFor === puzzle && toolbarEl.isConnected && updateToolbar(toolbarEl, puzzle, state)) return;
   keepFocus(toolbarEl, ".char-chip", () => buildToolbar(toolbarEl, puzzle, state, handlers));
+  toolbarEl.__builtFor = puzzle;
+}
+
+// «Nota | Piazza | Riserva»: what a tap does with a character selected. Only shown then.
+function updatePenMode(toolbarEl, state) {
+  const box = toolbarEl.querySelector(".pen-mode");
+  if (!box) return;
+  const on = state.selectedTool?.kind === "character";
+  box.classList.toggle("hidden", !on);
+  for (const button of box.querySelectorAll("button")) {
+    const active = button.dataset.mode === state.penMode;
+    button.classList.toggle("selected", active);
+    button.setAttribute("aria-pressed", String(active));
+  }
+}
+
+// -> false when the toolbar does not look as expected (then it is rebuilt)
+function updateToolbar(toolbarEl, puzzle, state) {
+  const chips = [...toolbarEl.querySelectorAll(".char-chip")];
+  if (chips.length !== puzzle.characters.length + 4) return false;
+  const tool = state.selectedTool;
+  const setSelected = (chip, on) => {
+    chip.classList.toggle("selected", on);
+    chip.setAttribute("aria-pressed", String(on));
+  };
+  puzzle.characters.forEach((character, index) => {
+    const chip = chips[index];
+    const placed = state.placements.has(character.id);
+    chip.classList.toggle("used", placed);
+    setSelected(chip, tool?.kind === "character" && tool.id === character.id);
+    chip.setAttribute("aria-label", character.name + (character.isVictim ? t(" (vittima)") : "") + (placed ? t(", già piazzato") : ""));
+  });
+  const extra = chips.length - 4; // after the characters: cross, eraser, scroll, undo
+  setSelected(chips[extra], tool?.kind === "x");
+  setSelected(chips[extra + 1], tool?.kind === "erase");
+  setSelected(chips[extra + 2], !tool);
+  updatePenMode(toolbarEl, state);
+  // the one tab stop of the toolbar: the selected tool, else the first (a chip that has the focus keeps it)
+  const current = chips.find((c) => c.classList.contains("selected")) || chips[0];
+  chips.forEach((c) => (c.tabIndex = c === current ? 0 : -1));
+  return true;
 }
 
 // The toolbar pattern: one tab stop (the selected tool, or the first), Left/Right/Home/End move between the chips.
@@ -35,7 +80,10 @@ function wireToolbarKeys(toolbarEl) {
 function buildToolbar(toolbarEl, puzzle, state, handlers) {
   clear(toolbarEl);
   wireToolbarKeys(toolbarEl);
-  const { selectTool, showCharacterHover, clearHover } = handlers;
+  const { selectTool, showCharacterHover, clearHover, setPenMode, undo } = handlers;
+  // the chips in a row of their own (it scrolls sideways on a phone, with the «Nota | Piazza» switch above it)
+  const row = el("div", { class: "chip-row" });
+  toolbarEl.appendChild(row);
   puzzle.characters.forEach((character, index) => {
     const placed = state.placements.has(character.id);
     const selectThis = () => selectTool({ kind: "character", id: character.id });
@@ -66,11 +114,11 @@ function buildToolbar(toolbarEl, puzzle, state, handlers) {
     chip.appendChild(iconWrap);
     if (!character.isVictim) chip.style.borderLeft = `3px solid ${characterColor(character)}`;
     chip.appendChild(document.createTextNode(character.name + (character.isVictim ? t(" (V)") : "")));
-    toolbarEl.appendChild(chip);
+    row.appendChild(chip);
   });
   const selectX = () => selectTool({ kind: "x" });
   const selectErase = () => selectTool({ kind: "erase" });
-  toolbarEl.appendChild(
+  row.appendChild(
     el(
       "div",
       {
@@ -85,7 +133,7 @@ function buildToolbar(toolbarEl, puzzle, state, handlers) {
       t("✕ Segna")
     )
   );
-  toolbarEl.appendChild(
+  row.appendChild(
     el(
       "div",
       {
@@ -100,6 +148,44 @@ function buildToolbar(toolbarEl, puzzle, state, handlers) {
       t("🧹 Gomma")
     )
   );
+  const selectScroll = () => selectTool(null);
+  row.appendChild(
+    el(
+      "div",
+      {
+        class: "char-chip scroll-chip" + (!state.selectedTool ? " selected" : ""),
+        tabindex: "-1",
+        role: "button",
+        "aria-pressed": String(!state.selectedTool),
+        "aria-label": t("Scorri la pagina (nessuno strumento)"),
+        onClick: selectScroll,
+        onKeydown: onActivateKey(selectScroll),
+      },
+      t("✋ Scorri")
+    )
+  );
+  // the same as the «Annulla» button, within reach of a thumb on a phone (the stylesheet shows it only there)
+  row.appendChild(
+    el(
+      "div",
+      {
+        class: "char-chip undo-chip",
+        tabindex: "-1",
+        role: "button",
+        "aria-label": t("Annulla"),
+        onClick: undo,
+        onKeydown: onActivateKey(undo),
+      },
+      t("↶ Annulla")
+    )
+  );
+  const penMode = el("div", { class: "pen-mode hidden", role: "group", "aria-label": t("Cosa fa un tocco") }, [
+    el("button", { type: "button", "data-mode": "note", onClick: () => setPenMode("note") }, t("Nota")),
+    el("button", { type: "button", "data-mode": "place", onClick: () => setPenMode("place") }, t("Piazza")),
+    el("button", { type: "button", "data-mode": "reserve", onClick: () => setPenMode("reserve") }, t("Riserva")),
+  ]);
+  toolbarEl.appendChild(penMode);
+  updatePenMode(toolbarEl, state);
   // the one tab stop of the toolbar: the selected tool, else the first
   const chips = [...toolbarEl.querySelectorAll(".char-chip")];
   const current = chips.find((c) => c.classList.contains("selected")) || chips[0];

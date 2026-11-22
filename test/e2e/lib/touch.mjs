@@ -6,7 +6,8 @@ export async function touchOn(page) {
   const send = (type, points) => client.send("Input.dispatchTouchEvent", { type, touchPoints: points });
   const point = (x, y) => ({ x: Math.round(x), y: Math.round(y), id: 1 });
   const centre = async (locator) => {
-    await locator.scrollIntoViewIfNeeded();
+    // to the middle of the screen, clear of the phone toolbar fixed at the bottom (instantly: the page scrolls smoothly otherwise)
+    await locator.evaluate((n) => n.scrollIntoView({ block: "center", inline: "center", behavior: "instant" }));
     const box = await locator.boundingBox();
     if (!box) throw new Error("touch: the element has no box (hidden?)");
     return point(box.x + box.width / 2, box.y + box.height / 2);

@@ -22,6 +22,13 @@ const TEXTS = {
     name: () => t("Indizio con riferimento noto"),
     text: () => t("L'indizio nomina qualcuno già piazzato, quindi si sa esattamente dove cercare."),
   },
+  sceneUnary: {
+    name: () => t("Indizio sulla scena che esclude celle"),
+    text: () =>
+      t(
+        "Un indizio come «è l'unica accanto a una rastrelliera» esclude da solo le celle in cui il personaggio non potrebbe mai soddisfarlo."
+      ),
+  },
   roomCapacity: {
     name: () => t("Posti nella stanza"),
     text: () =>
@@ -47,6 +54,27 @@ const TEXTS = {
         "Ogni riga e ogni colonna ha una persona: se una riga (o una colonna) può essere raggiunta da un solo personaggio, quel personaggio sta lì."
       ),
   },
+  lineConfined: {
+    name: () => t("Riga o colonna obbligata"),
+    text: () =>
+      t(
+        "Se tutte le caselle possibili di un personaggio stanno nella stessa riga (o colonna), lui è in quella riga: gli altri non possono usarla."
+      ),
+  },
+  pairSupport: {
+    name: () => t("Indizio con un altro personaggio aperto"),
+    text: () =>
+      t(
+        "Un indizio lega il personaggio a un altro non ancora piazzato: una casella è esclusa se l'altro non ha nessuna casella che renda vero l'indizio."
+      ),
+  },
+  lineGroups: {
+    name: () => t("Righe o colonne di gruppo"),
+    text: () =>
+      t(
+        "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle."
+      ),
+  },
   subsets: {
     name: () => t("Gruppo di personaggi"),
     text: () =>
@@ -55,10 +83,10 @@ const TEXTS = {
       ),
   },
   mutualSupport: {
-    name: () => t("Indizio tra due personaggi aperti"),
+    name: () => t("Indizio tra tre personaggi aperti"),
     text: () =>
       t(
-        "Un indizio lega personaggi non ancora piazzati: una cella è esclusa se gli altri non hanno nessuna cella che renda vero l'indizio."
+        "Un indizio lega il personaggio a due altri non ancora piazzati: una cella è esclusa se i due non hanno nessuna coppia di celle che renda vero l'indizio."
       ),
   },
   alternatives: {
@@ -103,6 +131,10 @@ const EXAMPLES = {
     t(
       "«Bruno è in diagonale rispetto ad Anna» e Anna è già piazzata: Bruno può stare solo nelle caselle in diagonale rispetto a lei, se sono libere."
     ),
+  sceneUnary: () =>
+    t(
+      "«Carla è l'unica persona accanto alla rastrelliera»: le caselle da cui non potrebbe mai esserlo (lontane da una rastrelliera) sono escluse per lei."
+    ),
   roomCapacity: () =>
     t("La cantina ha una sola casella libera e nessun altro può arrivarci: la vittima non può stare in cantina, perché lì sarebbe sola."),
   victimRule: () =>
@@ -115,10 +147,16 @@ const EXAMPLES = {
     t(
       "Ci sono sei personaggi su una griglia 6×6, quindi ogni riga ha una persona. Nella riga 4 solo Carla può ancora arrivare: Carla è nella riga 4."
     ),
+  lineConfined: () => t("Le caselle possibili di Anna sono tutte nella riga 2: Anna è in quella riga, e nessun altro può usare la riga 2."),
+  pairSupport: () =>
+    t(
+      "«Anna è 3 colonne a est di Bruno», e nessuno dei due è piazzato: Anna può stare solo dove Bruno ha una casella tre colonne a ovest."
+    ),
+  lineGroups: () => t("Anna e Bruno hanno caselle possibili solo nelle righe 2 e 3: quelle due righe sono loro, e Carla non può usarle."),
   subsets: () => t("Anna e Bruno possono stare solo in due stesse caselle: quelle due caselle sono loro, e Carla non può usarle."),
   mutualSupport: () =>
     t(
-      "«Bruno è nella stessa stanza di Anna», e nessuno dei due è ancora piazzato: Bruno può stare solo nelle stanze in cui Anna può davvero stare."
+      "«Anna è sulla stessa riga o colonna di Bruno o di Carla», e nessuno dei tre è piazzato: si guardano insieme le celle di Bruno e di Carla per vedere dove Anna può davvero stare."
     ),
   alternatives: () => t("«Anna è in cucina oppure nel salone»: una casella che non è né in cucina né nel salone è esclusa per Anna."),
   globalCount: () =>

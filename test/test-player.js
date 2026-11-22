@@ -5,6 +5,8 @@ import {
   handleCellHold,
   handleCellDrag,
   handleLineTap,
+  handleLineHold,
+  reservedFor,
   undo,
   clearAll,
   serializeBoardState,
@@ -474,6 +476,138 @@ export const tests = [
       clearAll(state);
       assertEqual(state.lineNotes.size, 0);
       assertEqual(deserializeBoardState({}).lineNotes.size, 0, "salvataggi vecchi senza note di linea");
+    },
+  },
+
+  // ---- reservations ----------------------------------------------------------------------------------------------------
+  {
+    name: "riserva: una cella riservata toglie le note degli altri e mette quella del titolare",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "bruno" };
+      handleCellTap(state, grid, 1, 1);
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellTap(state, grid, 1, 1);
+      state.penMode = "reserve";
+      const result = handleCellTap(state, grid, 1, 1);
+      assert(result.ok, "la riserva deve riuscire");
+      assertEqual(reservedFor(state, 1, 1), "anna");
+      assertEqual([...state.candidates.get("1,1")].join(), "anna", "restano solo le note di anna");
+      undo(state);
+      assertEqual(reservedFor(state, 1, 1), null, "annullare toglie la riserva");
+      assertEqual([...state.candidates.get("1,1")].sort().join(), "anna,bruno", "e rimette le note degli altri");
+    },
+  },
+  {
+    name: "riserva: note, X e piazzamento di un altro su una cella riservata sono rifiutati con il nome del titolare",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.penMode = "reserve";
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellTap(state, grid, 0, 0);
+      state.penMode = "note";
+      state.selectedTool = { kind: "character", id: "bruno" };
+      const note = handleCellTap(state, grid, 0, 0);
+      assertEqual(note.reason, "reserved");
+      assertEqual(note.by, "anna");
+      assert(!state.candidates.get("0,0").has("bruno"), "nessuna nota di bruno");
+      assertEqual(handleCellHold(state, grid, 0, 0).reason, "reserved", "nemmeno il piazzamento");
+      assertEqual(handleCellDrag(state, grid, 0, 0).reason, "reserved", "né il trascinamento");
+      state.selectedTool = { kind: "x" };
+      assertEqual(handleCellTap(state, grid, 0, 0).reason, "reserved", "né una X");
+      state.selectedTool = { kind: "character", id: "anna" };
+      assert(handleCellHold(state, grid, 0, 0).ok, "il titolare può piazzarsi");
+      assertEqual(state.placements.get("anna").row, 0);
+    },
+  },
+  {
+    name: "riserva: la gomma toglie la riserva di una cella vuota; un tocco del titolare in modalità Riserva la toglie",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.penMode = "reserve";
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleCellTap(state, grid, 2, 2);
+      handleCellTap(state, grid, 2, 2);
+      assertEqual(reservedFor(state, 2, 2), null, "il secondo tocco libera la cella");
+      handleCellTap(state, grid, 2, 2);
+      state.selectedTool = { kind: "erase" };
+      handleCellTap(state, grid, 2, 2);
+      assertEqual(reservedFor(state, 2, 2), null, "la gomma libera la cella");
+      assert(state.candidates.get("2,2").has("anna"), "la nota resta");
+      undo(state);
+      assertEqual(reservedFor(state, 2, 2), "anna", "annullare rimette la riserva");
+    },
+  },
+  {
+    name: "riserva: un trascinamento riserva tutte le celle toccate ed è un solo passo di annullamento",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.penMode = "reserve";
+      state.selectedTool = { kind: "character", id: "anna" };
+      state.stroke = {};
+      handleCellDrag(state, grid, 0, 0);
+      handleCellDrag(state, grid, 0, 1);
+      handleCellDrag(state, grid, 0, 2);
+      assertEqual(state.reservations.size, 3);
+      assertEqual(state.undoStack.length, 1, "un solo passo");
+      undo(state);
+      assertEqual(state.reservations.size, 0);
+      assertEqual(state.candidates.size, 0, "le note messe dalla riserva spariscono");
+    },
+  },
+  {
+    name: "riserva: una riga intera (pressione lunga sull'etichetta) e di nuovo per toglierla; una riga con celle d'altri è rifiutata",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      assert(handleLineHold(state, grid, "row", 1).ok);
+      assertEqual(state.reservations.size, 3);
+      assertEqual(state.reservedLines.get("row:1"), "anna");
+      state.selectedTool = { kind: "character", id: "bruno" };
+      assertEqual(handleLineHold(state, grid, "row", 1).reason, "reserved");
+      assertEqual(handleLineHold(state, grid, "col", 0).reason, "reserved", "la colonna incrocia una cella di anna");
+      state.selectedTool = { kind: "character", id: "anna" };
+      assert(handleLineHold(state, grid, "row", 1).ok, "di nuovo: tolta");
+      assertEqual(state.reservations.size, 0);
+      assertEqual(state.reservedLines.size, 0);
+      undo(state);
+      assertEqual(state.reservations.size, 3, "annullare rimette tutta la riga");
+      undo(state);
+      assertEqual(state.reservations.size, 0);
+      assertEqual(state.reservedLines.size, 0);
+    },
+  },
+  {
+    name: "riserva: una riga non riserva le celle con la X o con un altro personaggio",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.xMarks.add("1,0");
+      state.placements.set("bruno", { row: 1, col: 2 });
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleLineHold(state, grid, "row", 1);
+      assertEqual([...state.reservations.keys()].join(), "1,1");
+    },
+  },
+  {
+    name: "riserva: si salva e si rilegge; Pulisci tutto la azzera; uno stato vecchio non ne ha",
+    fn: () => {
+      const grid = grid3x3();
+      const state = createBoardState();
+      state.selectedTool = { kind: "character", id: "anna" };
+      handleLineHold(state, grid, "col", 2);
+      const copy = deserializeBoardState(JSON.parse(JSON.stringify(serializeBoardState(state))));
+      assertEqual(copy.reservations.size, 3);
+      assertEqual(copy.reservedLines.get("col:2"), "anna");
+      assertEqual(deserializeBoardState({ placements: [] }).reservations.size, 0);
+      clearAll(state);
+      assertEqual(state.reservations.size, 0);
+      assertEqual(state.reservedLines.size, 0);
     },
   },
 ];

@@ -27,6 +27,8 @@ export function describeCellContent(puzzle, state, row, col) {
       if (names.length > 0) parts.push(t("note: {names}", { names: names.join(", ") }));
     }
   }
+  const holder = state.reservations?.get(key(row, col));
+  if (holder) parts.push(t("riservata a {name}", { name: nameOf(puzzle, holder) }));
   if (cell.objectId) {
     const object = puzzle.grid.objects.find((o) => o.id === cell.objectId);
     const def = object && objectIcon(object.typeId);
@@ -52,6 +54,8 @@ export function snapshotBoard(state) {
     xMarks: new Set(state.xMarks),
     candidates: new Map([...state.candidates].map(([k, set]) => [k, new Set(set)])),
     lineNotes: new Map([...state.lineNotes].map(([k, set]) => [k, new Set(set)])),
+    reservations: new Map(state.reservations),
+    reservedLines: new Map(state.reservedLines),
   };
 }
 
@@ -72,6 +76,25 @@ export function describeBoardChange(puzzle, before, after) {
     if (!after.placements.has(id)) said.push(t("{name} tolto dalla griglia", { name: nameOf(puzzle, id) }));
   }
   if (said.length > 0) return said.length === 1 ? said[0] : t("{count} personaggi modificati", { count: said.length });
+
+  // reservations (a row/column as a whole, or some cells)
+  const lineChanges = [...after.reservedLines].filter(([k, id]) => before.reservedLines.get(k) !== id);
+  for (const [k, id] of lineChanges) {
+    const [kind, index] = k.split(":");
+    return kind === "row"
+      ? t("Riga {n} riservata a {name}", { n: Number(index) + 1, name: nameOf(puzzle, id) })
+      : t("Colonna {n} riservata a {name}", { n: Number(index) + 1, name: nameOf(puzzle, id) });
+  }
+  const lineFreed = [...before.reservedLines].filter(([k]) => !after.reservedLines.has(k));
+  if (lineFreed.length > 0) return t("Riserva tolta da una riga o colonna");
+  const reservedNow = [...after.reservations].filter(([k, id]) => before.reservations.get(k) !== id);
+  if (reservedNow.length > 0) {
+    if (reservedNow.length > 1) return t("{count} caselle riservate", { count: reservedNow.length });
+    const [k, id] = reservedNow[0];
+    const [r, c] = parseKey(k);
+    return t("Casella {place} riservata a {name}", { place: place(r, c), name: nameOf(puzzle, id) });
+  }
+  if ([...before.reservations].some(([k]) => !after.reservations.has(k))) return t("Riserva tolta");
 
   // crosses
   const crossesAdded = [...after.xMarks].filter((k) => !before.xMarks.has(k));

@@ -1,5 +1,5 @@
 import { el, clear, qs, attachHoldToConfirm } from "../util/dom.js";
-import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, undo, clearAll } from "./board.js";
+import { handleCellTap, handleCellHold, handleCellDrag, handleLineTap, handleLineHold, undo, clearAll } from "./board.js";
 import { renderPlayerBoard } from "./boardView.js";
 import { renderClueCards, renderSelectedClue } from "./clueCards.js";
 import { renderToolbar as renderToolbarChips } from "./toolbar.js";
@@ -74,7 +74,6 @@ export function createGameScreen({
   const undoBtn = qs("#undo-btn");
   const clearBtn = qs("#clear-btn");
   const hintBtn = qs("#hint-btn");
-  const panBtn = qs("#pan-btn");
   const hintPanel = qs("#hint-panel");
   const submitBtn = qs("#submit-btn");
   const timerEl = qs("#timer");
@@ -128,14 +127,28 @@ export function createGameScreen({
       }
     } else if (tool?.kind === "x") announce(t("Strumento: segna X"));
     else if (tool?.kind === "erase") announce(t("Strumento: gomma"));
+    else if (!tool) announce(t("Nessuno strumento: il dito scorre la pagina"));
     const pinned = puzzle.clues.find((c) => c.id === pinnedClueId);
     if (pinned && pinned.characterId && !(tool?.kind === "character" && tool.id === pinned.characterId)) pinnedClueId = null; // the pin follows its character
     renderToolbar();
     renderBoardAndClues();
   }
 
+  // What a tap does with a character selected: a note, or place them (so a phone needs no long press).
+  function setPenMode(mode) {
+    state.penMode = mode === "place" || mode === "reserve" ? mode : "note";
+    announce(
+      state.penMode === "place"
+        ? t("Un tocco piazza il personaggio")
+        : state.penMode === "reserve"
+          ? t("Un tocco riserva la casella al personaggio")
+          : t("Un tocco segna una nota")
+    );
+    renderToolbar();
+  }
+
   function renderToolbar() {
-    renderToolbarChips(toolbarEl, puzzle, state, { selectTool, showCharacterHover, clearHover });
+    renderToolbarChips(toolbarEl, puzzle, state, { selectTool, showCharacterHover, clearHover, setPenMode, undo: () => undoBtn.click() });
   }
 
   // Ephemeral, non-serialized cell highlighting for hover — mirrors
@@ -228,11 +241,40 @@ export function createGameScreen({
     submitBtn.disabled = false;
   }
 
+  // A move that is refused (a cell reserved for somebody else...) says why, on the page and aloud.
+  let noticeEl = null;
+  let noticeTimer = null;
+  function refusalText(result) {
+    if (!result || result.ok !== false) return "";
+    if (result.reason === "reserved") {
+      const name = puzzle.characters.find((c) => c.id === result.by)?.name ?? "";
+      return t("Riservata a {name}: per cambiarla usa la gomma o annulla", { name });
+    }
+    if (result.reason === "cell-unavailable") return t("Questa casella non si può riservare: c'è una X o un altro personaggio");
+    return "";
+  }
+  function showNotice(text) {
+    if (!noticeEl) {
+      noticeEl = el("div", { class: "board-notice hidden", role: "status" });
+      document.body.appendChild(noticeEl);
+    }
+    clearTimeout(noticeTimer);
+    noticeEl.textContent = text;
+    noticeEl.classList.remove("hidden");
+    announce(text);
+    noticeTimer = setTimeout(() => noticeEl.classList.add("hidden"), 3500);
+  }
+
   // One board mutation = clear any hint, apply it, re-arm submit, save, redraw.
   function applyBoardChange(mutate, { rerenderToolbar = true } = {}) {
     const before = snapshotBoard(state);
     clearHint();
-    mutate();
+    const result = mutate();
+    const refusal = refusalText(result);
+    if (refusal) {
+      showNotice(refusal);
+      return; // nothing changed
+    }
     markUnsolved();
     persistProgress();
     if (rerenderToolbar) renderToolbar();
@@ -252,13 +294,17 @@ export function createGameScreen({
     });
   }
 
+  // Snapshotted at the instant a press begins and read back — instead of the
+  // live state.selectedTool — when the hold timer fires: selectedTool can be
+  // reassigned while a hold is pending (e.g. showHintStep() auto-selecting a
+  // character via a second touch), and pinning it here is what makes
+  // handleCellHold's own `tool` override meaningful. (Outside the render: the board is
+  // drawn in place now, and its handlers are the ones of the last render.)
+  let pressStartTool = null;
+
   function renderBoardAndClues() {
-    // Snapshotted at the instant a press begins and read back — instead of the
-    // live state.selectedTool — when the hold timer fires: selectedTool can be
-    // reassigned while a hold is pending (e.g. showHintStep() auto-selecting a
-    // character via a second touch), and pinning it here is what makes
-    // handleCellHold's own `tool` override meaningful.
-    let pressStartTool = null;
+    // nothing selected: a finger on the board scrolls the page instead of marking cells (see boardGestures.js)
+    boardEl.classList.toggle("no-tool", !state.selectedTool);
     renderPlayerBoard(
       boardEl,
       puzzle,
@@ -271,16 +317,19 @@ export function createGameScreen({
       (row, col) => {
         // drag: note su più caselle (non azzera l'eventuale suggerimento)
         const before = snapshotBoard(state);
-        handleCellDrag(state, puzzle.grid, row, col);
-        announce(describeBoardChange(puzzle, before, snapshotBoard(state)));
+        const refusal = refusalText(handleCellDrag(state, puzzle.grid, row, col));
+        if (refusal) showNotice(refusal);
+        else announce(describeBoardChange(puzzle, before, snapshotBoard(state)));
         markUnsolved();
         persistProgress();
         scheduleBoardRender();
       },
       () => {
         pressStartTool = state.selectedTool;
+        state.stroke = {}; // a stroke of the finger is one step to undo
       }, // onPressStart
-      (kind, index) => applyBoardChange(() => handleLineTap(state, kind, index)) // tap su un'etichetta di riga/colonna: nota sull'intera riga/colonna
+      (kind, index) => applyBoardChange(() => handleLineTap(state, kind, index)), // tap su un'etichetta di riga/colonna: nota sull'intera riga/colonna
+      (kind, index) => applyBoardChange(() => handleLineHold(state, puzzle.grid, kind, index)) // pressione lunga: la riga/colonna è riservata al personaggio
     );
     applyHintHighlight();
     applySelectedCharacterTargets();
@@ -517,24 +566,7 @@ export function createGameScreen({
     }
   }
 
-  // "Muovi" (pan mode): only offered when the board is wider than its area. While it
-  // is on, a finger on the board moves it instead of marking cells (the cells' own
-  // touch handling would otherwise swallow the swipe).
-  function setPanMode(on) {
-    boardEl.classList.toggle("pan-mode", on);
-    panBtn?.setAttribute("aria-pressed", String(on));
-  }
-  function updatePanButton() {
-    if (!panBtn) return;
-    const overflows = boardEl.scrollWidth > boardEl.clientWidth + 1;
-    panBtn.classList.toggle("hidden", !overflows);
-    if (!overflows && boardEl.classList.contains("pan-mode")) setPanMode(false);
-  }
-
   function wireControls() {
-    panBtn?.addEventListener("click", () => setPanMode(!boardEl.classList.contains("pan-mode")));
-    if (typeof ResizeObserver !== "undefined") new ResizeObserver(updatePanButton).observe(boardEl);
-    updatePanButton();
     undoBtn.addEventListener("click", () => applyBoardChange(() => undo(state)));
     attachHoldToConfirm(clearBtn, 700, () => {
       applyBoardChange(() => clearAll(state));
@@ -577,6 +609,10 @@ export function createGameScreen({
         e.preventDefault();
         selectTool({ kind: "character", id: character.id });
       }
+    } else if (key === "p" && state.selectedTool?.kind === "character") {
+      setPenMode(state.penMode === "place" ? "note" : "place");
+    } else if (key === "r" && state.selectedTool?.kind === "character") {
+      setPenMode(state.penMode === "reserve" ? "note" : "reserve");
     } else if (key === "x") {
       selectTool({ kind: "x" });
     } else if (key === "e") {
@@ -608,7 +644,7 @@ export function createGameScreen({
         "p",
         { id: "board-help", class: "visually-hidden" },
         t(
-          "Frecce per muoversi tra le caselle, Invio per segnare una nota, Maiusc+Invio per piazzare il personaggio selezionato. Tasti 1-9 e 0 scelgono un personaggio, X segna una X, E gomma, U annulla, H suggerimento."
+          "Frecce per muoversi tra le caselle, Invio per segnare una nota, Maiusc+Invio per piazzare il personaggio selezionato. Tasti 1-9 e 0 scelgono un personaggio, X segna una X, E gomma, U annulla, H suggerimento. Sull'etichetta di una riga o colonna Invio segna una nota, Maiusc+Invio la riserva al personaggio selezionato; R alterna la modalità Riserva."
         )
       );
       boardEl.parentNode.insertBefore(help, boardEl);

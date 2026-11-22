@@ -51,6 +51,8 @@ async function touchOn(page) {
   const client = await page.context().newCDPSession(page);
   const send = (type, points) => client.send("Input.dispatchTouchEvent", { type, touchPoints: points });
   const centre = async (r, c) => {
+    // clear of the phone toolbar fixed at the bottom of the screen
+    await cell(page, r, c).evaluate((n) => n.scrollIntoView({ block: "center", inline: "center", behavior: "instant" }));
     const box = await cell(page, r, c).boundingBox();
     return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2), id: 1 };
   };

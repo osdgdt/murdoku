@@ -47,7 +47,7 @@ let currentOnCellTap = null;
 // the same cell, is a hold. Kept in sync by hand with the `hold-wheel-fill`
 // CSS animation duration in styles/player.css (same manual-duplication
 // tradeoff attachHoldToConfirm/700ms already accepts, src/util/dom.js).
-const HOLD_THRESHOLD_MS = 900;
+const HOLD_THRESHOLD_MS = 500;
 // Timer counting down a hold-in-progress; null whenever no press is pending a
 // hold decision (nothing down, hold already fired, or already converted to a
 // drag).
@@ -188,7 +188,7 @@ export function isPressActive() {
 // activeTouchId for the touch-identity side of this.
 export function startPress(r, c, node, { onPressStart, onCellHold }) {
   if (dragActive) return;
-  if (node.closest?.(".board-grid.pan-mode")) return; // "Muovi": a press only moves the board
+  if (node.closest?.(".board-grid.no-tool")) return; // nothing selected: a press only scrolls
   dragActive = true;
   dragDownCell = { row: r, col: c };
   holdFired = false;
@@ -231,8 +231,8 @@ export function enterCell(r, c) {
 // listeners handle everything, so these forward only once it is detached.
 export function beginTouchPress(e, r, c, node, hooks) {
   if (dragActive) return; // a second, unrelated finger — ignore
-  // "Muovi" (pan mode): the finger moves the board, so the browser must scroll/zoom it.
-  if (node.closest?.(".board-grid.pan-mode")) return;
+  // Nothing selected (the «Scorri» tool): the finger moves the page, so the browser must scroll/zoom it.
+  if (node.closest?.(".board-grid.no-tool")) return;
   e.preventDefault();
   activeTouchId = e.changedTouches[0]?.identifier ?? null;
   lastTouchCell = { row: r, col: c };

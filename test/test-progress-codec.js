@@ -17,6 +17,11 @@ export const tests = [
           ["col:0", ["char_1", "char_2"]],
         ],
         autoXByCharacter: [["char_1", [{ row: 0, col: 2 }]]],
+        reservations: [
+          ["1,1", "char_2"],
+          ["1,2", "char_2"],
+        ],
+        reservedLines: [["row:1", "char_2"]],
         hintsUsed: 3,
         activeSeconds: 125,
         checks: 2,
@@ -37,6 +42,10 @@ export const tests = [
       assert(
         safe.autoXByCharacter.every((a) => !Array.isArray(a)),
         "autoXByCharacter non deve contenere array annidati"
+      );
+      assert(
+        safe.reservations.every((r) => !Array.isArray(r)) && safe.reservedLines.every((r) => !Array.isArray(r)),
+        "le riserve non devono contenere array annidati"
       );
       assertEqual(
         JSON.stringify(fromFirestoreSafe(safe)),

@@ -490,34 +490,15 @@ export default {
     },
     clues: [
       {
-        owner: "b",
-        type: "inRowOrCol",
+        owner: "c",
+        type: "inRoom",
         params: {
-          axis: "row",
-          index: 4,
-        },
-        negate: false,
-      },
-      {
-        owner: "a",
-        type: "inRowOrCol",
-        params: {
-          axis: "row",
-          index: 1,
-        },
-        negate: false,
-      },
-      {
-        owner: "a",
-        type: "inRowOrCol",
-        params: {
-          axis: "col",
-          index: 3,
+          zoneId: "@z:C",
         },
         negate: false,
       },
     ],
-    focus: "c",
+    focus: "a",
   },
   subsets: {
     map: ["ABBBB", "BABBB", "BBBBB", "BBBBB", "BBBBB"],

@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwo3vm59s258jbv4",
+  "title": "Il garzone della forgia",
+  "author": "",
+  "difficulty": "easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "La regina Adela ti ha scelto per scoprire come è morto suo marito, ma per cominciare ti manda a Borgocenere: un garzone fabbro giace morto accanto all'incudine. «Un fatto di poco conto», dice, «ma un'indagine parte da dove capita.» La forgia è ancora calda, e cinque persone giurano di non aver visto niente.",
+  "resolutionNote": "Il maestro fabbro confessa: Vanni aveva scoperto le lame difettose vendute all'esercito. Nel gettone di ferro che il ragazzo portava al collo c'è lo stemma di Victor, e un foglietto: «Il coppiere non entrò mai nella camera». Alla regina dici che il garzone era figlio del re. «Non lo sapevo», sussurra Adela.",
+  "tense": "past",
+  "createdAt": 1795126346973,
+  "updatedAt": 1795353650805,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 6
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": "obj_mwo3vm590ki7vjc0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59e7es1lg9",
+          "objectId": "obj_mwo3vm590kp8pgkj",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59e7es1lg9",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": "obj_mwo3vm59i8homw6s",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59e7es1lg9",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59e7es1lg9",
+          "objectId": "obj_mwo3vm591nj7rk3v",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": "obj_mwo3vm59pyqr6s3s",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5951h3r9lr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59yrm5260h",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59yrm5260h",
+          "objectId": "obj_mwo3vm59ug5lg6vo",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59yrm5260h",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59yrm5260h",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59yrm5260h",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59yrm5260h",
+          "objectId": "obj_mwo3vm59pvqru8p0",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": "obj_mwo3vm59s9f3x80s",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59luxfyqb4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59luxfyqb4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59luxfyqb4",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": "obj_mwo3vm59r9chlmzb",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5944bmpxar",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59luxfyqb4",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59luxfyqb4",
+          "objectId": "obj_mwo3vm5a4ao83wcv",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm59luxfyqb4",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwo3vm5951h3r9lr",
+        "name": "La forgia",
+        "color": "#f4c2c2",
+        "textureId": "flagstone_dark"
+      },
+      {
+        "id": "zone_mwo3vm59e7es1lg9",
+        "name": "La carbonaia",
+        "color": "#c2e0f4",
+        "textureId": "dirt"
+      },
+      {
+        "id": "zone_mwo3vm59yrm5260h",
+        "name": "Il magazzino",
+        "color": "#c9f4c2",
+        "textureId": "planks_dark"
+      },
+      {
+        "id": "zone_mwo3vm5944bmpxar",
+        "name": "La casa del fabbro",
+        "color": "#f4ecc2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwo3vm59luxfyqb4",
+        "name": "Il cortile",
+        "color": "#e0c2f4",
+        "textureId": "cobble"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwo3vm590ki7vjc0",
+        "typeId": "fireplace",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "obj_mwo3vm59i8homw6s",
+        "typeId": "anvil",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "obj_mwo3vm59pyqr6s3s",
+        "typeId": "weapon_rack",
+        "row": 2,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3vm590kp8pgkj",
+        "typeId": "barrel",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm591nj7rk3v",
+        "typeId": "cart",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3vm59ug5lg6vo",
+        "typeId": "shelf",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm59pvqru8p0",
+        "typeId": "chest",
+        "row": 3,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3vm59s9f3x80s",
+        "typeId": "table",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3vm59r9chlmzb",
+        "typeId": "bed",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "id": "obj_mwo3vm5a4ao83wcv",
+        "typeId": "well",
+        "row": 5,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm5aewxo714a",
+        "typeId": "door",
+        "row": 1,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5bpd58pz4u",
+        "typeId": "door",
+        "row": 2,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5bugmfdbuf",
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3vm5bmegsfawq",
+        "typeId": "door",
+        "row": 3,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5bwd5n2hmd",
+        "typeId": "door",
+        "row": 5,
+        "col": 2,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5bpcozo5z9",
+        "typeId": "door",
+        "row": 3,
+        "col": 4,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3vm5bv5jj3pfq",
+        "typeId": "window",
+        "row": 0,
+        "col": 1,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwo3vm5ba8rrgw1p",
+        "typeId": "window",
+        "row": 0,
+        "col": 5,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwo3vm5bwe7yl6jz",
+        "typeId": "window",
+        "row": 3,
+        "col": 0,
+        "side": "W"
+      },
+      {
+        "id": "obj_mwo3vm5bhwtlpvul",
+        "typeId": "window",
+        "row": 5,
+        "col": 5,
+        "side": "E"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwo3vm5bcqj1like",
+      "name": "Arnaldo",
+      "iconId": "construction",
+      "isVictim": false,
+      "bio": "Lavorante, forte come un bue e di poche parole. Vanni gli aveva preso il posto accanto alla fornace, e lui non l'ha mai nascosto.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5bcmr20q80",
+      "name": "Bertoldo",
+      "iconId": "blacksmith",
+      "isVictim": false,
+      "bio": "Maestro fabbro e padrone della forgia. Burbero ma stimato, fornisce ferri e armi al presidio del castello. Ultimamente ha le mani piene di ordini e il carattere peggiorato.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5b6eekfbid",
+      "name": "Clelia",
+      "iconId": "baker",
+      "isVictim": false,
+      "bio": "Moglie del fabbro: tiene i conti e la cucina. Voleva bene al garzone come a un figlio, dice; ma la sera lo sentiva parlare di cose che non capiva.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3vm5bz6d5ldaz",
+      "name": "Duccio",
+      "iconId": "farmer",
+      "isVictim": false,
+      "bio": "Carbonaio di Borgocenere: porta il carbone alla forgia ogni mattina. Parla solo del tempo, ma vede tutto quello che entra ed esce dal cortile.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5bjkma17nb",
+      "name": "Egidia",
+      "iconId": "maid",
+      "isVictim": false,
+      "bio": "Figlia del vasaio della porta accanto: porta ogni giorno la zuppa ai lavoranti. Si fermava a parlare con Vanni più del dovuto.",
+      "color": "#bf8020",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3vm5bzv31ixiv",
+      "name": "Vanni",
+      "iconId": "ninja",
+      "isVictim": true,
+      "bio": "19 anni, garzone della forgia di Borgocenere. Silenzioso e instancabile, è arrivato in bottega ancora bambino: nessuno sa chi fossero i suoi genitori.",
+      "color": "#4a6aca",
+      "gender": "male"
+    }
+  ],
+  "clues": [
+    {
+      "id": "clue_mwrv7iwkkordry91",
+      "characterId": "char_mwo3vm5bcmr20q80",
+      "type": "inFrontOfWindow",
+      "params": {}
+    },
+    {
+      "id": "clue_mwrv7iwkirif504b",
+      "characterId": "char_mwo3vm5bjkma17nb",
+      "type": "aloneWithPersonProperty",
+      "params": {
+        "property": "adjacentTo",
+        "objectTypeId": "chair",
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwlcugqghyj",
+      "characterId": "char_mwo3vm5bz6d5ldaz",
+      "type": "adjacent",
+      "params": {
+        "targetId": "objtype:well"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwlnapr9qyt",
+      "characterId": "char_mwo3vm5bcqj1like",
+      "type": "aloneInRoom",
+      "params": {
+        "zoneId": "zone_mwo3vm5951h3r9lr"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwl7slx4qes",
+      "characterId": "char_mwo3vm5bcmr20q80",
+      "type": "someoneInRoomWithProperty",
+      "params": {
+        "property": "male",
+        "objectTypeId": "chair"
+      }
+    },
+    {
+      "id": "clue_mwrv7iwl2tns3spn",
+      "characterId": "char_mwo3vm5b6eekfbid",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 5
+      }
+    },
+    {
+      "id": "clue_mwrv7iwlpog3lvsb",
+      "characterId": "char_mwo3vm5bcqj1like",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "col",
+        "index": 1
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mwo3vm5bzv31ixiv",
+        "row": 1,
+        "col": 4
+      },
+      {
+        "characterId": "char_mwo3vm5bcqj1like",
+        "row": 2,
+        "col": 0
+      },
+      {
+        "characterId": "char_mwo3vm5bcmr20q80",
+        "row": 0,
+        "col": 5
+      },
+      {
+        "characterId": "char_mwo3vm5b6eekfbid",
+        "row": 4,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwo3vm5bz6d5ldaz",
+        "row": 5,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwo3vm5bjkma17nb",
+        "row": 3,
+        "col": 1
+      }
+    ]
+  },
+  "manualHints": []
+}

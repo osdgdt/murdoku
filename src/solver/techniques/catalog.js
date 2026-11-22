@@ -11,7 +11,7 @@ export const LEVELS = ["easy", "medium", "hard", "expert"];
 
 export const TECHNIQUES = [
   // ---- easy -------------------------------------------------------------------------------------------------------
-  // a clue that speaks of the character alone rules cells out
+  // a clue that speaks of the character alone rules cells out (and, when it puts them in a row, a column or alone in a room, rules those cells out for the others)
   { id: "clueFilter", level: "easy" },
   // somebody already placed takes their row and column away from the others
   { id: "rowColTaken", level: "easy" },

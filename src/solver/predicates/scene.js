@@ -1,6 +1,15 @@
 // Puzzle-wide scene facts not owned by any character (clue.characterId === null).
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { isNextTo, posOfCharacter, resolveTargetPositions, zoneAt, zoneCellCount, characterHasProperty } from "./helpers.js";
+import { isObjectTypeTarget, parseObjectTypeTarget } from "../../model/icons.js";
+import {
+  isNextTo,
+  objectPositions,
+  posOfCharacter,
+  resolveTargetPositions,
+  zoneAt,
+  zoneCellCount,
+  characterHasProperty,
+} from "./helpers.js";
 
 export const builders = {
   noOneInRoom: ({ clue, puzzle, ownerId, params }) => {
@@ -62,6 +71,51 @@ export const builders = {
       }
       if (count > 1) return false;
       return isComplete ? count === 1 : undefined;
+    };
+  },
+
+  peopleNear: ({ clue, puzzle, ownerId, params }) => {
+    const wanted = params.count;
+    const same = params.together === "same" && wanted > 1;
+    // with "the same one": the cells of each object of the type are a target of their own (otherwise all of them make one)
+    const groupsOf = (pm) => {
+      if (isObjectTypeTarget(params.targetId)) {
+        const typeId = parseObjectTypeTarget(params.targetId);
+        return puzzle.grid.objects.filter((o) => o.typeId === typeId).map((o) => objectPositions(puzzle, o));
+      }
+      const positions = resolveTargetPositions(pm, puzzle, params.targetId);
+      return positions === null ? null : [positions];
+    };
+    return (pm, isComplete) => {
+      if (!same) {
+        const targets = resolveTargetPositions(pm, puzzle, params.targetId);
+        if (targets === null) return undefined;
+        if (targets.length === 0) return false; // existential, like exactlyOneNear
+        let count = 0;
+        for (const c of puzzle.characters) {
+          const pos = posOfCharacter(pm, c.id);
+          if (pos && targets.some((t) => isNextTo(puzzle, pos, t))) count++;
+        }
+        if (count > wanted) return false;
+        return isComplete ? count === wanted : undefined;
+      }
+      const groups = groupsOf(pm);
+      if (groups === null) return undefined;
+      if (groups.length === 0) return false;
+      // people around each target: one of them must end up with exactly `wanted`
+      let allOver = true;
+      let someExact = false;
+      for (const group of groups) {
+        let count = 0;
+        for (const c of puzzle.characters) {
+          const pos = posOfCharacter(pm, c.id);
+          if (pos && group.some((t) => isNextTo(puzzle, pos, t))) count++;
+        }
+        if (count <= wanted) allOver = false; // the counts only grow while people are placed
+        if (count === wanted) someExact = true;
+      }
+      if (allOver) return false;
+      return isComplete ? someExact : undefined;
     };
   },
 

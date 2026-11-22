@@ -25,6 +25,24 @@ function noOneWithPropertySentence(params, puzzle, negated) {
   return t("{who} che è {v} si trova{where}.", { who, v: describeProperty(params, puzzle), where });
 }
 
+// "Exactly 2 people are next to a table" (+ ", always the same one" when they must all be at the same target) and its negation.
+function peopleNearSentence(params, puzzle, negated) {
+  const count = Number.isFinite(params.count) ? params.count : 1;
+  const v = targetLabel(puzzle, params.targetId);
+  const same = params.together === "same" && count > 1;
+  if (negated) {
+    return same
+      ? t("Non ci sono esattamente {count} persone accanto a {v}, sempre lo stesso.", { count, v })
+      : count === 1
+        ? t("Non c'è esattamente una persona accanto a {v}.", { v })
+        : t("Non ci sono esattamente {count} persone accanto a {v}.", { count, v });
+  }
+  if (count === 1) return t("Esattamente una persona è accanto a {v}.", { v });
+  return same
+    ? t("Esattamente {count} persone sono accanto a {v}, sempre lo stesso.", { count, v })
+    : t("Esattamente {count} persone sono accanto a {v}.", { count, v });
+}
+
 export const SCENE_CLUES = {
   // --- Generic clues: puzzle-wide scene facts, not owned by a character ---
   noOneInRoom: {
@@ -62,6 +80,25 @@ export const SCENE_CLUES = {
     label: t("Esattamente una persona è accanto a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
     describe: (params, puzzle) => t("Esattamente una persona è accanto a {v}.", { v: targetLabel(puzzle, params.targetId) }),
+  },
+  // «Due persone erano accanto a un tavolo»: any number of people (not just one), next to ANY of the targets, or always next to
+  // the same one (`together: "same"`: one of the tables has exactly that many people around it).
+  peopleNear: {
+    scope: "generic",
+    label: t("Esattamente N persone sono accanto a"),
+    params: [
+      { name: "count", kind: "number", min: 1, label: t("Quante persone") },
+      { name: "targetId", kind: "characterOrObject", label: t("Bersaglio") },
+      {
+        name: "together",
+        kind: "enum",
+        values: ["any", "same"],
+        labels: { any: t("uno qualsiasi, anche diversi"), same: t("lo stesso") },
+        label: t("Accanto a"),
+      },
+    ],
+    describe: (params, puzzle) => peopleNearSentence(params, puzzle, false),
+    negatedDescribe: (params, puzzle) => peopleNearSentence(params, puzzle, true),
   },
   sameRoomTogether: {
     scope: "generic",

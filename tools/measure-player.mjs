@@ -130,7 +130,9 @@ for (const [name, puzzle, withNotes] of cases) {
       new PerformanceObserver((list) => list.getEntries().forEach((e) => window.__lt.push(Math.round(e.duration)))).observe({
         type: "longtask",
       });
-    } catch {}
+    } catch {
+      // no long-task observer in this browser: the blocked time is simply not reported
+    }
   });
 
   // pick a character (a real tap on a chip), then tap cells

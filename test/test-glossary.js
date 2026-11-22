@@ -27,10 +27,12 @@ export const tests = [
     },
   },
   {
-    name: "glossario dei ragionamenti: solo «provare le possibilità» (la ricerca esaustiva) resta senza figura",
+    name: "glossario dei ragionamenti: solo «provare le possibilità» e l'indizio tra tre personaggi aperti restano senza figura",
     fn: () => {
       for (const tech of TECHNIQUES) {
-        if (tech.id === "exhaustive") assert(!hasReasoningWorld(tech.id), "la ricerca non ha una figura");
+        // no figure: the search (it is the absence of a deduction) and the clue between three open characters (any such clue
+        // is already impossible with the one-per-row rule, so there is no honest little case to draw)
+        if (tech.id === "exhaustive" || tech.id === "mutualSupport") assert(!hasReasoningWorld(tech.id), "questa voce non ha una figura");
         else assert(hasReasoningWorld(tech.id), `manca l'esempio disegnato di ${tech.id}`);
       }
     },

@@ -20,6 +20,8 @@ export const TECHNIQUES = [
   // ---- medium -----------------------------------------------------------------------------------------------------
   // a clue that names somebody already placed ("next to X", X known) rules cells out
   { id: "relationalKnown", level: "medium" },
+  // a clue about the scene that no cell of a character can satisfy ("the only one next to a rack") rules that cell out
+  { id: "sceneUnary", level: "medium" },
   // the victim needs somebody else in the room: rooms where nobody else can reach are ruled out
   { id: "roomCapacity", level: "medium" },
   // the victim shares a room with exactly one person: no third person in that room
@@ -28,10 +30,16 @@ export const TECHNIQUES = [
   { id: "roomCount", level: "medium" },
   // when every row (column) holds somebody, the only character that can still reach a row (column) goes there
   { id: "lastInLine", level: "medium" },
+  // a character whose cells are all in one row (column) is in it: nobody else may take that row (column)
+  { id: "lineConfined", level: "medium" },
   // K characters whose cells together are exactly K: nobody else may take those cells
   { id: "subsets", level: "medium" },
+  // a clue ties a character to ONE other who is still open: cells with no partner cell that satisfies it are ruled out
+  { id: "pairSupport", level: "medium" },
   // ---- hard -------------------------------------------------------------------------------------------------------
-  // a clue ties two characters who are both still open: cells with no partner cell that satisfies it are ruled out
+  // K characters whose cells are in only K rows (columns) share those rows (columns): nobody else may take them
+  { id: "lineGroups", level: "hard" },
+  // a clue ties a character to TWO others who are still open: cells with no partners' cells that satisfy it are ruled out
   { id: "mutualSupport", level: "hard" },
   // "A or B" clues: what is impossible under both alternatives is ruled out
   { id: "alternatives", level: "hard" },

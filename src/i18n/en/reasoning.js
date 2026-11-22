@@ -26,9 +26,9 @@ export default {
   "Gruppo di personaggi": "Group of characters",
   "Se alcuni personaggi hanno insieme esattamente tante celle possibili quanti sono, quelle celle sono loro: gli altri non possono usarle.":
     "If some characters together have exactly as many possible cells as there are of them, those cells are theirs: the others cannot use them.",
-  "Indizio tra due personaggi aperti": "Clue between open characters",
-  "Un indizio lega personaggi non ancora piazzati: una cella è esclusa se gli altri non hanno nessuna cella che renda vero l'indizio.":
-    "A clue ties characters who are not placed yet: a cell is ruled out if the others have no cell that makes the clue true.",
+  "Indizio tra tre personaggi aperti": "Clue between three open characters",
+  "Un indizio lega il personaggio a due altri non ancora piazzati: una cella è esclusa se i due non hanno nessuna coppia di celle che renda vero l'indizio.":
+    "A clue ties the character to two others who are not placed yet: a cell is ruled out if the two have no pair of cells that makes the clue true.",
   "Le due alternative": "The two alternatives",
   "In un indizio «oppure», una cella è esclusa se non va bene in nessuna delle due alternative.":
     "In an «or» clue, a cell is ruled out if it fits neither of the two alternatives.",
@@ -74,8 +74,8 @@ export default {
     "There are six characters on a 6×6 grid, so every row holds somebody. Only Clara can still reach row 4: Clara is in row 4.",
   "Anna e Bruno possono stare solo in due stesse caselle: quelle due caselle sono loro, e Carla non può usarle.":
     "Alice and Ben can only be in the same two cells: those two cells are theirs, and Clara cannot use them.",
-  "«Bruno è nella stessa stanza di Anna», e nessuno dei due è ancora piazzato: Bruno può stare solo nelle stanze in cui Anna può davvero stare.":
-    "«Ben is in the same room as Alice», and neither is placed yet: Ben can only be in rooms where Alice can really be.",
+  "«Anna è sulla stessa riga o colonna di Bruno o di Carla», e nessuno dei tre è piazzato: si guardano insieme le celle di Bruno e di Carla per vedere dove Anna può davvero stare.":
+    "«Alice is on the same row or column as Ben or Clara», and none of the three is placed: the cells of Ben and Clara are looked at together to see where Alice can really be.",
   "«Anna è in cucina oppure nel salone»: una casella che non è né in cucina né nel salone è esclusa per Anna.":
     "«Alice is in the kitchen or in the hall»: a cell that is neither in the kitchen nor in the hall is ruled out for Alice.",
   "«Esattamente due stanze sono vuote»: una casella che riempirebbe una terza stanza vuota, rendendo le stanze vuote troppo poche, è esclusa.":
@@ -126,4 +126,24 @@ export default {
     "{name} is in the outlined cell: found by trying the possibilities.",
   "{name} deve stare nella casella evidenziata: è l'unica rimasta.": "{name} must be in the outlined cell: it is the only one left.",
   "{name}: {count} caselle in meno tra le sue note.": "{name}: {count} fewer cells among their notes.",
+  "Indizio sulla scena che esclude celle": "Scene clue that rules out cells",
+  "Un indizio come «è l'unica accanto a una rastrelliera» esclude da solo le celle in cui il personaggio non potrebbe mai soddisfarlo.":
+    "A clue like «is the only one next to a rack» rules out, on its own, the cells where the character could never satisfy it.",
+  "«Carla è l'unica persona accanto alla rastrelliera»: le caselle da cui non potrebbe mai esserlo (lontane da una rastrelliera) sono escluse per lei.":
+    "«Clara is the only person next to the rack»: the cells where she could never be (away from a rack) are ruled out for her.",
+  "Riga o colonna obbligata": "Forced row or column",
+  "Se tutte le caselle possibili di un personaggio stanno nella stessa riga (o colonna), lui è in quella riga: gli altri non possono usarla.":
+    "If all the possible cells of a character are in the same row (or column), they are in that row: the others cannot use it.",
+  "Le caselle possibili di Anna sono tutte nella riga 2: Anna è in quella riga, e nessun altro può usare la riga 2.":
+    "All of Alice's possible cells are in row 2: Alice is in that row, and nobody else can use row 2.",
+  "Indizio con un altro personaggio aperto": "Clue with one other open character",
+  "Un indizio lega il personaggio a un altro non ancora piazzato: una casella è esclusa se l'altro non ha nessuna casella che renda vero l'indizio.":
+    "A clue ties the character to another who is not placed yet: a cell is ruled out if the other has no cell that makes the clue true.",
+  "«Anna è 3 colonne a est di Bruno», e nessuno dei due è piazzato: Anna può stare solo dove Bruno ha una casella tre colonne a ovest.":
+    "«Alice is 3 columns east of Ben», and neither is placed: Alice can only be where Ben has a cell three columns to the west.",
+  "Righe o colonne di gruppo": "Rows or columns of a group",
+  "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle.":
+    "If several characters have possible cells in only as many rows (or columns) as there are of them, those rows are theirs: the others cannot use them.",
+  "Anna e Bruno hanno caselle possibili solo nelle righe 2 e 3: quelle due righe sono loro, e Carla non può usarle.":
+    "Alice and Ben have possible cells only in rows 2 and 3: those two rows are theirs, and Clara cannot use them.",
 };

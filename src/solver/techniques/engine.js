@@ -122,11 +122,15 @@ const READS = {
   rowColTaken: "placed",
   onlyCandidate: "domains",
   relationalKnown: "placed",
+  sceneUnary: "placed",
   roomCapacity: "domains",
   victimRule: "placed",
   roomCount: "placed",
   lastInLine: "domains",
+  lineConfined: "domains",
   subsets: "domains",
+  pairSupport: "domains",
+  lineGroups: "domains",
   mutualSupport: "domains",
   alternatives: "domains",
   globalCount: "placed",
@@ -294,6 +298,46 @@ function hasSupport(ctx, state, character, cell, info, refs, openCount) {
 // ---- the reasonings -----------------------------------------------------------------------------------------------------
 const depInfos = (ctx) => (ctx.depList ??= ctx.infos.filter((i) => i.group === "dep"));
 
+const popcount = (x) => {
+  let c = 0;
+  for (; x; x &= x - 1) c++;
+  return c;
+};
+
+// every way to pick k of n things, as arrays of indexes
+function* combinations(n, k, start = 0, chosen = []) {
+  if (chosen.length === k) {
+    yield chosen.slice();
+    return;
+  }
+  for (let i = start; i <= n - (k - chosen.length); i++) {
+    chosen.push(i);
+    yield* combinations(n, k, i + 1, chosen);
+    chosen.pop();
+  }
+}
+
+// `members` own the given rows (or columns): every other open character loses its cells there. One step per character.
+function takeLinesFromOthers(ctx, state, rec, technique, members, axis, indexes) {
+  const memberIds = new Set(members.map((m) => m.id));
+  const lines = new Set(indexes);
+  let total = 0;
+  for (const other of unplacedCharacters(ctx, state)) {
+    if (memberIds.has(other.id)) continue;
+    const removed = state.domains.get(other.id).filter((cell) => lines.has(cell[axis]));
+    if (removed.length === 0) continue;
+    total += removeCells(state, other.id, removed);
+    record(ctx, rec, technique, {
+      characterId: other.id,
+      eliminated: removed,
+      clueIds: [],
+      byCharacterIds: [...memberIds],
+      line: { axis, indexes },
+    });
+  }
+  return total;
+}
+
 const RUNNERS = {
   clueFilter(ctx, state, rec) {
     return eliminateByEvaluation(ctx, state, rec, "clueFilter", (character) =>
@@ -342,6 +386,14 @@ const RUNNERS = {
         (i) => !i.isOr && i.dep.ids.has(character.id) && i.dep.ids.size > 1 && openReferences(state, i, character.id).length === 0
       )
     );
+  },
+
+  // The clues about the scene that can only be judged on a complete board ("the only person next to a rack", "the furthest east
+  // among those next to a table") still say «false» about a cell that breaks them whatever the others do: a character's cells
+  // are filtered by them as by any other clue.
+  sceneUnary(ctx, state, rec) {
+    const infos = ctx.infos.filter((i) => i.group === "finished");
+    return eliminateByEvaluation(ctx, state, rec, "sceneUnary", () => infos);
   },
 
   // The victim must share a room with exactly one other person. A cell for the victim is out when nobody else can still
@@ -408,6 +460,52 @@ const RUNNERS = {
     return total;
   },
 
+  // A character whose cells are all in one row (or one column) is in it: nobody else may take that row (column).
+  lineConfined(ctx, state, rec) {
+    let total = 0;
+    for (const axis of ["row", "col"]) {
+      for (const owner of unplacedCharacters(ctx, state)) {
+        if (state.dead) return total;
+        const cells = state.domains.get(owner.id);
+        if (cells.length < 2) continue; // one cell: it is the only candidate, not this
+        const line = cells[0][axis];
+        if (!cells.every((cell) => cell[axis] === line)) continue;
+        total += takeLinesFromOthers(ctx, state, rec, "lineConfined", [owner], axis, [line]);
+      }
+    }
+    return total;
+  },
+
+  // K characters (2 or more) whose cells are in only K rows (or columns) have those rows: nobody else may take them.
+  lineGroups(ctx, state, rec) {
+    const unplaced = unplacedCharacters(ctx, state);
+    const n = unplaced.length;
+    let total = 0;
+    for (const axis of ["row", "col"]) {
+      const masks = unplaced.map((c) => state.domains.get(c.id).reduce((m, cell) => m | (1 << cell[axis]), 0));
+      const maxK = n <= 9 ? n - 1 : Math.min(4, n - 1);
+      for (let k = 2; k <= maxK && !state.dead; k++) {
+        for (const group of combinations(n, k)) {
+          ctx.tick();
+          let union = 0;
+          for (const i of group) union |= masks[i];
+          const lines = popcount(union);
+          if (lines < k) {
+            state.dead = true;
+            return total;
+          }
+          if (lines !== k) continue;
+          const members = group.map((i) => unplaced[i]);
+          const indexes = [];
+          for (let bit = 0; bit < 32; bit++) if (union & (1 << bit)) indexes.push(bit);
+          total += takeLinesFromOthers(ctx, state, rec, "lineGroups", members, axis, indexes);
+          if (total > 0) return total; // the easier reasonings get another go first
+        }
+      }
+    }
+    return total;
+  },
+
   subsets(ctx, state, rec) {
     const unplaced = unplacedCharacters(ctx, state);
     if (unplaced.length < 2) return 0;
@@ -438,12 +536,23 @@ const RUNNERS = {
     return total;
   },
 
+  // a clue between the character and ONE other open character ...
+  pairSupport(ctx, state, rec) {
+    return eliminateBySupport(ctx, state, rec, "pairSupport", (character) =>
+      depInfos(ctx)
+        .filter((i) => !i.isOr && i.dep.ids.has(character.id))
+        .map((info) => ({ info, refs: openReferences(state, info, character.id) }))
+        .filter(({ refs }) => refs.length === 1)
+    );
+  },
+
+  // ... or between the character and TWO others (harder to hold in the head)
   mutualSupport(ctx, state, rec) {
     return eliminateBySupport(ctx, state, rec, "mutualSupport", (character) =>
       depInfos(ctx)
         .filter((i) => !i.isOr && i.dep.ids.has(character.id))
         .map((info) => ({ info, refs: openReferences(state, info, character.id) }))
-        .filter(({ refs }) => refs.length >= 1 && refs.length <= 2)
+        .filter(({ refs }) => refs.length === 2)
     );
   },
 

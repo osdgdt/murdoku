@@ -59,7 +59,8 @@ try {
     for (const [name, [r, c]] of Object.entries(spec.names)) {
       await page.locator(".char-chip", { hasText: name }).first().click();
       const cell = page.locator(`[data-row="${r}"][data-col="${c}"]`).first();
-      await cell.scrollIntoViewIfNeeded(); // the mouse can only reach what is on screen
+      await cell.evaluate((n) => n.scrollIntoView({ block: "center", inline: "center" })); // the mouse can only reach what is on screen (and a phone's toolbar is fixed at the bottom)
+      await page.waitForTimeout(600); // the page scrolls smoothly: wait for the cell to stop before pressing it
       const box = await cell.boundingBox();
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await page.mouse.down();

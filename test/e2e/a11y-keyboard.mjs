@@ -127,7 +127,7 @@ try {
   const focusCell = (r, c) =>
     page.evaluate(([row, col]) => document.querySelector(`#board [data-row="${row}"][data-col="${col}"]`).focus(), [r, c]);
   await page.keyboard.press("1"); // first character
-  check("a character chip says it is pressed", (await page.locator("#player-toolbar [aria-pressed='true']").count()) === 1);
+  check("a character chip says it is pressed", (await page.locator("#player-toolbar .char-chip[aria-pressed='true']").count()) === 1);
   await focusCell(target.row, target.col);
   await page.keyboard.press("Shift+Enter");
   const afterPlace = await active();

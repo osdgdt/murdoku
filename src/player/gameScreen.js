@@ -74,7 +74,6 @@ export function createGameScreen({
   const undoBtn = qs("#undo-btn");
   const clearBtn = qs("#clear-btn");
   const hintBtn = qs("#hint-btn");
-  const panBtn = qs("#pan-btn");
   const hintPanel = qs("#hint-panel");
   const submitBtn = qs("#submit-btn");
   const timerEl = qs("#timer");
@@ -128,14 +127,22 @@ export function createGameScreen({
       }
     } else if (tool?.kind === "x") announce(t("Strumento: segna X"));
     else if (tool?.kind === "erase") announce(t("Strumento: gomma"));
+    else if (!tool) announce(t("Nessuno strumento: il dito scorre la pagina"));
     const pinned = puzzle.clues.find((c) => c.id === pinnedClueId);
     if (pinned && pinned.characterId && !(tool?.kind === "character" && tool.id === pinned.characterId)) pinnedClueId = null; // the pin follows its character
     renderToolbar();
     renderBoardAndClues();
   }
 
+  // What a tap does with a character selected: a note, or place them (so a phone needs no long press).
+  function setPenMode(mode) {
+    state.penMode = mode === "place" ? "place" : "note";
+    announce(state.penMode === "place" ? t("Un tocco piazza il personaggio") : t("Un tocco segna una nota"));
+    renderToolbar();
+  }
+
   function renderToolbar() {
-    renderToolbarChips(toolbarEl, puzzle, state, { selectTool, showCharacterHover, clearHover });
+    renderToolbarChips(toolbarEl, puzzle, state, { selectTool, showCharacterHover, clearHover, setPenMode, undo: () => undoBtn.click() });
   }
 
   // Ephemeral, non-serialized cell highlighting for hover — mirrors
@@ -261,6 +268,8 @@ export function createGameScreen({
   let pressStartTool = null;
 
   function renderBoardAndClues() {
+    // nothing selected: a finger on the board scrolls the page instead of marking cells (see boardGestures.js)
+    boardEl.classList.toggle("no-tool", !state.selectedTool);
     renderPlayerBoard(
       boardEl,
       puzzle,
@@ -519,24 +528,7 @@ export function createGameScreen({
     }
   }
 
-  // "Muovi" (pan mode): only offered when the board is wider than its area. While it
-  // is on, a finger on the board moves it instead of marking cells (the cells' own
-  // touch handling would otherwise swallow the swipe).
-  function setPanMode(on) {
-    boardEl.classList.toggle("pan-mode", on);
-    panBtn?.setAttribute("aria-pressed", String(on));
-  }
-  function updatePanButton() {
-    if (!panBtn) return;
-    const overflows = boardEl.scrollWidth > boardEl.clientWidth + 1;
-    panBtn.classList.toggle("hidden", !overflows);
-    if (!overflows && boardEl.classList.contains("pan-mode")) setPanMode(false);
-  }
-
   function wireControls() {
-    panBtn?.addEventListener("click", () => setPanMode(!boardEl.classList.contains("pan-mode")));
-    if (typeof ResizeObserver !== "undefined") new ResizeObserver(updatePanButton).observe(boardEl);
-    updatePanButton();
     undoBtn.addEventListener("click", () => applyBoardChange(() => undo(state)));
     attachHoldToConfirm(clearBtn, 700, () => {
       applyBoardChange(() => clearAll(state));
@@ -579,6 +571,8 @@ export function createGameScreen({
         e.preventDefault();
         selectTool({ kind: "character", id: character.id });
       }
+    } else if (key === "p" && state.selectedTool?.kind === "character") {
+      setPenMode(state.penMode === "place" ? "note" : "place");
     } else if (key === "x") {
       selectTool({ kind: "x" });
     } else if (key === "e") {

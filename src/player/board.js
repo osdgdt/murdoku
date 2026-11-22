@@ -8,7 +8,8 @@ export function createBoardState() {
     lineNotes: new Map(), // "row:N" / "col:N" -> Set<characterId> — notes on a whole row/column, drawn on the board's outer edge
     autoXByCharacter: new Map(), // characterId -> [{row,col}...] X's auto-marked alongside that placement
     undoStack: [],
-    selectedTool: null, // {kind:'character', id} | {kind:'x'} | {kind:'erase'}
+    selectedTool: null, // {kind:'character', id} | {kind:'x'} | {kind:'erase'} | null (nothing: a finger scrolls the page)
+    penMode: "note", // what a tap does with a character selected: "note" (a note on the cell) or "place" (the character goes there); not saved
     // Count of hint-button clicks that disclosed real information during
     // this solve (see gameScreen.js's onHint). Unlike undoStack/selectedTool,
     // this DOES need to survive serialize/deserialize + reload: the "solved
@@ -220,6 +221,8 @@ export function handleCellTap(state, grid, row, col, tool = state.selectedTool) 
   if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
 
   if (tool.kind === "character") {
+    // «Piazza» mode: a tap does what a long press does (places the character, or takes them off a cell they are already on)
+    if (state.penMode === "place") return handleCellHold(state, grid, row, col, tool);
     if (occupiedBy(state, row, col)) return { ok: false, reason: "cell-occupied" };
     toggleCandidate(state, tool.id, row, col);
     return { ok: true };
@@ -316,6 +319,7 @@ export function handleCellDrag(state, grid, row, col) {
   if (!isOccupiable(grid, row, col)) return { ok: false, reason: "blocked" };
 
   if (tool.kind === "character") {
+    if (state.penMode === "place") return { ok: false }; // in «Piazza» mode a drag places nobody
     if (occupiedBy(state, row, col)) return { ok: false };
     const k = key(row, col);
     let set = state.candidates.get(k);

@@ -387,6 +387,7 @@ export default {
   "Tipo di indizio": "Clue type",
   "Scorciatoie: 1-9 e 0 scelgono un personaggio ([ ] scorrono) · X segna · E gomma · U annulla · H suggerimento.":
     "Shortcuts: 1-9 and 0 pick a character ([ ] step through) · X mark · E eraser · U undo · H hint.",
+  "%s": "%s",
   "📅 Caso del giorno": "📅 Case of the day",
   "Controllo che il caso abbia una soluzione unica…": "Checking that the case has a unique solution…",
   "Il caso non ha nessuna soluzione: nessuno potrà risolverlo.": "The case has no solution: nobody will be able to solve it.",
@@ -756,4 +757,16 @@ export default {
   "Casi della community": "Community cases",
   "Sfoglia i casi pubblicati da altri giocatori e risolvili, senza accedere.":
     "Browse the cases published by other players and solve them, no sign-in needed.",
+  "Scorciatoie: 1-9 e 0 scelgono un personaggio ([ ] scorrono) · P nota o piazza · X segna · E gomma · U annulla · H suggerimento.":
+    "Shortcuts: 1-9 and 0 pick a character ([ ] step through) · P note or place · X mark · E eraser · U undo · H hint.",
+  "Clicca una casella per segnare/togliere una nota. Tieni premuto il mouse e trascinalo per segnarne più di una. Tieni premuto fermo (mezzo secondo) su una casella per piazzarci il personaggio selezionato, oppure scegli «Piazza» e basta un tocco: le sue note esistenti verranno cancellate. Con «✋ Scorri» il dito scorre la pagina.":
+    "Click a cell to add/remove a note. Hold the mouse and drag to mark several. Press and hold (half a second) on a cell to place the selected character there, or pick «Place» and a tap is enough: its existing notes will be cleared. With «✋ Scroll» your finger scrolls the page.",
+  "Nessuno strumento: il dito scorre la pagina": "No tool: your finger scrolls the page",
+  "Un tocco piazza il personaggio": "A tap places the character",
+  "Un tocco segna una nota": "A tap adds a note",
+  "Scorri la pagina (nessuno strumento)": "Scroll the page (no tool)",
+  "✋ Scorri": "✋ Scroll",
+  "Cosa fa un tocco": "What a tap does",
+  Nota: "Note",
+  Piazza: "Place",
 };

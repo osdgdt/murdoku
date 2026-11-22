@@ -64,12 +64,6 @@
 .player-toolbar .char-chip svg { width: 24px; height: 24px; }
 .player-toolbar .char-chip.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft); }
 .player-toolbar .char-chip.used { opacity: 0.45; }
-/* Ten or more characters on a phone: one row that scrolls sideways instead of a
-   toolbar that fills a third of the screen. */
-@media (max-width: 640px) {
-  .player-toolbar:has(.char-chip:nth-child(12)) { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.3rem; }
-  .player-toolbar:has(.char-chip:nth-child(12)) .char-chip { flex: none; }
-}
 /* The key that picks the character (data-key, set by toolbar.js), small, at the end of its
    chip; the 11th and later have none ([ and ] step through). */
 .player-toolbar .char-chip[data-key]::after {
@@ -387,7 +381,7 @@
   stroke-linecap: round;
   stroke-dasharray: 100.5; /* ~2*pi*16, la circonferenza del cerchio r=16 */
   stroke-dashoffset: 100.5;
-  animation: hold-wheel-fill 900ms linear forwards; /* 900ms = HOLD_THRESHOLD_MS in boardRender.js, sincronizzati a mano */
+  animation: hold-wheel-fill 500ms linear forwards; /* 500ms = HOLD_THRESHOLD_MS in boardGestures.js, sincronizzati a mano */
 }
 @keyframes hold-wheel-fill {
   to { stroke-dashoffset: 0; }
@@ -517,8 +511,8 @@
 .finale-link { margin: 0.8rem 0 0; font-weight: 800; }
 
 /* "Muovi": the board is being moved with a finger, not marked (see gameScreen.js). */
-.board-grid.pan-mode { outline: 3px dashed var(--accent); outline-offset: 2px; touch-action: pan-x pan-y pinch-zoom; }
-.board-grid.pan-mode .board-cell { cursor: grab; }
+.board-grid.no-tool { touch-action: pan-x pan-y pinch-zoom; }
+.board-grid.no-tool .board-cell { cursor: default; }
 
 /* ---- Daily challenge board ---------------------------------------------------------------- */
 .daily-board { width: 100%; border-collapse: collapse; margin-top: 0.6rem; }
@@ -573,4 +567,66 @@
 /* The reasoning that explains a hint */
 .hint-technique {
   margin-bottom: 0.4rem;
+}
+
+/* ---- What a tap does, the «Scorri» tool, and the phone's toolbar --------------------------------------------------------- */
+.player-toolbar .chip-row { display: contents; } /* on a big screen the chips wrap as they always did */
+.player-toolbar .pen-mode {
+  display: inline-flex;
+  align-items: stretch;
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--panel);
+}
+.player-toolbar .pen-mode.hidden { display: none; }
+.player-toolbar .pen-mode button {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 40px;
+  padding: 0 1em;
+  background: transparent;
+  font-weight: 800;
+}
+.player-toolbar .pen-mode button.selected { background: var(--accent); color: #fff; }
+.player-toolbar .undo-chip { display: none; } /* the Annulla button is there on a big screen; a phone gets one within reach of the thumb */
+
+@media (max-width: 640px) {
+  /* The toolbar sits at the bottom of the screen, where the thumb is: the characters, ✕, eraser, scroll and undo in a row that
+     scrolls sideways, the «Nota | Piazza» switch above it. The page gets room at the bottom so nothing hides under it. */
+  .player-toolbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    margin: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 14px rgba(20, 10, 0, 0.18);
+  }
+  .player-toolbar .chip-row {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .player-toolbar .char-chip { flex: none; min-height: 48px; }
+  .player-toolbar .undo-chip { display: inline-flex; }
+  .player-toolbar .pen-mode { order: -1; align-self: stretch; margin-left: 0; }
+  .player-toolbar .pen-mode button { flex: 1; min-height: 44px; }
+  body:has(#player-toolbar) { padding-bottom: 8.5rem; }
+  /* Bigger cells for a finger: the board takes the whole width (less margin around it) and only scrolls sideways when even 40px
+     cells do not fit (more than 8 columns). */
+  #board.board-grid {
+    --min-cell: 40px;
+    --cell-size: clamp(var(--min-cell), calc((100vw - 80px - 3px * var(--cols, 6)) / var(--cols, 6)), 56px);
+  }
 }

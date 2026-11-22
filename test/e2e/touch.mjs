@@ -63,24 +63,33 @@ try {
     await page.goto(`${base}/player.html?import=/__big.murdoku.json`);
     await page.waitForSelector("#board [role=gridcell]");
     const finger = await touchOn(page);
-    check("touch: the Move button is offered on a 16x16 board", await page.locator("#pan-btn:not(.hidden)").isVisible());
-    await finger.tap(page.locator("#pan-btn"));
-    check("touch: tapping Move turns pan mode on", (await page.locator("#board.pan-mode").count()) === 1);
+    check("touch: with no tool selected the board is in scroll mode", (await page.locator("#board.no-tool").count()) === 1);
     const before = await page.evaluate(() => document.querySelector("#board").scrollLeft);
     await finger.drag(page.locator('#board [data-row="3"][data-col="3"]'), -150, 0);
     const after = await page.evaluate(() => document.querySelector("#board").scrollLeft);
     check("touch: dragging a finger moves the board", after > before + 20, `${before} -> ${after}`);
-    check("touch: in pan mode nothing was marked", (await page.locator("#board .candidate-mark, #board .char-token").count()) === 0);
-    await finger.tap(page.locator("#pan-btn"));
+    check("touch: with no tool nothing was marked", (await page.locator("#board .candidate-mark, #board .char-token").count()) === 0);
     await finger.tap(page.locator(".char-chip").nth(1));
     const cell = page.locator('#board [data-row="2"][data-col="2"]');
     await finger.tap(cell);
     check("touch: a tap on a cell jots a note", (await cell.locator(".candidate-mark").count()) === 1);
+    // (the toolbar is fixed at the bottom of the screen on a phone: bring the cell to the middle, clear of it)
+    await page.locator('#board [data-row="4"][data-col="4"]').evaluate((n) => n.scrollIntoView({ block: "center", inline: "center" }));
     await finger.hold(page.locator('#board [data-row="4"][data-col="4"]'));
     check(
       "touch: a long press places the selected character",
       (await page.locator('#board [data-row="4"][data-col="4"] .char-token').count()) === 1
     );
+    // «Piazza»: a single tap places the character, no long press needed
+    await finger.tap(page.locator('.pen-mode [data-mode="place"]'));
+    const spot = page.locator('#board [data-row="6"][data-col="6"]');
+    await page.locator('#board [data-row="6"][data-col="6"]').evaluate((n) => n.scrollIntoView({ block: "center", inline: "center" }));
+    await finger.tap(spot);
+    check("touch: in «Piazza» mode a single tap places the character", (await spot.locator(".char-token").count()) === 1);
+    await finger.tap(page.locator('.pen-mode [data-mode="note"]'));
+    // the «Scorri» chip gives the finger back to the page
+    await finger.tap(page.locator(".scroll-chip"));
+    check("touch: the «Scorri» chip brings scroll mode back", (await page.locator("#board.no-tool").count()) === 1);
     check(
       "touch: the page does not scroll sideways",
       await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)

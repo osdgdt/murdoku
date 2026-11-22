@@ -76,21 +76,15 @@ try {
         chips: document.querySelectorAll(".player-toolbar .char-chip").length,
         cell: board.querySelector(".board-cell").getBoundingClientRect().width,
         boardOverflows: board.scrollWidth > board.clientWidth + 1,
-        panVisible: !document.querySelector("#pan-btn").classList.contains("hidden"),
       };
     });
     check(
-      `${width}px: 256 cells and 16 characters + the two tools are drawn`,
-      info.cells === 256 && info.chips === 18,
+      `${width}px: 256 cells and 16 characters + the four tools (cross, eraser, scroll, undo) are drawn`,
+      info.cells === 256 && info.chips === 20,
       JSON.stringify(info)
     );
     check(`${width}px: cells are at least 40px (${info.cell.toFixed(0)}px)`, info.cell >= 39.5, JSON.stringify(info));
     check(`${width}px: the page does not scroll sideways`, await pageFits(page));
-    check(
-      `${width}px: "Move" is offered exactly when the board overflows its area`,
-      info.boardOverflows === info.panVisible,
-      JSON.stringify(info)
-    );
     if (width <= 390) check(`${width}px: the board overflows (it scrolls inside its area)`, info.boardOverflows, JSON.stringify(info));
     check(`${width}px: no uncaught errors`, errors.length === 0, errors.join(" | "));
     await context.close();
@@ -149,25 +143,20 @@ try {
     await context.close();
   }
 
-  // ---- phone: "Move" lets a finger drag the board instead of marking cells
+  // ---- phone: with no tool selected a finger scrolls the board instead of marking cells
   {
     const { context, page, errors } = await open({ width: 390, height: 844 });
-    await page.click("#pan-btn");
-    check(
-      '"Move" turns pan mode on',
-      await page
-        .locator("#board.pan-mode")
-        .count()
-        .then((n) => n === 1)
-    );
+    check("with nothing selected the board is in scroll mode", (await page.locator("#board.no-tool").count()) === 1);
     const cell = page.locator('#board [data-row="2"][data-col="2"]');
-    await page.keyboard.press("2");
     await cell.scrollIntoViewIfNeeded();
     await cell.click();
-    check("in pan mode a tap marks nothing", (await page.locator("#board .candidate-mark").count()) === 0);
-    await page.click("#pan-btn");
+    check("with nothing selected a tap marks nothing", (await page.locator("#board .candidate-mark").count()) === 0);
+    await page.keyboard.press("2");
+    check("choosing a character turns scroll mode off", (await page.locator("#board.no-tool").count()) === 0);
     await cell.click();
-    check("with pan mode off the same tap marks a note", (await page.locator("#board .candidate-mark").count()) === 1);
+    check("then the same tap marks a note", (await page.locator("#board .candidate-mark").count()) === 1);
+    await page.locator(".scroll-chip").click();
+    check("the «Scorri» tool brings scroll mode back", (await page.locator("#board.no-tool").count()) === 1);
     check("no uncaught errors", errors.length === 0, errors.join(" | "));
     await context.close();
   }

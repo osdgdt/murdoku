@@ -1,0 +1,6 @@
+# Lettore di foto e pipeline dati (passi 1-3 del piano). L'addestramento (passo 5) ha le sue dipendenze nei notebook Colab.
+numpy>=1.26
+opencv-python-headless>=4.9
+pytesseract>=0.3.10        # serve anche il programma Tesseract con la lingua italiana (apt install tesseract-ocr tesseract-ocr-ita)
+pillow>=10
+pytest>=8                  # solo per i test

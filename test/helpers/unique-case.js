@@ -15,11 +15,23 @@ export function placementsOf(solutionKey) {
   return map;
 }
 
+// The reference solutions in an order that does not depend on the (time-based, so different every run) character ids: by where the
+// characters stand, in the order of the characters. Tests that pick "the n-th solution" and count how often a reasoning is used
+// would otherwise change from one run to the next.
+export function sortedSolutions(puzzle) {
+  const order = puzzle.characters.map((c) => c.id);
+  const signature = (key) => {
+    const where = placementsOf(key);
+    return order.map((id) => `${where.get(id)?.row},${where.get(id)?.col}`).join(" ");
+  };
+  return referenceSolutions(puzzle).sort((a, b) => (signature(a) < signature(b) ? -1 : signature(a) > signature(b) ? 1 : 0));
+}
+
 // A random case with exactly one solution: a solution is picked among those of the bare case, then TRUE clues (drawn at
 // random from every clue the solution satisfies) are added until nothing else is left. null when the bare case has no solution.
 export function uniqueCase(seed, { sizeBias = 0 } = {}) {
   const puzzle = randomPuzzle(seed, { maxClues: 0 });
-  const options = referenceSolutions(puzzle).sort();
+  const options = sortedSolutions(puzzle);
   if (options.length === 0) return null;
   const random = rng(seed * 7919 + sizeBias);
   const chosen = placementsOf(options[Math.floor(random() * options.length)]);

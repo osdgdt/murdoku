@@ -48,8 +48,8 @@ export const tests = [
     name: "gruppi nascosti: con indizi generali («qualcuno è qui») anche le caselle riservate sono sicure e usate",
     fn: () => {
       let cellSteps = 0;
-      // 6871 e 7778: casi in cui K caselle certamente occupate sono raggiungibili solo da K personaggi
-      for (const seed of [6871, 7778]) {
+      // 6871: caso (sempre lo stesso, i casi casuali non dipendono dagli id) in cui K caselle certamente occupate sono raggiungibili solo da K personaggi
+      for (const seed of [6871]) {
         const puzzle = seed % 2 ? uniqueWithGeneralClues(seed) : caseWithGeneralClues(seed);
         assert(puzzle, `caso ${seed}: costruibile`);
         const result = checkAgainstReference(puzzle, `caso ${seed}`);

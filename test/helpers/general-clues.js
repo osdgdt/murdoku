@@ -3,8 +3,7 @@
 import { randomPuzzle, randomClueSpec, contextOf, rng } from "./random-puzzle.js";
 import { buildPredicate } from "../../src/solver/predicates/index.js";
 import { solvePuzzle } from "../../src/solver/solver.js";
-import { referenceSolutions } from "../reference-solver.js";
-import { placementsOf } from "./unique-case.js";
+import { placementsOf, sortedSolutions } from "./unique-case.js";
 import { addClue } from "../../src/model/puzzle.js";
 
 export const GENERAL = [
@@ -35,7 +34,7 @@ export function caseWithGeneralClues(seed) {
 // A case with exactly one solution whose clues are mostly about people in general, every one true of the chosen solution.
 export function uniqueWithGeneralClues(seed, types = GENERAL) {
   const puzzle = randomPuzzle(seed, { maxClues: 0 });
-  const options = referenceSolutions(puzzle).sort();
+  const options = sortedSolutions(puzzle);
   if (options.length === 0) return null;
   const random = rng(seed * 7919 + 13);
   const chosen = placementsOf(options[Math.floor(random() * options.length)]);

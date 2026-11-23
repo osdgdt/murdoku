@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwtdduqptqpjl30s",
+  "title": "Caso di prova (inventato)",
+  "author": "",
+  "difficulty": "",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "",
+  "resolutionNote": "",
+  "tense": "present",
+  "createdAt": 1795444645345,
+  "updatedAt": 1795444645345,
+  "grid": {
+    "size": {
+      "rows": 4,
+      "cols": 4
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwtdduqpmyy68yre",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": null,
+          "objectId": "obj_mwtdduqp5c68mxu3",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqpmyy68yre",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": null,
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqpmyy68yre",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": "obj_mwtdduqpi18g7k4m",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqpmyy68yre",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": "obj_mwtdduqp9meex3sk",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqpmyy68yre",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqp6ioon0c3",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwtdduqpmyy68yre",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwtdduqp6ioon0c3",
+        "name": "A",
+        "color": "#fdd",
+        "textureId": "hatch"
+      },
+      {
+        "id": "zone_mwtdduqpmyy68yre",
+        "name": "B",
+        "color": "#dfd",
+        "textureId": "hatch"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwtdduqp5c68mxu3",
+        "typeId": "chair",
+        "row": 0,
+        "col": 2
+      },
+      {
+        "id": "obj_mwtdduqpi18g7k4m",
+        "typeId": "plant",
+        "row": 1,
+        "col": 3
+      },
+      {
+        "id": "obj_mwtdduqp9meex3sk",
+        "typeId": "table",
+        "row": 3,
+        "col": 0
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwtdduqpbzk9xwme",
+      "name": "Anna",
+      "isVictim": false,
+      "bio": "",
+      "color": "#608aea",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwtdduqp5tf5cyq4",
+      "name": "Bruno",
+      "isVictim": false,
+      "bio": "",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwtdduqp23j5hvtq",
+      "name": "Carla",
+      "isVictim": false,
+      "bio": "",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwtdduqp00ehti38",
+      "name": "Vera",
+      "isVictim": true,
+      "bio": "",
+      "color": "#9f5595",
+      "gender": "male"
+    }
+  ],
+  "clues": [
+    {
+      "id": "h23",
+      "type": "adjacent",
+      "characterId": "char_mwtdduqp00ehti38",
+      "params": {
+        "targetId": "obj_mwtdduqpi18g7k4m"
+      },
+      "negate": false
+    },
+    {
+      "id": "h30",
+      "type": "adjacent",
+      "characterId": "char_mwtdduqp23j5hvtq",
+      "params": {
+        "targetId": "obj_mwtdduqp5c68mxu3"
+      },
+      "negate": true
+    },
+    {
+      "id": "h72",
+      "type": "between",
+      "characterId": "char_mwtdduqp5tf5cyq4",
+      "params": {
+        "targetAId": "zone_mwtdduqp6ioon0c3",
+        "targetBId": "zone_mwtdduqpmyy68yre"
+      },
+      "negate": false
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mwtdduqp00ehti38",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwtdduqp23j5hvtq",
+        "row": 3,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwtdduqp5tf5cyq4",
+        "row": 1,
+        "col": 0
+      },
+      {
+        "characterId": "char_mwtdduqpbzk9xwme",
+        "row": 0,
+        "col": 1
+      }
+    ]
+  },
+  "manualHints": []
+}

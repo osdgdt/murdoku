@@ -6,3 +6,8 @@ desktop.ini
 node_modules/
 test/rules/package-lock.json
 firestore-debug.log
+
+# Python (ml/)
+__pycache__/
+.pytest_cache/
+*.pyc

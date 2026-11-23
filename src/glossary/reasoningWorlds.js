@@ -408,6 +408,37 @@ export default {
     ],
     focus: "a",
   },
+  witness: {
+    map: ["CCB#", "BCBB", "B#BB", "B#B#"],
+    objects: [],
+    cast: {
+      a: { gender: "female" },
+      b: { gender: "male" },
+      c: { gender: "male" },
+      d: { victim: true, gender: "male" },
+    },
+    clues: [
+      {
+        owner: null,
+        type: "noOneWithProperty",
+        params: { zoneId: "@z:C", onlyGender: "female", property: "female" },
+        negate: true,
+      },
+    ],
+    focus: "a",
+  },
+  occupiedCell: {
+    map: ["CBBB", "BDDB", "BDDB", "BBBB"],
+    objects: [],
+    cast: {
+      a: { gender: "female" },
+      b: { gender: "male" },
+      c: { gender: "female" },
+      d: { victim: true, gender: "male" },
+    },
+    clues: [{ owner: null, type: "noOneInRoom", params: { zoneId: "@z:C" }, negate: true }],
+    focus: "a",
+  },
   lastInLine: {
     map: ["BBDC", "DDDC", "DDDD", "DDAD"],
     objects: [

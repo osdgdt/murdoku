@@ -26,7 +26,8 @@
 // can only be judged when the board is complete (finishedBoard) have their own reasonings.
 import { buildPredicates } from "../predicates/index.js";
 import { dependenciesOf } from "../predicates/dependencies.js";
-import { victimId, zoneAt } from "../predicates/helpers.js";
+import { isNextTo, resolveTargetPositions, victimId, zoneAt } from "../predicates/helpers.js";
+import { buildPredicate } from "../predicates/index.js";
 import { applyNakedSubsets, createOpsBudget, PROPAGATION_MAX_SUBSET_OPS } from "../propagation.js";
 import { solvePuzzle } from "../solver.js";
 import { isOccupiable } from "../../model/grid.js";
@@ -96,7 +97,8 @@ const now = () => (typeof performance !== "undefined" ? performance.now() : Date
 function initialState(ctx) {
   const domains = new Map();
   for (const character of ctx.puzzle.characters) domains.set(character.id, ctx.cells.slice());
-  return { confirmed: new Map(), domains, dead: false, version: 0, tried: new Map(), cv: new Map(), seen: new Map() };
+  // `occupied`: cells where somebody certainly stands though nobody knows who ("row:col" key -> { row, col, clueIds })
+  return { confirmed: new Map(), domains, occupied: new Map(), dead: false, version: 0, tried: new Map(), cv: new Map(), seen: new Map() };
 }
 
 function cloneState(state) {
@@ -105,6 +107,7 @@ function cloneState(state) {
   return {
     confirmed: new Map(state.confirmed),
     domains,
+    occupied: new Map(state.occupied),
     dead: state.dead,
     version: state.version,
     tried: new Map(state.tried),
@@ -126,6 +129,9 @@ const READS = {
   roomCapacity: "domains",
   victimRule: "placed",
   roomCount: "placed",
+  regionCount: "domains",
+  witness: "domains",
+  occupiedCell: "domains",
   lastInLine: "domains",
   lineConfined: "domains",
   subsets: "domains",
@@ -369,6 +375,73 @@ function takeLinesFromOthers(ctx, state, rec, technique, members, axis, indexes)
   return total;
 }
 
+// ---- «somebody is here», existential clues and counts over a group of cells --------------------------------------------
+const cellKey = (cell) => cell.row * 64 + cell.col;
+const hasCell = (cells, cell) => cells.some((c) => c.row === cell.row && c.col === cell.col);
+
+// Somebody certainly stands in `cell` (who, nobody knows yet). Returns 1 when that is news.
+function addFact(state, cell, clueIds) {
+  const key = cellKey(cell);
+  if (state.occupied.has(key)) return 0;
+  for (const pos of state.confirmed.values()) if (pos.row === cell.row && pos.col === cell.col) return 0; // somebody placed is there already
+  state.occupied.set(key, { row: cell.row, col: cell.col, clueIds: [...clueIds] });
+  state.version++;
+  return 1;
+}
+
+// Clues that say «somebody ... exists» (the negation of «nobody ...»): the witness can be any open character that has the
+// property in some cell it can still take.
+const EXISTENTIAL_TYPES = new Set(["noOneInRoom", "noOneInRowOrCol", "noOneNear", "noOneWithProperty"]);
+function existentialsOf(ctx) {
+  return (ctx.existentials ??= ctx.puzzle.clues
+    .filter((clue) => clue.negate && !clue.characterId && EXISTENTIAL_TYPES.has(clue.type))
+    .map((clue) => ({ clue, base: buildPredicate({ ...clue, negate: false }, ctx.puzzle) })));
+}
+
+// Clues that say «exactly N people are in this group of cells» (a room; next to a target): the group is fixed by the map.
+function countsOf(ctx) {
+  if (ctx.counts) return ctx.counts;
+  const { puzzle, cells } = ctx;
+  const counts = [];
+  const near = (targetId) => {
+    const targets = resolveTargetPositions(new Map(), puzzle, targetId);
+    return targets && targets.length > 0 ? cells.filter((cell) => targets.some((t) => isNextTo(puzzle, cell, t))) : null;
+  };
+  for (const clue of puzzle.clues) {
+    if (clue.negate || clue.characterId) continue;
+    const params = clue.params ?? {};
+    let k = null;
+    let region = null;
+    if (clue.type === "exactlyOneInRoom") [k, region] = [1, cells.filter((cell) => zoneAt(puzzle, cell) === params.zoneId)];
+    else if (clue.type === "exactlyOneNear") [k, region] = [1, near(params.targetId)];
+    else if (clue.type === "peopleNear" && Number.isInteger(params.count) && (params.together !== "same" || params.count === 1)) {
+      [k, region] = [params.count, near(params.targetId)];
+    }
+    if (k !== null && region && region.length > 0) counts.push({ clue, k, region });
+  }
+  return (ctx.counts = counts);
+}
+
+// A way to give each of the cells to a different open character that can take it (Kuhn's matching).
+function canFill(state, cellsToFill, open) {
+  const owner = new Map(); // character id -> index of the cell it took
+  const tryCell = (i, seen) => {
+    for (const c of open) {
+      if (seen.has(c.id) || !hasCell(state.domains.get(c.id), cellsToFill[i])) continue;
+      seen.add(c.id);
+      if (!owner.has(c.id) || tryCell(owner.get(c.id), seen)) {
+        owner.set(c.id, i);
+        return true;
+      }
+    }
+    return false;
+  };
+  for (let i = 0; i < cellsToFill.length; i++) if (!tryCell(i, new Set())) return false;
+  return true;
+}
+
+const COUNT_MAX_COMBINATIONS = 4000;
+
 const RUNNERS = {
   clueFilter(ctx, state, rec) {
     // «alone in the room R» is first of all «in R» (the rest of the clue, nobody else there, is read below)
@@ -470,6 +543,170 @@ const RUNNERS = {
   roomCount(ctx, state, rec) {
     const infos = ctx.infos.filter((i) => i.group === "roomCount");
     return eliminateByEvaluation(ctx, state, rec, "roomCount", () => infos);
+  },
+
+  // «Exactly N people are in this group of cells»: of the cells of the group somebody can still take, which ways are there to
+  // put N people (one per row and column, each in a cell of their own)? A cell in none of them stays empty; a cell in all of
+  // them is certainly occupied.
+  regionCount(ctx, state, rec) {
+    let total = 0;
+    for (const { clue, k, region } of countsOf(ctx)) {
+      if (state.dead) break;
+      const open = unplacedCharacters(ctx, state);
+      let inside = 0;
+      for (const pos of state.confirmed.values()) if (region.some((c) => c.row === pos.row && c.col === pos.col)) inside++;
+      const need = k - inside;
+      if (need < 0) {
+        state.dead = true;
+        break;
+      }
+      const available = region.filter((cell) => open.some((c) => hasCell(state.domains.get(c.id), cell)));
+      let combos = 1;
+      for (let i = 0; i < need; i++) combos = (combos * (available.length - i)) / (i + 1);
+      if (need > available.length) {
+        state.dead = true;
+        break;
+      }
+      if (combos > COUNT_MAX_COMBINATIONS) continue;
+      let feasible = 0;
+      const inAll = new Map(available.map((cell) => [cellKey(cell), cell]));
+      const inAny = new Set();
+      for (const pick of combinations(available.length, need)) {
+        const cells = pick.map((i) => available[i]);
+        if (new Set(cells.map((c) => c.row)).size < cells.length || new Set(cells.map((c) => c.col)).size < cells.length) continue;
+        ctx.tick(need);
+        if (!canFill(state, cells, open)) continue;
+        feasible++;
+        const here = new Set(cells.map(cellKey));
+        for (const key of here) inAny.add(key);
+        for (const key of [...inAll.keys()]) if (!here.has(key)) inAll.delete(key);
+      }
+      if (feasible === 0) {
+        state.dead = true;
+        break;
+      }
+      // cells that cannot be occupied in any way of getting the count right: nobody is there
+      const never = available.filter((cell) => !inAny.has(cellKey(cell)));
+      if (never.length > 0) {
+        for (const c of open) {
+          const removed = state.domains.get(c.id).filter((cell) => never.some((n) => n.row === cell.row && n.col === cell.col));
+          if (removed.length === 0) continue;
+          total += removeCells(state, c.id, removed);
+          record(ctx, rec, "regionCount", { characterId: c.id, eliminated: removed, clueIds: [clue.id] });
+        }
+      }
+      // cells that are occupied in every way: somebody is there
+      for (const cell of inAll.values()) total += addFact(state, cell, [clue.id]);
+    }
+    return total;
+  },
+
+  // «Somebody (a woman on a pallet, a man who is seated, anyone in the room…) exists»: only the open characters that have the
+  // property in some cell they can still take can be that person. If just one can, they are; if the cells where it can be are
+  // all in one line, that line is theirs; if there is one cell only, somebody certainly stands there.
+  witness(ctx, state, rec) {
+    let total = 0;
+    for (const { clue, base } of existentialsOf(ctx)) {
+      if (state.dead) break;
+      if (base(state.confirmed, false) === false) continue; // somebody placed already is the witness
+      const open = unplacedCharacters(ctx, state);
+      const cellsOf = new Map(); // character id -> cells where it would be the witness
+      const tentative = new Map(state.confirmed);
+      for (const c of open) {
+        const cells = [];
+        for (const cell of state.domains.get(c.id)) {
+          tentative.set(c.id, cell);
+          ctx.tick();
+          if (base(tentative, false) === false) cells.push(cell);
+        }
+        tentative.delete(c.id);
+        if (cells.length > 0) cellsOf.set(c.id, cells);
+      }
+      if (cellsOf.size === 0) {
+        state.dead = true;
+        break;
+      }
+      if (cellsOf.size === 1) {
+        const [[id, cells]] = [...cellsOf];
+        const keep = new Set(cells.map(cellKey));
+        const removed = state.domains.get(id).filter((cell) => !keep.has(cellKey(cell)));
+        if (removed.length > 0) {
+          total += removeCells(state, id, removed);
+          record(ctx, rec, "witness", { characterId: id, eliminated: removed, clueIds: [clue.id] });
+        }
+      }
+      const union = new Map();
+      for (const cells of cellsOf.values()) for (const cell of cells) union.set(cellKey(cell), cell);
+      const where = [...union.values()];
+      if (where.length === 1) {
+        // nobody who cannot be the witness may take the cell, and somebody certainly stands there
+        for (const c of open) {
+          if (cellsOf.has(c.id) || !hasCell(state.domains.get(c.id), where[0])) continue;
+          total += removeCells(state, c.id, [where[0]]);
+          record(ctx, rec, "witness", { characterId: c.id, eliminated: [where[0]], clueIds: [clue.id] });
+        }
+        total += addFact(state, where[0], [clue.id]);
+        continue;
+      }
+      for (const axis of ["row", "col"]) {
+        if (!where.every((cell) => cell[axis] === where[0][axis])) continue;
+        for (const c of open) {
+          const removed = state.domains.get(c.id).filter((cell) => cell[axis] === where[0][axis] && !union.has(cellKey(cell)));
+          if (removed.length === 0) continue;
+          total += removeCells(state, c.id, removed);
+          record(ctx, rec, "witness", {
+            characterId: c.id,
+            eliminated: removed,
+            clueIds: [clue.id],
+            line: { axis, indexes: [where[0][axis]] },
+          });
+        }
+      }
+    }
+    return total;
+  },
+
+  // Somebody certainly stands in this cell (whoever they are): nobody else can be anywhere else in its row or column, and if
+  // only one open character can take the cell, it is theirs.
+  occupiedCell(ctx, state, rec) {
+    let total = 0;
+    for (const fact of [...state.occupied.values()]) {
+      if (state.dead) break;
+      if ([...state.confirmed.values()].some((pos) => pos.row === fact.row && pos.col === fact.col)) continue; // placed: rowColTaken has it
+      const open = unplacedCharacters(ctx, state);
+      const candidates = open.filter((c) => hasCell(state.domains.get(c.id), fact));
+      if (candidates.length === 0) {
+        state.dead = true;
+        break;
+      }
+      for (const c of open) {
+        const removed = state.domains
+          .get(c.id)
+          .filter((cell) => (cell.row === fact.row || cell.col === fact.col) && !(cell.row === fact.row && cell.col === fact.col));
+        if (removed.length === 0) continue;
+        total += removeCells(state, c.id, removed);
+        record(ctx, rec, "occupiedCell", {
+          characterId: c.id,
+          eliminated: removed,
+          clueIds: fact.clueIds,
+          cell: { row: fact.row, col: fact.col },
+        });
+      }
+      if (candidates.length === 1 && !state.dead) {
+        const [only] = candidates;
+        const removed = state.domains.get(only.id).filter((cell) => !(cell.row === fact.row && cell.col === fact.col));
+        if (removed.length > 0) {
+          total += removeCells(state, only.id, removed);
+          record(ctx, rec, "occupiedCell", {
+            characterId: only.id,
+            eliminated: removed,
+            clueIds: fact.clueIds,
+            cell: { row: fact.row, col: fact.col },
+          });
+        }
+      }
+    }
+    return total;
   },
 
   // Only sound when every row (every column) must hold somebody, i.e. there are as many characters as rows (columns).

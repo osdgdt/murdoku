@@ -739,6 +739,19 @@ export default {
     ],
     focus: "c",
   },
+  hiddenGroups: {
+    map: ["BAAA", "AAAA", "AABA", "AAAA"],
+    objects: [
+      { type: "chair", at: [3, 0] },
+      { type: "table", at: [2, 0] },
+    ],
+    cast: { a: { gender: "female" }, b: { gender: "male" }, c: { victim: true, gender: "female" } },
+    clues: [
+      { owner: null, type: "peopleNear", params: { count: 2, targetId: "@z:A", together: "any" }, negate: false },
+      { owner: "b", type: "rowOrColParity", params: { axis: "row", parity: "odd" }, negate: false },
+    ],
+    focus: "a",
+  },
   alternatives: {
     map: ["BBDC", "DDDC", "DDDD", "DDAD"],
     objects: [

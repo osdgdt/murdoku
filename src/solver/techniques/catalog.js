@@ -45,6 +45,8 @@ export const TECHNIQUES = [
   // ---- hard -------------------------------------------------------------------------------------------------------
   // K characters whose cells are in only K rows (columns) share those rows (columns): nobody else may take them
   { id: "lineGroups", level: "hard" },
+  // K cells where somebody certainly stands that only K characters can reach are theirs: they lose every cell outside them
+  { id: "hiddenGroups", level: "hard" },
   // a clue ties a character to TWO others who are still open: cells with no partners' cells that satisfy it are ruled out
   { id: "mutualSupport", level: "hard" },
   // "A or B" clues: what is impossible under both alternatives is ruled out

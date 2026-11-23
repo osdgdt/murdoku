@@ -96,7 +96,14 @@ const TEXTS = {
     name: () => t("Righe o colonne di gruppo"),
     text: () =>
       t(
-        "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle."
+        "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle. Vale anche al contrario: se tante righe (o colonne) sono raggiungibili solo da altrettanti personaggi, quei personaggi stanno lì."
+      ),
+  },
+  hiddenGroups: {
+    name: () => t("Caselle riservate"),
+    text: () =>
+      t(
+        "Se tante caselle dove c'è sicuramente qualcuno quanti sono i personaggi che possono raggiungerle sono raggiungibili solo da loro, quei personaggi stanno lì: non possono stare altrove."
       ),
   },
   subsets: {
@@ -187,6 +194,10 @@ const EXAMPLES = {
       "«Anna è 3 colonne a est di Bruno», e nessuno dei due è piazzato: Anna può stare solo dove Bruno ha una casella tre colonne a ovest."
     ),
   lineGroups: () => t("Anna e Bruno hanno caselle possibili solo nelle righe 2 e 3: quelle due righe sono loro, e Carla non può usarle."),
+  hiddenGroups: () =>
+    t(
+      "In due caselle c'è sicuramente qualcuno, e solo Anna e Bruno possono ancora arrivarci: Anna e Bruno stanno in quelle due caselle, e le loro altre caselle sono escluse."
+    ),
   subsets: () => t("Anna e Bruno possono stare solo in due stesse caselle: quelle due caselle sono loro, e Carla non può usarle."),
   mutualSupport: () =>
     t(

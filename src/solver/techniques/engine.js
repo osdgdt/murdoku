@@ -137,6 +137,7 @@ const READS = {
   subsets: "domains",
   pairSupport: "domains",
   lineGroups: "domains",
+  hiddenGroups: "domains",
   mutualSupport: "domains",
   alternatives: "domains",
   globalCount: "placed",
@@ -780,6 +781,61 @@ const RUNNERS = {
       }
     }
     return total;
+  },
+
+  // The other way round of `subsets`: K cells where somebody certainly stands (the «somebody is there» facts, occupiedCell) that only K
+  // characters can reach are taken by exactly those K characters: they lose every cell outside them. (For rows and columns this is
+  // `lineGroups` seen from the other characters: K rows only K characters can reach leave the rest of the characters in the rest of the rows.)
+  hiddenGroups(ctx, state, rec) {
+    const unplaced = unplacedCharacters(ctx, state);
+    if (unplaced.length < 3) return 0;
+    const keepOnly = (members, belongs, extra) => {
+      let total = 0;
+      for (const member of members) {
+        const removed = state.domains.get(member.id).filter((cell) => !belongs(cell));
+        if (removed.length === 0) continue;
+        total += removeCells(state, member.id, removed);
+        record(ctx, rec, "hiddenGroups", {
+          characterId: member.id,
+          eliminated: removed,
+          clueIds: [],
+          byCharacterIds: members.filter((m) => m.id !== member.id).map((m) => m.id),
+          ...extra,
+        });
+      }
+      return total;
+    };
+    // `reach[i]`: bit j set when character j can take something of line/fact i
+    const search = (reach, kMax, onGroup) => {
+      for (let k = 2; k <= kMax; k++) {
+        for (const group of combinations(reach.length, k)) {
+          ctx.tick();
+          let union = 0;
+          for (const i of group) union |= reach[i];
+          const count = popcount(union);
+          if (count < k) {
+            state.dead = true;
+            return 1;
+          }
+          if (count !== k) continue;
+          const members = unplaced.filter((_, j) => union & (1 << j));
+          const done = onGroup(group, members);
+          if (done > 0) return done;
+        }
+      }
+      return 0;
+    };
+    const facts = [...state.occupied.values()]
+      .filter((f) => ![...state.confirmed.values()].some((pos) => pos.row === f.row && pos.col === f.col))
+      .slice(0, 12);
+    if (facts.length >= 2) {
+      const reach = facts.map((f) => unplaced.reduce((mask, c, j) => (hasCell(state.domains.get(c.id), f) ? mask | (1 << j) : mask), 0));
+      return search(reach, Math.min(4, facts.length), (group, members) => {
+        const cells = group.map((i) => facts[i]);
+        return keepOnly(members, (cell) => hasCell(cells, cell), { cells: cells.map(({ row, col }) => ({ row, col })) });
+      });
+    }
+    return 0;
   },
 
   subsets(ctx, state, rec) {

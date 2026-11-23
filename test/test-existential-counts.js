@@ -1,51 +1,12 @@
 // The reasonings on clues about people in general («somebody on a pallet», «exactly 2 people next to a table»): they must never
 // rule out a cell of the solution, and the human solver must conclude like the exact search, on many random cases.
 import { humanSolve } from "../src/solver/techniques/engine.js";
-import { randomPuzzle, randomClueSpec, contextOf, rng } from "./helpers/random-puzzle.js";
-import { buildPredicate } from "../src/solver/predicates/index.js";
-import { solvePuzzle } from "../src/solver/solver.js";
+import { caseWithGeneralClues, uniqueWithGeneralClues } from "./helpers/general-clues.js";
 import { referenceSolutions } from "./reference-solver.js";
 import { placementsOf } from "./helpers/unique-case.js";
-import { addClue } from "../src/model/puzzle.js";
 import { assert, assertEqual } from "./assert.js";
 
-const GENERAL = ["noOneInRoom", "noOneInRowOrCol", "noOneNear", "noOneWithProperty", "exactlyOneInRoom", "exactlyOneNear", "peopleNear"];
 const NEW = new Set(["regionCount", "witness", "occupiedCell"]);
-
-function caseWithGeneralClues(seed) {
-  return randomPuzzle(seed, {
-    maxClues: 2,
-    extraClue: (puzzle, random, ctx) => {
-      const n = 1 + Math.floor(random() * 3);
-      for (let i = 0; i < n; i++) {
-        const type = GENERAL[Math.floor(random() * GENERAL.length)];
-        const spec = randomClueSpec(random, ctx, type);
-        const clue = addClue(puzzle, spec.owner, spec.type, spec.params);
-        if (spec.type.startsWith("noOne") ? random() < 0.6 : random() < 0.15) clue.negate = true;
-      }
-    },
-  });
-}
-
-// A case with exactly one solution whose clues are mostly about people in general, every one true of the chosen solution.
-function uniqueWithGeneralClues(seed, types = GENERAL) {
-  const puzzle = randomPuzzle(seed, { maxClues: 0 });
-  const options = referenceSolutions(puzzle).sort();
-  if (options.length === 0) return null;
-  const random = rng(seed * 7919 + 13);
-  const chosen = placementsOf(options[Math.floor(random() * options.length)]);
-  puzzle.solution.placements = [...chosen].map(([characterId, cell]) => ({ characterId, ...cell }));
-  const ctx = contextOf(puzzle);
-  for (let tries = 0; tries < 120; tries++) {
-    if (solvePuzzle(puzzle, { maxSolutions: 2 }).length === 1) return puzzle;
-    const type = random() < 0.7 ? types[Math.floor(random() * types.length)] : undefined;
-    const spec = randomClueSpec(random, ctx, type);
-    const clue = addClue(puzzle, spec.owner, spec.type, spec.params);
-    if (spec.negate) clue.negate = true;
-    if (buildPredicate(clue, puzzle)(chosen, true) !== true) puzzle.clues.pop();
-  }
-  return solvePuzzle(puzzle, { maxSolutions: 2 }).length === 1 ? puzzle : null;
-}
 
 export const tests = [
   {

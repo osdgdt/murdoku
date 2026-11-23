@@ -163,7 +163,7 @@ export default {
   "«Esattamente due persone sono accanto al tavolo» e le caselle accanto al tavolo sono tre, di cui due nella stessa colonna: la terza è occupata sicuramente, e una delle altre due.":
     "«Exactly two people are next to the table» and there are three cells next to the table, two of them in the same column: the third is certainly occupied, and one of the other two.",
   "«Una donna era nella veranda»: solo Anna è una donna, quindi Anna è in una casella della veranda. Se la veranda ha una casella sola, qualcuno è sicuramente lì.":
-    "«A woman was in the porch»: only Anna is a woman, so Anna is in a cell of the porch. If the porch has one cell only, somebody is certainly there.",
+    "«A woman was in the porch»: only Alice is a woman, so Alice is in a cell of the porch. If the porch has one cell only, somebody is certainly there.",
   "Qualcuno è sicuramente nella casella della riga 1, colonna 1: nessun altro può stare nel resto di quella riga e di quella colonna.":
     "Somebody is certainly in the cell of row 1, column 1: nobody else can be in the rest of that row and column.",
 };

@@ -14,7 +14,7 @@
       "nodes": 13,
       "evaluations": 45665,
       "work": 45704,
-      "ms": 23
+      "ms": 22
     },
     {
       "n": 10,
@@ -24,7 +24,7 @@
       "nodes": 836,
       "evaluations": 81696,
       "work": 84204,
-      "ms": 43
+      "ms": 41
     },
     {
       "n": 10,
@@ -34,7 +34,7 @@
       "nodes": 8486,
       "evaluations": 205237,
       "work": 230695,
-      "ms": 111
+      "ms": 152
     },
     {
       "n": 10,
@@ -44,7 +44,7 @@
       "nodes": 680,
       "evaluations": 69558,
       "work": 71598,
-      "ms": 23
+      "ms": 22
     },
     {
       "n": 10,
@@ -54,7 +54,7 @@
       "nodes": 150825,
       "evaluations": 4547540,
       "work": 5000015,
-      "ms": 2101
+      "ms": 2075
     },
     {
       "n": 12,
@@ -64,7 +64,7 @@
       "nodes": 45609,
       "evaluations": 828102,
       "work": 964929,
-      "ms": 708
+      "ms": 570
     },
     {
       "n": 12,
@@ -74,7 +74,7 @@
       "nodes": 110420,
       "evaluations": 4668742,
       "work": 5000002,
-      "ms": 3088
+      "ms": 3030
     },
     {
       "n": 12,
@@ -84,7 +84,7 @@
       "nodes": 73,
       "evaluations": 106839,
       "work": 107058,
-      "ms": 39
+      "ms": 41
     },
     {
       "n": 12,
@@ -94,7 +94,7 @@
       "nodes": 24,
       "evaluations": 113846,
       "work": 113918,
-      "ms": 36
+      "ms": 46
     },
     {
       "n": 12,
@@ -104,7 +104,7 @@
       "nodes": 201915,
       "evaluations": 4394266,
       "work": 5000011,
-      "ms": 2699
+      "ms": 2421
     },
     {
       "n": 14,
@@ -114,7 +114,7 @@
       "nodes": 100854,
       "evaluations": 4697446,
       "work": 5000008,
-      "ms": 3985
+      "ms": 3490
     },
     {
       "n": 14,
@@ -124,7 +124,7 @@
       "nodes": 30687,
       "evaluations": 904792,
       "work": 996853,
-      "ms": 671
+      "ms": 498
     },
     {
       "n": 14,
@@ -134,7 +134,7 @@
       "nodes": 4102,
       "evaluations": 367552,
       "work": 379858,
-      "ms": 130
+      "ms": 110
     },
     {
       "n": 14,
@@ -144,7 +144,7 @@
       "nodes": 12272,
       "evaluations": 558217,
       "work": 595033,
-      "ms": 306
+      "ms": 288
     },
     {
       "n": 16,
@@ -154,7 +154,7 @@
       "nodes": 184964,
       "evaluations": 4445109,
       "work": 5000001,
-      "ms": 3038
+      "ms": 2960
     },
     {
       "n": 16,
@@ -164,7 +164,7 @@
       "nodes": 51,
       "evaluations": 348720,
       "work": 348873,
-      "ms": 125
+      "ms": 175
     },
     {
       "n": 16,
@@ -174,7 +174,7 @@
       "nodes": 124384,
       "evaluations": 4626864,
       "work": 5000016,
-      "ms": 3983
+      "ms": 3736
     },
     {
       "n": 16,
@@ -184,7 +184,7 @@
       "nodes": 38607,
       "evaluations": 2721081,
       "work": 2836902,
-      "ms": 1453
+      "ms": 1588
     }
   ],
   "editorCases": [
@@ -193,9 +193,18 @@
       "solutions": 1,
       "capped": false,
       "nodes": 33,
-      "evaluations": 1889,
+      "evaluations": 1823,
       "work": 1922,
       "ms": 1
+    },
+    {
+      "file": "orto-abbazia.murdoku.json",
+      "solutions": 1,
+      "capped": false,
+      "nodes": 7884,
+      "evaluations": 40166,
+      "work": 63818,
+      "ms": 35
     },
     {
       "file": "tragedia-piastra-pendolina.murdoku.json",
@@ -204,7 +213,7 @@
       "nodes": 1188092,
       "evaluations": 11097688,
       "work": 14661964,
-      "ms": 3962
+      "ms": 4100
     }
   ],
   "humanCases": [
@@ -217,20 +226,28 @@
       "ms": 3
     },
     {
+      "file": "orto-abbazia.murdoku.json",
+      "status": "solved",
+      "level": "medium",
+      "hardest": "pairSupport",
+      "work": 1092,
+      "ms": 3
+    },
+    {
       "file": "tragedia-piastra-pendolina.murdoku.json",
       "status": "solved",
       "level": "expert",
       "hardest": "exhaustive",
-      "work": 7492182,
-      "ms": 5496
+      "work": 7768703,
+      "ms": 3823
     },
     {
       "file": "faro.en.murdoku.json",
       "status": "solved",
       "level": "easy",
       "hardest": "onlyCandidate",
-      "work": 150,
-      "ms": 1
+      "work": 149,
+      "ms": 0
     },
     {
       "file": "monastero.en.murdoku.json",
@@ -238,14 +255,14 @@
       "level": "medium",
       "hardest": "lastInLine",
       "work": 507,
-      "ms": 2
+      "ms": 1
     },
     {
       "file": "tutorial.en.murdoku.json",
       "status": "solved",
       "level": "medium",
       "hardest": "relationalKnown",
-      "work": 121,
+      "work": 117,
       "ms": 0
     },
     {
@@ -253,7 +270,7 @@
       "status": "solved",
       "level": "medium",
       "hardest": "relationalKnown",
-      "work": 121,
+      "work": 117,
       "ms": 0
     }
   ]

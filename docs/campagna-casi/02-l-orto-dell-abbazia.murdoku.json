@@ -437,9 +437,124 @@
       "gender": "female"
     }
   ],
-  "clues": [],
+  "clues": [
+    {
+      "id": "clue_mwsdhey4vfvgtbp6",
+      "characterId": null,
+      "type": "roomsWithStateCount",
+      "params": {
+        "count": 2,
+        "state": "empty"
+      }
+    },
+    {
+      "id": "clue_mwsdmgxobtz7tiyk",
+      "characterId": null,
+      "type": "noOneWithProperty",
+      "params": {
+        "onlyGender": "female",
+        "property": "custom",
+        "objectTypeId": "bench",
+        "customClue": {
+          "type": "onObjectType",
+          "params": {
+            "objectTypeId": "pallet"
+          }
+        }
+      },
+      "negate": true
+    },
+    {
+      "id": "clue_mwsev9qgikk8t911",
+      "characterId": null,
+      "type": "peopleNear",
+      "params": {
+        "count": 2,
+        "together": "any",
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "clue_mwseyanszmuiejrt",
+      "characterId": "char_mwo3vm5equ4jgih2",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 3
+      }
+    },
+    {
+      "id": "clue_mwsez79rmsxh575v",
+      "characterId": "char_mwo3vm5ecjbgmpe6",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwo3vm5ejyo1qjgr"
+      }
+    },
+    {
+      "id": "clue_mwsf623u9hxvy4i6",
+      "characterId": "char_mwo3vm5er5lfvugr",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwo3vm5e48ql7552"
+      },
+      "negate": true
+    },
+    {
+      "id": "clue_mwsf7pez7i9bu3jt",
+      "characterId": null,
+      "type": "noOneWithProperty",
+      "params": {
+        "onlyGender": "male",
+        "property": "seated",
+        "objectTypeId": "bench"
+      },
+      "negate": true
+    },
+    {
+      "id": "clue_mwshe82hzq9egnbe",
+      "characterId": "char_mwo3vm5eknuko00m",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 3,
+        "targetId": "char_mwo3vm5e9z8uc3e5"
+      }
+    }
+  ],
   "solution": {
-    "placements": []
+    "placements": [
+      {
+        "characterId": "char_mwo3vm5eknuko00m",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "characterId": "char_mwo3vm5em6pnnew2",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "characterId": "char_mwo3vm5er5lfvugr",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwo3vm5e9z8uc3e5",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwo3vm5equ4jgih2",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "characterId": "char_mwo3vm5ecjbgmpe6",
+        "row": 3,
+        "col": 5
+      }
+    ]
   },
   "manualHints": []
 }

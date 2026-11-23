@@ -50,6 +50,27 @@ const TEXTS = {
         "Gli indizi che contano le persone in una stanza, in una riga, in una colonna o intorno a un punto escludono le celle che li romperebbero."
       ),
   },
+  regionCount: {
+    name: () => t("Conteggio su un gruppo di caselle"),
+    text: () =>
+      t(
+        "«Esattamente N persone sono accanto a un tavolo (o in una stanza)»: si guardano i modi di mettere quelle persone, una per riga e per colonna. Una casella che non compare in nessun modo resta vuota; una che compare in tutti è occupata."
+      ),
+  },
+  witness: {
+    name: () => t("Qualcuno c'è"),
+    text: () =>
+      t(
+        "«Una donna era su un giaciglio»: solo chi può davvero essere quella persona conta. Se può essere una sola, è lei; se la casella possibile è una sola, qualcuno è sicuramente lì."
+      ),
+  },
+  occupiedCell: {
+    name: () => t("Casella occupata da qualcuno"),
+    text: () =>
+      t(
+        "Se sai che qualcuno sta su una casella, anche senza sapere chi, nessun altro può stare nella sua riga o nella sua colonna; e se solo un personaggio può arrivarci, è lui."
+      ),
+  },
   lastInLine: {
     name: () => t("Ultima cella della riga o della colonna"),
     text: () =>
@@ -75,7 +96,14 @@ const TEXTS = {
     name: () => t("Righe o colonne di gruppo"),
     text: () =>
       t(
-        "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle."
+        "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle. Vale anche al contrario: se tante righe (o colonne) sono raggiungibili solo da altrettanti personaggi, quei personaggi stanno lì."
+      ),
+  },
+  hiddenGroups: {
+    name: () => t("Caselle riservate"),
+    text: () =>
+      t(
+        "Se tante caselle dove c'è sicuramente qualcuno quanti sono i personaggi che possono raggiungerle sono raggiungibili solo da loro, quei personaggi stanno lì: non possono stare altrove."
       ),
   },
   subsets: {
@@ -146,6 +174,16 @@ const EXAMPLES = {
     t(
       "«Nessuno è in biblioteca»: tutte le caselle della biblioteca sono escluse per tutti. «Una sola persona è accanto al camino»: una seconda lì non può stare."
     ),
+  regionCount: () =>
+    t(
+      "«Esattamente due persone sono accanto al tavolo» e le caselle accanto al tavolo sono tre, di cui due nella stessa colonna: la terza è occupata sicuramente, e una delle altre due."
+    ),
+  witness: () =>
+    t(
+      "«Una donna era nella veranda»: solo Anna è una donna, quindi Anna è in una casella della veranda. Se la veranda ha una casella sola, qualcuno è sicuramente lì."
+    ),
+  occupiedCell: () =>
+    t("Qualcuno è sicuramente nella casella della riga 1, colonna 1: nessun altro può stare nel resto di quella riga e di quella colonna."),
   lastInLine: () =>
     t(
       "Ci sono sei personaggi su una griglia 6×6, quindi ogni riga ha una persona. Nella riga 4 solo Carla può ancora arrivare: Carla è nella riga 4."
@@ -156,6 +194,10 @@ const EXAMPLES = {
       "«Anna è 3 colonne a est di Bruno», e nessuno dei due è piazzato: Anna può stare solo dove Bruno ha una casella tre colonne a ovest."
     ),
   lineGroups: () => t("Anna e Bruno hanno caselle possibili solo nelle righe 2 e 3: quelle due righe sono loro, e Carla non può usarle."),
+  hiddenGroups: () =>
+    t(
+      "In due caselle c'è sicuramente qualcuno, e solo Anna e Bruno possono ancora arrivarci: Anna e Bruno stanno in quelle due caselle, e le loro altre caselle sono escluse."
+    ),
   subsets: () => t("Anna e Bruno possono stare solo in due stesse caselle: quelle due caselle sono loro, e Carla non può usarle."),
   mutualSupport: () =>
     t(

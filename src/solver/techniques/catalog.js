@@ -28,6 +28,12 @@ export const TECHNIQUES = [
   { id: "victimRule", level: "medium" },
   // clues that count people in a room, a row, a column or around a spot ("nobody in", "exactly one in")
   { id: "roomCount", level: "medium" },
+  // «exactly N people in this group of cells» (a room; next to a table): the ways to put them rule cells out, and some cells are certainly occupied
+  { id: "regionCount", level: "medium" },
+  // «somebody ... exists» (a woman on a pallet, a man who is seated): only those who can be that person can; one cell only: somebody is there
+  { id: "witness", level: "medium" },
+  // somebody certainly stands in this cell (whoever they are): nobody else can be anywhere else in its row or column
+  { id: "occupiedCell", level: "medium" },
   // when every row (column) holds somebody, the only character that can still reach a row (column) goes there
   { id: "lastInLine", level: "medium" },
   // a character whose cells are all in one row (column) is in it: nobody else may take that row (column)
@@ -39,6 +45,8 @@ export const TECHNIQUES = [
   // ---- hard -------------------------------------------------------------------------------------------------------
   // K characters whose cells are in only K rows (columns) share those rows (columns): nobody else may take them
   { id: "lineGroups", level: "hard" },
+  // K cells where somebody certainly stands that only K characters can reach are theirs: they lose every cell outside them
+  { id: "hiddenGroups", level: "hard" },
   // a clue ties a character to TWO others who are still open: cells with no partners' cells that satisfy it are ruled out
   { id: "mutualSupport", level: "hard" },
   // "A or B" clues: what is impossible under both alternatives is ruled out

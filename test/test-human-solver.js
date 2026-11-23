@@ -144,6 +144,23 @@ export const tests = [
     },
   },
   {
+    name: "solver umano: «L'orto dell'abbazia» (caso 2 della campagna) è Medio, senza ipotesi: gli indizi generali (due persone accanto al tavolo, una donna sul giaciglio…) servono subito",
+    fn: async () => {
+      const puzzle = await load("test/bench/cases/orto-abbazia.murdoku.json");
+      const result = humanSolve(puzzle);
+      assertEqual(result.status, "solved");
+      assertEqual(result.level, "medium", "il livello");
+      assert(!result.counts.hypothesis && !result.counts.exhaustive && !result.counts.nestedHypothesis, "niente ipotesi");
+      assert(!result.steps.some((s) => levelIndex(s.level) > levelIndex("medium")), "nessun passo difficile o da esperto");
+      // «qualcuno c'è» e «casella occupata» sono i ragionamenti che sfruttano gli indizi generali
+      assert(result.counts.witness > 0 && result.counts.occupiedCell > 0, JSON.stringify(result.counts));
+      for (const p of puzzle.solution.placements) {
+        assertEqual(result.placements.get(p.characterId)?.row, p.row, "riga");
+        assertEqual(result.placements.get(p.characterId)?.col, p.col, "colonna");
+      }
+    },
+  },
+  {
     name: "solver umano: il limite di lavoro dà «limit», mai una risposta inventata",
     fn: async () => {
       const puzzle = await load("test/bench/cases/tragedia-piastra-pendolina.murdoku.json");

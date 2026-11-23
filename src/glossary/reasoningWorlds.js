@@ -408,6 +408,78 @@ export default {
     ],
     focus: "a",
   },
+  regionCount: {
+    map: ["ABBB", "AABC", "AACC", "DDCC"],
+    objects: [
+      {
+        type: "table",
+        at: [1, 1],
+      },
+      {
+        type: "table",
+        at: [2, 3],
+      },
+    ],
+    cast: {
+      a: {
+        gender: "female",
+      },
+      b: {
+        gender: "male",
+      },
+      c: {
+        gender: "female",
+      },
+      d: {
+        victim: true,
+        gender: "male",
+      },
+    },
+    clues: [
+      {
+        owner: null,
+        type: "peopleNear",
+        params: {
+          count: 3,
+          targetId: "@t:table",
+          together: "any",
+        },
+        negate: false,
+      },
+    ],
+    focus: "a",
+  },
+  witness: {
+    map: ["CCB#", "BCBB", "B#BB", "B#B#"],
+    objects: [],
+    cast: {
+      a: { gender: "female" },
+      b: { gender: "male" },
+      c: { gender: "male" },
+      d: { victim: true, gender: "male" },
+    },
+    clues: [
+      {
+        owner: null,
+        type: "noOneWithProperty",
+        params: { zoneId: "@z:C", onlyGender: "female", property: "female" },
+        negate: true,
+      },
+    ],
+    focus: "a",
+  },
+  occupiedCell: {
+    map: ["CBBB", "BDDB", "BDDB", "BBBB"],
+    objects: [],
+    cast: {
+      a: { gender: "female" },
+      b: { gender: "male" },
+      c: { gender: "female" },
+      d: { victim: true, gender: "male" },
+    },
+    clues: [{ owner: null, type: "noOneInRoom", params: { zoneId: "@z:C" }, negate: true }],
+    focus: "a",
+  },
   lastInLine: {
     map: ["BBDC", "DDDC", "DDDD", "DDAD"],
     objects: [
@@ -667,6 +739,19 @@ export default {
     ],
     focus: "c",
   },
+  hiddenGroups: {
+    map: ["BAAA", "AAAA", "AABA", "AAAA"],
+    objects: [
+      { type: "chair", at: [3, 0] },
+      { type: "table", at: [2, 0] },
+    ],
+    cast: { a: { gender: "female" }, b: { gender: "male" }, c: { victim: true, gender: "female" } },
+    clues: [
+      { owner: null, type: "peopleNear", params: { count: 2, targetId: "@z:A", together: "any" }, negate: false },
+      { owner: "b", type: "rowOrColParity", params: { axis: "row", parity: "odd" }, negate: false },
+    ],
+    focus: "a",
+  },
   alternatives: {
     map: ["BBDC", "DDDC", "DDDD", "DDAD"],
     objects: [
@@ -860,74 +945,14 @@ export default {
   nestedHypothesis: {
     map: ["BAAC", "BACC", "BCCC", "CCCC"],
     objects: [
-      {
-        type: "chair",
-        at: [2, 2],
-      },
-      {
-        type: "shelf",
-        at: [1, 0],
-      },
-      {
-        type: "table",
-        at: [1, 3],
-      },
+      { type: "chair", at: [2, 2] },
+      { type: "shelf", at: [1, 0] },
+      { type: "table", at: [1, 3] },
     ],
-    cast: {
-      a: {
-        gender: "female",
-      },
-      b: {
-        gender: "male",
-      },
-      c: {
-        gender: "female",
-      },
-      d: {
-        victim: true,
-        gender: "male",
-      },
-    },
+    cast: { a: { gender: "female" }, b: { gender: "male" }, c: { gender: "female" }, d: { victim: true, gender: "male" } },
     clues: [
-      {
-        owner: null,
-        type: "noOneWithProperty",
-        params: {
-          zoneId: "@z:C",
-          onlyGender: "female",
-          property: "adjacentTo",
-          targetId: "@t:table",
-        },
-        negate: true,
-      },
-      {
-        owner: "a",
-        type: "directionDistance",
-        params: {
-          direction: "south",
-          distance: 2,
-          targetId: "@c:c",
-        },
-        negate: true,
-      },
-      {
-        owner: "c",
-        type: "zoneAdjacentTo",
-        params: {
-          zoneId: "@z:C",
-        },
-        negate: false,
-      },
-      {
-        owner: "b",
-        type: "directionDistance",
-        params: {
-          direction: "north",
-          distance: 1,
-          targetId: "@z:C",
-        },
-        negate: true,
-      },
+      { owner: "a", type: "zoneAdjacentTo", params: { zoneId: "@z:B" }, negate: false },
+      { owner: "c", type: "inRoom", params: { zoneId: "@z:A" }, negate: false },
     ],
     focus: "b",
   },

@@ -2,7 +2,7 @@
 
 > **Attenzione, spoiler.** Ogni caso dice chi deve essere il colpevole e il dossier di chiusura (epilogo) ne rivela il nome. Non condividere questi file con chi deve giocare la campagna. La storia completa è in [campagna-storia.md](../campagna-storia.md).
 
-Questi sono i nove casi della campagna prima del finale, **senza indizi e senza soluzione** (tranne il caso 1, già completo): ogni file `.murdoku.json` contiene la mappa (stanze, pavimenti, mobili, porte e finestre), i personaggi con la loro descrizione, la vittima e il **dossier del caso** (testo introduttivo ed epilogo). Gli indizi e la soluzione li scrivi tu.
+Questi sono i nove casi della campagna prima del finale, **senza indizi e senza soluzione** (tranne i casi 1 e 2, già completi): ogni file `.murdoku.json` contiene la mappa (stanze, pavimenti, mobili, porte e finestre), i personaggi con la loro descrizione, la vittima e il **dossier del caso** (testo introduttivo ed epilogo). Gli indizi e la soluzione li scrivi tu.
 
 ## Come si usano
 
@@ -86,7 +86,7 @@ _I mobili pieni (9) occupano la loro casella; panche, sgabelli, giacigli, tappet
 
 ## Caso 2 — L'orto dell'abbazia · 6×6
 
-**Scena.** L'orto, la serra, l'infermeria e il refettorio dell'abbazia di San Ilario. **Difficoltà:** facile. **File:** `02-l-orto-dell-abbazia.murdoku.json`
+**Scena.** L'orto, la serra, l'infermeria e il refettorio dell'abbazia di San Ilario. **Difficoltà:** facile (indizi e soluzione già nel file: otto indizi, soluzione unica; sono quelli del caso della community, che usa anche indizi generali come «Esattamente 2 persone accanto a un tavolo»; il solver umano lo stima Medio, senza ipotesi). **File:** `02-l-orto-dell-abbazia.murdoku.json`
 
 **Vittima:** Violante — erborista.
 

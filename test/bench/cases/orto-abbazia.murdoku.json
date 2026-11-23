@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 4,
+  "id": "puzzle_mwo3vm5elqfw3pw3",
+  "title": "L'orto dell'abbazia",
+  "author": "",
+  "difficulty": "easy",
+  "completed": false,
+  "bestTimeSeconds": null,
+  "briefing": "All'abbazia di San Ilario una giovane erborista è stata trovata morta nell'orto, tra le aiuole. La regina ti ha scritto: «Il mio giardino è pieno delle stesse piante; fammi sapere se qualcuno le usa male.» L'abate ti riceve a denti stretti, e cinque persone ti dicono di non aver visto niente.",
+  "resolutionNote": "Fra Anselmo cede quando ti mostri il suo registro dei veleni: lo smerciava ai nobili del borgo. Nell'erbario di Violante, fra le foglie di digitale, una nota: «La cameriera rammendava davanti al camino». Due figli del re morti in pochi giorni: sai già che non saranno gli ultimi.",
+  "tense": "past",
+  "createdAt": 1795126346978,
+  "updatedAt": 1795126346978,
+  "grid": {
+    "size": {
+      "rows": 6,
+      "cols": 6
+    },
+    "cells": [
+      [
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": "obj_mwo3vm5eag6fstvw",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e8pibakxs",
+          "objectId": "obj_mwo3vm5em6kim7tb",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e8pibakxs",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": "obj_mwo3vm5eo2cgkq9j",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e8pibakxs",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e8pibakxs",
+          "objectId": "obj_mwo3vm5e0vbt16cb",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5eiest7qex",
+          "objectId": "obj_mwo3vm5entely8ap",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5e48ql7552",
+          "objectId": "obj_mwo3vm5ei9i96jd1",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e48ql7552",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5exzi2i5qq",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5exzi2i5qq",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": "obj_mwo3vm5erech1gg4",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": null,
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5e48ql7552",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e48ql7552",
+          "objectId": "obj_mwo3vm5etx96t115",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5exzi2i5qq",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5exzi2i5qq",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": "obj_mwo3vm5eh68dfqsf",
+          "blocked": false
+        }
+      ],
+      [
+        {
+          "zoneId": "zone_mwo3vm5e48ql7552",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5e48ql7552",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5exzi2i5qq",
+          "objectId": "obj_mwo3vm5e106g5c0w",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5exzi2i5qq",
+          "objectId": null,
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": "obj_mwo3vm5elak8jjk0",
+          "blocked": false
+        },
+        {
+          "zoneId": "zone_mwo3vm5ejyo1qjgr",
+          "objectId": null,
+          "blocked": false
+        }
+      ]
+    ],
+    "zones": [
+      {
+        "id": "zone_mwo3vm5eiest7qex",
+        "name": "L'orto",
+        "color": "#f4c2c2",
+        "textureId": "grass"
+      },
+      {
+        "id": "zone_mwo3vm5e8pibakxs",
+        "name": "La serra delle erbe",
+        "color": "#c2e0f4",
+        "textureId": "moss"
+      },
+      {
+        "id": "zone_mwo3vm5ejyo1qjgr",
+        "name": "Il refettorio",
+        "color": "#c9f4c2",
+        "textureId": "planks_dark"
+      },
+      {
+        "id": "zone_mwo3vm5e48ql7552",
+        "name": "L'infermeria",
+        "color": "#f4ecc2",
+        "textureId": "planks"
+      },
+      {
+        "id": "zone_mwo3vm5exzi2i5qq",
+        "name": "Il chiostro",
+        "color": "#e0c2f4",
+        "textureId": "stone"
+      }
+    ],
+    "objects": [
+      {
+        "id": "obj_mwo3vm5eag6fstvw",
+        "typeId": "well",
+        "row": 0,
+        "col": 0
+      },
+      {
+        "id": "obj_mwo3vm5eo2cgkq9j",
+        "typeId": "bench",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "id": "obj_mwo3vm5entely8ap",
+        "typeId": "statue",
+        "row": 2,
+        "col": 3
+      },
+      {
+        "id": "obj_mwo3vm5em6kim7tb",
+        "typeId": "plant",
+        "row": 0,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm5e0vbt16cb",
+        "typeId": "shelf",
+        "row": 1,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3vm5erech1gg4",
+        "typeId": "table",
+        "row": 3,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm5eh68dfqsf",
+        "typeId": "bench",
+        "row": 4,
+        "col": 5
+      },
+      {
+        "id": "obj_mwo3vm5elak8jjk0",
+        "typeId": "stool",
+        "row": 5,
+        "col": 4
+      },
+      {
+        "id": "obj_mwo3vm5ei9i96jd1",
+        "typeId": "cauldron",
+        "row": 3,
+        "col": 0
+      },
+      {
+        "id": "obj_mwo3vm5etx96t115",
+        "typeId": "pallet",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "id": "obj_mwo3vm5e106g5c0w",
+        "typeId": "statue",
+        "row": 5,
+        "col": 2
+      },
+      {
+        "id": "obj_mwo3vm5exx4hdnze",
+        "typeId": "door",
+        "row": 1,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5e0t7hhfzp",
+        "typeId": "door",
+        "row": 2,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5ej9udwrdc",
+        "typeId": "door",
+        "row": 2,
+        "col": 1,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3vm5e1vskeajg",
+        "typeId": "door",
+        "row": 2,
+        "col": 3,
+        "side": "S"
+      },
+      {
+        "id": "obj_mwo3vm5etzmldvx8",
+        "typeId": "door",
+        "row": 4,
+        "col": 1,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5ef88siwk0",
+        "typeId": "door",
+        "row": 4,
+        "col": 3,
+        "side": "E"
+      },
+      {
+        "id": "obj_mwo3vm5eidavovcs",
+        "typeId": "window",
+        "row": 0,
+        "col": 0,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwo3vm5eut3fu6w5",
+        "typeId": "window",
+        "row": 0,
+        "col": 5,
+        "side": "N"
+      },
+      {
+        "id": "obj_mwo3vm5ejdr6w3gc",
+        "typeId": "window",
+        "row": 3,
+        "col": 0,
+        "side": "W"
+      },
+      {
+        "id": "obj_mwo3vm5etynceaqs",
+        "typeId": "window",
+        "row": 5,
+        "col": 5,
+        "side": "E"
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "char_mwo3vm5eknuko00m",
+      "name": "Anselmo",
+      "iconId": "monk",
+      "isVictim": false,
+      "bio": "Fra Anselmo, infermiere dell'abbazia: conosce ogni pianta e ogni dose. Autorevole, di rado visto fuori dall'infermeria, se non per raccogliere erbe all'alba.",
+      "color": "#608aea",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5er5lfvugr",
+      "name": "Bonifacio",
+      "iconId": "gardener",
+      "isVictim": false,
+      "bio": "Giardiniere laico dell'abbazia. Lavora l'orto da vent'anni e non ha mai amato che altri mettessero le mani nelle sue aiuole.",
+      "color": "#ea558a",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5e9z8uc3e5",
+      "name": "Clemenza",
+      "iconId": "nun",
+      "isVictim": false,
+      "bio": "Suor Clemenza, sorvegliante dell'orto e dell'infermeria: severa con le novizie. Rimproverava Violante per i ritardi, e per le sue visite fuori orario.",
+      "color": "#158060",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3vm5equ4jgih2",
+      "name": "Dionigi",
+      "iconId": "priest",
+      "isVictim": false,
+      "bio": "Frate portinaio: apre e chiude il portone dell'abbazia e sa chi è venuto e chi se n'è andato. Dorme poco e ascolta molto.",
+      "color": "#9f5595",
+      "gender": "male"
+    },
+    {
+      "id": "char_mwo3vm5ecjbgmpe6",
+      "name": "Eufemia",
+      "iconId": "baker",
+      "isVictim": false,
+      "bio": "Cuoca del refettorio: prepara i pasti dei monaci e dei pellegrini. Ha le erbe in cucina quanto l'erborista le ha nell'orto, e non lo ha mai detto volentieri.",
+      "color": "#bf8020",
+      "gender": "female"
+    },
+    {
+      "id": "char_mwo3vm5em6pnnew2",
+      "name": "Violante",
+      "iconId": "pharmacist",
+      "isVictim": true,
+      "bio": "20 anni, erborista: cura le aiuole e prepara gli unguenti dell'infermeria. Teneva un erbario a cui non lasciava avvicinare nessuno.",
+      "color": "#4a6aca",
+      "gender": "female"
+    }
+  ],
+  "clues": [
+    {
+      "id": "clue_mwsdhey4vfvgtbp6",
+      "characterId": null,
+      "type": "roomsWithStateCount",
+      "params": {
+        "count": 2,
+        "state": "empty"
+      }
+    },
+    {
+      "id": "clue_mwsdmgxobtz7tiyk",
+      "characterId": null,
+      "type": "noOneWithProperty",
+      "params": {
+        "onlyGender": "female",
+        "property": "custom",
+        "objectTypeId": "bench",
+        "customClue": {
+          "type": "onObjectType",
+          "params": {
+            "objectTypeId": "pallet"
+          }
+        }
+      },
+      "negate": true
+    },
+    {
+      "id": "clue_mwsev9qgikk8t911",
+      "characterId": null,
+      "type": "peopleNear",
+      "params": {
+        "count": 2,
+        "together": "any",
+        "targetId": "objtype:table"
+      }
+    },
+    {
+      "id": "clue_mwseyanszmuiejrt",
+      "characterId": "char_mwo3vm5equ4jgih2",
+      "type": "inRowOrCol",
+      "params": {
+        "axis": "row",
+        "index": 3
+      }
+    },
+    {
+      "id": "clue_mwsez79rmsxh575v",
+      "characterId": "char_mwo3vm5ecjbgmpe6",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwo3vm5ejyo1qjgr"
+      }
+    },
+    {
+      "id": "clue_mwsf623u9hxvy4i6",
+      "characterId": "char_mwo3vm5er5lfvugr",
+      "type": "inRoom",
+      "params": {
+        "zoneId": "zone_mwo3vm5e48ql7552"
+      },
+      "negate": true
+    },
+    {
+      "id": "clue_mwsf7pez7i9bu3jt",
+      "characterId": null,
+      "type": "noOneWithProperty",
+      "params": {
+        "onlyGender": "male",
+        "property": "seated",
+        "objectTypeId": "bench"
+      },
+      "negate": true
+    },
+    {
+      "id": "clue_mwshe82hzq9egnbe",
+      "characterId": "char_mwo3vm5eknuko00m",
+      "type": "directionDistance",
+      "params": {
+        "direction": "west",
+        "distance": 3,
+        "targetId": "char_mwo3vm5e9z8uc3e5"
+      }
+    }
+  ],
+  "solution": {
+    "placements": [
+      {
+        "characterId": "char_mwo3vm5eknuko00m",
+        "row": 5,
+        "col": 0
+      },
+      {
+        "characterId": "char_mwo3vm5em6pnnew2",
+        "row": 4,
+        "col": 1
+      },
+      {
+        "characterId": "char_mwo3vm5er5lfvugr",
+        "row": 1,
+        "col": 2
+      },
+      {
+        "characterId": "char_mwo3vm5e9z8uc3e5",
+        "row": 0,
+        "col": 3
+      },
+      {
+        "characterId": "char_mwo3vm5equ4jgih2",
+        "row": 2,
+        "col": 4
+      },
+      {
+        "characterId": "char_mwo3vm5ecjbgmpe6",
+        "row": 3,
+        "col": 5
+      }
+    ]
+  },
+  "manualHints": []
+}

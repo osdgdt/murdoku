@@ -142,8 +142,28 @@ export default {
   "«Anna è 3 colonne a est di Bruno», e nessuno dei due è piazzato: Anna può stare solo dove Bruno ha una casella tre colonne a ovest.":
     "«Alice is 3 columns east of Ben», and neither is placed: Alice can only be where Ben has a cell three columns to the west.",
   "Righe o colonne di gruppo": "Rows or columns of a group",
-  "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle.":
-    "If several characters have possible cells in only as many rows (or columns) as there are of them, those rows are theirs: the others cannot use them.",
+  "Se più personaggi hanno caselle possibili in tante sole righe (o colonne) quanti sono, quelle righe sono loro: gli altri non possono usarle. Vale anche al contrario: se tante righe (o colonne) sono raggiungibili solo da altrettanti personaggi, quei personaggi stanno lì.":
+    "If several characters have possible cells in only as many rows (or columns) as there are of them, those rows are theirs: the others cannot use them. It works the other way round too: if as many rows (or columns) as there are characters can be reached only by those characters, those characters are there.",
   "Anna e Bruno hanno caselle possibili solo nelle righe 2 e 3: quelle due righe sono loro, e Carla non può usarle.":
     "Alice and Ben have possible cells only in rows 2 and 3: those two rows are theirs, and Clara cannot use them.",
+  "Caselle riservate": "Reserved cells",
+  "Se tante caselle dove c'è sicuramente qualcuno quanti sono i personaggi che possono raggiungerle sono raggiungibili solo da loro, quei personaggi stanno lì: non possono stare altrove.":
+    "If as many cells where somebody certainly is as there are characters who can reach them can be reached by those characters only, those characters are there: they cannot be anywhere else.",
+  "In due caselle c'è sicuramente qualcuno, e solo Anna e Bruno possono ancora arrivarci: Anna e Bruno stanno in quelle due caselle, e le loro altre caselle sono escluse.":
+    "Somebody is certainly in two cells, and only Alice and Ben can still reach them: Alice and Ben are in those two cells, and their other cells are ruled out.",
+  "Conteggio su un gruppo di caselle": "Count over a group of cells",
+  "«Esattamente N persone sono accanto a un tavolo (o in una stanza)»: si guardano i modi di mettere quelle persone, una per riga e per colonna. Una casella che non compare in nessun modo resta vuota; una che compare in tutti è occupata.":
+    "«Exactly N people are next to a table (or in a room)»: the ways of placing those people, one per row and column, are looked at. A cell that appears in no way stays empty; one that appears in all of them is occupied.",
+  "Qualcuno c'è": "Somebody is there",
+  "«Una donna era su un giaciglio»: solo chi può davvero essere quella persona conta. Se può essere una sola, è lei; se la casella possibile è una sola, qualcuno è sicuramente lì.":
+    "«A woman was on a pallet»: only who can really be that person counts. If only one can be, it is her; if there is only one possible cell, somebody is certainly there.",
+  "Casella occupata da qualcuno": "Cell somebody occupies",
+  "Se sai che qualcuno sta su una casella, anche senza sapere chi, nessun altro può stare nella sua riga o nella sua colonna; e se solo un personaggio può arrivarci, è lui.":
+    "If you know somebody stands on a cell, even without knowing who, nobody else can be in its row or column; and if only one character can get there, it is them.",
+  "«Esattamente due persone sono accanto al tavolo» e le caselle accanto al tavolo sono tre, di cui due nella stessa colonna: la terza è occupata sicuramente, e una delle altre due.":
+    "«Exactly two people are next to the table» and there are three cells next to the table, two of them in the same column: the third is certainly occupied, and one of the other two.",
+  "«Una donna era nella veranda»: solo Anna è una donna, quindi Anna è in una casella della veranda. Se la veranda ha una casella sola, qualcuno è sicuramente lì.":
+    "«A woman was in the porch»: only Alice is a woman, so Alice is in a cell of the porch. If the porch has one cell only, somebody is certainly there.",
+  "Qualcuno è sicuramente nella casella della riga 1, colonna 1: nessun altro può stare nel resto di quella riga e di quella colonna.":
+    "Somebody is certainly in the cell of row 1, column 1: nobody else can be in the rest of that row and column.",
 };

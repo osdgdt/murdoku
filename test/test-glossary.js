@@ -2,11 +2,21 @@ import { CLUE_TYPES } from "../src/model/clueTypes.js";
 import { FAMILIES, ENTRIES, buildExample, evaluateCells, evaluateGeneral, exampleSentence } from "../src/glossary/examples.js";
 import { TECHNIQUES } from "../src/solver/techniques/catalog.js";
 import { buildReasoningExample, hasReasoningWorld } from "../src/glossary/reasoning.js";
+import EN_REASONING from "../src/i18n/en/reasoning.js";
 import { assert, assertEqual } from "./assert.js";
 
 const typeEntries = ENTRIES.filter((e) => e.type);
 
 export const tests = [
+  {
+    name: "glossario dei ragionamenti: le frasi inglesi non nominano i personaggi italiani (Anna, Bruno, Carla, Dario)",
+    fn: () => {
+      for (const [italian, english] of Object.entries(EN_REASONING)) {
+        const found = english.match(/\b(Anna|Bruno|Carla|Dario)\b/);
+        assert(!found, `«${found?.[0]}» nella frase inglese di «${italian.slice(0, 50)}…»`);
+      }
+    },
+  },
   {
     name: "glossario dei ragionamenti: ogni esempio disegnato è un passo vero del solver umano, coerente con quello che dice (celle rimaste ed escluse)",
     fn: () => {

@@ -1,6 +1,6 @@
 # Una rete neurale che genera Murdoku
 
-Progetto in passi (il piano completo è nella conversazione con l'autore; qui il riassunto operativo):
+Progetto in passi (il contesto per riprendere il lavoro, le decisioni e cosa hanno insegnato le foto sono in `CONTESTO.md`; qui il riassunto operativo):
 
 1. **Scheletro, giudice e formato dei dati** ← questa cartella (`murdoku_ml/`, `FORMATO.md`)
 2. Lettore: foto → caso (`reader/`)

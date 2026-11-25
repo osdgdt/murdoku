@@ -241,6 +241,22 @@ def test_indizio_generale_esattamente_n_persone_col_menu():
     assert clue["type"] == "exactlyNWithProperty" and clue["params"] == {"count": 2, "property": "sittingOn", "objectTypeId": "chair"}
 
 
+def test_indizio_generale_con_un_altra_condizione_annidata():
+    d = tiny_draft()
+    d["general"] = [
+        {
+            "type": "exactlyNWithProperty",
+            "negate": False,
+            "params": {"count": 2, "property": "custom", "customClue": {"type": "inRoom", "negate": True, "params": {"zoneId": {"room": "Sala"}}}},
+        }
+    ]
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    clue = [c for c in puzzle["clues"] if c["characterId"] is None][0]
+    assert clue["params"]["property"] == "custom"
+    assert clue["params"]["customClue"] == {"type": "inRoom", "negate": True, "params": {"zoneId": "zone_0"}}
+
+
 def test_indizio_generale_con_bersaglio_sconosciuto_e_un_problema():
     d = tiny_draft()
     d["general"] = [{"type": "noOneNear", "negate": False, "params": {"targetId": {"name": "Zeno"}}}]
@@ -248,12 +264,14 @@ def test_indizio_generale_con_bersaglio_sconosciuto_e_un_problema():
 
 
 @needs_node
-def test_il_catalogo_ha_i_tipi_generali_e_le_proprieta_senza_la_condizione_annidata():
+def test_il_catalogo_ha_i_tipi_generali_e_tutte_le_proprieta_compresa_un_altra_condizione():
     types = {t["id"]: t for t in D.clue_catalog()}
     assert types["noOneInRoom"]["scope"] == "generic" and types["adjacent"]["scope"] == "character"
     prop = types["noOneWithProperty"]
     names = {p["name"]: p for p in prop["params"]}
-    assert "customClue" not in names and "custom" not in {v["value"] for v in names["property"]["values"]}
+    # tutte le proprietà dell'app, anche «un'altra condizione» con la sua condizione annidata
+    assert {v["value"] for v in names["property"]["values"]} == {"adjacentTo", "male", "female", "sittingOn", "seated", "custom"}
+    assert names["customClue"]["kind"] == "clueRef" and names["customClue"]["showIf"] == {"property": "custom"}
     assert names["targetId"]["showIf"] == {"property": "adjacentTo"} and names["objectTypeId"]["showIf"] == {"property": "sittingOn"}
     assert names["zoneId"]["optional"] is True and names["onlyGender"]["optional"] is True
     assert "" not in {v["value"] for v in names["onlyGender"]["values"]}

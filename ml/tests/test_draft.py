@@ -245,3 +245,13 @@ def test_il_catalogo_ha_i_tipi_generali_e_le_proprieta_senza_la_condizione_annid
     assert names["targetId"]["showIf"] == {"property": "adjacentTo"} and names["objectTypeId"]["showIf"] == {"property": "sittingOn"}
     assert names["zoneId"]["optional"] is True and names["onlyGender"]["optional"] is True
     assert "" not in {v["value"] for v in names["onlyGender"]["values"]}
+
+
+def test_l_unica_persona_accanto_a_una_finestra_arriva_al_caso_dell_app():
+    d = tiny_draft()
+    d["cards"][0]["sentence"] = "Era l'unica persona accanto a una finestra. Era l'unica persona nella Sala."
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    first, second = puzzle["clues"]
+    assert first["type"] == "onlyOneWithProperty" and first["params"] == {"property": "adjacentTo", "targetId": "objtype:window"}
+    assert second["params"] == {"property": "custom", "customClue": {"type": "inRoom", "params": {"zoneId": "zone_0"}}}

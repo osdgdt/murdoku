@@ -331,8 +331,10 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
                 out["zoneId"] = zone_by_name.get(str(value).lower())
                 if out["zoneId"] is None:
                     problems.append(f"{who(card_index)}: la stanza «{value}» non è nella lista delle stanze")
-            elif key in ("a", "b") and isinstance(value, dict):
+            elif key in ("a", "b", "customClue") and isinstance(value, dict) and "type" in value:
                 out[key] = {"type": value["type"], "params": resolve_params(value.get("params", {}), card_index)}
+                if value.get("negate"):
+                    out[key]["negate"] = True
             elif isinstance(value, dict) and any(k in value for k in ("name", "object", "room")):  # un bersaglio scelto col menu
                 out[key] = resolve_target(value, card_index)
             else:

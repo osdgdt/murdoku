@@ -1493,6 +1493,59 @@ export const tests = [
     },
   },
   {
+    name: "predicate onlyOneWithProperty: «l'unica persona accanto a una finestra» (la finestra vale per le due caselle che separa)",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const left = addZone(puzzle.grid, "Ovest", "#cfe");
+      const right = addZone(puzzle.grid, "Est", "#fec");
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) paintCellZone(puzzle.grid, r, c, (c < 2 ? left : right).id);
+      assert(placeObject(puzzle.grid, "window", 1, 1, "E"), "la finestra sul muro fra le due stanze");
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person3");
+      const clue = addClue(puzzle, a.id, "onlyOneWithProperty", { property: "adjacentTo", targetId: objectTypeTargetId("window") });
+      const predicate = buildPredicate(clue, puzzle);
+      const holds = (cells) => predicate(mapOf(cells.map(([ch, row, col]) => [ch.id, { row, col }])), true);
+      assertEqual(
+        holds([
+          [a, 1, 1],
+          [b, 3, 0],
+          [c, 0, 3],
+        ]),
+        true,
+        "solo lui è accanto alla finestra"
+      );
+      assertEqual(
+        holds([
+          [a, 1, 2],
+          [b, 3, 0],
+          [c, 0, 3],
+        ]),
+        true,
+        "anche dall'altra parte della finestra"
+      );
+      assertEqual(
+        holds([
+          [a, 1, 1],
+          [b, 1, 2],
+          [c, 0, 3],
+        ]),
+        false,
+        "un altro, dal lato opposto, è accanto alla stessa finestra"
+      );
+      assertEqual(
+        holds([
+          [a, 3, 3],
+          [b, 1, 1],
+          [c, 0, 0],
+        ]),
+        false,
+        "lui non è accanto a nessuna finestra"
+      );
+      assertEqual(describeClue(clue, puzzle), "È l'unica persona accanto a una finestra.");
+    },
+  },
+  {
     name: "predicate onlyOneWithProperty: «unico uomo» si giudica dal genere, senza aspettare le posizioni",
     fn: () => {
       const puzzle = basePuzzle(3, 3);

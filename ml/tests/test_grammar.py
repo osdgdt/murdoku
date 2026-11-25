@@ -83,11 +83,6 @@ def test_negazione():
     assert found == [("adjacent", {"target": {"name": "Bors"}}, True)]
 
 
-def test_non_accanto_a_un_muro_e_non_supportato():
-    parsed, _ = clues("Non era accanto a un muro.")
-    assert "not_next_to_wall" in parsed.unsupported
-
-
 def test_frase_sconosciuta_non_si_indovina():
     parsed, found = clues("Mangiava una mela con Bors.")
     assert found == [] and parsed.unknown
@@ -202,3 +197,44 @@ def test_accanto_a_un_oggetto_dei_pirati(word, object_type):
 def test_il_pappagallo_non_e_ancora_supportato():
     parsed, found = clues("Era accanto a un pappagallo.")
     assert not found and parsed.unsupported == ["parrot"]
+
+
+# ---- «accanto a un muro» e «l'unica persona…»
+def test_accanto_a_un_muro_e_il_suo_contrario():
+    parsed, found = clues("Era accanto a un muro.")
+    assert found == [("nextToWall", {}, False)] and not parsed.unknown and not parsed.unsupported
+    parsed, found = clues("Non era accanto a un muro.")
+    assert found == [("nextToWall", {}, True)] and not parsed.unsupported
+
+
+def test_unica_persona_accanto_a_una_finestra():
+    parsed, found = clues("Era l'unica persona accanto a una finestra.")
+    assert found == [("onlyOneWithProperty", {"property": "adjacentTo", "target": {"object": "window"}}, False)]
+    assert not parsed.unknown and not parsed.unsupported
+    _, found = clues("Era l'unica persona vicino a Bors.")
+    assert found == [("onlyOneWithProperty", {"property": "adjacentTo", "target": {"name": "Bors"}}, False)]
+
+
+def test_unica_persona_seduta_e_genere():
+    _, found = clues("Era l'unica persona seduta su una sedia.")
+    assert found == [("onlyOneWithProperty", {"property": "sittingOn", "objectTypeId": "chair"}, False)]
+    _, found = clues("Era l'unica persona seduta.")
+    assert found == [("onlyOneWithProperty", {"property": "seated"}, False)]
+    _, found = clues("Era l'unica donna.")
+    assert found == [("onlyOneWithProperty", {"property": "female"}, False)]
+    _, found = clues("Non era l'unico uomo.")
+    assert found == [("onlyOneWithProperty", {"property": "male"}, True)]
+
+
+def test_unica_persona_con_un_altra_condizione_e_indizio_annidato():
+    _, found = clues("Era l'unica persona su un tappeto.")
+    assert found == [("onlyOneWithProperty", {"property": "custom", "customClue": {"type": "onObjectType", "params": {"objectTypeId": "carpet"}}}, False)]
+    _, found = clues("Era l'unica persona nella Cucina.")
+    assert found[0][1]["customClue"] == {"type": "inRoom", "params": {"room": "Cucina"}}
+
+
+def test_unica_persona_non_capita_o_non_supportata():
+    parsed, found = clues("Era l'unica persona che mangiava una mela.")
+    assert found == [] and parsed.unknown
+    parsed, found = clues("Era l'unica persona accanto a un leone.")
+    assert found == [] and parsed.unsupported == ["animals"] and not parsed.unknown

@@ -359,15 +359,18 @@ const scenarios = [
     options: { url: `${base}/glossary.html`, ready: ".gl-card", locale },
     async run(page) {
       // The little boards are drawn only when they are about to scroll into view: bring each pending one into view.
+      // It waits on the clock, not for a fixed number of passes: on a slow CI machine each board takes longer to draw, and the glossary
+      // keeps growing, so a count of passes that was enough once is not enough later.
       await page.evaluate(async () => {
-        for (let pass = 0; pass < 100; pass++) {
+        const deadline = Date.now() + 60000;
+        while (Date.now() < deadline) {
           const pending = document.querySelector(".gl-figure.pending");
           if (!pending) return;
           pending.scrollIntoView({ block: "center" });
           await new Promise((resolve) => setTimeout(resolve, 80));
         }
       });
-      await page.waitForFunction(() => !document.querySelector(".gl-figure.pending"), null, { timeout: 15000 });
+      await page.waitForFunction(() => !document.querySelector(".gl-figure.pending"), null, { timeout: 30000 });
       const shown = await page.evaluate(() => {
         const bits = [document.body.innerText];
         for (const node of document.querySelectorAll("[title],[aria-label]")) {

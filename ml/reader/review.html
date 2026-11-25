@@ -379,6 +379,7 @@ function manualText(e) {
   const t = typeOf(e.type); if (!t) return e.type;
   const bits = t.params.map(p => {
     const v = (e.params || {})[p.name]; if (v == null) return "";
+    if (p.kind === "clueRef") return "(" + manualText(v) + ")";
     if (typeof v === "object") return v.name || v.room || (v.object === "#animal" ? "un animale" : (meta.objectTypes[v.object] || (meta.edgeTypes || {})[v.object] || v.object));
     if (p.kind === "enum") { const o = p.values.find(x => String(x.value) === String(v)); return o ? o.label : v; }
     return v;
@@ -389,6 +390,53 @@ function manualText(e) {
 // (indizi generali, `self` = null). `list()` dà l'elenco in cui l'indizio composto va a finire (`extra` della scheda, `general` della bozza).
 function renderClueMenu(c) { buildMenu($("#menu" + c.letter), { id: c.letter, self: c, scope: "character", list: () => (c.extra = c.extra || []) }); }
 function renderGeneralMenu() { const d = state.draft; buildMenu($("#menuGeneral"), { id: "general", self: null, scope: "generic", list: () => (d.general = d.general || []) }); }
+// Un parametro che dipende da un altro («accanto a…» ha il bersaglio, «seduto su…» il tipo di oggetto) compare solo quando serve.
+function paramVisible(p, fields) { return !p.showIf || Object.entries(p.showIf).every(([k, v]) => fields[k] === v); }
+// I controlli dei parametri di un tipo di indizio. `fields` tiene i valori scelti; un parametro «clueRef» («un'altra condizione») è un indizio intero
+// dentro l'indizio, composto con lo stesso menu.
+function paramControls(t, fields, self, redraw) {
+  const controls = [];
+  for (const p of t.params.filter(q => paramVisible(q, fields))) {
+    if (p.kind === "clueRef") { controls.push(nestedClueControl(p, fields, redraw)); continue; }
+    let input;
+    const onPick = e => { fields[p.name] = e.target.value; if (t.params.some(q => q.showIf && p.name in q.showIf)) redraw(); };
+    const blank = el("option", { value: "" }, p.optional ? "(qualsiasi)" : "—");
+    if (p.kind === "enum") input = el("select", { onchange: onPick }, blank, ...p.values.map(v => el("option", { value: String(v.value) }, v.label)));
+    else if (p.kind === "number") input = el("input", { type: "number", min: p.min == null ? "" : String(p.min), class: "small", oninput: e => { fields[p.name] = e.target.value; } });
+    else input = el("select", { onchange: onPick }, blank, ...targetOptions(p.kind, self));
+    input.value = fields[p.name] || "";
+    controls.push(el("label", { class: "msg" }, p.label + " ", input));
+  }
+  return controls;
+}
+function nestedClueControl(p, fields, redraw) {
+  const n = fields[p.name] = fields[p.name] || { type: "", negate: false, fields: {} };
+  const catalog = (meta.clueTypes || []).filter(t => (t.scope || "character") === "character");
+  const sel = el("select", { onchange: e => { n.type = e.target.value; n.fields = {}; redraw(); } },
+    el("option", { value: "" }, "— quale condizione —"), ...catalog.map(t => el("option", { value: t.id }, t.label)));
+  sel.value = n.type;
+  const neg = el("input", { type: "checkbox", onchange: e => { n.negate = e.target.checked; } }); neg.checked = n.negate;
+  const nt = typeOf(n.type);
+  return el("div", { class: "card" }, el("div", { class: "row" }, el("span", { class: "msg" }, p.label + " "), sel, el("label", {}, neg, " no (il contrario)")),
+    ...(nt ? [el("div", { class: "row" }, ...paramControls(nt, n.fields, null, redraw))] : []));
+}
+// I parametri scelti, pronti per la bozza (`{ params }`), oppure `{ error }` col nome di quello che manca.
+function buildParams(t, fields) {
+  const params = {};
+  for (const p of t.params.filter(q => paramVisible(q, fields))) {
+    if (p.kind === "clueRef") {
+      const n = fields[p.name]; const nt = n && typeOf(n.type);
+      if (!nt) return { error: "Manca: " + p.label };
+      const inner = buildParams(nt, n.fields); if (inner.error) return inner;
+      params[p.name] = { type: n.type, negate: !!n.negate, params: inner.params }; continue;
+    }
+    const raw = fields[p.name];
+    if (raw == null || raw === "") { if (p.optional) continue; return { error: "Manca: " + p.label }; }
+    if (p.kind === "number" && !(parseInt(raw, 10) >= (p.min == null ? -Infinity : p.min))) return { error: p.label + ": numero non valido" };
+    params[p.name] = p.kind === "number" ? parseInt(raw, 10) : p.kind === "enum" ? (p.values.find(v => String(v.value) === raw) || {}).value : targetValue(raw);
+  }
+  return { params };
+}
 function buildMenu(host, where) {
   if (!host) return;
   const m = state.menu; const open = m && m.id === where.id;
@@ -403,30 +451,14 @@ function buildMenu(host, where) {
   const typeSel = el("select", { onchange: e => { m.type = e.target.value; m.fields = {}; redraw(); } },
     el("option", { value: "" }, "— che cosa dice l'indizio —"), ...catalog.map(t => el("option", { value: t.id }, t.label)));
   typeSel.value = m.type;
-  const t = typeOf(m.type); const controls = [];
-  // un parametro che dipende da un altro («accanto a…» ha il bersaglio, «seduto su…» il tipo di oggetto) compare solo quando serve
-  const visible = p => !p.showIf || Object.entries(p.showIf).every(([k, v]) => m.fields[k] === v);
-  if (t) for (const p of t.params.filter(visible)) {
-    let input;
-    const onPick = e => { m.fields[p.name] = e.target.value; if (t.params.some(q => q.showIf && p.name in q.showIf)) redraw(); };
-    const blank = el("option", { value: "" }, p.optional ? "(qualsiasi)" : "—");
-    if (p.kind === "enum") input = el("select", { onchange: onPick }, blank, ...p.values.map(v => el("option", { value: String(v.value) }, v.label)));
-    else if (p.kind === "number") input = el("input", { type: "number", min: p.min == null ? "" : String(p.min), class: "small", oninput: e => { m.fields[p.name] = e.target.value; } });
-    else input = el("select", { onchange: onPick }, blank, ...targetOptions(p.kind, where.self));
-    input.value = m.fields[p.name] || "";
-    controls.push(el("label", { class: "msg" }, p.label + " ", input));
-  }
+  const t = typeOf(m.type);
+  const controls = t ? paramControls(t, m.fields, where.self, redraw) : [];
   const negate = el("input", { type: "checkbox", onchange: e => { m.negate = e.target.checked; } }); negate.checked = m.negate;
   const add = el("button", { class: "primary", onclick: () => {
     if (!t) return;
-    const params = {};
-    for (const p of t.params.filter(visible)) {
-      const raw = m.fields[p.name];
-      if (raw == null || raw === "") { if (p.optional) continue; alert("Manca: " + p.label); return; }
-      if (p.kind === "number" && (!(parseInt(raw, 10) >= (p.min == null ? -Infinity : p.min)))) { alert(p.label + ": numero non valido"); return; }
-      params[p.name] = p.kind === "number" ? parseInt(raw, 10) : p.kind === "enum" ? (p.values.find(v => String(v.value) === raw) || {}).value : targetValue(raw);
-    }
-    where.list().push({ type: t.id, negate: m.negate, params }); state.menu = null; renderEditor(); changed();
+    const built = buildParams(t, m.fields);
+    if (built.error) { alert(built.error); return; }
+    where.list().push({ type: t.id, negate: m.negate, params: built.params }); state.menu = null; renderEditor(); changed();
   } }, "Aggiungi l'indizio");
   host.replaceChildren(el("div", { class: "card" }, el("div", { class: "row" }, typeSel, el("label", {}, negate, " no (il contrario)")),
     el("div", { class: "row" }, ...controls), el("div", { class: "row" }, add, el("button", { onclick: () => { state.menu = null; redraw(); } }, "Annulla"))));

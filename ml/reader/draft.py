@@ -23,10 +23,36 @@ ROOM_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2",
 CHARACTER_COLORS = ["#608aea", "#ea558a", "#158060", "#d98b1f", "#8a5bd0", "#2aa1b8", "#c0504d", "#7a8f2b", "#b5651d", "#4f6d7a", "#9c4f96", "#3b7f3b"]
 
 
-def object_types() -> dict[str, str]:
-    """id → nome italiano dei tipi di oggetto dell'app (letti da src/model/icons.js, così non si disallineano)."""
+def _icon_types() -> list[tuple[str, str, bool]]:
+    """(id, nome italiano, sta sul bordo di una casella?) dei tipi di oggetto dell'app, letti da src/model/icons.js (così non si disallineano)."""
     text = (REPO_ROOT / "src" / "model" / "icons.js").read_text(encoding="utf-8")
-    return {m.group(1): m.group(2) for m in re.finditer(r'^\s{2}(\w+): \{[^\n]*?label: t\("([^"]+)"\)', text, re.M)}
+    found = re.finditer(r'^\s{2}(\w+): \{([^\n]*?label: t\("([^"]+)"\)[^\n]*)', text, re.M)
+    return [(m.group(1), m.group(3), "edge: true" in m.group(2)) for m in found]
+
+
+def object_types() -> dict[str, str]:
+    """id → nome italiano degli oggetti che riempiono una casella (porte e finestre stanno sul bordo: vedi `edge_types`)."""
+    return {type_id: label for type_id, label, edge in _icon_types() if not edge}
+
+
+# Quello che si segna sul bordo di una casella: un pezzo di muro condiviso fra le due caselle (o sul bordo della mappa).
+EDGE_TYPE_IDS = ("door", "window")
+SIDE_STEP = {"N": (-1, 0), "E": (0, 1), "S": (1, 0), "W": (0, -1)}
+SIDE_NAME = {"N": "nord", "E": "est", "S": "sud", "W": "ovest"}
+
+
+def edge_types() -> dict[str, str]:
+    """id → nome italiano di ciò che si segna sul bordo di una casella (porta, finestra)."""
+    return {type_id: label for type_id, label, edge in _icon_types() if edge and type_id in EDGE_TYPE_IDS}
+
+
+def normalize_edge(row: int, col: int, side: str) -> tuple[int, int, str]:
+    """Un solo modo di scrivere ogni segmento, come nell'app (src/model/grid.js): E e S, tranne sul bordo della mappa."""
+    if side == "N" and row > 0:
+        return row - 1, col, "S"
+    if side == "W" and col > 0:
+        return row, col - 1, "E"
+    return row, col, side
 
 
 def drafts_dir() -> Path:
@@ -50,7 +76,7 @@ def save_draft(draft: dict) -> None:
 
 def blank_draft(number: int, title: str = "") -> dict:
     return {
-        "number": number, "title": title, "rows": 0, "cols": 0, "cells": [], "rooms": [], "cards": [],
+        "number": number, "title": title, "rows": 0, "cols": 0, "cells": [], "edges": [], "rooms": [], "cards": [],
         "culprit": "", "placements": [], "unsupported": [], "notes": "", "boxes": {},
     }
 
@@ -205,6 +231,8 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
             if usable and cell.get("object"):
                 if cell["object"] == "?":
                     problems.append(f"oggetto senza tipo in R{r + 1} C{c + 1}")
+                elif cell["object"] in EDGE_TYPE_IDS:
+                    problems.append(f"in R{r + 1} C{c + 1} c'è una porta o finestra scelta come oggetto: si segna sul bordo, con lo strumento dei bordi")
                 else:
                     obj_id = f"obj_{r}_{c}"
                     objects.append({"id": obj_id, "typeId": cell["object"], "row": r, "col": c})
@@ -213,6 +241,36 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
                 {"zoneId": zone_ids[room] if usable and 0 <= room < len(zone_ids) else None, "objectId": obj_id, "blocked": not usable}
             )
         grid_cells.append(line)
+
+    # porte e finestre: pezzi di muro sul bordo di una casella (`edges`: tipo, riga e colonna da 0, lato N/E/S/W)
+    def room_at(r: int, c: int):
+        cell = draft["cells"][r][c]
+        return cell.get("room", 0) if cell["inside"] and not cell["blocked"] else None
+
+    seen: set[tuple[int, int, str]] = set()
+    labels = edge_types()
+    for edge in draft.get("edges") or []:
+        kind, side = edge.get("type"), edge.get("side")
+        r, c = edge.get("row"), edge.get("col")
+        if kind not in EDGE_TYPE_IDS or side not in SIDE_STEP or not isinstance(r, int) or not isinstance(c, int) or not (0 <= r < rows and 0 <= c < cols):
+            problems.append(f"una porta o finestra non è valida: {edge}")
+            continue
+        r, c, side = normalize_edge(r, c, side)
+        dr, dc = SIDE_STEP[side]
+        nr, nc = r + dr, c + dc
+        outside = not (0 <= nr < rows and 0 <= nc < cols)
+        here, there = room_at(r, c), None if outside else room_at(nr, nc)
+        where = f"R{r + 1} C{c + 1}, lato {SIDE_NAME[side]}"
+        name = labels.get(kind, kind).lower()
+        if here is None and there is None:
+            problems.append(f"{name} in {where}: nessuna delle due caselle è libera")
+        elif not outside and here == there:
+            problems.append(f"{name} in {where}: non è su un muro (le due caselle sono nella stessa stanza)")
+        elif (r, c, side) in seen:
+            problems.append(f"due porte o finestre sullo stesso muro in {where}")
+        else:
+            seen.add((r, c, side))
+            objects.append({"id": f"edge_{r}_{c}_{side}", "typeId": kind, "row": r, "col": c, "side": side})
 
     ids = [f"char_{card['letter']}" for card in cards]
     by_name = {n.lower(): ids[i] for i, n in enumerate(names)}

@@ -97,3 +97,62 @@ def test_senza_soluzione_unica_il_solver_non_arbitra(monkeypatch):
     monkeypatch.setattr(D, "validate_case", lambda puzzle, printed=None, **kw: {"unique": False, "solutionCount": 4, "solution": []})
     outcome = D.refine_with_solver(d)
     assert outcome["changed"] == [] and "4 soluzioni" in outcome["notes"][0]
+
+
+def two_rooms_draft():
+    """Come tiny_draft, ma con due stanze (colonna 0 e 1 nella prima, colonna 2 nella seconda): un muro in mezzo, fra le colonne 1 e 2."""
+    d = tiny_draft()
+    for r in range(3):
+        d["cells"][r][2]["room"] = 1
+    d["rooms"] = [{"name": "Sala"}, {"name": "Studio"}]
+    return d
+
+
+def test_porte_e_finestre_si_segnano_sul_bordo_e_diventano_oggetti_con_il_lato():
+    d = two_rooms_draft()
+    d["edges"] = [
+        {"type": "door", "row": 1, "col": 1, "side": "E"},  # il muro fra le due stanze
+        {"type": "window", "row": 0, "col": 0, "side": "N"},  # il bordo della mappa
+        {"type": "window", "row": 2, "col": 2, "side": "S"},
+    ]
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    edges = [o for o in puzzle["grid"]["objects"] if o["typeId"] in ("door", "window")]
+    assert [(o["typeId"], o["row"], o["col"], o["side"]) for o in edges] == [("door", 1, 1, "E"), ("window", 0, 0, "N"), ("window", 2, 2, "S")]
+    # il bordo è scritto come nell'app: il lato W di una casella è il lato E di quella a sinistra
+    d["edges"] = [{"type": "door", "row": 1, "col": 2, "side": "W"}]
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    assert [(o["row"], o["col"], o["side"]) for o in puzzle["grid"]["objects"] if o["typeId"] == "door"] == [(1, 1, "E")]
+
+
+def test_porta_non_su_un_muro_o_doppia_o_senza_caselle_libere_sono_problemi():
+    d = two_rooms_draft()
+    d["edges"] = [{"type": "door", "row": 1, "col": 0, "side": "E"}]  # fra due caselle della stessa stanza
+    assert any("non è su un muro" in p for p in D.assemble(d)[2])
+    d["edges"] = [{"type": "door", "row": 1, "col": 1, "side": "E"}, {"type": "window", "row": 1, "col": 2, "side": "W"}]  # lo stesso muro due volte
+    assert any("stesso muro" in p for p in D.assemble(d)[2])
+    d["edges"] = [{"type": "door", "row": 0, "col": 0, "side": "E"}, {"type": "table", "row": 0, "col": 0, "side": "N"}]
+    assert any("non è valida" in p for p in D.assemble(d)[2])
+    d = two_rooms_draft()
+    d["cells"][0][0]["blocked"] = True
+    d["cells"][0][1]["blocked"] = True
+    d["edges"] = [{"type": "window", "row": 0, "col": 0, "side": "E"}]  # il muro fra due caselle bloccate
+    assert any("nessuna delle due" in p for p in D.assemble(d)[2])
+
+
+def test_porta_e_finestra_non_sono_oggetti_di_casella():
+    assert "door" not in D.object_types() and "window" not in D.object_types()
+    assert D.edge_types() == {"door": "Porta", "window": "Finestra"}
+    d = tiny_draft()
+    d["cells"][1][1]["object"] = "door"  # una bozza vecchia, scelta dall'elenco degli oggetti
+    assert any("bordo" in p for p in D.assemble(d)[2])
+
+
+@needs_node
+def test_la_porta_sul_bordo_passa_il_controllo_di_forma_dell_app():
+    d = two_rooms_draft()
+    d["edges"] = [{"type": "door", "row": 1, "col": 1, "side": "E"}, {"type": "window", "row": 0, "col": 0, "side": "N"}]
+    result = D.check(d)
+    assert result["problems"] == []
+    assert not [p for p in (result["report"] or {}).get("problems", []) if "porta" in p.lower() or "finestra" in p.lower() or "muro" in p.lower()]

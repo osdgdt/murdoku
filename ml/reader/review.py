@@ -151,6 +151,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(
                     {
                         "objectTypes": draft.object_types(),
+                        "edgeTypes": draft.edge_types(),
                         "unsupported": {code: text for code, (text, _) in UNSUPPORTED.items()},
                         "defaultWording": wording,
                         "grammarError": grammar_error,

@@ -266,6 +266,27 @@ export const ENTRIES = [
     },
   },
   {
+    id: "onlyOneWithProperty",
+    type: "onlyOneWithProperty",
+    family: "near",
+    owner: "a",
+    params: { property: "sittingOn", objectTypeId: "chair" },
+    explain: () =>
+      t(
+        "Il personaggio ha una certa caratteristica (è seduto su una sedia, è un uomo, è accanto a un oggetto…) e nessun altro, in tutta la mappa, ce l'ha. Se anche una sola altra persona è su una sedia, l'indizio è falso."
+      ),
+    tip: () =>
+      t("Con «no» diventa «non è l'unica persona…»: o il personaggio non ha quella caratteristica, o ce l'ha anche qualcun altro."),
+    world: {
+      map: OPEN,
+      objects: [
+        { type: "chair", at: [1, 1] },
+        { type: "chair", at: [3, 3] },
+      ],
+      cast: { b: { at: [2, 2] }, c: { at: [0, 3] } },
+    },
+  },
+  {
     id: "seated",
     type: "seated",
     family: "near",

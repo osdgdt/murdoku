@@ -211,3 +211,37 @@ def test_il_catalogo_dei_tipi_viene_dall_app():
     direction = next(p for p in types["directionDistance"]["params"] if p["name"] == "direction")
     assert {v["value"] for v in direction["values"]} == {"north", "south", "east", "west"}
     assert "hasRole" not in types and "orClue" not in types  # quelli che non si fanno col menu semplice
+
+
+def test_indizio_generale_col_menu_non_ha_personaggio_e_si_risolve():
+    d = tiny_draft()
+    d["general"] = [
+        {"type": "noOneInRoom", "negate": False, "params": {"zoneId": {"room": "Sala"}}},
+        {"type": "noOneNear", "negate": True, "params": {"targetId": {"object": "chair"}}},
+        {"type": "noOneWithProperty", "negate": False, "params": {"property": "sittingOn", "objectTypeId": "chair", "onlyGender": "female"}},
+    ]
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    generic = [c for c in puzzle["clues"] if c["characterId"] is None]
+    assert [c["type"] for c in generic] == ["noOneInRoom", "noOneNear", "noOneWithProperty"]
+    assert generic[0]["params"] == {"zoneId": "zone_0"}
+    assert generic[1]["params"] == {"targetId": "objtype:chair"} and generic[1]["negate"] is True
+    assert generic[2]["params"]["onlyGender"] == "female"
+
+
+def test_indizio_generale_con_bersaglio_sconosciuto_e_un_problema():
+    d = tiny_draft()
+    d["general"] = [{"type": "noOneNear", "negate": False, "params": {"targetId": {"name": "Zeno"}}}]
+    assert any("indizio generale" in p and "Zeno" in p for p in D.assemble(d)[2])
+
+
+@needs_node
+def test_il_catalogo_ha_i_tipi_generali_e_le_proprieta_senza_la_condizione_annidata():
+    types = {t["id"]: t for t in D.clue_catalog()}
+    assert types["noOneInRoom"]["scope"] == "generic" and types["adjacent"]["scope"] == "character"
+    prop = types["noOneWithProperty"]
+    names = {p["name"]: p for p in prop["params"]}
+    assert "customClue" not in names and "custom" not in {v["value"] for v in names["property"]["values"]}
+    assert names["targetId"]["showIf"] == {"property": "adjacentTo"} and names["objectTypeId"]["showIf"] == {"property": "sittingOn"}
+    assert names["zoneId"]["optional"] is True and names["onlyGender"]["optional"] is True
+    assert "" not in {v["value"] for v in names["onlyGender"]["values"]}

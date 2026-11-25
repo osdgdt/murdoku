@@ -1,5 +1,5 @@
 import { t } from "../../i18n/i18n.js";
-import { targetLabel, propertyClause, propertyParams } from "./shared.js";
+import { targetLabel, propertyClause, propertyParams, objectTypePhrase, describeNestedClue } from "./shared.js";
 
 export const ROOMS_CLUES = {
   inRoom: {
@@ -54,6 +54,31 @@ export const ROOMS_CLUES = {
     label: t("È nella stanza solo con qualcuno che è..."),
     params: propertyParams,
     describe: (params, puzzle) => t("È nella stanza solo con qualcuno{v}.", { v: propertyClause(params, puzzle, "che è") }),
+  },
+  // «È l'unica persona seduta su una sedia»: the owner has the property and nobody else on the whole map does.
+  onlyOneWithProperty: {
+    label: t("È l'unica persona che..."),
+    params: propertyParams,
+    describe: (params, puzzle) => {
+      switch (params.property) {
+        case "male":
+          return t("È l'unico uomo.");
+        case "female":
+          return t("È l'unica donna.");
+        case "seated":
+          return t("È l'unica persona seduta.");
+        case "sittingOn":
+          return t("È l'unica persona seduta su {object}.", { object: objectTypePhrase(params.objectTypeId) });
+        case "adjacentTo":
+          return t("È l'unica persona accanto a {target}.", { target: targetLabel(puzzle, params.targetId) });
+        case "custom": {
+          const nested = describeNestedClue(params.customClue, puzzle);
+          return nested ? t("È l'unica persona per cui vale: {condition}.", { condition: nested }) : t("È l'unica persona che ?.");
+        }
+        default:
+          return t("È l'unica persona che ?.");
+      }
+    },
   },
   aloneInRoom: {
     label: t("È l'unica persona nella stanza"),

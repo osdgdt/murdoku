@@ -328,9 +328,10 @@ function renderCards(ed) {
         ? "Le lettere vengono dall'ordine alfabetico dei nomi letti."
         : "Attenzione: i nomi non sono stati letti tutti, le lettere (A, B, C…) sono quelle dell'ordine di lettura e possono essere sbagliate. Controlla i nomi sulla foto, correggili e premi «Ordina le lettere per nome»."),
       list, el("button", { onclick: () => { d.cards.push({ letter: "?", name: "", sentence: "", victim: false }); relabel(); renderEditor(); changed(); } }, "+ aggiungi una scheda (persa dalla lettura)"),
-      el("button", { onclick: sortByName, title: "Ordina le schede e assegna A, B, C… dall'ordine alfabetico dei nomi (la vittima è V)" }, "Ordina le lettere per nome")));
+      el("button", { onclick: sortByName, title: "Ordina le schede e assegna A, B, C… dall'ordine alfabetico dei nomi (la vittima è V)" }, "Ordina le lettere per nome")), generalList());
   renderResults();
   d.cards.forEach(renderClueMenu);
+  renderGeneralMenu();
 }
 function wordingBox() {
   if (meta.grammarError) return el("p", { class: "msg warn" }, "Errore nella tua grammatica personale: " + meta.grammarError);
@@ -383,20 +384,34 @@ function manualText(e) {
   }).filter(Boolean);
   return (e.negate ? "NON — " : "") + t.label + (bits.length ? ": " + bits.join(", ") : "");
 }
-function renderClueMenu(c) {
-  const host = $("#menu" + c.letter); if (!host) return;
-  const m = state.menu; const open = m && m.letter === c.letter;
-  if (!meta.clueTypes || !meta.clueTypes.length) { host.replaceChildren(el("p", { class: "msg" }, "Il menu degli indizi non c'è" + (meta.clueTypesError ? ": " + meta.clueTypesError : "") + ".")); return; }
-  if (!open) { host.replaceChildren(el("button", { title: "Quando la frase non si capisce: scegli l'indizio da un menu, come nell'editor", onclick: () => { state.menu = { letter: c.letter, type: "", negate: false, fields: {} }; renderClueMenu(c); } }, "+ indizio con il menu")); return; }
-  const typeSel = el("select", { onchange: e => { m.type = e.target.value; m.fields = {}; renderClueMenu(c); } },
-    el("option", { value: "" }, "— che cosa dice l'indizio —"), ...meta.clueTypes.map(t => el("option", { value: t.id }, t.label)));
+// Il menu di un indizio. `where`: dove si apre ({ id, self, scope, list }): una scheda (indizi del personaggio, `self` = la scheda) o la scena
+// (indizi generali, `self` = null). `list()` dà l'elenco in cui l'indizio composto va a finire (`extra` della scheda, `general` della bozza).
+function renderClueMenu(c) { buildMenu($("#menu" + c.letter), { id: c.letter, self: c, scope: "character", list: () => (c.extra = c.extra || []) }); }
+function renderGeneralMenu() { const d = state.draft; buildMenu($("#menuGeneral"), { id: "general", self: null, scope: "generic", list: () => (d.general = d.general || []) }); }
+function buildMenu(host, where) {
+  if (!host) return;
+  const m = state.menu; const open = m && m.id === where.id;
+  const catalog = (meta.clueTypes || []).filter(t => (t.scope || "character") === where.scope);
+  if (!catalog.length) { host.replaceChildren(el("p", { class: "msg" }, "Il menu degli indizi non c'è" + (meta.clueTypesError ? ": " + meta.clueTypesError : "") + ".")); return; }
+  const redraw = () => buildMenu(host, where);
+  if (!open) {
+    const label = where.scope === "generic" ? "+ indizio generale con il menu" : "+ indizio con il menu";
+    const title = where.scope === "generic" ? "Un fatto sulla scena che non è di una persona sola («nessuno è nella Cucina», «esattamente due persone accanto a un tavolo»…)" : "Quando la frase non si capisce: scegli l'indizio da un menu, come nell'editor";
+    host.replaceChildren(el("button", { title, onclick: () => { state.menu = { id: where.id, type: "", negate: false, fields: {} }; redraw(); } }, label)); return;
+  }
+  const typeSel = el("select", { onchange: e => { m.type = e.target.value; m.fields = {}; redraw(); } },
+    el("option", { value: "" }, "— che cosa dice l'indizio —"), ...catalog.map(t => el("option", { value: t.id }, t.label)));
   typeSel.value = m.type;
   const t = typeOf(m.type); const controls = [];
-  if (t) for (const p of t.params) {
+  // un parametro che dipende da un altro («accanto a…» ha il bersaglio, «seduto su…» il tipo di oggetto) compare solo quando serve
+  const visible = p => !p.showIf || Object.entries(p.showIf).every(([k, v]) => m.fields[k] === v);
+  if (t) for (const p of t.params.filter(visible)) {
     let input;
-    if (p.kind === "enum") input = el("select", { onchange: e => { m.fields[p.name] = e.target.value; } }, el("option", { value: "" }, "—"), ...p.values.map(v => el("option", { value: String(v.value) }, v.label)));
+    const onPick = e => { m.fields[p.name] = e.target.value; if (t.params.some(q => q.showIf && p.name in q.showIf)) redraw(); };
+    const blank = el("option", { value: "" }, p.optional ? "(qualsiasi)" : "—");
+    if (p.kind === "enum") input = el("select", { onchange: onPick }, blank, ...p.values.map(v => el("option", { value: String(v.value) }, v.label)));
     else if (p.kind === "number") input = el("input", { type: "number", min: p.min == null ? "" : String(p.min), class: "small", oninput: e => { m.fields[p.name] = e.target.value; } });
-    else { input = el("select", { onchange: e => { m.fields[p.name] = e.target.value; } }, el("option", { value: "" }, "—"), ...targetOptions(p.kind, c)); }
+    else input = el("select", { onchange: onPick }, blank, ...targetOptions(p.kind, where.self));
     input.value = m.fields[p.name] || "";
     controls.push(el("label", { class: "msg" }, p.label + " ", input));
   }
@@ -404,15 +419,23 @@ function renderClueMenu(c) {
   const add = el("button", { class: "primary", onclick: () => {
     if (!t) return;
     const params = {};
-    for (const p of t.params) {
+    for (const p of t.params.filter(visible)) {
       const raw = m.fields[p.name];
-      if (raw == null || raw === "") { if (p.kind === "number" && p.name === "distance") continue; alert("Manca: " + p.label); return; }
+      if (raw == null || raw === "") { if (p.optional) continue; alert("Manca: " + p.label); return; }
       params[p.name] = p.kind === "number" ? parseInt(raw, 10) : p.kind === "enum" ? (p.values.find(v => String(v.value) === raw) || {}).value : targetValue(raw);
     }
-    (c.extra = c.extra || []).push({ type: t.id, negate: m.negate, params }); state.menu = null; renderEditor(); changed();
+    where.list().push({ type: t.id, negate: m.negate, params }); state.menu = null; renderEditor(); changed();
   } }, "Aggiungi l'indizio");
   host.replaceChildren(el("div", { class: "card" }, el("div", { class: "row" }, typeSel, el("label", {}, negate, " no (il contrario)")),
-    el("div", { class: "row" }, ...controls), el("div", { class: "row" }, add, el("button", { onclick: () => { state.menu = null; renderClueMenu(c); } }, "Annulla"))));
+    el("div", { class: "row" }, ...controls), el("div", { class: "row" }, add, el("button", { onclick: () => { state.menu = null; redraw(); } }, "Annulla"))));
+}
+// Gli indizi generali già composti, con la X per toglierli.
+function generalList() {
+  const d = state.draft; const rows = (d.general || []).map((e, k) => el("div", { class: "result" }, el("span", { class: "clue" }, "✓ " + manualText(e) + " "),
+    el("button", { title: "toglie questo indizio", onclick: () => { d.general.splice(k, 1); renderEditor(); changed(); } }, "✕")));
+  return el("section", {}, el("h2", {}, "Indizi generali"),
+    el("p", { class: "msg" }, "Fatti sulla scena che non sono di una persona sola (di solito stanno sulla pagina dei personaggi o in fondo): «nessuno è nella stanza X», «esattamente due persone sono accanto a un tavolo»…"),
+    ...rows, el("div", { id: "menuGeneral" }));
 }
 function renderResults() {
   const a = state.analysis; if (!a || state.tab !== "cards") return;

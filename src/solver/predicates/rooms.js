@@ -8,6 +8,7 @@ import {
   zonesAreAdjacent,
   isRoomCorner,
   characterHasProperty,
+  personHasProperty,
   createWitnessCheck,
 } from "./helpers.js";
 
@@ -107,14 +108,10 @@ export const builders = {
   onlyOneWithProperty: ({ clue, puzzle, ownerId, params }) => {
     // The owner has the property and no other character does, anywhere on the map. A gender is fixed on the character, so it
     // settles the verdict without waiting for any position; any other property needs the person to be placed.
-    const hasIt = (pm, c, isComplete) =>
-      params.property === "male" || params.property === "female"
-        ? c.gender === params.property
-        : characterHasProperty(puzzle, pm, c.id, params, isComplete);
     return (pm, isComplete) => {
       let undetermined = false;
       for (const c of puzzle.characters) {
-        const has = hasIt(pm, c, isComplete);
+        const has = personHasProperty(puzzle, pm, c, params, isComplete);
         if (c.id === ownerId) {
           if (has === false) return false;
         } else if (has === true) {

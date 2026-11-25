@@ -217,6 +217,13 @@ export function characterHasProperty(puzzle, pm, characterId, params, isComplete
   }
 }
 
+// Like characterHasProperty for a CHARACTER RECORD, but a gender is settled at once (it is fixed on the record), without waiting
+// for the person to be placed: lets the clues that count or compare people judge before the board is full.
+export function personHasProperty(puzzle, pm, character, params, isComplete) {
+  if (params.property === "male" || params.property === "female") return character.gender === params.property;
+  return characterHasProperty(puzzle, pm, character.id, params, isComplete);
+}
+
 // True if `a` is strictly more extreme than `b` in the given compass direction.
 export function isMoreExtreme(direction, a, b) {
   switch (direction) {

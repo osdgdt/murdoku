@@ -22,6 +22,7 @@ export const NEWER_TYPE_IDS = new Set([
   "onSeal",
   "nextToWall",
   "onlyOneWithProperty",
+  "exactlyNWithProperty",
   "hasRole",
   "roleDirection",
   "roleAllInRoom",

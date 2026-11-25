@@ -35,7 +35,7 @@ import { isOccupiable } from "../../model/grid.js";
 import { TECHNIQUES, LEVELS, levelIndex, levelOfTechnique, techniquesUpTo } from "./catalog.js";
 
 const ROOM_COUNT_TYPES = new Set(["noOneInRoom", "noOneInRowOrCol", "exactlyOneInRoom", "noOneNear", "exactlyOneNear", "peopleNear"]);
-const GLOBAL_COUNT_TYPES = new Set(["roomsWithStateCount", "emptyRoomsSameSize", "noOneWithProperty"]);
+const GLOBAL_COUNT_TYPES = new Set(["roomsWithStateCount", "emptyRoomsSameSize", "noOneWithProperty", "exactlyNWithProperty"]);
 
 // Combinations of cells of the OTHER open characters tried when a clue ties several characters together.
 const SUPPORT_MAX_COMBINATIONS = 2500;

@@ -1,7 +1,12 @@
+import { customClueText } from "./clueText.js";
 import { PLACEMENT_CLUES } from "./clues/placement.js";
 import { ROOMS_CLUES } from "./clues/rooms.js";
 import { SCENE_CLUES } from "./clues/scene.js";
 import { LOGIC_CLUES } from "./clues/logic.js";
+import { ROLES_CLUES } from "./clues/roles.js";
+import { TERRAIN_CLUES } from "./clues/terrain.js";
+import { PLACE_NAME_CLUES } from "./clues/placeNames.js";
+import { FLOOR_CLUES } from "./clues/floors.js";
 import { t, getLanguage, withTense, getTense } from "../i18n/i18n.js";
 
 // Each clue type declares its label, the shape of its params (for the builder UI),
@@ -24,7 +29,16 @@ import { t, getLanguage, withTense, getTense } from "../i18n/i18n.js";
 // Sentences are always written in the PRESENT here; describeClue() puts them in
 // the tense the puzzle asks for (`puzzle.tense`, see i18n/tense.js).
 
-export const CLUE_TYPES = { ...PLACEMENT_CLUES, ...ROOMS_CLUES, ...SCENE_CLUES, ...LOGIC_CLUES };
+export const CLUE_TYPES = {
+  ...PLACEMENT_CLUES,
+  ...ROOMS_CLUES,
+  ...SCENE_CLUES,
+  ...LOGIC_CLUES,
+  ...ROLES_CLUES,
+  ...TERRAIN_CLUES,
+  ...PLACE_NAME_CLUES,
+  ...FLOOR_CLUES,
+};
 
 export function characterClueTypeIds() {
   return Object.keys(CLUE_TYPES).filter((id) => CLUE_TYPES[id].scope !== "generic" && !CLUE_TYPES[id].internal);
@@ -79,7 +93,12 @@ function negateEnglish(text) {
 
 // The sentence for a clue, in the tense of the puzzle (present when it has no
 // preference). Passing no puzzle gives the present.
-export function describeClue(clue, puzzle) {
+// A clue may carry its own words (`clue.text`, chosen by the author): they replace the automatic sentence everywhere the clue is
+// shown (editor, game, print). They are shown as written: no tense change, no translation, no negation prefix (the author wrote the
+// whole sentence). `{ auto: true }` asks for the automatic sentence anyway (what the editor shows as the suggestion).
+export function describeClue(clue, puzzle, { auto = false } = {}) {
+  const custom = auto ? "" : customClueText(clue);
+  if (custom) return custom;
   const def = CLUE_TYPES[clue.type];
   if (!def) return t("Indizio sconosciuto.");
   return withTense(puzzle?.tense, () => {

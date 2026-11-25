@@ -19,6 +19,7 @@ import { duplicateCase } from "../community/remix.js";
 import { exportPuzzle, importPuzzleFromFile } from "../storage/importExport.js";
 import { encodePuzzleToFragment, isShareLinkSupported } from "../storage/shareLink.js";
 import { validateSolution } from "../solver/validator.js";
+import { hasRoles, setSolutionRole } from "../model/roles.js";
 import { checkUniquenessAsync, deriveSolutionAsync, cancelSolver, laneCountFor } from "../solver/solverClient.js";
 import { startProgress } from "../util/progressBanner.js";
 import { limitsFor, searchBudget } from "../solver/limits.js";
@@ -672,6 +673,8 @@ calcSolutionBtn.addEventListener("click", async () => {
       for (const character of puzzle.characters) {
         const p = result.placements.find((pl) => pl.characterId === character.id);
         setSolutionPlacement(puzzle, character.id, p ? p.row : null, p ? p.col : null);
+        // the roles that go with those places (one assignment that makes the clues true: see solver/roles.js)
+        if (hasRoles(puzzle) && p && p.role !== undefined) setSolutionRole(puzzle, character.id, p.role);
       }
       handleChange(); // one combined undo step for the whole auto-fill
       validationPanel.appendChild(

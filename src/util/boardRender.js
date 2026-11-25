@@ -1,8 +1,13 @@
 import { el, clear } from "./dom.js";
 import { objectIcon, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { floorStyle } from "../model/textures.js";
-import { wallBetween as modelWallBetween, edgeCells } from "../model/grid.js";
+import { wallBetween as modelWallBetween, edgeCells, sealOf } from "../model/grid.js";
 import { roomColor } from "../skin/paper/rooms.js";
+import { sealIcon, sealLabel } from "../skin/paper/seals.js";
+import { zoneTitle } from "../model/terrain.js";
+import { zoneDisplayName } from "../model/placeNames.js";
+import { hasSectors, sectorAxis, sectorIndexAlong, isFloorPadding, localRow } from "../model/sectors.js";
+import { wayIdOf, wayNumbers } from "../model/floors.js";
 import { t } from "../i18n/i18n.js";
 import { setGestureCallbacks, isPressActive, startPress, enterCell, beginTouchPress } from "./boardGestures.js";
 
@@ -211,6 +216,7 @@ export function renderBoard(
     onLabelTap,
     onLabelHold,
     showLabels = true,
+    roles = null, // puzzle.roles: the names of the roles, for the cells reserved to one (see model/roles.js)
   } = {}
 ) {
   // The board is rebuilt from scratch on every change: remember where the keyboard focus (and the
@@ -247,12 +253,22 @@ export function renderBoard(
   const gutter = showLabels ? "max-content " : "";
   // Cell size lives in a CSS variable (default CELL_SIZE) so the stylesheet can
   // shrink the whole board to fit a phone viewport (see `.board-grid` in editor.css).
-  container.style.setProperty("--cols", String(grid.size.cols));
-  container.style.setProperty("--rows", String(grid.size.rows));
-  container.style.gridTemplateColumns = `${gutter}repeat(${grid.size.cols}, var(--cell-size, ${CELL_SIZE}px))`;
-  container.style.gridTemplateRows = `${gutter}repeat(${grid.size.rows}, var(--cell-size, ${CELL_SIZE}px))`;
+  // Several maps in one (the train: wagons side by side; the skyscraper: floors one above the other). Each is its own block of
+  // columns (or rows), with its own labels for the lines that repeat (and a gap where there are no labels).
+  const parts = hasSectors(grid) ? grid.sectors : null;
+  const stacked = !!parts && sectorAxis(grid) === "row";
+  const beside = !!parts && !stacked;
+  const partStartingAt = (index) => (parts ? parts.findIndex((s) => s.first === index) : -1); // k of the map that starts at this line (0 included)
+  container.style.setProperty("--cols", String(grid.size.cols + (beside ? parts.length - 1 : 0)));
+  container.style.setProperty("--rows", String(grid.size.rows + (stacked ? parts.length - 1 : 0)));
+  const block = (size) => `repeat(${size}, var(--cell-size, ${CELL_SIZE}px))`;
+  const between = showLabels ? "max-content " : "10px ";
+  const tracks = (head) => parts.map((s, k) => `${k === 0 ? head : between}${block(s.last - s.first + 1)}`).join(" ");
+  container.style.gridTemplateColumns = beside ? tracks(gutter) : `${gutter}${block(grid.size.cols)}`;
+  container.style.gridTemplateRows = stacked ? tracks(gutter) : `${gutter}${block(grid.size.rows)}`;
 
   const zoneById = new Map(grid.zones.map((z) => [z.id, z]));
+  const wayNumber = wayNumbers(grid);
   // Doors/windows are pieces of a WALL, shared by the two cells they lie
   // between (see model/grid.js): each is drawn once, by the cell it is stored
   // under, centred on the line between the two cells. Both cells learn which of
@@ -410,29 +426,57 @@ export function renderBoard(
     return node;
   }
 
-  if (showLabels) {
+  // The column labels: one header, and one more over every floor of a skyscraper (their index is the column key, floor * 64 + column).
+  function addHeader(k) {
     const headerRow = makeRow();
-    headerRow.appendChild(el("div", { class: "board-label board-label-corner", "aria-hidden": "true" }));
+    // over every floor of a skyscraper its name (the corner of the labels is the only free place)
+    const cornerText = stacked ? parts[k].name : "";
+    headerRow.appendChild(
+      el(
+        "div",
+        { class: `board-label board-label-corner${stacked ? " floor-name" : ""}`, "aria-hidden": "true", title: cornerText },
+        cornerText
+      )
+    );
     for (let c = 0; c < grid.size.cols; c++) {
-      headerRow.appendChild(makeLabel("col", c, `C${c + 1}`));
+      if (beside && partStartingAt(c) > 0)
+        headerRow.appendChild(el("div", { class: "board-label board-label-corner wagon-gap", "aria-hidden": "true" }));
+      const label = makeLabel("col", stacked ? k * 64 + c : c, `C${c + 1}`);
+      if (parts) label.title = parts[stacked ? k : sectorIndexAlong(grid, c)].name;
+      headerRow.appendChild(label);
     }
     container.appendChild(headerRow);
   }
+  if (showLabels) addHeader(0);
 
   for (let r = 0; r < grid.size.rows; r++) {
+    if (stacked && partStartingAt(r) > 0) {
+      if (showLabels) addHeader(partStartingAt(r));
+      else container.appendChild(el("div", { class: "wagon-gap wagon-gap-row", "aria-hidden": "true" }));
+    }
     const rowNode = makeRow();
     container.appendChild(rowNode);
-    let rowLabelNode = null;
+    const rowLabelNodes = []; // one per wagon (just one without wagons)
     if (showLabels) {
-      rowLabelNode = makeLabel("row", r, `R${r + 1}`);
-      rowNode.appendChild(rowLabelNode);
+      rowLabelNodes[0] = makeLabel("row", r, `R${localRow(grid, r) + 1}`); // (each floor numbers its own rows)
+      rowNode.appendChild(rowLabelNodes[0]);
     }
     for (let c = 0; c < grid.size.cols; c++) {
+      const startsWagon = beside ? partStartingAt(c) : -1;
+      if (startsWagon > 0) {
+        // the wagon's own row label: its index is the row key (wagon * 64 + row), see model/sectors.js
+        if (showLabels) {
+          rowLabelNodes[startsWagon] = makeLabel("row", startsWagon * 64 + r, `R${r + 1}`);
+          rowNode.appendChild(rowLabelNodes[startsWagon]);
+        } else rowNode.appendChild(el("div", { class: "wagon-gap", "aria-hidden": "true" }));
+      }
+      const rowLabelNode = rowLabelNodes[beside ? sectorIndexAlong(grid, c) : 0] ?? null;
       const cellData = grid.cells[r][c];
       const zone = !cellData.blocked && cellData.zoneId ? zoneById.get(cellData.zoneId) : null;
 
       let classes = "board-cell";
       if (cellData.blocked) classes += " blocked";
+      if (stacked && isFloorPadding(grid, r, c)) classes += " floor-void"; // beyond the width of a narrower floor: not a cell at all
       if (zone) classes += (floorOf(zone).own ? " zoned floored " : " zoned ") + floorOf(zone).cls;
       if (roomName.has(`${r},${c}`)) classes += " has-room-name";
       for (const side of edgeSidesByCell.get(`${r},${c}`) || []) classes += ` has-edge-${side}`;
@@ -449,7 +493,10 @@ export function renderBoard(
       // this first accessibility pass to be useful.
       let cellLabel = t("Riga {v}, colonna {v2}", { v: r + 1, v2: c + 1 });
       if (cellData.blocked) cellLabel += t(", bloccata");
-      else if (zone) cellLabel += t(", stanza {name}", { name: zone.name });
+      const reservedFor = typeof cellData.roleCell === "string" ? (roles?.defs || []).find((d) => d.id === cellData.roleCell) : null;
+      if (reservedFor) cellLabel += t(", riservata a chi è {role}", { role: reservedFor.name });
+      if (sealOf(grid, r, c)) cellLabel += `, ${sealLabel(cellData.seal)}`;
+      else if (zone) cellLabel += t(", stanza {name}", { name: zoneDisplayName(zone) });
 
       const cellNode = el("div", {
         class: classes,
@@ -533,7 +580,7 @@ export function renderBoard(
         stack.appendChild(
           el("span", { class: "room-label" }, [
             el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),
-            el("span", { class: "room-label-text" }, zone.name),
+            el("span", { class: "room-label-text" }, zoneDisplayName(zone)),
           ])
         );
       }
@@ -545,11 +592,39 @@ export function renderBoard(
           const iconWrap = el("span", { class: "obj-icon" });
           iconWrap.innerHTML = def.icon;
           cellNode.appendChild(iconWrap);
+          // the lift and the stairs: the number of the way, the same on every end of it
+          const way = wayIdOf(obj);
+          if (way) {
+            cellNode.appendChild(el("span", { class: "way-num", "aria-hidden": "true" }, String(wayNumber.get(way))));
+          }
         }
       }
 
+      if (sealOf(grid, r, c)) {
+        const mark = el("span", { class: `seal-mark seal-${cellData.seal}`, title: sealLabel(cellData.seal), "aria-hidden": "true" });
+        mark.innerHTML = sealIcon(cellData.seal);
+        cellNode.appendChild(mark);
+      }
+
+      if (typeof cellData.roleCell === "string") {
+        const mark = el(
+          "span",
+          {
+            class: "role-cell-mark",
+            title: reservedFor ? t("Riservata a: {role}", { role: reservedFor.name }) : t("Casella riservata"),
+            "aria-hidden": "true",
+          },
+          reservedFor ? [...reservedFor.name][0].toUpperCase() : "◆"
+        );
+        cellNode.appendChild(mark);
+      }
+
       const nameZone = roomName.get(`${r},${c}`);
-      if (nameZone) cellNode.appendChild(el("span", { class: "room-name", title: nameZone.name, "aria-hidden": "true" }, nameZone.name));
+      if (nameZone) {
+        // a noble area wears a crown
+        const shown = zoneTitle(nameZone);
+        cellNode.appendChild(el("span", { class: "room-name", title: shown, "aria-hidden": "true" }, shown));
+      }
 
       for (const { obj: edge, side } of edgesByCell.get(`${r},${c}`) || []) {
         const def = objectIcon(edge.typeId);
@@ -588,7 +663,7 @@ export function renderBoard(
         legendZones.map((zone) =>
           el("span", { class: "room-legend-item" }, [
             el("span", { class: "room-label-swatch", style: `background:${roomColor(zone.color)}` }),
-            el("span", {}, zone.name),
+            el("span", {}, zoneDisplayName(zone)),
           ])
         )
       )

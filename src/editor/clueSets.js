@@ -9,6 +9,7 @@
 // Pure (no page): `exportClueSet`, `parseClueSet`, `planImport`, `applyImport`.
 import { CLUE_TYPES } from "../model/clueTypes.js"; // first: clues/shared.js and clueTypes.js import each other
 import { addClue } from "../model/puzzle.js";
+import { customClueText } from "../model/clueText.js";
 import { mapClueRefs } from "../model/clueRefs.js";
 import { isObjectTypeTarget } from "../model/icons.js";
 import { missingParams } from "./clueDraft.js";
@@ -71,6 +72,7 @@ export function exportClueSet(puzzle, clueIds = null) {
     type: clue.type,
     params: JSON.parse(JSON.stringify(mapClueRefs(clue.params, token))),
     ...(clue.negate ? { negate: true } : {}),
+    ...(customClueText(clue) ? { text: customClueText(clue) } : {}),
   }));
   return {
     format: CLUE_SET_FORMAT,
@@ -192,6 +194,7 @@ export function applyImport(puzzle, set, mapping) {
     existing.add(key);
     const clue = addClue(puzzle, ownerId, raw.type, resolved);
     if (raw.negate) clue.negate = true;
+    if (customClueText(raw)) clue.text = customClueText(raw);
     added.push(clue);
   });
   return { added, skipped };

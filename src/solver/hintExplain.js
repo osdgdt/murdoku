@@ -1,4 +1,6 @@
 import { solvePuzzle } from "./solver.js";
+import { hasSeals } from "../model/grid.js";
+import { localRow } from "../model/sectors.js";
 import { describeClue } from "../model/clueTypes.js";
 import { INVOLVED_CLUE_TEST_MAX_NODES, INVOLVED_CLUE_TEST_MAX_SOLUTIONS } from "./hintBudget.js";
 import { buildForcedMessage, buildEliminatedMessage } from "./hintMessages.js";
@@ -15,6 +17,10 @@ export function resolveWitnessClues(puzzle, ids) {
     if (id === null) {
       const baseRuleClue = { id: null, type: "victimRoomRule", characterId: null, params: {}, negate: false };
       out.push({ id: null, description: describeClue(baseRuleClue, puzzle), isBaseRule: true, ownerName: null });
+      if (hasSeals(puzzle.grid)) {
+        const sealClue = { id: null, type: "sealRule", characterId: null, params: {}, negate: false };
+        out.push({ id: null, description: describeClue(sealClue, puzzle), isBaseRule: true, ownerName: null });
+      }
       continue;
     }
     const clue = puzzle.clues.find((c) => c.id === id);
@@ -37,7 +43,7 @@ export function resolveWitnessGroups(puzzle, groups) {
     // Matches the R${r+1}/C${c+1} labeling convention already used elsewhere
     // (boardRender.js's row/col header labels, clueBuilder.js's object
     // instance labels) — the board itself always shows these headers.
-    cellLabels: g.cells.map(({ row, col }) => `R${row + 1}/C${col + 1}`),
+    cellLabels: g.cells.map(({ row, col }) => `R${localRow(puzzle.grid, row) + 1}/C${col + 1}`),
   }));
 }
 

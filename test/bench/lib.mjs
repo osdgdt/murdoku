@@ -6,7 +6,7 @@ import { resizeGrid, addZone, paintCellZone, placeObject } from "../../src/model
 import { validateSolution } from "../../src/solver/validator.js";
 import { suggestClues } from "../../src/solver/suggestions.js";
 import { solvePuzzle, WORK_NODE_WEIGHT } from "../../src/solver/solver.js";
-import { rng } from "../helpers/random-puzzle.js";
+import { rng, isNewerClue } from "../helpers/random-puzzle.js";
 
 const OBJECT_TYPES = ["chair", "plant", "table", "lamp", "rug", "shelf"];
 
@@ -74,7 +74,7 @@ export function benchCase(n, seed, { perSuspect = 4 } = {}) {
   const clues = [];
   for (const suspect of puzzle.characters.filter((c) => !c.isVictim)) {
     const { clues: own } = suggestClues(puzzle, solution, { ownerId: suspect.id, limit: 20000, maxEvaluations: 400000 });
-    const mine = own.filter((c) => c.characterId === suspect.id);
+    const mine = own.filter((c) => c.characterId === suspect.id && !isNewerClue(c)); // see NEWER_TYPE_IDS
     for (let k = 0; k < perSuspect && mine.length; k++) clues.push(mine[Math.floor(random() * mine.length)]);
   }
   puzzle.clues = clues.map((c, i) => ({ id: `c${i}`, ...c }));

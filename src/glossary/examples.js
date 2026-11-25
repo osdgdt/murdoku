@@ -8,12 +8,17 @@
 // This module is pure (no DOM): glossaryPage.js draws it, test-glossary.js
 // checks it.
 import { t } from "../i18n/i18n.js";
-import { createGrid, placeObject, addZone, paintCellZone, isOccupiable } from "../model/grid.js";
+import { createGrid, placeObject, addZone, paintCellZone, isOccupiable, setSeal } from "../model/grid.js";
 import { createPuzzle, addCharacter } from "../model/puzzle.js";
 import { describeClue } from "../model/clueTypes.js";
 import { buildPredicate } from "../solver/predicates/index.js";
 import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { objectTypeTargetId } from "../model/icons.js";
+import { addRole, setZoneNoble, setEveryoneHasRole, setRoleCount } from "../model/roles.js";
+import { withDeclared } from "../model/declared.js";
+import { setZoneNameHidden } from "../model/placeNames.js";
+import { setZoneTerrain } from "../model/terrain.js";
+import { setSectors, lineTracker } from "../model/sectors.js";
 
 // --- the little worlds ---------------------------------------------------------
 
@@ -22,6 +27,13 @@ const OPEN = [".....", ".....", ".....", ".....", "....."];
 const TWO_ROOMS = ["AAABB", "AAABB", "AAABB", "AAABB", "AAABB"];
 const FOUR_ROOMS = ["AAABB", "AAABB", "CCCDD", "CCCDD", "CCCDD"];
 export const ROOM_NAMES = () => ({ A: t("Cucina"), B: t("Salotto"), C: t("Studio"), D: t("Bagno") });
+// A skyscraper of three floors of two rows each (the highest first); the map is the 6 rows of the three floors one under the other.
+const THREE_FLOORS = ["...", "...", "...", "...", "...", "..."];
+const FLOOR_NAMES = () => [t("Attico"), t("Primo piano"), t("Terra")];
+// The map of the sea clues: the Water, a ship, a beach and another ship.
+const SEA_NAMES = () => ({ A: t("Acqua"), B: t("Sloop"), C: t("Spiaggia"), D: t("Galeone") });
+// Four islands whose names are to be deduced (they show as «???» on the board).
+const ISLAND_NAMES = () => ({ A: t("Cocco"), B: t("Deserta"), C: t("Pietà"), D: t("Sussurri") });
 
 // The stock cast: Anna is the one the clue is about ("owner"); the others are
 // there to make the board look like a real case.
@@ -54,6 +66,21 @@ export const FAMILIES = [
     id: "scene",
     title: () => t("Fatti sulla scena"),
     blurb: () => t("Indizi generali: non riguardano un personaggio solo, ma tutta la scena."),
+  },
+  {
+    id: "roles",
+    title: () => t("Ruoli nascosti"),
+    blurb: () => t("Nobili, villici, cavalieri, fuorilegge, mansioni: ruoli che nessuno dichiara e che si deducono."),
+  },
+  {
+    id: "sea",
+    title: () => t("Mare e navi"),
+    blurb: () => t("Pirati: chi è in mare (su una nave o nell'Acqua) e chi è a terra."),
+  },
+  {
+    id: "floors",
+    title: () => t("Piani"),
+    blurb: () => t("Grattacieli: i piani si guardano uno per uno, e due persone sono vicine fra piani diversi solo per scale e ascensore."),
   },
   { id: "logic", title: () => t("Combinare gli indizi"), blurb: () => t("Come unire due indizi in uno.") },
 ];
@@ -185,7 +212,7 @@ export const ENTRIES = [
     params: { objectTypeId: "carpet" },
     explain: () =>
       t(
-        "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie, sgabelli, letti, panche e troni. Non su uno scaffale o un tavolo."
+        "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie, sgabelli, letti, panche, troni, pozze di fango e cavalli (di un cavallo si dice «in sella a»). Non su uno scaffale o un tavolo."
       ),
     world: {
       map: OPEN,
@@ -195,6 +222,27 @@ export const ENTRIES = [
         { type: "chair", at: [2, 4] },
         { type: "table", at: [0, 3] },
       ],
+    },
+  },
+  {
+    id: "onSeal",
+    type: "onSeal",
+    family: "near",
+    owner: "a",
+    params: { sealKind: "anubis" },
+    explain: () =>
+      t(
+        "Il personaggio sta su una casella con un sigillo. Il sigillo di Anubi vuole chi ci sta da solo nella sua stanza, quello di Ra vuole chi ci sta in compagnia: l'indizio dice solo su quale dei due sta (o su uno qualsiasi)."
+      ),
+    world: {
+      map: TWO_ROOMS,
+      rooms: ROOM_NAMES,
+      seals: [
+        { kind: "anubis", at: [0, 1] },
+        { kind: "anubis", at: [3, 2] },
+        { kind: "ra", at: [1, 0] },
+      ],
+      cast: { b: { at: [2, 3] }, c: { at: [4, 4] } },
     },
   },
   {
@@ -501,6 +549,147 @@ export const ENTRIES = [
     },
   },
 
+  // ===================================================================== hidden roles
+  {
+    id: "hasRole",
+    type: "hasRole",
+    family: "roles",
+    owner: "a",
+    params: { roleId: "@r:noble" },
+    board: false,
+    explain: () =>
+      t(
+        "Il personaggio ha un certo ruolo (nobile, villico, cavaliere, fuorilegge, una mansione…). Nessuno dice i ruoli apertamente: si deducono dagli indizi, e un ruolo decide dove si può stare (le aree nobili ♛, le caselle riservate). Si può anche dire solo «ha un ruolo»."
+      ),
+    world: {
+      map: TWO_ROOMS,
+      rooms: ROOM_NAMES,
+      roles: {
+        defs: { noble: ["Nobile", "inNoble"], villager: ["Villico", "notInNoble"], knight: ["Cavaliere", "none"] },
+        noble: ["A"],
+        everyone: true,
+        who: { a: "noble", b: "villager", c: "knight" },
+      },
+      cast: { b: { at: [1, 3] }, c: { at: [3, 2] } },
+    },
+  },
+  {
+    id: "roleDirection",
+    type: "roleDirection",
+    family: "roles",
+    owner: "a",
+    params: { direction: "north", roleId: "@r:knight" },
+    explain: () =>
+      t(
+        "Il personaggio sta da quella parte (a nord, a sud, a est o a ovest) di tutte le altre persone con un certo ruolo: ognuna, senza eccezioni, e ce ne dev'essere almeno una."
+      ),
+    world: {
+      map: OPEN,
+      labels: true,
+      roles: {
+        defs: { knight: ["Cavaliere", "none"] },
+        who: { a: null, b: "knight", c: "knight", d: null },
+      },
+      cast: { b: { at: [3, 1] }, c: { at: [4, 3] }, d: { at: [0, 4] } },
+    },
+  },
+
+  {
+    id: "roleOnObjectType",
+    type: "roleOnObjectType",
+    family: "roles",
+    owner: null,
+    params: { roleId: "@r:knight", objectTypeId: "carpet", quantifier: "some" },
+    explain: () => t("Almeno una persona con quel ruolo sta sopra un oggetto di quel tipo (o, con «tutte», lo fanno tutte)."),
+    world: {
+      map: FOUR_ROOMS,
+      rooms: ROOM_NAMES,
+      roles: { defs: { knight: ["Cavaliere", "none"] }, who: { a: null, b: "knight", c: "knight" } },
+      objects: [{ type: "carpet", at: [2, 0] }],
+      cast: { a: { at: [0, 1] }, b: { at: [2, 0] }, c: { at: [3, 2] } },
+    },
+    falseCast: { b: [2, 3] },
+  },
+
+  {
+    id: "roleAllInRoom",
+    type: "roleAllInRoom",
+    family: "roles",
+    owner: null,
+    params: { roleId: "@r:knight", zoneId: "@z:C" },
+    explain: () => t("Tutte le persone con un certo ruolo, senza eccezioni, si trovano in quella stanza."),
+    world: {
+      map: FOUR_ROOMS,
+      rooms: ROOM_NAMES,
+      roles: { defs: { knight: ["Cavaliere", "none"] }, who: { a: null, b: "knight", c: "knight" } },
+      cast: { a: { at: [0, 1] }, b: { at: [2, 0] }, c: { at: [3, 2] } },
+    },
+    falseCast: { c: [1, 4] },
+  },
+
+  // ===================================================================== sea and land
+  {
+    id: "inSea",
+    type: "inSea",
+    family: "sea",
+    owner: "a",
+    params: {},
+    explain: () =>
+      t(
+        "Il personaggio è in mare: su una nave oppure nell'Acqua. Ogni nave è una stanza a sé e l'Acqua è una stanza sola, anche quando le navi la interrompono. «A terra» è il contrario: qualsiasi altro posto."
+      ),
+    world: {
+      map: FOUR_ROOMS,
+      rooms: SEA_NAMES,
+      terrain: { A: "water", B: "ship", D: "ship" },
+      objects: [
+        { type: "shark", at: [0, 1] },
+        { type: "rock", at: [3, 3] },
+      ],
+      cast: { b: { at: [3, 1] }, c: { at: [4, 4] } },
+    },
+  },
+  {
+    id: "onShip",
+    type: "onShip",
+    family: "sea",
+    owner: "a",
+    params: {},
+    negate: true,
+    explain: () =>
+      t(
+        "Il personaggio non sta su una nave: può essere nell'Acqua o a terra. Detto in positivo, «è su una nave» vale per qualsiasi nave, senza dire quale."
+      ),
+    world: {
+      map: FOUR_ROOMS,
+      rooms: SEA_NAMES,
+      terrain: { A: "water", B: "ship", D: "ship" },
+      objects: [
+        { type: "raft", at: [1, 1] },
+        { type: "crate", at: [4, 3] },
+      ],
+      cast: { b: { at: [1, 4] }, c: { at: [4, 0] } },
+    },
+  },
+
+  {
+    id: "inPlaceNamed",
+    type: "inPlaceNamed",
+    family: "sea",
+    owner: "a",
+    params: { placeName: "@n:A" },
+    explain: () =>
+      t(
+        "Il personaggio sta nel luogo che ha quel nome. Sulla mappa quel luogo compare come «???»: il suo nome si deduce, e il caso si risolve con tutte le assegnazioni dei nomi che gli indizi permettono. Il personaggio sta sempre in un solo luogo: per nominarne un altro serve un altro indizio."
+      ),
+    world: {
+      map: FOUR_ROOMS,
+      rooms: ISLAND_NAMES,
+      hiddenNames: ["A", "B", "C", "D"],
+      cast: { b: { at: [3, 4] }, c: { at: [4, 1] } },
+    },
+  },
+
   // ===================================================================== scene (general clues)
   {
     id: "noOneInRoom",
@@ -570,6 +759,26 @@ export const ENTRIES = [
     falseCast: { b: [0, 0] },
   },
   {
+    id: "everyObjectTypeNear",
+    type: "everyObjectTypeNear",
+    family: "scene",
+    owner: null,
+    params: {},
+    explain: () =>
+      t(
+        "Per ogni tipo di oggetto che c'è sulla mappa (un tavolo, una pianta, un animale…) almeno una persona sta accanto a uno di quel tipo. Porte e finestre non contano."
+      ),
+    world: {
+      map: OPEN,
+      objects: [
+        { type: "table", at: [2, 2] },
+        { type: "plant", at: [0, 4] },
+      ],
+      cast: { a: { at: [2, 3] }, b: { at: [1, 4] }, c: { at: [4, 0] } },
+    },
+    falseCast: { b: [0, 1] },
+  },
+  {
     id: "sameRoomTogether",
     type: "sameRoomTogether",
     family: "scene",
@@ -630,6 +839,43 @@ export const ENTRIES = [
     falseCast: { a: [0, 1], b: [2, 0] },
   },
 
+  // ===================================================================== floors
+  {
+    id: "sameFloor",
+    type: "sameFloor",
+    family: "floors",
+    owner: "a",
+    params: { targetId: "@c:b" },
+    explain: () =>
+      t(
+        "Il caso è un grattacielo: più piani impilati. Questo indizio dice che le due persone sono sullo stesso piano (dove, in quel piano, non importa)."
+      ),
+    tip: () =>
+      t("In un grattacielo c'è al massimo una persona per riga, per colonna e anche in verticale: stessa casella di piani diversi."),
+    world: { map: THREE_FLOORS, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, cast: { b: { at: [0, 1] } } },
+  },
+  {
+    id: "floorOrder",
+    type: "floorOrder",
+    family: "floors",
+    owner: "a",
+    params: { relation: "higher", targetId: "@c:b" },
+    explain: () =>
+      t(
+        "Confronta il piano di due persone: più in alto, più in basso, oppure subito sopra o subito sotto (il piano vicino). Il piano più in alto è il primo della lista."
+      ),
+    world: { map: THREE_FLOORS, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, cast: { b: { at: [2, 1] } } },
+  },
+  {
+    id: "onFloor",
+    type: "onFloor",
+    family: "floors",
+    owner: "a",
+    params: { floorId: "@f:2" },
+    explain: () => t("La persona è in un piano preciso, scelto per nome."),
+    world: { map: THREE_FLOORS, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, cast: { b: { at: [0, 0] }, c: { at: [3, 2] } } },
+  },
+
   // ===================================================================== logic
   {
     id: "orClue",
@@ -656,6 +902,9 @@ export function resolveRefs(value, ctx) {
   if (kind === "o") return ctx.objects[Number(id)].id;
   if (kind === "z") return ctx.zones[id].id;
   if (kind === "t") return objectTypeTargetId(id);
+  if (kind === "r") return ctx.roles[id].id;
+  if (kind === "f") return ctx.grid.sectors[Number(id)].id; // a floor of a skyscraper, by its place in the list (the highest first)
+  if (kind === "n") return ctx.zones[id].name; // the real name of a room whose name is hidden
   throw new Error(`riferimento sconosciuto ${value}`);
 }
 
@@ -686,7 +935,11 @@ export function buildWorld(world, ownerKey = null) {
     z.color = palette[i % palette.length];
   });
 
+  // A skyscraper: { sizes: [2, 2, 2], names: () => [...] } cuts the grid into floors (see model/sectors.js).
+  if (world.floors) setSectors(grid, world.floors.sizes, world.floors.names(), "row");
+
   const objects = (world.objects || []).map((o) => placeObject(grid, o.type, o.at[0], o.at[1], o.side));
+  for (const seal of world.seals || []) setSeal(grid, seal.at[0], seal.at[1], seal.kind);
 
   // Characters: the owner first (if any), then the rest of the cast in key order.
   const characters = {};
@@ -698,14 +951,31 @@ export function buildWorld(world, ownerKey = null) {
     if (cast[key]?.gender) character.gender = cast[key].gender;
     characters[key] = character;
   }
-  return { puzzle, grid, zones, objects, characters, cast };
+  // Places whose name is to be deduced: ["A", "D"] by room letter.
+  for (const letter of world.hiddenNames || []) setZoneNameHidden(grid, zones[letter].id, true);
+  // Sea and land: { A: "water", B: "ship" } by room letter.
+  for (const [letter, kind] of Object.entries(world.terrain || {})) setZoneTerrain(grid, zones[letter].id, kind);
+  // Hidden roles: { defs: { key: [name, rule] }, noble: ["A"] (rooms), who: { a: "key" } (the cast's roles), everyone, counts: { key: n } }
+  const roles = {};
+  if (world.roles) {
+    for (const [key, [name, rule]] of Object.entries(world.roles.defs)) roles[key] = addRole(puzzle, t(name), rule);
+    for (const letter of world.roles.noble || []) setZoneNoble(grid, zones[letter].id, true);
+    if (world.roles.everyone) setEveryoneHasRole(puzzle, true);
+    for (const [key, n] of Object.entries(world.roles.counts || {})) setRoleCount(puzzle, roles[key].id, n);
+    puzzle.solution.roles = {};
+    for (const [castKey, roleKey] of Object.entries(world.roles.who || {})) {
+      if (characters[castKey]) puzzle.solution.roles[characters[castKey].id] = roleKey ? roles[roleKey].id : null;
+    }
+  }
+  return { puzzle, grid, zones, objects, characters, cast, roles };
 }
 
 // Turns an entry into { puzzle, clue, owner, fixed, layouts… }. Pure: no DOM.
 export function buildExample(entry) {
-  const { puzzle, grid, zones, objects, characters, cast } = buildWorld(entry.world, entry.owner);
+  const built0 = buildWorld(entry.world, entry.owner);
+  const { puzzle, grid, zones, objects, characters, cast } = built0;
 
-  const ctx = { characters, objects, zones };
+  const ctx = { characters, objects, zones, roles: built0.roles, grid };
   const params = resolveRefs(entry.paramsOverride ? { ...entry.params, ...entry.paramsOverride } : entry.params, ctx);
   const clue = entry.type
     ? { id: "glossary", characterId: entry.owner ? characters[entry.owner].id : null, type: entry.type, params, negate: !!entry.negate }
@@ -743,9 +1013,8 @@ export function buildExample(entry) {
 // the people already placed), or "no" (the clue fails there).
 export function evaluateCells(built) {
   const { puzzle, grid, clue, ownerId, trueFixed } = built;
-  const predicate = clue ? buildPredicate(clue, puzzle) : () => true;
-  const usedRows = new Set([...trueFixed.values()].map((p) => p.row));
-  const usedCols = new Set([...trueFixed.values()].map((p) => p.col));
+  const predicate = clue ? buildPredicate(clue, withDeclared(puzzle)) : () => true;
+  const taken = lineTracker(grid, [...trueFixed.values()]);
   const out = [];
   for (let r = 0; r < grid.size.rows; r++) {
     for (let c = 0; c < grid.size.cols; c++) {
@@ -753,7 +1022,7 @@ export function evaluateCells(built) {
         out.push({ row: r, col: c, status: "none" });
         continue;
       }
-      if (usedRows.has(r) || usedCols.has(c)) {
+      if (taken.has(r, c)) {
         out.push({ row: r, col: c, status: "rule" });
         continue;
       }
@@ -767,7 +1036,7 @@ export function evaluateCells(built) {
 
 // For a general clue: does it hold in the true arrangement, and in the false one?
 export function evaluateGeneral(built) {
-  const predicate = buildPredicate(built.clue, built.puzzle);
+  const predicate = buildPredicate(built.clue, withDeclared(built.puzzle));
   return { trueHolds: predicate(built.trueFixed, true), falseHolds: predicate(built.falseFixed, true) };
 }
 

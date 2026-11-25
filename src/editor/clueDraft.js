@@ -5,9 +5,20 @@
 //
 // Import order: clueTypes.js first (clues/shared.js and clueTypes.js import each other).
 import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds } from "../model/clueTypes.js";
-import { objectIcon, objectTypeTargetId, isEdgeObjectType, sideLabel } from "../model/icons.js";
+import {
+  objectIcon,
+  objectTypeTargetId,
+  objectCategoryTargetId,
+  OBJECT_CATEGORIES,
+  OBJECT_TYPES,
+  isEdgeObjectType,
+  sideLabel,
+} from "../model/icons.js";
 import { edgeObjectsAt } from "../model/grid.js";
 import { lowerLabel } from "../model/clues/shared.js";
+import { hasRoles } from "../model/roles.js";
+import { hasFloors, enumValuesFor } from "../model/sectors.js";
+import { placeNameLabels, hasHiddenNames } from "../model/placeNames.js";
 import { t } from "../i18n/i18n.js";
 
 // Object types actually on the map: a clue about "a chair" must not be written when the
@@ -25,12 +36,31 @@ export function objectTypeChoices(puzzle, paramDef) {
   return present.length > 0 ? present : paramDef.values;
 }
 
+// The choices of a `roleId` parameter (marked `dynamic: "roles"`): the special ones the clue allows ("*" = any role), then
+// the roles of the case, which come from the puzzle and not from the clue type.
+export function roleChoices(puzzle, paramDef) {
+  return [...paramDef.values, ...(puzzle.roles?.defs || []).map((d) => d.id)];
+}
+
+// The choices of a `placeName` parameter (marked `dynamic: "placeNames"`): the names still to be deduced.
+export function placeNameChoices(puzzle) {
+  return placeNameLabels(puzzle.grid);
+}
+
+// The choices of a `floorId` parameter (marked `dynamic: "floors"`): the floors of the case, the highest first.
+export function floorChoices(puzzle) {
+  return hasFloors(puzzle.grid) ? puzzle.grid.sectors.map((s) => s.id) : [];
+}
+
 // Sensible values for the enum/number parameters of a new clue, so what the form shows is what
 // is stored: the first choice, the minimum, no distance.
 export function defaultParams(typeId, puzzle) {
   const params = {};
   for (const p of CLUE_TYPES[typeId]?.params || []) {
-    if (p.kind === "enum") params[p.name] = p.name === "objectTypeId" ? (objectTypeChoices(puzzle, p)[0] ?? p.values[0]) : p.values[0];
+    if (p.kind === "enum" && p.dynamic === "placeNames") params[p.name] = placeNameChoices(puzzle)[0] ?? "";
+    else if (p.kind === "enum" && p.dynamic === "roles") params[p.name] = puzzle.roles?.defs?.[0]?.id ?? p.values[0];
+    else if (p.kind === "enum" && p.dynamic === "floors") params[p.name] = floorChoices(puzzle)[0] ?? "";
+    else if (p.kind === "enum") params[p.name] = p.name === "objectTypeId" ? (objectTypeChoices(puzzle, p)[0] ?? p.values[0]) : p.values[0];
     if (p.kind === "number") params[p.name] = p.optional ? null : (p.min ?? 1);
     if (p.kind === "characterOrObjectMulti") params[p.name] = [];
   }
@@ -38,16 +68,37 @@ export function defaultParams(typeId, puzzle) {
 }
 
 export function newDraft(typeId, characterId, puzzle) {
-  return { type: typeId, characterId, params: defaultParams(typeId, puzzle), negate: false };
+  return { type: typeId, characterId, params: defaultParams(typeId, puzzle), negate: false, text: "" };
 }
 
 export function draftFromClue(clue) {
-  return { type: clue.type, characterId: clue.characterId, params: JSON.parse(JSON.stringify(clue.params || {})), negate: !!clue.negate };
+  return {
+    type: clue.type,
+    characterId: clue.characterId,
+    params: JSON.parse(JSON.stringify(clue.params || {})),
+    negate: !!clue.negate,
+    text: typeof clue.text === "string" ? clue.text : "",
+  };
 }
 
+// «North of all the cooks» looks at a role's people in every floor, and on a skyscraper directions only count inside one floor:
+// not offered there (the extremes of all or of one's own floor are).
+const NO_FLOORS_TYPES = new Set(["roleDirection"]);
+
 // The types a clue can have: those of a character, or the general ones.
-export function typeIdsFor(characterId) {
-  return characterId ? characterClueTypeIds() : genericClueTypeIds();
+// The clues about roles are only offered when the case has roles to talk about, those about the names of places when it
+// has places whose name is to be deduced.
+export function typeIdsFor(characterId, puzzle = null) {
+  const ids = characterId ? characterClueTypeIds() : genericClueTypeIds();
+  if (!puzzle) return ids;
+  const about = (id, dynamic) => CLUE_TYPES[id].params.some((p) => p.dynamic === dynamic);
+  const floors = hasFloors(puzzle.grid);
+  return ids.filter(
+    (id) =>
+      (hasRoles(puzzle) || !about(id, "roles")) &&
+      (hasHiddenNames(puzzle) || !about(id, "placeNames")) &&
+      (floors ? !NO_FLOORS_TYPES.has(id) : !CLUE_TYPES[id].floors)
+  );
 }
 
 // A clue type built on the "property" family (see clues/shared.js propertyParams): which of its
@@ -138,7 +189,10 @@ export function convertParams(oldType, oldParams, newType, puzzle) {
     const before = (oldDef?.params || []).find((q) => q.name === p.name && q.kind === p.kind);
     if (!before || oldParams?.[p.name] === undefined) continue;
     const value = oldParams[p.name];
-    if (p.kind === "enum" && !p.values.includes(value)) continue;
+    if (p.kind === "enum" && !p.dynamic && !enumValuesFor(p, puzzle.grid).includes(value)) continue;
+    if (p.dynamic === "roles" && !roleChoices(puzzle, p).includes(value)) continue;
+    if (p.dynamic === "placeNames" && !placeNameChoices(puzzle).includes(value)) continue;
+    if (p.dynamic === "floors" && !floorChoices(puzzle).includes(value)) continue;
     next[p.name] = JSON.parse(JSON.stringify(value));
   }
   return next;
@@ -202,6 +256,11 @@ export function targetChoices(puzzle, paramDef, ownerId) {
     for (const typeId of presentObjectTypes(puzzle)) {
       const def = objectIcon(typeId);
       if (def) anyOfType.push({ id: objectTypeTargetId(typeId), label: t("Qualsiasi {v}", { v: lowerLabel(def.label) }) });
+    }
+    // a whole category ("any animal") when the map has at least one object of it
+    for (const category of OBJECT_CATEGORIES) {
+      if (presentObjectTypes(puzzle).some((id) => OBJECT_TYPES[id]?.category === category))
+        anyOfType.push({ id: objectCategoryTargetId(category), label: t("Qualsiasi animale") });
     }
   }
   return { people, rooms, objects, anyOfType };

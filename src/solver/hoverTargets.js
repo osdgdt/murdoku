@@ -1,8 +1,10 @@
 import { CLUE_TYPES } from "../model/clueTypes.js";
+import { lineTracker, localRow } from "../model/sectors.js";
 import { isObjectTypeSeat } from "../model/icons.js";
-import { isUsable, isOccupiable } from "../model/grid.js";
+import { isUsable, isOccupiable, sealedCells } from "../model/grid.js";
 import { resolveTargetPositions, buildPredicates } from "./predicates/index.js";
 import { objectPositions } from "./predicates/helpers.js";
+import { isSeaZone, isShipZone } from "../model/terrain.js";
 
 // Resolves the "proprietà" (property) family shared by several clue types
 // (someoneInRoomWithProperty, aloneWithPersonProperty, someoneAtDirectionDistance,
@@ -102,7 +104,11 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     const idx = clue.params.index - 1;
     const { rows, cols } = puzzle.grid.size;
     if (clue.params.axis === "row") {
-      for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, idx, c)) cells.push({ row: idx, col: c });
+      // (the row of each floor, on a skyscraper)
+      for (let r = 0; r < rows; r++) {
+        if (localRow(puzzle.grid, r) !== idx) continue;
+        for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
+      }
     } else {
       for (let r = 0; r < rows; r++) if (isUsable(puzzle.grid, r, idx)) cells.push({ row: r, col: idx });
     }
@@ -118,7 +124,11 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     const idx = clue.params.index - 1;
     const { rows, cols } = puzzle.grid.size;
     if (clue.params.axis === "row") {
-      for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, idx, c)) cells.push({ row: idx, col: c });
+      // (the row of each floor, on a skyscraper)
+      for (let r = 0; r < rows; r++) {
+        if (localRow(puzzle.grid, r) !== idx) continue;
+        for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
+      }
     } else {
       for (let r = 0; r < rows; r++) if (isUsable(puzzle.grid, r, idx)) cells.push({ row: r, col: idx });
     }
@@ -135,7 +145,7 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
     const wantOdd = clue.params.parity === "odd";
     if (clue.params.axis === "row") {
       for (let r = 0; r < rows; r++) {
-        if (((r + 1) % 2 === 1) !== wantOdd) continue;
+        if (((localRow(puzzle.grid, r) + 1) % 2 === 1) !== wantOdd) continue;
         for (let c = 0; c < cols; c++) if (isUsable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
       }
     } else {
@@ -151,6 +161,24 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
   // di ogni seduta sulla mappa.
   if (clue.type === "seated") {
     cells.push(...puzzle.grid.objects.filter((o) => isObjectTypeSeat(o.typeId)).map((o) => ({ row: o.row, col: o.col })));
+  }
+
+  // onSeal: the cells with the seal it names (any seal when it names none).
+  if (clue.type === "onSeal") {
+    const kind = clue.params?.sealKind;
+    for (const s of sealedCells(puzzle.grid)) if (!kind || kind === "any" || kind === s.seal) cells.push({ row: s.row, col: s.col });
+  }
+
+  // inSea / onShip: every cell of the rooms that are at sea (a ship or the Water) or only of the ships.
+  if (clue.type === "inSea" || clue.type === "onShip") {
+    const wanted = clue.type === "inSea" ? isSeaZone : isShipZone;
+    const ids = new Set(puzzle.grid.zones.filter(wanted).map((z) => z.id));
+    for (let r = 0; r < puzzle.grid.size.rows; r++) {
+      for (let c = 0; c < puzzle.grid.size.cols; c++) {
+        const cell = puzzle.grid.cells[r][c];
+        if (!cell.blocked && cell.zoneId && ids.has(cell.zoneId)) cells.push({ row: r, col: c });
+      }
+    }
   }
 
   // orClue: due sotto-indizi annidati in params.a/params.b, mai dichiarati
@@ -226,16 +254,14 @@ export function resolveCharacterHoverDomain(puzzle, characterId, currentPlacemen
   const confirmed = new Map(currentPlacements);
   confirmed.delete(characterId);
 
-  const usedRows = new Set([...confirmed.values()].map((p) => p.row));
-  const usedCols = new Set([...confirmed.values()].map((p) => p.col));
+  const taken = lineTracker(puzzle.grid, confirmed.values());
   const isComplete = confirmed.size === puzzle.characters.length - 1;
 
   const { rows, cols } = puzzle.grid.size;
   const cells = [];
   for (let r = 0; r < rows; r++) {
-    if (usedRows.has(r)) continue;
     for (let c = 0; c < cols; c++) {
-      if (usedCols.has(c)) continue;
+      if (taken.has(r, c)) continue;
       if (!isOccupiable(puzzle.grid, r, c)) continue;
       const tentative = new Map(confirmed);
       tentative.set(characterId, { row: r, col: c });

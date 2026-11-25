@@ -22,6 +22,10 @@ const LOCAL_TYPES = new Set([
   "inRoom",
   "inRoomCorner",
   "inCorner",
+  "onSeal",
+  "inSea",
+  "onShip",
+  "inPlaceNamed",
   "inRowOrCol",
   "rowOrColParity",
   "onObjectType",
@@ -40,6 +44,9 @@ const LOCAL_TYPES = new Set([
   "inRowOrColWithAny",
   "sameRoomSizeAs",
   "sameRoomTogether",
+  "sameFloor",
+  "floorOrder",
+  "onFloor",
 ]);
 
 const ALL = Object.freeze({ all: true });

@@ -20,6 +20,9 @@ export default {
   "Fatti sulla scena": "Facts about the scene",
   "Indizi generali: non riguardano un personaggio solo, ma tutta la scena.":
     "General clues: they are not about one character, but about the whole scene.",
+  Piani: "Floors",
+  "Grattacieli: i piani si guardano uno per uno, e due persone sono vicine fra piani diversi solo per scale e ascensore.":
+    "Skyscrapers: floors are read one by one, and two people on different floors are next to each other only through stairs or a lift.",
   "Combinare gli indizi": "Combining clues",
   "Come unire due indizi in uno.": "How to join two clues into one.",
 
@@ -50,8 +53,12 @@ export default {
     "Only the target's own room counts: the cell to the right of the plant, beyond the wall, is in the Lounge and doesn't count.",
   "Il personaggio sta in una delle quattro caselle in diagonale rispetto al bersaglio. A differenza di «accanto», le stanze qui non contano.":
     "The character stands on one of the four cells diagonal to the target. Unlike “next to”, rooms don't matter here.",
-  "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie, sgabelli, letti, panche e troni. Non su uno scaffale o un tavolo.":
-    "The character stands right on an object of that type. You can only stand on things that are low and flat: rugs, chairs, stools, beds, benches and thrones. Not on a shelf or a table.",
+  "Il personaggio sta proprio sopra un oggetto di quel tipo. Si può stare solo su ciò che è basso e piatto: tappeti, sedie, sgabelli, letti, panche, troni, pozze di fango e cavalli (di un cavallo si dice «in sella a»). Non su uno scaffale o un tavolo.":
+    "The character stands right on an object of that type. You can only stand on things that are low and flat: rugs, chairs, stools, beds, benches, thrones, mud puddles and horses (on a horse you are “riding” it). Not on a shelf or a table.",
+  "Per ogni tipo di oggetto che c'è sulla mappa (un tavolo, una pianta, un animale…) almeno una persona sta accanto a uno di quel tipo. Porte e finestre non contano.":
+    "For every type of object on the map (a table, a plant, an animal…) at least one person stands next to one of that type. Doors and windows don't count.",
+  "Il personaggio sta su una casella con un sigillo. Il sigillo di Anubi vuole chi ci sta da solo nella sua stanza, quello di Ra vuole chi ci sta in compagnia: l'indizio dice solo su quale dei due sta (o su uno qualsiasi).":
+    "The character stands on a cell with a seal. The seal of Anubis wants whoever stands there to be alone in their room, the seal of Ra wants company: the clue only says which of the two they are on (or any of them).",
   "Il personaggio è seduto: su una sedia, uno sgabello, o su qualunque altra seduta. A differenza di «si trova su un oggetto di un certo tipo», non serve dire quale. Un tappeto non è una seduta: ci si sta sopra in piedi, non ci si siede.":
     "The character is seated: on a chair, a stool, or any other seat. Unlike “is on an object of a certain type”, you don't have to say which. A rug is not a seat: you stand on it, you don't sit on it.",
   "Il personaggio sta sulla stessa riga (o colonna) dei due bersagli, in una casella strettamente compresa tra loro. Non basta essere «da qualche parte in mezzo»: serve la linea retta. Se un bersaglio è una stanza, il personaggio sta tra quella stanza e l'altro bersaglio, mai dentro la stanza.":
@@ -181,4 +188,43 @@ export default {
 
   // links to the glossary elsewhere
   "Glossario degli indizi — Murdoku": "Clue glossary — Murdoku",
+  // sea and land
+  "Mare e navi": "Sea and ships",
+  "Pirati: chi è in mare (su una nave o nell'Acqua) e chi è a terra.":
+    "Pirates: who is at sea (on a ship or in the Water) and who is on land.",
+  "Il personaggio è in mare: su una nave oppure nell'Acqua. Ogni nave è una stanza a sé e l'Acqua è una stanza sola, anche quando le navi la interrompono. «A terra» è il contrario: qualsiasi altro posto.":
+    "The character is at sea: on a ship or in the Water. Every ship is a room of its own and the Water is a single room, even when ships cut it in pieces. “On land” is the opposite: any other place.",
+  "Il personaggio non sta su una nave: può essere nell'Acqua o a terra. Detto in positivo, «è su una nave» vale per qualsiasi nave, senza dire quale.":
+    "The character is not on a ship: they can be in the Water or on land. Said positively, “is on a ship” holds for any ship, without saying which.",
+  Acqua: "Water",
+  "Il personaggio sta nel luogo che ha quel nome. Sulla mappa quel luogo compare come «???»: il suo nome si deduce, e il caso si risolve con tutte le assegnazioni dei nomi che gli indizi permettono. Il personaggio sta sempre in un solo luogo: per nominarne un altro serve un altro indizio.":
+    "The character is in the place that has that name. On the map that place shows as “???”: its name is to be deduced, and the case is solved over every way of giving the names that the clues allow. The character is always in one place: naming another one takes another clue.",
+  Cocco: "Coconut",
+  Deserta: "Desert",
+  Pietà: "Pity",
+  Sussurri: "Whispers",
+  Sloop: "Sloop",
+  Spiaggia: "Beach",
+  Galeone: "Galleon",
+  // floors
+  Attico: "Penthouse",
+  "Primo piano": "First floor",
+  "Il caso è un grattacielo: più piani impilati. Questo indizio dice che le due persone sono sullo stesso piano (dove, in quel piano, non importa).":
+    "The case is a skyscraper: several floors stacked up. This clue says that the two people are on the same floor (where, on that floor, does not matter).",
+  "In un grattacielo c'è al massimo una persona per riga, per colonna e anche in verticale: stessa casella di piani diversi.":
+    "In a skyscraper there is at most one person per row, per column and also vertically: the same cell on different floors.",
+  "Confronta il piano di due persone: più in alto, più in basso, oppure subito sopra o subito sotto (il piano vicino). Il piano più in alto è il primo della lista.":
+    "Compares the floors of two people: higher, lower, or just above or just below (the neighbouring floor). The highest floor is the first of the list.",
+  "La persona è in un piano preciso, scelto per nome.": "The person is on one particular floor, chosen by name.",
+  // hidden roles
+  "Nobili, villici, cavalieri, fuorilegge, mansioni: ruoli che nessuno dichiara e che si deducono.":
+    "Nobles, villagers, knights, outlaws, tasks: roles that nobody declares and that are deduced.",
+  "Il personaggio ha un certo ruolo (nobile, villico, cavaliere, fuorilegge, una mansione…). Nessuno dice i ruoli apertamente: si deducono dagli indizi, e un ruolo decide dove si può stare (le aree nobili ♛, le caselle riservate). Si può anche dire solo «ha un ruolo».":
+    "The character has a certain role (noble, villager, knight, outlaw, a task…). Nobody states the roles openly: they are deduced from the clues, and a role decides where one may stand (the noble areas ♛, the reserved cells). The clue may also say just “has a role”.",
+  "Il personaggio sta da quella parte (a nord, a sud, a est o a ovest) di tutte le altre persone con un certo ruolo: ognuna, senza eccezioni, e ce ne dev'essere almeno una.":
+    "The character is on that side (north, south, east or west) of all the other people with a certain role: every one, without exception, and there must be at least one.",
+  "Almeno una persona con quel ruolo sta sopra un oggetto di quel tipo (o, con «tutte», lo fanno tutte).":
+    "At least one person with that role stands on an object of that type (or, with “all”, every one of them does).",
+  "Tutte le persone con un certo ruolo, senza eccezioni, si trovano in quella stanza.":
+    "Everybody with a certain role, without exception, is in that room.",
 };

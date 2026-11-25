@@ -1,0 +1,385 @@
+"""La bozza di un caso: quello che il lettore ha letto, in una forma che una persona corregge, e il montaggio nel caso dell'app.
+
+La bozza (`lavoro/bozze/NNN.json`, fuori dal repository) è fatta per essere modificata a mano nella pagina di correzione
+(`python -m reader.review`): una casella è {dentro, bloccata, stanza, oggetto}, una scheda è {lettera, nome, frase, vittima}.
+`assemble` la trasforma nel caso `.murdoku.json` dell'app; `check` la fa giudicare dal solver (unica? uguale a quella stampata?).
+
+Righe e colonne della bozza sono da **1**, come nel libro («R3 C2»); il caso dell'app le vuole da 0.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+from murdoku_ml.record import new_record, save_record
+from murdoku_ml.validate import REPO_ROOT, validate_case
+
+from . import config
+from .grammar import default_wording, parse_sentence
+
+ROOM_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8", "#f4a8a8", "#d7f4c2", "#f4c2e2", "#c2f1f4"]
+CHARACTER_COLORS = ["#608aea", "#ea558a", "#158060", "#d98b1f", "#8a5bd0", "#2aa1b8", "#c0504d", "#7a8f2b", "#b5651d", "#4f6d7a", "#9c4f96", "#3b7f3b"]
+
+
+def object_types() -> dict[str, str]:
+    """id → nome italiano dei tipi di oggetto dell'app (letti da src/model/icons.js, così non si disallineano)."""
+    text = (REPO_ROOT / "src" / "model" / "icons.js").read_text(encoding="utf-8")
+    return {m.group(1): m.group(2) for m in re.finditer(r'^\s{2}(\w+): \{[^\n]*?label: t\("([^"]+)"\)', text, re.M)}
+
+
+def drafts_dir() -> Path:
+    path = config.work_dir() / "bozze"
+    path.mkdir(exist_ok=True)
+    return path
+
+
+def draft_path(number: int) -> Path:
+    return drafts_dir() / f"{number:03d}.json"
+
+
+def load_draft(number: int) -> dict | None:
+    path = draft_path(number)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def save_draft(draft: dict) -> None:
+    draft_path(int(draft["number"])).write_text(json.dumps(draft, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
+def blank_draft(number: int, title: str = "") -> dict:
+    return {
+        "number": number, "title": title, "rows": 0, "cols": 0, "cells": [], "rooms": [], "cards": [],
+        "culprit": "", "placements": [], "unsupported": [], "notes": "", "boxes": {},
+    }
+
+
+# ----------------------------------------------------------------------------------------------- dalla lettura automatica
+
+
+def auto_draft(entry: dict) -> dict:
+    """La bozza che il lettore ricava dalle foto del caso (griglia + schede). Tutto è da controllare."""
+    from . import characters, imageio, pipeline, schematic
+
+    draft = blank_draft(entry["number"], entry.get("title", ""))
+    if entry["mappa"]:
+        page = imageio.load(config.data_dir() / entry["mappa"][0])
+        box = schematic.locate(page)
+        sch = schematic.read(page, box) if box else None
+        if sch is not None:
+            rooms = sch.rooms()
+            draft["rows"], draft["cols"] = sch.rows, sch.cols
+            draft["cells"] = [
+                [
+                    {
+                        "inside": bool(sch.inside[r, c]),
+                        "blocked": bool(sch.blocked[r, c]),
+                        "room": int(max(rooms[r, c], 0)),
+                        "object": "",
+                    }
+                    for c in range(sch.cols)
+                ]
+                for r in range(sch.rows)
+            ]
+            for mark in sch.marks:  # rettangoli arrotondati: oggetti occupabili, tipo da scegliere
+                for r, c in mark:
+                    draft["cells"][r][c]["object"] = "?"
+            draft["rooms"] = [{"name": f"Stanza {i + 1}"} for i in range(int(rooms.max()) + 1)] or [{"name": "Stanza 1"}]
+    if entry["personaggi"]:
+        page = pipeline._load_upright(entry["personaggi"][0])
+        cards = characters.read_cards(page)
+        names, _ = characters.mentioned(cards)
+        for card in cards:
+            draft["cards"].append(
+                {"letter": card.letter, "name": card.name if card.name_conf >= 60 else "", "sentence": card.sentence, "victim": card.victim, "conf": round(card.sentence_conf)}
+            )
+            draft["boxes"][card.letter] = list(card.box)
+        # i nomi citati nelle frasi riempiono i nomi vuoti con la stessa iniziale
+        for name in names:
+            for card in draft["cards"]:
+                if not card["name"] and card["letter"] == name[:1].upper():
+                    card["name"] = name
+                    break
+        draft["page_size"] = list(page.shape[1::-1])
+        draft["letters_by_name"] = bool(cards) and all(c.by_name for c in cards)
+    # assassino e posizioni (pagina dei passaggi) costano un minuto per caso: si leggono a richiesta, dalla pagina di correzione
+    return draft
+
+
+def read_solution(draft: dict, entry: dict) -> list[str]:
+    """Legge dalla pagina dei passaggi l'assassino e le posizioni finali e li scrive nella bozza (sostituisce quelli che c'erano).
+
+    Usa le schede e la griglia della bozza (corrette a mano, se è il caso): le lettere da cercare e le dimensioni attese.
+    Ritorna i problemi incontrati, che la pagina di correzione mostra: la lettura va controllata sulla foto."""
+    from . import pipeline, solution
+
+    if not entry.get("passaggi"):
+        return ["pagina dei passaggi non abbinata a questo caso"]
+    number = int(draft["number"])
+    index = 0 if number % 2 == 1 else 1  # due casi per pagina: i dispari sopra, i pari sotto
+    letters = [c["letter"] for c in draft["cards"]] or list("ABCDEFGHV")
+    plausible = 5 <= int(draft.get("rows") or 0) <= 10 and 5 <= int(draft.get("cols") or 0) <= 10  # una griglia letta storta (3×7) farebbe sbagliare la cornice
+    dims = [(draft["rows"], draft["cols"]) if plausible else None] * 2
+    best, best_score = None, -1
+    for name in entry["passaggi"]:  # più foto della stessa pagina: si tiene la lettura migliore
+        page = pipeline._load_upright(name)
+        results = solution.read_page(page, letters, dims, only=index)
+        case = results[index] if index < len(results) else results[-1]
+        score = len(case.pawns) + (3 if case.culprit_name else 0)
+        if score > best_score:
+            best, best_score = (name, case), score
+    name, case = best
+    draft["culprit"] = solution.culprit_letter(case.culprit_name, draft["cards"])
+    order_issue = solution.alphabetical_issue(draft["cards"])
+    if order_issue:
+        case.issues.append(order_issue)
+    draft["placements"] = [
+        {"letter": p.letter, "row": p.row, "col": p.col, "conf": round(p.conf), "margin": round(p.margin, 2), "fr": [round(p.fr[0], 2), round(p.fr[1], 2)], "via": p.via, "color": [round(v, 4) for v in p.color]}
+        for p in sorted(case.pawns, key=lambda p: p.letter)
+        if p.row and p.col
+    ]
+    issues = list(case.issues)
+    if case.culprit_name and not draft["culprit"]:
+        issues.append(f"assassino: letto «{case.culprit_name}», ma non corrisponde a nessuna scheda")
+    draft["solution_source"] = {"file": name, "culprit_name": case.culprit_name, "issues": issues, "lattice": case.lattice}
+    return issues
+
+
+# ----------------------------------------------------------------------------------------------- montaggio
+
+
+def _norm(text: str) -> str:
+    return re.sub(r"[^a-z0-9à-ÿ ]", "", text.lower()).strip()
+
+
+def card_names(draft: dict) -> list[str]:
+    """Il nome con cui ogni scheda entra nel caso: quello scritto, o «Personaggio X» se manca."""
+    names = []
+    for card in draft["cards"]:
+        names.append((card.get("name") or "").strip() or f"Personaggio {card['letter']}")
+    return names
+
+
+def parse_cards(draft: dict) -> list[dict]:
+    """Per ogni scheda: indizi, pezzi non capiti, codici non supportati (la grammatica sulla frase scritta nella bozza)."""
+    names = card_names(draft)
+    rooms = [r["name"] for r in draft["rooms"]]
+    out = []
+    for card in draft["cards"]:
+        parsed = parse_sentence(card.get("sentence", ""), names, rooms)
+        out.append({"clues": parsed.clues, "unknown": parsed.unknown, "unsupported": parsed.unsupported, "victim": parsed.victim})
+    return out
+
+
+def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict]]:
+    """(caso dell'app o None, soluzione stampata [{name,row,col}] da 0, problemi, analisi di ogni scheda)."""
+    problems: list[str] = []
+    rows, cols = int(draft.get("rows") or 0), int(draft.get("cols") or 0)
+    cards = draft["cards"]
+    analysis = parse_cards(draft)
+    if rows < 2 or cols < 2 or not draft["cells"]:
+        return None, [], ["la griglia non c'è"], analysis
+    if len(cards) < 2:
+        return None, [], ["servono almeno due schede"], analysis
+
+    names = card_names(draft)
+    if len({n.lower() for n in names}) != len(names):
+        problems.append("due schede hanno lo stesso nome")
+    victims = [i for i, c in enumerate(cards) if c.get("victim") or analysis[i]["victim"]]
+    if len(victims) != 1:
+        problems.append(f"serve una sola vittima (ora {len(victims)})")
+
+    zone_ids = [f"zone_{i}" for i in range(len(draft["rooms"]))]
+    zones = [
+        {"id": zone_ids[i], "name": room["name"] or f"Stanza {i + 1}", "color": ROOM_COLORS[i % len(ROOM_COLORS)], "textureId": "hatch"}
+        for i, room in enumerate(draft["rooms"])
+    ]
+    objects, grid_cells = [], []
+    for r in range(rows):
+        line = []
+        for c in range(cols):
+            cell = draft["cells"][r][c]
+            usable = cell["inside"] and not cell["blocked"]
+            obj_id = None
+            if usable and cell.get("object"):
+                if cell["object"] == "?":
+                    problems.append(f"oggetto senza tipo in R{r + 1} C{c + 1}")
+                else:
+                    obj_id = f"obj_{r}_{c}"
+                    objects.append({"id": obj_id, "typeId": cell["object"], "row": r, "col": c})
+            room = cell.get("room", 0)
+            line.append(
+                {"zoneId": zone_ids[room] if usable and 0 <= room < len(zone_ids) else None, "objectId": obj_id, "blocked": not usable}
+            )
+        grid_cells.append(line)
+
+    ids = [f"char_{card['letter']}" for card in cards]
+    by_name = {n.lower(): ids[i] for i, n in enumerate(names)}
+    zone_by_name = {z["name"].lower(): z["id"] for z in zones}
+
+    def resolve_target(target: dict | None, card_index: int) -> str | None:
+        if target is None:
+            return None
+        if "name" in target:
+            found = by_name.get(target["name"].lower())
+            if not found:
+                problems.append(f"scheda {cards[card_index]['letter']}: il nome «{target['name']}» non corrisponde a nessuna scheda")
+            return found
+        if "object" in target:
+            return "objtype:" + target["object"]
+        if "room" in target:
+            found = zone_by_name.get(target["room"].lower())
+            if not found:
+                problems.append(f"scheda {cards[card_index]['letter']}: la stanza «{target['room']}» non è nella lista delle stanze")
+            return found
+        return None
+
+    def resolve_params(params: dict, card_index: int) -> dict:
+        out = {}
+        for key, value in params.items():
+            if key == "target":
+                out["targetId"] = resolve_target(value, card_index)
+            elif key == "room":
+                out["zoneId"] = zone_by_name.get(str(value).lower())
+                if out["zoneId"] is None:
+                    problems.append(f"scheda {cards[card_index]['letter']}: la stanza «{value}» non è nella lista delle stanze")
+            elif key in ("a", "b") and isinstance(value, dict):
+                out[key] = {"type": value["type"], "params": resolve_params(value.get("params", {}), card_index)}
+            else:
+                out[key] = value
+        return out
+
+    clues = []
+    use_own_words = (draft.get("wording") or default_wording()) == "mio"
+    unsupported: list[str] = list(draft.get("unsupported") or [])
+    for i, item in enumerate(analysis):
+        if item["unknown"]:
+            problems.append(f"scheda {cards[i]['letter']}: frase non capita ({'; '.join(u for u in item['unknown'] if u) or 'vuota'})")
+        for code in item["unsupported"]:
+            if code not in unsupported:
+                unsupported.append(code)
+        for clue in item["clues"]:
+            built = {"id": f"clue_{i}_{len(clues)}", "characterId": ids[i], "type": clue["type"], "params": resolve_params(clue["params"], i)}
+            if clue.get("negate"):
+                built["negate"] = True
+            if use_own_words and clue.get("source"):
+                built["text"] = clue["source"]  # le parole scritte dalla persona, non quelle scelte dall'app
+            clues.append(built)
+
+    characters = [
+        {
+            "id": ids[i], "name": names[i], "iconId": "construction", "isVictim": i in victims, "bio": "",
+            "color": CHARACTER_COLORS[i % len(CHARACTER_COLORS)], "gender": None,
+        }
+        for i in range(len(cards))
+    ]
+    puzzle = {
+        "schemaVersion": 4, "id": f"puzzle_ml_{draft['number']:03d}", "title": draft.get("title") or f"Caso {draft['number']}",
+        "author": "", "difficulty": "medium", "completed": False, "bestTimeSeconds": None, "briefing": "", "resolutionNote": "",
+        "tense": "past", "createdAt": 0, "updatedAt": 0,
+        "grid": {"size": {"rows": rows, "cols": cols}, "cells": grid_cells, "zones": zones, "objects": objects},
+        "characters": characters, "clues": clues, "solution": {"placements": []}, "manualHints": [],
+    }
+
+    printed: list[dict] = []
+    letter_to_name = {card["letter"]: names[i] for i, card in enumerate(cards)}
+    for item in draft.get("placements") or []:
+        name = letter_to_name.get(item.get("letter"))
+        if name and item.get("row") and item.get("col"):
+            printed.append({"name": name, "row": int(item["row"]) - 1, "col": int(item["col"]) - 1})
+    return puzzle, printed, problems, analysis
+
+
+def check(draft: dict) -> dict:
+    """Montaggio + giudizio del solver. `verdict`: ok | da_correggere | non_valido."""
+    puzzle, printed, problems, analysis = assemble(draft)
+    result: dict = {"problems": problems, "cards": analysis, "report": None, "unsupported": draft.get("unsupported") or []}
+    if puzzle is None:
+        result["verdict"] = "non_valido"
+        return result
+    result["unsupported"] = sorted(set(result["unsupported"]) | {c for a in analysis for c in a["unsupported"]})
+    try:
+        report = validate_case(puzzle, printed or None)
+    except Exception as error:  # Node assente, ponte rotto: si dice, non si inventa
+        result["problems"].append(f"solver non raggiungibile: {error}")
+        result["verdict"] = "non_valido"
+        return result
+    result["report"] = report
+    complete = len(printed) == len(draft["cards"]) and bool(draft.get("culprit"))
+    good = report.get("ok") and not problems and not result["unsupported"] and complete
+    by_solver = [p["letter"] for p in draft.get("placements") or [] if p.get("via") == "solver"]
+    if by_solver:  # una posizione scelta dal solver non può poi dimostrare che il solver ha ragione
+        result["problems"].append("posizioni scelte dal solver (" + ", ".join(by_solver) + "): confrontale con la foto e correggile a mano se serve")
+        good = False
+    result["verdict"] = "ok" if good else "da_correggere"
+    result["printed_complete"] = complete
+    return result
+
+
+def _doubtful(p: dict) -> bool:
+    return p.get("conf", 100) < 60 or p.get("margin", 0) > 0.3 or p.get("via") == "testo"
+
+
+def refine_with_solver(draft: dict) -> dict:
+    """Il solver come arbitro fra caselle vicine: se il caso (come scritto nella bozza) ha UNA soluzione, ogni pedina dubbia (lettera
+    letta con poca sicurezza, vicina a un bordo, spostata dal testo) che la soluzione mette in una casella a meno di una casella di distanza
+    dalla posizione fotografata viene portata lì. Le pedine sicure non si toccano, e se non coincidono con la soluzione si lascia il dubbio
+    all'esito (`mismatches`). Segna `via: "solver"`: il verdetto non diventa `ok` finché non le confermi a mano.
+    Ritorna {changed:[{letter,from,to}], notes:[…]}; modifica `draft["placements"]`."""
+    import math
+
+    notes: list[str] = []
+    puzzle, _, problems, _ = assemble(draft)
+    if puzzle is None:
+        return {"changed": [], "notes": ["il caso non è ancora completo: " + "; ".join(problems)]}
+    try:
+        report = validate_case(puzzle, None)
+    except Exception as error:
+        return {"changed": [], "notes": [f"solver non raggiungibile: {error}"]}
+    if not report.get("unique"):
+        count = report.get("solutionCount")
+        return {"changed": [], "notes": [f"il caso ha {count if count is not None else 'nessuna'} soluzioni: il solver non può arbitrare (finisci prima le schede)"]}
+    names = dict(zip((c["letter"] for c in draft["cards"]), card_names(draft)))
+    solved = {s["name"]: (s["row"] + 1, s["col"] + 1) for s in report["solution"]}
+    changed = []
+    for p in draft.get("placements") or []:
+        target = solved.get(names.get(p["letter"], ""))
+        if not target or not p.get("row") or not p.get("col"):
+            continue
+        here = (int(p["row"]), int(p["col"]))
+        if here == target:
+            continue
+        fr = p.get("fr")
+        close = fr is not None and math.hypot(fr[0] - target[0], fr[1] - target[1]) <= 1.0
+        if _doubtful(p) and close:
+            changed.append({"letter": p["letter"], "from": list(here), "to": list(target)})
+            p["row"], p["col"], p["via"] = target[0], target[1], "solver"
+        elif _doubtful(p):
+            notes.append(f"{p['letter']}: la soluzione la mette in R{target[0]} C{target[1]}, lontano da R{here[0]} C{here[1]} (letta): controlla la foto")
+        else:
+            notes.append(f"{p['letter']}: letta in R{here[0]} C{here[1]} con sicurezza, ma la soluzione trovata dal solver è R{target[0]} C{target[1]}: o la lettura o gli indizi sono sbagliati")
+    return {"changed": changed, "notes": notes}
+
+
+def accept(draft: dict) -> dict:
+    """Scrive il record `lavoro/record/NNN.record.json` col caso corretto. `verificato` solo se tutto torna (è un caso d'oro)."""
+    outcome = check(draft)
+    puzzle, printed, _, _ = assemble(draft)
+    record = new_record(int(draft["number"]), puzzle)
+    record["source"]["title"] = draft.get("title", "")
+    culprit_letter = draft.get("culprit") or ""
+    names = {c["letter"]: n for c, n in zip(draft["cards"], card_names(draft))}
+    record["printed"] = {"culprit": names.get(culprit_letter), "placements": printed, "steps": []}
+    record["unsupported"] = outcome["unsupported"]
+    record["extraction"]["report"] = outcome["report"]
+    record["extraction"]["issues"] = outcome["problems"]
+    status = "verificato" if outcome["verdict"] == "ok" else "incerto"
+    record["extraction"]["status"] = status
+    if puzzle is None:
+        record["extraction"]["status"] = "scartato"
+    out_dir = config.work_dir() / "record"
+    out_dir.mkdir(exist_ok=True)
+    path = out_dir / f"{int(draft['number']):03d}.record.json"
+    save_record(record, path)
+    return {"status": record["extraction"]["status"], "path": str(path), "verdict": outcome["verdict"]}

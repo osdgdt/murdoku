@@ -17,6 +17,7 @@ import { solvePuzzle } from "./solver.js";
 import { propagate } from "./propagation.js";
 import { suggestClues, declaredPlacementMap } from "./suggestions.js";
 import { staged } from "./progress.js";
+import { withDeclared } from "../model/declared.js";
 
 export function rng(seed) {
   let a = seed >>> 0;
@@ -38,13 +39,17 @@ export function withoutVictim(puzzle) {
   if (!victim) return copy;
   copy.characters = copy.characters.filter((c) => c.id !== victim.id);
   copy.solution = { ...copy.solution, placements: copy.solution.placements.filter((p) => p.characterId !== victim.id) };
+  // Roles: she is not searched either, so her place in the declared numbers goes with her.
+  const victimRole = copy.solution.roles?.[victim.id];
+  if (copy.roles && victimRole && Number.isInteger(copy.roles.counts?.[victimRole])) copy.roles.counts[victimRole]--;
+  if (copy.solution.roles) delete copy.solution.roles[victim.id];
   return copy;
 }
 
 // Does this clue hold for `placements` (Map characterId -> {row,col}) on `puzzle`?
 export function holdsIn(clue, puzzle, placements) {
   try {
-    return buildPredicate({ id: "x", ...clue }, puzzle)(placements, true) === true;
+    return buildPredicate({ id: "x", ...clue }, withDeclared(puzzle))(placements, true) === true;
   } catch {
     return false;
   }

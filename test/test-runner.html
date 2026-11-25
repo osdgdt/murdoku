@@ -1,104 +1,177 @@
 <!doctype html>
 <html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <title>Murdoku — Test</title>
-  <style>
-    body { font-family: system-ui, sans-serif; padding: 1.5rem; }
-    .pass { color: #2e7d32; }
-    .fail { color: #b3261e; }
-    li { margin: 0.2em 0; }
-  </style>
-</head>
-<body>
-  <script>window.__MURDOKU_LANG__ = "it";</script>
-  <h1>Murdoku — Test Suite</h1>
-  <p id="summary"></p>
-  <ul id="results"></ul>
-
-  <script type="module">
-    import { tests as modelTests } from "./test-model.js";
-    import { tests as solverTests } from "./test-solver.js";
-    import { tests as playerTests } from "./test-player.js";
-    import { tests as hintTests } from "./test-hints.js";
-    import { tests as propagationTests } from "./test-propagation.js";
-    import { tests as humanSolverTests } from "./test-human-solver.js";
-    import { tests as replayTests } from "./test-replay.js";
-    import { tests as campaignTests } from "./test-campaign.js";
-    import { tests as geometryTests } from "./test-geometry.js";
-    import { tests as deriveSolutionTests } from "./test-derive-solution.js";
-    import { tests as solverWorkerTests } from "./test-solver-worker.js";
-    import { tests as achievementsTests } from "./test-achievements.js";
-    import { tests as recentActivityTests } from "./test-recent-activity.js";
-    import { tests as hoverTargetsTests } from "./test-hover-targets.js";
-    import { tests as hoverDomainTests } from "./test-hover-domain.js";
-    import { tests as texturesTests } from "./test-textures.js";
-    import { tests as iconsTests } from "./test-icons.js";
-    import { tests as progressCodecTests } from "./test-progress-codec.js";
-    import { tests as securityTests } from "./test-security.js";
-    import { tests as migrationTests } from "./test-migrations.js";
-    import { tests as i18nTests } from "./test-i18n.js";
-    import { tests as shareLinkTests } from "./test-share-link.js";
-    import { tests as redundancyTests } from "./test-redundancy.js";
-    import { tests as shareResultTests } from "./test-share-result.js";
-    import { tests as gameLogicTests } from "./test-game-logic.js";
-    import { tests as paletteTests } from "./test-palette.js";
-    import { tests as solveHistoryTests } from "./test-solve-history.js";
-    import { tests as errorReportTests } from "./test-error-report.js";
-    import { tests as libraryTests } from "./test-library.js";
-    import { tests as skinTests } from "./test-skin.js";
-    import { tests as glossaryTests } from "./test-glossary.js";
-    import { tests as tenseTests } from "./test-tense.js";
-    import { tests as tutorialTests } from "./test-tutorial.js";
-    import { tests as medievalTests } from "./test-medieval.js";
-    import { tests as loginHelpTests } from "./test-login-help.js";
-    import { tests as i18nPagesTests } from "./test-i18n-pages.js";
-    import { tests as dailyTests } from "./test-daily.js";
-    import { tests as clueSetsTests } from "./test-clue-sets.js";
-    import { tests as analysisTests } from "./test-analysis.js";
-    import { tests as composerTests } from "./test-composer.js";
-    import { tests as solverDifferentialTests } from "./test-solver-differential.js";
-    import { tests as solverLimitsTests } from "./test-solver-limits.js";
-    import { tests as dependenciesTests } from "./test-dependencies.js";
-    import { tests as solverBenchTests } from "./test-solver-bench.js";
-    import { tests as clueDraftTests } from "./test-clue-draft.js";
-    import { tests as statsTests } from "./test-stats.js";
-    import { tests as announcementsTests } from "./test-announcements.js";
-    import { tests as contrastTests } from "./test-contrast.js";
-    import { tests as themeHeadsTests } from "./test-theme-heads.js";
-    import { tests as ciConfigTests } from "./test-ci-config.js";
-    import { tests as caseReportTests } from "./test-case-report.js";
-    import { tests as predicatePruningTests } from "./test-predicate-pruning.js";
-    import { tests as solverProgressTests } from "./test-solver-progress.js";
-    import { tests as casePolicyTests } from "./test-case-policy.js";
-    import { tests as qrTests } from "./test-qr.js";
-    import { tests as communityHandlersTests } from "./test-community-handlers.js";
-    import { tests as communityLocalTests } from "./test-community-local.js";
-    import { tests as serviceAccountTests } from "./test-service-account.js";
-    import { tests as galleryQueryTests } from "./test-gallery-query.js";
-    import { tests as miniMapTests } from "./test-mini-map.js";
-    import { tests as communitySocialTests } from "./test-community-social.js";
-
-    const allTests = [...modelTests, ...solverTests, ...playerTests, ...hintTests, ...propagationTests, ...campaignTests, ...geometryTests, ...deriveSolutionTests, ...solverWorkerTests, ...achievementsTests, ...recentActivityTests, ...hoverTargetsTests, ...hoverDomainTests, ...texturesTests, ...iconsTests, ...progressCodecTests, ...securityTests, ...migrationTests, ...i18nTests, ...shareLinkTests, ...redundancyTests, ...shareResultTests, ...gameLogicTests, ...paletteTests, ...solveHistoryTests, ...errorReportTests, ...libraryTests, ...skinTests, ...glossaryTests, ...tenseTests, ...tutorialTests, ...medievalTests, ...loginHelpTests, ...clueDraftTests, ...statsTests, ...announcementsTests, ...contrastTests, ...themeHeadsTests, ...ciConfigTests, ...caseReportTests, ...predicatePruningTests, ...solverProgressTests, ...casePolicyTests, ...qrTests, ...communityHandlersTests, ...communityLocalTests, ...serviceAccountTests, ...galleryQueryTests, ...miniMapTests, ...communitySocialTests, ...i18nPagesTests, ...dailyTests, ...clueSetsTests, ...analysisTests, ...composerTests, ...solverDifferentialTests, ...solverLimitsTests, ...dependenciesTests, ...solverBenchTests, ...humanSolverTests, ...replayTests];
-    const resultsEl = document.getElementById("results");
-    let passed = 0;
-
-    for (const { name, fn } of allTests) {
-      const li = document.createElement("li");
-      try {
-        await fn(); // a no-op await for the ~207 existing sync tests, needed for the new async worker round-trip test
-        li.className = "pass";
-        li.textContent = `✓ ${name}`;
-        passed++;
-      } catch (err) {
-        li.className = "fail";
-        li.textContent = `✗ ${name} — ${err.message}`;
-        console.error(name, err);
+  <head>
+    <meta charset="utf-8" />
+    <title>Murdoku — Test</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        padding: 1.5rem;
       }
-      resultsEl.appendChild(li);
-    }
+      .pass {
+        color: #2e7d32;
+      }
+      .fail {
+        color: #b3261e;
+      }
+      li {
+        margin: 0.2em 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      window.__MURDOKU_LANG__ = "it";
+    </script>
+    <h1>Murdoku — Test Suite</h1>
+    <p id="summary"></p>
+    <ul id="results"></ul>
 
-    document.getElementById("summary").textContent = `${passed} / ${allTests.length} test superati`;
-  </script>
-</body>
+    <script type="module">
+      import { tests as modelTests } from "./test-model.js";
+      import { tests as solverTests } from "./test-solver.js";
+      import { tests as playerTests } from "./test-player.js";
+      import { tests as hintTests } from "./test-hints.js";
+      import { tests as propagationTests } from "./test-propagation.js";
+      import { tests as humanSolverTests } from "./test-human-solver.js";
+      import { tests as replayTests } from "./test-replay.js";
+      import { tests as campaignTests } from "./test-campaign.js";
+      import { tests as geometryTests } from "./test-geometry.js";
+      import { tests as deriveSolutionTests } from "./test-derive-solution.js";
+      import { tests as solverWorkerTests } from "./test-solver-worker.js";
+      import { tests as achievementsTests } from "./test-achievements.js";
+      import { tests as recentActivityTests } from "./test-recent-activity.js";
+      import { tests as hoverTargetsTests } from "./test-hover-targets.js";
+      import { tests as hoverDomainTests } from "./test-hover-domain.js";
+      import { tests as texturesTests } from "./test-textures.js";
+      import { tests as iconsTests } from "./test-icons.js";
+      import { tests as progressCodecTests } from "./test-progress-codec.js";
+      import { tests as securityTests } from "./test-security.js";
+      import { tests as migrationTests } from "./test-migrations.js";
+      import { tests as i18nTests } from "./test-i18n.js";
+      import { tests as shareLinkTests } from "./test-share-link.js";
+      import { tests as redundancyTests } from "./test-redundancy.js";
+      import { tests as shareResultTests } from "./test-share-result.js";
+      import { tests as gameLogicTests } from "./test-game-logic.js";
+      import { tests as paletteTests } from "./test-palette.js";
+      import { tests as solveHistoryTests } from "./test-solve-history.js";
+      import { tests as errorReportTests } from "./test-error-report.js";
+      import { tests as libraryTests } from "./test-library.js";
+      import { tests as skinTests } from "./test-skin.js";
+      import { tests as glossaryTests } from "./test-glossary.js";
+      import { tests as tenseTests } from "./test-tense.js";
+      import { tests as tutorialTests } from "./test-tutorial.js";
+      import { tests as medievalTests } from "./test-medieval.js";
+      import { tests as loginHelpTests } from "./test-login-help.js";
+      import { tests as i18nPagesTests } from "./test-i18n-pages.js";
+      import { tests as dailyTests } from "./test-daily.js";
+      import { tests as clueSetsTests } from "./test-clue-sets.js";
+      import { tests as analysisTests } from "./test-analysis.js";
+      import { tests as composerTests } from "./test-composer.js";
+      import { tests as solverDifferentialTests } from "./test-solver-differential.js";
+      import { tests as solverLimitsTests } from "./test-solver-limits.js";
+      import { tests as dependenciesTests } from "./test-dependencies.js";
+      import { tests as solverBenchTests } from "./test-solver-bench.js";
+      import { tests as clueDraftTests } from "./test-clue-draft.js";
+      import { tests as statsTests } from "./test-stats.js";
+      import { tests as announcementsTests } from "./test-announcements.js";
+      import { tests as contrastTests } from "./test-contrast.js";
+      import { tests as themeHeadsTests } from "./test-theme-heads.js";
+      import { tests as ciConfigTests } from "./test-ci-config.js";
+      import { tests as caseReportTests } from "./test-case-report.js";
+      import { tests as predicatePruningTests } from "./test-predicate-pruning.js";
+      import { tests as solverProgressTests } from "./test-solver-progress.js";
+      import { tests as casePolicyTests } from "./test-case-policy.js";
+      import { tests as qrTests } from "./test-qr.js";
+      import { tests as communityHandlersTests } from "./test-community-handlers.js";
+      import { tests as communityLocalTests } from "./test-community-local.js";
+      import { tests as serviceAccountTests } from "./test-service-account.js";
+      import { tests as galleryQueryTests } from "./test-gallery-query.js";
+      import { tests as miniMapTests } from "./test-mini-map.js";
+      import { tests as communitySocialTests } from "./test-community-social.js";
+
+      const allTests = [
+        ...modelTests,
+        ...solverTests,
+        ...playerTests,
+        ...hintTests,
+        ...propagationTests,
+        ...campaignTests,
+        ...geometryTests,
+        ...deriveSolutionTests,
+        ...solverWorkerTests,
+        ...achievementsTests,
+        ...recentActivityTests,
+        ...hoverTargetsTests,
+        ...hoverDomainTests,
+        ...texturesTests,
+        ...iconsTests,
+        ...progressCodecTests,
+        ...securityTests,
+        ...migrationTests,
+        ...i18nTests,
+        ...shareLinkTests,
+        ...redundancyTests,
+        ...shareResultTests,
+        ...gameLogicTests,
+        ...paletteTests,
+        ...solveHistoryTests,
+        ...errorReportTests,
+        ...libraryTests,
+        ...skinTests,
+        ...glossaryTests,
+        ...tenseTests,
+        ...tutorialTests,
+        ...medievalTests,
+        ...loginHelpTests,
+        ...clueDraftTests,
+        ...statsTests,
+        ...announcementsTests,
+        ...contrastTests,
+        ...themeHeadsTests,
+        ...ciConfigTests,
+        ...caseReportTests,
+        ...predicatePruningTests,
+        ...solverProgressTests,
+        ...casePolicyTests,
+        ...qrTests,
+        ...communityHandlersTests,
+        ...communityLocalTests,
+        ...serviceAccountTests,
+        ...galleryQueryTests,
+        ...miniMapTests,
+        ...communitySocialTests,
+        ...i18nPagesTests,
+        ...dailyTests,
+        ...clueSetsTests,
+        ...analysisTests,
+        ...composerTests,
+        ...solverDifferentialTests,
+        ...solverLimitsTests,
+        ...dependenciesTests,
+        ...solverBenchTests,
+        ...humanSolverTests,
+        ...replayTests,
+      ];
+      const resultsEl = document.getElementById("results");
+      let passed = 0;
+
+      for (const { name, fn } of allTests) {
+        const li = document.createElement("li");
+        try {
+          await fn(); // a no-op await for the ~207 existing sync tests, needed for the new async worker round-trip test
+          li.className = "pass";
+          li.textContent = `✓ ${name}`;
+          passed++;
+        } catch (err) {
+          li.className = "fail";
+          li.textContent = `✗ ${name} — ${err.message}`;
+          console.error(name, err);
+        }
+        resultsEl.appendChild(li);
+      }
+
+      document.getElementById("summary").textContent = `${passed} / ${allTests.length} test superati`;
+    </script>
+  </body>
 </html>

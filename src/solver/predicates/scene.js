@@ -1,6 +1,7 @@
 // Puzzle-wide scene facts not owned by any character (clue.characterId === null).
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { isObjectTypeTarget, parseObjectTypeTarget } from "../../model/icons.js";
+import { isObjectTypeTarget, objectTypeIdsOf, isEdgeObjectType } from "../../model/icons.js";
+import { localRow } from "../../model/sectors.js";
 import {
   isNextTo,
   objectPositions,
@@ -28,7 +29,7 @@ export const builders = {
       for (const c of puzzle.characters) {
         const pos = posOfCharacter(pm, c.id);
         if (!pos) continue;
-        if (params.axis === "row" ? pos.row === idx : pos.col === idx) return false;
+        if (params.axis === "row" ? localRow(puzzle.grid, pos.row) === idx : pos.col === idx) return false;
       }
       return isComplete ? true : undefined;
     };
@@ -80,8 +81,8 @@ export const builders = {
     // with "the same one": the cells of each object of the type are a target of their own (otherwise all of them make one)
     const groupsOf = (pm) => {
       if (isObjectTypeTarget(params.targetId)) {
-        const typeId = parseObjectTypeTarget(params.targetId);
-        return puzzle.grid.objects.filter((o) => o.typeId === typeId).map((o) => objectPositions(puzzle, o));
+        const typeIds = objectTypeIdsOf(params.targetId);
+        return puzzle.grid.objects.filter((o) => typeIds.includes(o.typeId)).map((o) => objectPositions(puzzle, o));
       }
       const positions = resolveTargetPositions(pm, puzzle, params.targetId);
       return positions === null ? null : [positions];
@@ -116,6 +117,21 @@ export const builders = {
       }
       if (allOver) return false;
       return isComplete ? someExact : undefined;
+    };
+  },
+
+  everyObjectTypeNear: ({ clue, puzzle, ownerId, params }) => {
+    // doors/windows are wall pieces, not things to stand next to: only furniture, props and animals count
+    const typeIds = [...new Set(puzzle.grid.objects.filter((o) => !isEdgeObjectType(o.typeId)).map((o) => o.typeId))];
+    return (pm, isComplete) => {
+      if (!isComplete) return undefined; // people only add "next to"s, so nothing can be ruled out early
+      if (typeIds.length === 0) return false;
+      const positions = puzzle.characters.map((c) => posOfCharacter(pm, c.id)).filter(Boolean);
+      return typeIds.every((typeId) =>
+        puzzle.grid.objects
+          .filter((o) => o.typeId === typeId)
+          .some((o) => objectPositions(puzzle, o).some((target) => positions.some((pos) => isNextTo(puzzle, pos, target))))
+      );
     };
   },
 

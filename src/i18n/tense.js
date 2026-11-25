@@ -25,6 +25,7 @@ const IT = [
   ["verifica", "verificava", "verificherà"],
   ["hanno", "avevano", "avranno"],
   ["sono", "erano", "saranno"],
+  ["ha", "aveva", "avrà"],
   ["è", "era", "sarà"],
 ];
 

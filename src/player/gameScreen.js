@@ -11,6 +11,7 @@ import { characterIndexForKey, stepForKey, steppedCharacter } from "./characterK
 import { announce } from "../util/announcer.js";
 import { snapshotBoard, describeBoardChange, describeSelection } from "./announcements.js";
 import { describeClue } from "../model/clueTypes.js";
+import { rolesSummary } from "../model/roles.js";
 import { startProgress } from "../util/progressBanner.js";
 import { notifyInTitle } from "../util/tabTitle.js";
 import { t } from "../i18n/i18n.js";
@@ -590,11 +591,11 @@ export function createGameScreen({
 
   function renderBriefing() {
     clear(briefingEl);
-    briefingEl.classList.toggle("hidden", !puzzle.briefing);
-    if (puzzle.briefing) {
-      briefingEl.appendChild(el("h3", { "aria-level": "2" }, t("Il caso")));
-      briefingEl.appendChild(el("p", {}, puzzle.briefing));
-    }
+    const roleLines = rolesSummary(puzzle);
+    briefingEl.classList.toggle("hidden", !puzzle.briefing && roleLines.length === 0);
+    if (puzzle.briefing || roleLines.length > 0) briefingEl.appendChild(el("h3", { "aria-level": "2" }, t("Il caso")));
+    if (puzzle.briefing) briefingEl.appendChild(el("p", {}, puzzle.briefing));
+    if (roleLines.length > 0) briefingEl.appendChild(el("p", { class: "role-summary" }, roleLines.join(" ")));
   }
 
   function wireControls() {

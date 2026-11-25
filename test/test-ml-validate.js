@@ -62,4 +62,22 @@ export const tests = [
       assert(broken.problems.length > 0);
     },
   },
+  {
+    name: "ml-validate: con più soluzioni le elenca, ognuna con le posizioni e il colpevole",
+    fn: () => {
+      const puzzle = oneUniqueCase();
+      // togliendo indizi si arriva a un caso con più soluzioni
+      let report = validateForMl({ puzzle });
+      while (report.unique && puzzle.clues.length > 1) {
+        puzzle.clues.pop();
+        report = validateForMl({ puzzle });
+      }
+      assertEqual(report.unique, false);
+      assert(report.solutionCount >= 2, "più di una soluzione");
+      assert(report.solutions.length >= 2, "le soluzioni sono elencate");
+      for (const solution of report.solutions) assertEqual(solution.placements.length, puzzle.characters.length);
+      const keys = new Set(report.solutions.map((s) => s.placements.map((p) => `${p.name}${p.row},${p.col}`).join("|")));
+      assertEqual(keys.size, report.solutions.length, "sono tutte diverse");
+    },
+  },
 ];

@@ -3,6 +3,7 @@
 // one-step oracle extension.
 import { zoneOfCell } from "../model/grid.js";
 import { t } from "../i18n/i18n.js";
+import { zoneDisplayName } from "../model/placeNames.js";
 
 // Which computeHintChain step types count as "a hint actually helped".
 // tooComplex/noHint alone disclose zero new information about the puzzle, so
@@ -87,7 +88,7 @@ export async function extendChainWithOracleStep(chain, { puzzle, placements, get
 
   const zoneId = zoneOfCell(puzzle.grid, target.row, target.col);
   const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
-  const where = zone ? t(' (nella zona "{name}")', { name: zone.name }) : "";
+  const where = zone ? t(' (nella zona "{name}")', { name: zoneDisplayName(zone) }) : "";
   chain.push({
     type: "forcedPlacement",
     variant: "success",

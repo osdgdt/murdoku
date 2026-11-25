@@ -5,6 +5,9 @@
 import "./defs.js";
 import { SHADOW_FILTER_ID } from "./defs.js";
 import { MEDIEVAL_OBJECT_ART, MEDIEVAL_EDGE_ART } from "./objectsMedieval.js";
+import { NATURE_OBJECT_ART } from "./objectsNature.js";
+import { SEA_OBJECT_ART } from "./objectsSea.js";
+import { BUILDING_OBJECT_ART } from "./objectsBuilding.js";
 
 // A layer: soft shadow (offset down) + the flat shape.
 const L = (shape, fill, dy = 2) =>
@@ -63,6 +66,11 @@ export const OBJECT_ART = {
     L(`<circle cx="32" cy="33" r="5"/>`, "#fff6e4", 1),
   // medieval / dark-fantasy props (objectsMedieval.js)
   ...MEDIEVAL_OBJECT_ART,
+  // animals and outdoor props (objectsNature.js)
+  ...NATURE_OBJECT_ART,
+  // the sea and the islands, and the crate (objectsSea.js)
+  ...SEA_OBJECT_ART,
+  ...BUILDING_OBJECT_ART,
 };
 
 // Doors and windows as they sit ON THE EDGE of a cell (viewBox 0 0 64 16, drawn

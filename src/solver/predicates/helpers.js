@@ -1,6 +1,8 @@
 import { isAdjacent } from "../../util/geometry.js";
+import { sameFloor } from "../../model/sectors.js";
+import { joinedByWay } from "../../model/floors.js";
 import { cellAt, edgeCells, isUsable, isOccupiable } from "../../model/grid.js";
-import { isObjectTypeTarget, parseObjectTypeTarget, isObjectTypeSeat, isEdgeObjectType } from "../../model/icons.js";
+import { isObjectTypeTarget, objectTypeIdsOf, isObjectTypeSeat, isEdgeObjectType } from "../../model/icons.js";
 import { buildPredicate } from "./index.js";
 
 // A predicate is (placementMap, puzzle) -> true | false | undefined.
@@ -34,6 +36,9 @@ export function isNextTo(puzzle, a, target) {
   // A door/window is next to whoever stands in either cell it lies between (they
   // may be in different rooms: the piece is in the wall between them).
   if (target.edge === true) return a.row === target.row && a.col === target.col;
+  // across floors only the stairs and the lift lead: whoever stands on one end is next to the other ends (a person or the
+  // stairs / the lift itself). A room is only touched from outside on the same floor.
+  if (!sameFloor(puzzle.grid, a, target)) return target.room !== true && joinedByWay(puzzle.grid, a, target);
   if (!isAdjacent(a, target)) return false;
   if (target.room === true) return zoneAt(puzzle, a) !== target.zoneId;
   return zoneAt(puzzle, a) === zoneAt(puzzle, target);
@@ -61,8 +66,8 @@ export function positionsInZone(puzzle, zoneId) {
 // distinct from a determined-but-empty list, which is a hard "no such object").
 export function resolveTargetPositions(placementMap, puzzle, targetId) {
   if (isObjectTypeTarget(targetId)) {
-    const typeId = parseObjectTypeTarget(targetId);
-    return puzzle.grid.objects.filter((o) => o.typeId === typeId).flatMap((o) => objectPositions(puzzle, o));
+    const typeIds = objectTypeIdsOf(targetId);
+    return puzzle.grid.objects.filter((o) => typeIds.includes(o.typeId)).flatMap((o) => objectPositions(puzzle, o));
   }
   if (puzzle.grid.zones.some((z) => z.id === targetId)) {
     return positionsInZone(puzzle, targetId).map((p) => ({ ...p, room: true, zoneId: targetId }));
@@ -108,6 +113,7 @@ export function zonesAreAdjacent(grid, zoneIdA, zoneIdB) {
         const nr = r + dr,
           nc = c + dc;
         if (nr < 0 || nr >= grid.size.rows || nc < 0 || nc >= grid.size.cols) continue;
+        if (!sameFloor(grid, { row: r }, { row: nr })) continue;
         const neighbor = grid.cells[nr][nc];
         if (!neighbor.blocked && neighbor.zoneId === zoneIdB) return true;
       }
@@ -127,6 +133,7 @@ export function zonesAreAdjacent(grid, zoneIdA, zoneIdB) {
 export function isRoomCorner(grid, pos, zoneId) {
   const inZone = (r, c) => {
     if (r < 0 || r >= grid.size.rows || c < 0 || c >= grid.size.cols) return false;
+    if (!sameFloor(grid, pos, { row: r })) return false;
     const cell = grid.cells[r][c];
     return !cell.blocked && cell.zoneId === zoneId;
   };

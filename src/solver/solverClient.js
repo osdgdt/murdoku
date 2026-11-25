@@ -251,9 +251,12 @@ function settledKey(puzzle) {
   const { size, cells, zones, objects } = puzzle.grid;
   return JSON.stringify([
     size,
-    cells.map((row) => row.map((c) => [c.zoneId, c.objectId, !!c.blocked])),
-    zones.map((z) => z.id),
-    objects.map((o) => [o.id, o.typeId, o.row, o.col, o.side ?? null]),
+    puzzle.grid.sectorAxis ?? null,
+    puzzle.grid.sectors?.map((s) => [s.first, s.last, s.width ?? null]) ?? null,
+    cells.map((row) => row.map((c) => [c.zoneId, c.objectId, !!c.blocked, c.seal ?? null, c.roleCell ?? null])),
+    zones.map((z) => [z.id, z.kind ?? null, z.terrain ?? null, z.nameHidden ? z.name : null]),
+    puzzle.roles ?? null,
+    objects.map((o) => [o.id, o.typeId, o.row, o.col, o.side ?? null, o.shaftId ?? o.linkId ?? null]),
     puzzle.characters.map((c) => [c.id, c.gender ?? null, !!c.isVictim]),
     puzzle.clues.map((c) => [c.id, c.characterId, c.type, c.params ?? null, !!c.negate]),
   ]);

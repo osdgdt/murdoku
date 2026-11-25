@@ -1,18 +1,35 @@
-import { isObjectTypeTarget, parseObjectTypeTarget, OBJECT_TYPES, isObjectTypeOccupiable, isObjectTypeSeat, sideLabel } from "../icons.js";
+import {
+  isObjectTypeTarget,
+  parseObjectTypeTarget,
+  isObjectCategoryTarget,
+  parseObjectCategoryTarget,
+  OBJECT_TYPES,
+  isObjectTypeOccupiable,
+  isObjectTypeSeat,
+  sideLabel,
+} from "../icons.js";
 import { describeClue } from "../clueTypes.js";
 import { t, getLanguage } from "../../i18n/i18n.js";
+import { zoneDisplayName } from "../placeNames.js";
 
 export function targetLabel(puzzle, targetId) {
+  if (isObjectCategoryTarget(targetId)) return objectCategoryPhrase(parseObjectCategoryTarget(targetId));
   if (isObjectTypeTarget(targetId)) {
     return objectTypePhrase(parseObjectTypeTarget(targetId));
   }
   const character = puzzle.characters.find((c) => c.id === targetId);
   if (character) return character.name;
   const zone = puzzle.grid.zones.find((z) => z.id === targetId);
-  if (zone) return `"${zone.name}"`;
+  if (zone) return `"${zoneDisplayName(zone)}"`;
   const object = puzzle.grid.objects.find((o) => o.id === targetId);
   if (object) return specificObjectPhrase(puzzle, object);
   return "?";
+}
+
+// "un animale" / "an animal": any object of a category.
+export function objectCategoryPhrase(category) {
+  if (category === "animal") return t("un animale");
+  return t("un oggetto");
 }
 
 // One SPECIFIC object. "una sedia" alone would read as "any chair", so when the

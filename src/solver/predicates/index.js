@@ -3,12 +3,19 @@ import { builders as rooms } from "./rooms.js";
 import { builders as scene } from "./scene.js";
 import { builders as logic } from "./logic.js";
 import { posOfCharacter, zoneAt, victimId } from "./helpers.js";
+import { sealRulePredicate } from "./seals.js";
+import { builders as roles, roleRulePredicate } from "./roles.js";
+import { builders as terrain } from "./terrain.js";
+import { builders as placeNames } from "./placeNames.js";
+import { builders as floors } from "./floors.js";
+import { hasRoles } from "../../model/roles.js";
+import { hasSeals } from "../../model/grid.js";
 
 export { resolveTargetPositions, victimId } from "./helpers.js";
 
 // type -> builder. Adding a clue type means adding one entry to the family
 // module it belongs to; nothing here needs to change.
-const BUILDERS = { ...placement, ...rooms, ...scene, ...logic };
+const BUILDERS = { ...placement, ...rooms, ...scene, ...logic, ...roles, ...terrain, ...placeNames, ...floors };
 
 function buildPositivePredicate(clue, puzzle) {
   const build = BUILDERS[clue.type];
@@ -59,5 +66,21 @@ function victimRoomRulePredicate(puzzle) {
 export function buildPredicates(puzzle) {
   const clueChecks = puzzle.clues.map((clue) => ({ clue, predicate: buildPredicate(clue, puzzle) }));
   const baseRuleClue = { id: null, type: "victimRoomRule", characterId: null, params: {}, negate: false };
-  return [...clueChecks, { clue: baseRuleClue, predicate: victimRoomRulePredicate(puzzle) }];
+  const rules = [...clueChecks, { clue: baseRuleClue, predicate: victimRoomRulePredicate(puzzle) }];
+  // Only a map with seals pays for the seal rule: every other puzzle keeps exactly the predicates it always had.
+  if (hasSeals(puzzle.grid)) {
+    rules.push({
+      clue: { id: null, type: "sealRule", characterId: null, params: {}, negate: false },
+      predicate: sealRulePredicate(puzzle),
+    });
+  }
+  // Same for the cases with hidden roles, and only once the roles are known (puzzle.roleOf, see solver/roles.js):
+  // without them nobody can be judged.
+  if (puzzle.roleOf && hasRoles(puzzle)) {
+    rules.push({
+      clue: { id: null, type: "roleRule", characterId: null, params: {}, negate: false },
+      predicate: roleRulePredicate(puzzle),
+    });
+  }
+  return rules;
 }

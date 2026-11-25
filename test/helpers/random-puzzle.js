@@ -15,16 +15,52 @@ export function rng(seed) {
   };
 }
 
+// Clue types added after the seeded cases and the benchmark baseline were fixed: drawing them too would shift every random choice
+// (and so change every case), so they stay out of the random pool and have a test of their own (test-nature.js...).
+export const NEWER_TYPE_IDS = new Set([
+  "everyObjectTypeNear",
+  "onSeal",
+  "hasRole",
+  "roleDirection",
+  "roleAllInRoom",
+  "roleOnObjectType",
+  "inSea",
+  "onShip",
+  "inPlaceNamed",
+  "sameFloor",
+  "floorOrder",
+  "onFloor",
+]);
+// Same for object types added later (the horse and the mud puddle are standable, so they join every "on an object of type" enum).
+export const NEWER_OBJECT_TYPE_IDS = new Set([
+  "horse",
+  "mud",
+  "raft",
+  "sand",
+  "crate",
+  "pig",
+  "shark",
+  "rock",
+  "rope",
+  "hammock",
+  "cannon",
+  "elevator",
+  "stairs",
+]);
+export const isNewerClue = (clue) => NEWER_TYPE_IDS.has(clue.type) || NEWER_OBJECT_TYPE_IDS.has(clue.params?.objectTypeId);
+
 // Types that need a nested clue are left out (their sub-clue would need its own generation).
 export const TYPE_IDS = Object.entries(CLUE_TYPES)
-  .filter(([, def]) => !def.internal && !def.combinator && !(def.params || []).some((p) => p.kind === "clueRef"))
+  .filter(
+    ([id, def]) => !NEWER_TYPE_IDS.has(id) && !def.internal && !def.combinator && !(def.params || []).some((p) => p.kind === "clueRef")
+  )
   .map(([id]) => id);
 
 export function randomParam(p, random, ctx) {
   const pick = (list) => list[Math.floor(random() * list.length)];
   switch (p.kind) {
     case "enum":
-      return pick(p.values.filter((v) => v !== "custom"));
+      return pick(p.values.filter((v) => v !== "custom" && !NEWER_OBJECT_TYPE_IDS.has(v)));
     case "number":
       return 1 + Math.floor(random() * 3);
     case "character":

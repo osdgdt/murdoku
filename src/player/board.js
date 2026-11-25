@@ -1,4 +1,5 @@
 import { isOccupiable } from "../model/grid.js";
+import { lineKeyFns, lineTracker } from "../model/sectors.js";
 
 export function createBoardState() {
   return {
@@ -83,12 +84,11 @@ export function occupiedBy(state, row, col) {
   return null;
 }
 
-function rowColUsed(state, row, col, excludeCharId) {
-  for (const [charId, pos] of state.placements) {
-    if (charId === excludeCharId) continue;
-    if (pos.row === row || pos.col === col) return true;
-  }
-  return false;
+// Somebody else already has this cell's row or column (the one of its own map, in a train or a skyscraper).
+function rowColUsed(state, grid, row, col, excludeCharId) {
+  const taken = lineTracker(grid);
+  for (const [charId, pos] of state.placements) if (charId !== excludeCharId) taken.add(pos.row, pos.col);
+  return taken.has(row, col);
 }
 
 function toggleCandidate(state, characterId, row, col) {
@@ -118,14 +118,17 @@ function lineKey(kind, index) {
 
 export const reservedFor = (state, row, col) => state.reservations.get(key(row, col)) ?? null;
 
-// The cells of a row/column that a character can stand on (the board's own walls and blocked cells are left out).
+// The cells of a row/column that a character can stand on (the board's own walls and blocked cells are left out). In a case
+// with several maps (a train, a skyscraper) the index of a line that repeats in each map is its key (map * 64 + number, see
+// model/sectors.js): R2 of the second wagon, C3 of the top floor.
 export function lineCells(grid, kind, index) {
+  const { rowKey, colKey } = lineKeyFns(grid);
+  const lineOf = kind === "row" ? rowKey : colKey;
   const cells = [];
-  const n = kind === "row" ? grid.size.cols : grid.size.rows;
-  for (let i = 0; i < n; i++) {
-    const row = kind === "row" ? index : i;
-    const col = kind === "row" ? i : index;
-    if (isOccupiable(grid, row, col)) cells.push({ row, col });
+  for (let row = 0; row < grid.size.rows; row++) {
+    for (let col = 0; col < grid.size.cols; col++) {
+      if (lineOf(row, col) === index && isOccupiable(grid, row, col)) cells.push({ row, col });
+    }
   }
   return cells;
 }
@@ -274,11 +277,18 @@ export function autoMarkRowCol(state, grid, row, col) {
     state.xMarks.add(k);
     marked.push({ row: r, col: c });
   };
+  const { rowKey, colKey, pillarKey } = lineKeyFns(grid);
   for (let r = 0; r < grid.size.rows; r++) {
-    if (r !== row) tryMark(r, col);
+    if (r !== row && colKey(r, col) === colKey(row, col)) tryMark(r, col);
   }
   for (let c = 0; c < grid.size.cols; c++) {
-    if (c !== col) tryMark(row, c);
+    if (c !== col && rowKey(row, c) === rowKey(row, col)) tryMark(row, c);
+  }
+  if (pillarKey) {
+    // skyscraper: the same place on the other floors (the pillar) is ruled out too
+    for (let r = 0; r < grid.size.rows; r++) {
+      if (r !== row && pillarKey(r, col) === pillarKey(row, col)) tryMark(r, col);
+    }
   }
   return marked;
 }
@@ -431,7 +441,7 @@ export function handleCellHold(state, grid, row, col, tool = state.selectedTool)
     return { ok: true };
   }
   if (occupant) return { ok: false, reason: "cell-occupied" };
-  if (rowColUsed(state, row, col, tool.id)) {
+  if (rowColUsed(state, grid, row, col, tool.id)) {
     return { ok: false, reason: "row-col-conflict" };
   }
   const before = state.placements.get(tool.id) || null;

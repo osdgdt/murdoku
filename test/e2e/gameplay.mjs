@@ -302,7 +302,8 @@ const scenarios = [
         const params = (def, objectId) => {
           const p = {};
           for (const d of def.params || []) {
-            if (d.kind === "enum") p[d.name] = d.values[d.values.length > 1 ? 1 : 0];
+            // (the choices of a place name or a floor come from the case, not from the clue type: any name will do)
+            if (d.kind === "enum") p[d.name] = d.values.length === 0 ? "Torre" : d.values[d.values.length > 1 ? 1 : 0];
             else if (d.kind === "number") p[d.name] = 2;
             else if (d.kind === "character") p[d.name] = other.id;
             else if (d.kind === "zone") p[d.name] = zone.id;

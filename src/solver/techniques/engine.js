@@ -29,6 +29,7 @@ import { dependenciesOf } from "../predicates/dependencies.js";
 import { isNextTo, resolveTargetPositions, victimId, zoneAt } from "../predicates/helpers.js";
 import { buildPredicate } from "../predicates/index.js";
 import { applyNakedSubsets, createOpsBudget, PROPAGATION_MAX_SUBSET_OPS } from "../propagation.js";
+import { lineKeyFns, makeLineTracker, sharedAxes, hasFloors } from "../../model/sectors.js";
 import { solvePuzzle } from "../solver.js";
 import { isOccupiable } from "../../model/grid.js";
 import { TECHNIQUES, LEVELS, levelIndex, levelOfTechnique, techniquesUpTo } from "./catalog.js";
@@ -67,6 +68,9 @@ function buildContext(puzzle, { maxWork, deadline, shouldStop }) {
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (isOccupiable(puzzle.grid, r, c)) cells.push({ row: r, col: c });
   const ctx = {
     puzzle,
+    ...lineKeyFns(puzzle.grid), // rowKey, colKey: the line a cell belongs to (a plain number, or (map, number) in a train or a skyscraper)
+    // the lines the whole-line reasonings may use: a row is a line of the map only when the map is one grid (a wagon has its own R1…)
+    lineAxes: sharedAxes(puzzle.grid),
     infos,
     cells,
     rows,
@@ -279,21 +283,19 @@ function hasSupport(ctx, state, character, cell, info, refs, openCount) {
   const tentative = new Map(state.confirmed);
   tentative.set(character.id, cell);
   const isComplete = openCount === 1 + refs.length;
-  const usedRows = new Set([cell.row]);
-  const usedCols = new Set([cell.col]);
+  const taken = makeLineTracker(ctx);
+  taken.add(cell.row, cell.col);
   const walk = (i) => {
     if (i === refs.length) {
       ctx.tick();
       return info.predicate(tentative, isComplete) !== false;
     }
     for (const c of lists[i]) {
-      if (usedRows.has(c.row) || usedCols.has(c.col)) continue;
+      if (taken.has(c.row, c.col)) continue;
       tentative.set(refs[i], c);
-      usedRows.add(c.row);
-      usedCols.add(c.col);
+      taken.add(c.row, c.col);
       const ok = walk(i + 1);
-      usedRows.delete(c.row);
-      usedCols.delete(c.col);
+      taken.delete(c.row, c.col);
       tentative.delete(refs[i]);
       if (ok) return true;
     }
@@ -338,6 +340,9 @@ function readOwnClues(ctx, state, rec) {
       outside = (cell) => zoneAt(ctx.puzzle, cell) === clue.params.zoneId;
     } else if (clue.type === "inRowOrCol" && Number.isInteger(clue.params?.index)) {
       const axis = clue.params.axis === "row" ? "row" : "col";
+      // only a line of the shared numbering is taken whole: «column 1» of a skyscraper is one in each floor, so it says nothing
+      // about the others' cells in the other floors (nor does «row 1»: every floor numbers its own, nor «row 1» in a train)
+      if (!ctx.lineAxes.includes(axis) || (axis === "row" && hasFloors(ctx.puzzle.grid))) continue;
       outside = (cell) => cell[axis] === clue.params.index - 1;
     } else continue;
     for (const other of unplacedCharacters(ctx, state)) {
@@ -460,16 +465,12 @@ const RUNNERS = {
 
   rowColTaken(ctx, state, rec) {
     if (state.confirmed.size === 0) return 0;
-    const usedRows = new Set();
-    const usedCols = new Set();
-    for (const { row, col } of state.confirmed.values()) {
-      usedRows.add(row);
-      usedCols.add(col);
-    }
+    const taken = makeLineTracker(ctx);
+    for (const { row, col } of state.confirmed.values()) taken.add(row, col);
     let total = 0;
     for (const character of unplacedCharacters(ctx, state)) {
       if (state.dead) break;
-      const removed = state.domains.get(character.id).filter((c) => usedRows.has(c.row) || usedCols.has(c.col));
+      const removed = state.domains.get(character.id).filter((c) => taken.has(c.row, c.col));
       if (removed.length === 0) continue;
       total += removeCells(state, character.id, removed);
       record(ctx, rec, "rowColTaken", { characterId: character.id, eliminated: removed, clueIds: [] });
@@ -526,7 +527,15 @@ const RUNNERS = {
       for (const [id, pos] of state.confirmed) if (id !== victim && zoneAt(ctx.puzzle, pos) === zone) companions++;
       if (companions >= 1) continue;
       const reachable = others.some((o) =>
-        state.domains.get(o.id).some((c) => c.row !== cell.row && c.col !== cell.col && zoneAt(ctx.puzzle, c) === zone)
+        state.domains
+          .get(o.id)
+          .some(
+            (c) =>
+              ctx.rowKey(c.row, c.col) !== ctx.rowKey(cell.row, cell.col) &&
+              ctx.colKey(c.row, c.col) !== ctx.colKey(cell.row, cell.col) &&
+              (!ctx.pillarKey || ctx.pillarKey(c.row, c.col) !== ctx.pillarKey(cell.row, cell.col)) &&
+              zoneAt(ctx.puzzle, c) === zone
+          )
       );
       if (!reachable) removed.push(cell);
     }
@@ -574,7 +583,12 @@ const RUNNERS = {
       const inAny = new Set();
       for (const pick of combinations(available.length, need)) {
         const cells = pick.map((i) => available[i]);
-        if (new Set(cells.map((c) => c.row)).size < cells.length || new Set(cells.map((c) => c.col)).size < cells.length) continue;
+        if (
+          new Set(cells.map((c) => ctx.rowKey(c.row, c.col))).size < cells.length ||
+          new Set(cells.map((c) => ctx.colKey(c.row, c.col))).size < cells.length ||
+          (ctx.pillarKey && new Set(cells.map((c) => ctx.pillarKey(c.row, c.col))).size < cells.length)
+        )
+          continue;
         ctx.tick(need);
         if (!canFill(state, cells, open)) continue;
         feasible++;
@@ -609,6 +623,10 @@ const RUNNERS = {
     let total = 0;
     for (const { clue, base } of existentialsOf(ctx)) {
       if (state.dead) break;
+      // «somebody near X» with X a person still to place: whether a cell near X exists depends on where X will be, not on the
+      // witness's own cell, so the witness cannot be looked for cell by cell (the search would find nobody and call it a contradiction)
+      const aimedAt = clue.params?.targetId;
+      if (aimedAt && ctx.puzzle.characters.some((c) => c.id === aimedAt) && !state.confirmed.has(aimedAt)) continue;
       if (base(state.confirmed, false) === false) continue; // somebody placed already is the witness
       const open = unplacedCharacters(ctx, state);
       const cellsOf = new Map(); // character id -> cells where it would be the witness
@@ -650,9 +668,10 @@ const RUNNERS = {
         continue;
       }
       for (const axis of ["row", "col"]) {
-        if (!where.every((cell) => cell[axis] === where[0][axis])) continue;
+        const lineOf = (cell) => (axis === "row" ? ctx.rowKey(cell.row, cell.col) : ctx.colKey(cell.row, cell.col));
+        if (!where.every((cell) => lineOf(cell) === lineOf(where[0]))) continue;
         for (const c of open) {
-          const removed = state.domains.get(c.id).filter((cell) => cell[axis] === where[0][axis] && !union.has(cellKey(cell)));
+          const removed = state.domains.get(c.id).filter((cell) => lineOf(cell) === lineOf(where[0]) && !union.has(cellKey(cell)));
           if (removed.length === 0) continue;
           total += removeCells(state, c.id, removed);
           record(ctx, rec, "witness", {
@@ -683,7 +702,13 @@ const RUNNERS = {
       for (const c of open) {
         const removed = state.domains
           .get(c.id)
-          .filter((cell) => (cell.row === fact.row || cell.col === fact.col) && !(cell.row === fact.row && cell.col === fact.col));
+          .filter(
+            (cell) =>
+              (ctx.rowKey(cell.row, cell.col) === ctx.rowKey(fact.row, fact.col) ||
+                ctx.colKey(cell.row, cell.col) === ctx.colKey(fact.row, fact.col) ||
+                (ctx.pillarKey && ctx.pillarKey(cell.row, cell.col) === ctx.pillarKey(fact.row, fact.col))) &&
+              !(cell.row === fact.row && cell.col === fact.col)
+          );
         if (removed.length === 0) continue;
         total += removeCells(state, c.id, removed);
         record(ctx, rec, "occupiedCell", {
@@ -714,7 +739,7 @@ const RUNNERS = {
   lastInLine(ctx, state, rec) {
     const characters = ctx.puzzle.characters;
     let total = 0;
-    for (const axis of ["row", "col"]) {
+    for (const axis of ctx.lineAxes) {
       const size = axis === "row" ? ctx.rows : ctx.cols;
       if (characters.length !== size) continue;
       const taken = new Set();
@@ -740,7 +765,7 @@ const RUNNERS = {
   // A character whose cells are all in one row (or one column) is in it: nobody else may take that row (column).
   lineConfined(ctx, state, rec) {
     let total = 0;
-    for (const axis of ["row", "col"]) {
+    for (const axis of ctx.lineAxes) {
       for (const owner of unplacedCharacters(ctx, state)) {
         if (state.dead) return total;
         const cells = state.domains.get(owner.id);
@@ -758,7 +783,7 @@ const RUNNERS = {
     const unplaced = unplacedCharacters(ctx, state);
     const n = unplaced.length;
     let total = 0;
-    for (const axis of ["row", "col"]) {
+    for (const axis of ctx.lineAxes) {
       const masks = unplaced.map((c) => state.domains.get(c.id).reduce((m, cell) => m | (1 << cell[axis]), 0));
       const maxK = n <= 9 ? n - 1 : Math.min(4, n - 1);
       for (let k = 2; k <= maxK && !state.dead; k++) {
@@ -843,7 +868,15 @@ const RUNNERS = {
     if (unplaced.length < 2) return 0;
     const before = new Map(unplaced.map((c) => [c.id, state.domains.get(c.id)]));
     const witnessOf = new Map();
-    const { contradiction } = applyNakedSubsets(unplaced, state.domains, witnessOf, createOpsBudget(PROPAGATION_MAX_SUBSET_OPS));
+    const { contradiction } = applyNakedSubsets(
+      unplaced,
+      state.domains,
+      witnessOf,
+      createOpsBudget(PROPAGATION_MAX_SUBSET_OPS),
+      ctx.rowKey,
+      ctx.colKey,
+      ctx.pillarKey
+    );
     if (contradiction) {
       state.dead = true;
       return 1;
@@ -922,12 +955,8 @@ const RUNNERS = {
     // every complete arrangement of the open characters that breaks no clue
     const alive = unplaced.map(() => new Set());
     const map = new Map(state.confirmed);
-    const usedRows = new Set();
-    const usedCols = new Set();
-    for (const { row, col } of map.values()) {
-      usedRows.add(row);
-      usedCols.add(col);
-    }
+    const taken = makeLineTracker(ctx);
+    for (const { row, col } of map.values()) taken.add(row, col);
     const walk = (i) => {
       if (i === unplaced.length) {
         for (const info of ctx.infos) {
@@ -938,13 +967,11 @@ const RUNNERS = {
         return;
       }
       for (const cell of state.domains.get(unplaced[i].id)) {
-        if (usedRows.has(cell.row) || usedCols.has(cell.col)) continue;
+        if (taken.has(cell.row, cell.col)) continue;
         map.set(unplaced[i].id, cell);
-        usedRows.add(cell.row);
-        usedCols.add(cell.col);
+        taken.add(cell.row, cell.col);
         walk(i + 1);
-        usedRows.delete(cell.row);
-        usedCols.delete(cell.col);
+        taken.delete(cell.row, cell.col);
         map.delete(unplaced[i].id);
       }
     };

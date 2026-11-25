@@ -100,6 +100,15 @@ export const SCENE_CLUES = {
     describe: (params, puzzle) => peopleNearSentence(params, puzzle, false),
     negatedDescribe: (params, puzzle) => peopleNearSentence(params, puzzle, true),
   },
+  // «C'era almeno una persona accanto a ciascun tipo di oggetto»: every type of object on the map (animals too, doors and
+  // windows excluded) has somebody next to at least one of its pieces.
+  everyObjectTypeNear: {
+    scope: "generic",
+    label: t("Qualcuno è accanto a ogni tipo di oggetto"),
+    params: [],
+    describe: () => t("C'è almeno una persona accanto a ciascun tipo di oggetto."),
+    negatedDescribe: () => t("C'è un tipo di oggetto senza nessuno accanto."),
+  },
   sameRoomTogether: {
     scope: "generic",
     label: t("Due bersagli si trovano nella stessa stanza"),

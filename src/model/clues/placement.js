@@ -12,6 +12,7 @@ import {
   describeNestedClue,
   optionalPropertyParams,
 } from "./shared.js";
+import { isObjectTypeMount } from "../icons.js";
 import { DIRECTIONS, DIRECTION_LABELS } from "../../util/geometry.js";
 
 // Who "the westernmost ..." is about, with the right article and agreement: "l'uomo", "la
@@ -49,7 +50,11 @@ export const PLACEMENT_CLUES = {
   onObjectType: {
     label: t("Si trova su un oggetto di un certo tipo"),
     params: [{ name: "objectTypeId", kind: "enum", values: STANDABLE_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto") }],
-    describe: (params) => t("Si trova su {v}.", { v: objectTypePhrase(params.objectTypeId) }),
+    // on a horse a person rides: "È in sella a un cavallo" (the book's wording), not "Si trova su un cavallo"
+    describe: (params) =>
+      isObjectTypeMount(params.objectTypeId)
+        ? t("È in sella a {v}.", { v: objectTypePhrase(params.objectTypeId) })
+        : t("Si trova su {v}.", { v: objectTypePhrase(params.objectTypeId) }),
   },
   inFrontOfWindow: {
     label: t("È davanti a una finestra"),
@@ -150,6 +155,26 @@ export const PLACEMENT_CLUES = {
     params: [],
     describe: () => t("Si trova in un angolo della mappa."),
   },
+  onSeal: {
+    label: t("Sta su una casella sigillo"),
+    // Seals (Egypt / Rome) are drawn on the map by the author; the clue says only which kind
+    // the person stands on, or any of them.
+    params: [
+      {
+        name: "sealKind",
+        kind: "enum",
+        values: ["any", "anubis", "ra"],
+        labels: { any: t("Un sigillo qualsiasi"), anubis: t("Sigillo di Anubi"), ra: t("Sigillo di Ra") },
+        label: t("Sigillo"),
+      },
+    ],
+    describe: (params) =>
+      params.sealKind === "anubis"
+        ? t("È sul sigillo di Anubi.")
+        : params.sealKind === "ra"
+          ? t("È sul sigillo di Ra.")
+          : t("È su una casella sigillo."),
+  },
   facing: {
     label: t("È di fronte a"),
     params: [{ name: "targetId", kind: "characterOrObject", label: t("Bersaglio") }],
@@ -211,14 +236,15 @@ export const PLACEMENT_CLUES = {
       {
         name: "scope",
         kind: "enum",
-        values: ["map", "room"],
-        labels: { map: t("su tutta la mappa"), room: t("nella sua stanza") },
+        values: ["map", "room", "floor"],
+        floorValues: ["floor"], // «of their floor» only with floors; «of the whole map» takes in every floor
+        labels: { map: t("su tutta la mappa"), room: t("nella sua stanza"), floor: t("nel suo piano") },
         label: t("Tra chi"),
       },
       ...optionalPropertyParams,
     ],
     describe: (params, puzzle) => {
-      const where = params.scope === "room" ? t(" nella sua stanza") : "";
+      const where = params.scope === "room" ? t(" nella sua stanza") : params.scope === "floor" ? t(" nel suo piano") : "";
       const superlative = SUPERLATIVE_DIRECTION_LABELS[params.direction] || params.direction;
       if (params.property === "custom") {
         const nested = describeNestedClue(params.customClue, puzzle);

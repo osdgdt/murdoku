@@ -1,6 +1,7 @@
 import { zoneOfCell } from "../model/grid.js";
 import { describeClue } from "../model/clueTypes.js";
 import { t } from "../i18n/i18n.js";
+import { zoneDisplayName } from "../model/placeNames.js";
 
 export const CLUES_CONTRADICTORY_MSG = t("Gli indizi di questo caso non ammettono nessuna soluzione: controlla il puzzle nell'editor.");
 export const INCONCLUSIVE_MSG = t("Non riesco a determinare un suggerimento affidabile in questo momento.");
@@ -19,7 +20,7 @@ export const NO_FURTHER_DEDUCTION_MSG = t(
 export function buildForcedMessage(puzzle, character, row, col) {
   const zoneId = zoneOfCell(puzzle.grid, row, col);
   const zone = zoneId && puzzle.grid.zones.find((z) => z.id === zoneId);
-  const where = zone ? t(' (nella zona "{name}")', { name: zone.name }) : "";
+  const where = zone ? t(' (nella zona "{name}")', { name: zoneDisplayName(zone) }) : "";
   // The victim rarely has clues of her own (she doesn't act) — by the time
   // her placement is forced, it's almost always because every other
   // row/column is already spoken for, not because of a specific clue about

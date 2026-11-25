@@ -164,6 +164,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
   // passo alla volta.
   if (!pickingStepId) {
     renderBoard(boardEl, puzzle.grid, {
+      roles: puzzle.roles,
       decorateCell: (cellNode, row, col) => {
         const step = steps.find((s) => s.row === row && s.col === col && s.characterId);
         const character = step && puzzle.characters.find((c) => c.id === step.characterId);
@@ -209,6 +210,7 @@ export function renderHintsEditor(panelEl, boardEl, puzzle, onChange, onPersistO
   panelEl.insertBefore(chips, list);
 
   renderBoard(boardEl, puzzle.grid, {
+    roles: puzzle.roles,
     onCellClick: (row, col) => {
       if (!pickerCharacterId || !isOccupiable(puzzle.grid, row, col)) return;
       updateManualHintStep(puzzle, pickingStepId, { characterId: pickerCharacterId, row, col });

@@ -112,3 +112,21 @@
 }
 
 .print-card h3 svg { width: 18px; height: 18px; }
+
+/* Skyscraper: cells beyond the width of a narrower floor are not drawn; the name of each floor in the corner of its labels. */
+.print-cell.floor-void {
+  visibility: hidden;
+}
+.print-label.print-floor-name {
+  font-size: 7px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.print-way-num {
+  position: absolute;
+  right: 1px;
+  bottom: 0;
+  font-size: 8px;
+  font-weight: 700;
+}

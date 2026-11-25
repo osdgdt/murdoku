@@ -68,6 +68,12 @@
   table.grid td.blk { background:#9a9a9a !important; }
   table.grid td.roomedge-r { border-right:3px solid #000; } table.grid td.roomedge-b { border-bottom:3px solid #000; }
   table.grid td .o { font-weight:700; color:#26221c; } table.grid td .o.q { color:#fff; background:#b3261e; border-radius:50%; padding:0 6px; font-size:14px; }
+  /* porte e finestre: un segno sul bordo della casella (il segmento condiviso con quella accanto); rosso = non è su un muro */
+  table.grid td .edge { position:absolute; z-index:2; pointer-events:none; border:1px solid #fff; border-radius:3px; box-shadow:0 0 0 1px #0006; }
+  table.grid td .edge-N, table.grid td .edge-S { left:14%; right:14%; height:7px; } table.grid td .edge-E, table.grid td .edge-W { top:14%; bottom:14%; width:7px; }
+  table.grid td .edge-N { top:-4px; } table.grid td .edge-S { bottom:-4px; } table.grid td .edge-W { left:-4px; } table.grid td .edge-E { right:-4px; }
+  table.grid td .edge-door { background:#8a3b12; } table.grid td .edge-window { background:#39a0e6; }
+  table.grid td .edge.bad { box-shadow:0 0 0 2px #b3261e; }
   .tools { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px; }
   .tools label { display:inline-flex; gap:4px; align-items:center; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:var(--panel); }
   .rooms { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
@@ -368,6 +374,7 @@ function resizeGrid(rows, cols) {
   const d = state.draft; const cells = [];
   for (let r = 0; r < rows; r++) { const line = []; for (let c = 0; c < cols; c++) line.push((d.cells[r] && d.cells[r][c]) || { inside: true, blocked: false, room: 0, object: "" }); cells.push(line); }
   d.rows = rows; d.cols = cols; d.cells = cells; if (!d.rooms.length) d.rooms = [{ name: "Stanza 1" }];
+  d.edges = (d.edges || []).filter(e => e.row < rows && e.col < cols); // le porte e finestre fuori dalla mappa nuova se ne vanno
 }
 function paint(r, c) {
   const cell = state.draft.cells[r][c]; const t = state.tool;
@@ -377,6 +384,41 @@ function paint(r, c) {
   else if (t.kind === "room") { cell.inside = true; cell.blocked = false; cell.room = t.room; }
   else if (t.kind === "object") { cell.inside = true; cell.blocked = false; cell.object = t.object; }
   else if (t.kind === "noobject") cell.object = "";
+}
+// Porte e finestre sul bordo di una casella. In bozza: { type: "door"|"window", row, col (da 0), side: N|E|S|W }; ogni segmento ha
+// una sola scrittura (E e S, tranne sul bordo della mappa), come nell'app: il lato S di una casella è il lato N di quella sotto.
+const EDGE_TOOLS = ["door", "window", "noedge"];
+const SIDE_STEP = { N: [-1, 0], E: [0, 1], S: [1, 0], W: [0, -1] };
+function normEdge(row, col, side) {
+  if (side === "N" && row > 0) return { row: row - 1, col, side: "S" };
+  if (side === "W" && col > 0) return { row, col: col - 1, side: "E" };
+  return { row, col, side };
+}
+function usableAt(d, r, c) { const cell = d.cells[r] && d.cells[r][c]; return !!cell && cell.inside && !cell.blocked; }
+// c'è un muro fra la casella e quella oltre il lato? (stanze diverse, stanza contro il fuori, bordo della mappa)
+function isWallEdge(d, r, c, side) {
+  const [dr, dc] = SIDE_STEP[side]; const nr = r + dr, nc = c + dc;
+  if (nr < 0 || nc < 0 || nr >= d.rows || nc >= d.cols) return true;
+  const room = (rr, cc) => usableAt(d, rr, cc) ? d.cells[rr][cc].room : null;
+  const a = room(r, c), b = room(nr, nc);
+  return !(a === null && b === null) && a !== b;
+}
+// il lato della casella più vicino al punto toccato: basta toccare la casella dalla parte del bordo, senza mira da orologiaio
+function nearestSide(td, ev) {
+  const b = td.getBoundingClientRect(), x = ev.clientX - b.left, y = ev.clientY - b.top;
+  return Object.entries({ W: x, E: b.width - x, N: y, S: b.height - y }).sort((p, q) => p[1] - q[1])[0][0];
+}
+// Un tocco mette la porta o la finestra su quel bordo; lo stesso strumento sullo stesso bordo la toglie; l'altro la cambia.
+function touchEdge(td, ev) {
+  const d = state.draft, kind = state.tool.kind;
+  const e = normEdge(+td.dataset.r, +td.dataset.c, nearestSide(td, ev));
+  const [dr, dc] = SIDE_STEP[e.side];
+  if (!usableAt(d, e.row, e.col) && !usableAt(d, e.row + dr, e.col + dc)) return; // un muro fra due caselle fuori dalla mappa non serve a nessuno
+  d.edges = d.edges || [];
+  const i = d.edges.findIndex(x => x.row === e.row && x.col === e.col && x.side === e.side);
+  const same = i >= 0 && d.edges[i].type === kind;
+  if (i >= 0) d.edges.splice(i, 1);
+  if (kind !== "noedge" && !same) d.edges.push({ type: kind, row: e.row, col: e.col, side: e.side });
 }
 function renderMap(ed) {
   const d = state.draft;
@@ -396,6 +438,10 @@ function renderMap(ed) {
         if (!rt || !rt.inside || rt.blocked || rt.room !== cell.room) td.classList.add("roomedge-r"); if (!bt || !bt.inside || bt.blocked || bt.room !== cell.room) td.classList.add("roomedge-b"); }
       if (usable && cell.object) td.append(el("span", { class: "o" + (cell.object === "?" ? " q" : "") }, cell.object === "?" ? "?" : (types[cell.object] || cell.object).slice(0, 5)));
       td.dataset.r = r; td.dataset.c = c;
+      for (const e of (d.edges || [])) if (e.row === r && e.col === c) {
+        const name = (meta.edgeTypes || {})[e.type] || e.type;
+        td.append(el("span", { class: "edge edge-" + e.type + " edge-" + e.side + (isWallEdge(d, r, c, e.side) ? "" : " bad"), title: name + (isWallEdge(d, r, c, e.side) ? "" : ": non è su un muro (le due caselle sono nella stessa stanza)") }));
+      }
       tr.append(td);
     }
     table.append(tr);
@@ -407,18 +453,22 @@ function renderMap(ed) {
     const key = td.dataset.r + "," + td.dataset.c; if (touched.has(key)) return;
     touched.add(key); paint(+td.dataset.r, +td.dataset.c); td.classList.add("painted");
   };
-  table.addEventListener("pointerdown", ev => { const td = ev.target.closest("td"); if (!td) return; ev.preventDefault(); state.painting = true; touched.clear(); paintTd(td); });
+  table.addEventListener("pointerdown", ev => {
+    const td = ev.target.closest("td"); if (!td) return; ev.preventDefault();
+    if (EDGE_TOOLS.includes(state.tool.kind)) { touchEdge(td, ev); renderMapKeep(); return; } // porte e finestre: un tocco per bordo, niente trascinamento
+    state.painting = true; touched.clear(); paintTd(td);
+  });
   table.addEventListener("pointermove", ev => { if (state.painting) paintTd(document.elementFromPoint(ev.clientX, ev.clientY)?.closest("td")); });
   const roomsBox = el("div", { class: "rooms" }, ...d.rooms.map((room, i) => el("span", {}, el("span", { class: "sw", style: `background:${ROOM_COLORS[i % ROOM_COLORS.length]}` }), el("input", { value: room.name, size: 14, oninput: e => { room.name = e.target.value; changed(); } }))),
     el("button", { onclick: () => { d.rooms.push({ name: "Stanza " + (d.rooms.length + 1) }); renderEditor(); changed(); } }, "+ stanza"),
     el("button", { onclick: () => { if (d.rooms.length > 1 && confirm("Tolgo l'ultima stanza (le sue caselle passano alla 1)?")) { const gone = d.rooms.length - 1; d.rooms.pop(); d.cells.flat().forEach(c => { if (c.room >= gone) c.room = 0; }); state.tool.room = 0; renderEditor(); changed(); } } }, "− stanza"));
   ed.replaceChildren(
     el("section", {}, el("h2", {}, "Mappa"),
-      el("p", { class: "msg" }, "Guarda la foto della mappa: dipingi le caselle con lo strumento scelto (puoi trascinare). Le righe spesse nere sono i muri fra stanze diverse. «?» in rosso = oggetto di cui manca il tipo."),
+      el("p", { class: "msg" }, "Guarda la foto della mappa: dipingi le caselle con lo strumento scelto (puoi trascinare). Le righe spesse nere sono i muri fra stanze diverse. «?» in rosso = oggetto di cui manca il tipo. Per le porte (marrone) e le finestre (azzurro) scegli lo strumento e tocca la casella dalla parte del bordo dove stanno: lo stesso tocco le toglie. Stanno su un muro, anche sul bordo della mappa; se il segno ha il contorno rosso non è su un muro."),
       sizeBox(),
-      el("div", { class: "tools" }, toolRadio("room", "stanza ", roomSel), toolRadio("object", "oggetto ", objSel), toolRadio("noobject", "toglie oggetto"), toolRadio("blocked", "casella grigia (bloccata)"), toolRadio("out", "fuori dalla mappa"), toolRadio("in", "dentro (libera)")),
+      el("div", { class: "tools" }, toolRadio("room", "stanza ", roomSel), toolRadio("object", "oggetto ", objSel), toolRadio("noobject", "toglie oggetto"), toolRadio("door", "porta (sul bordo)"), toolRadio("window", "finestra (sul bordo)"), toolRadio("noedge", "toglie porta/finestra"), toolRadio("blocked", "casella grigia (bloccata)"), toolRadio("out", "fuori dalla mappa"), toolRadio("in", "dentro (libera)")),
       table, el("h2", {}, "Stanze (nome come scritto sulla mappa)"), roomsBox,
-      el("p", { class: "msg" }, "Il letto, che nel libro occupa due caselle, si segna come «Letto» su tutte e due. Porte e finestre (sui bordi) non si segnano ancora: il caso ne risulterà privo.")));
+      el("p", { class: "msg" }, "Il letto, che nel libro occupa due caselle, si segna come «Letto» su tutte e due. Porte e finestre si segnano sui bordi (strumenti «porta» e «finestra»).")));
 }
 function renderMapKeep() { const s = $("#editor").scrollTop; renderMap($("#editor")); $("#editor").scrollTop = s; changed(); }
 function sizeBox() {

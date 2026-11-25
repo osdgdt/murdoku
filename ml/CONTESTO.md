@@ -185,7 +185,8 @@ standard (server su 127.0.0.1), nessun dato nel repository.
   problemi né elementi non supportati (= **caso d'oro**), altrimenti `incerto`.
 - `reader/review.py` + `review.html`: foto a sinistra (zoom, riquadri A/B/C sulle schede lette), a destra Schede / Mappa / Soluzione
   stampata / Esito. Salvataggio automatico; «Rileggi dalle foto» rifà la bozza da zero.
-- Limiti noti: porte e finestre (oggetti sui bordi) non si segnano; il genere dei personaggi resta vuoto; le icone dei personaggi sono
+- Porte e finestre si segnano a mano sui bordi delle caselle (strumenti «porta» e «finestra» della tab Mappa: `edges` della bozza, `{type, row, col, side}` da 0, scritti come nell'app; la lettura automatica non le trova ancora).
+- Limiti noti: il genere dei personaggi resta vuoto; le icone dei personaggi sono
   tutte la stessa (non influiscono sul solver). Il letto di due caselle si segna come «Letto» su entrambe.
 
 ### Lettura di assassino e posizioni (`reader/solution.py`)

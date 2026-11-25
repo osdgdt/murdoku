@@ -15,8 +15,6 @@ import { hasFloors, longestFloor, enumValuesFor } from "../model/sectors.js";
 
 // orClue needs two sub-clues (not enumerable here); victimRoomRule is the built-in base rule.
 const SKIP_TYPES = new Set(["orClue", "victimRoomRule", "sealRule", "roleRule"]);
-// «North of all the cooks»: on a skyscraper directions only count inside one floor, so this is not offered there.
-const NO_FLOORS_TYPES = new Set(["roleDirection"]);
 
 // Every parameter combination of a clue type that makes sense on this map, for one owner.
 export function enumerateParams(def, puzzle, ownerId) {
@@ -97,8 +95,8 @@ export function suggestClues(puzzle, placementMap, { ownerId, limit = 3000, maxE
   const view = withDeclared(puzzle); // the author's roles and place names, so that clues about them can be judged
   outer: for (const [type, def] of Object.entries(CLUE_TYPES)) {
     if (def.internal || SKIP_TYPES.has(type)) continue;
-    // the clues about floors only on a skyscraper, and those that compare with everybody not there (only one floor can be compared)
-    if (hasFloors(puzzle.grid) ? NO_FLOORS_TYPES.has(type) : def.floors) continue;
+    // the clues about floors only on a skyscraper
+    if (!hasFloors(puzzle.grid) && def.floors) continue;
     const owners = def.scope === "generic" ? [null] : puzzle.characters.map((c) => c.id);
     for (const owner of owners) {
       if (ownerId !== undefined && owner !== ownerId) continue;

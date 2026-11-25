@@ -19,6 +19,7 @@ import { withDeclared } from "../model/declared.js";
 import { setZoneNameHidden } from "../model/placeNames.js";
 import { setZoneTerrain } from "../model/terrain.js";
 import { setSectors, lineTracker } from "../model/sectors.js";
+import { placeElevator, placeStairs } from "../model/floors.js";
 
 // --- the little worlds ---------------------------------------------------------
 
@@ -30,6 +31,9 @@ export const ROOM_NAMES = () => ({ A: t("Cucina"), B: t("Salotto"), C: t("Studio
 // A skyscraper of three floors of two rows each (the highest first); the map is the 6 rows of the three floors one under the other.
 const THREE_FLOORS = ["...", "...", "...", "...", "...", "..."];
 const FLOOR_NAMES = () => [t("Attico"), t("Primo piano"), t("Terra")];
+// A train of two wagons of three columns (the map is 4 rows by 6 columns, the wagons side by side).
+const TWO_WAGONS = ["......", "......", "......", "......"];
+const WAGON_NAMES = () => [t("Merci"), t("Passeggeri")];
 // The map of the sea clues: the Water, a ship, a beach and another ship.
 const SEA_NAMES = () => ({ A: t("Acqua"), B: t("Sloop"), C: t("Spiaggia"), D: t("Galeone") });
 // Four islands whose names are to be deduced (they show as «???» on the board).
@@ -79,8 +83,11 @@ export const FAMILIES = [
   },
   {
     id: "floors",
-    title: () => t("Piani"),
-    blurb: () => t("Grattacieli: i piani si guardano uno per uno, e due persone sono vicine fra piani diversi solo per scale e ascensore."),
+    title: () => t("Treno e grattacielo"),
+    blurb: () =>
+      t(
+        "Casi con più mappe in una: vagoni affiancati (treno) o piani impilati (grattacielo). Ogni piano si guarda da solo, e due persone sono vicine fra piani diversi solo per scale e ascensore."
+      ),
   },
   { id: "logic", title: () => t("Combinare gli indizi"), blurb: () => t("Come unire due indizi in uno.") },
 ];
@@ -839,7 +846,38 @@ export const ENTRIES = [
     falseCast: { a: [0, 1], b: [2, 0] },
   },
 
-  // ===================================================================== floors
+  // ===================================================================== trains and skyscrapers
+  {
+    id: "wagons-rule",
+    family: "floors",
+    title: () => t("Il treno: vagoni affiancati"),
+    owner: "a",
+    type: null,
+    params: {},
+    explain: () =>
+      t(
+        "In un caso a treno la mappa è divisa in vagoni, uno accanto all'altro. Le colonne sono numerate da un vagone all'altro (C1…C6) e ognuna ha una sola persona; le righe si ripetono in ogni vagone (R1…R4) e in ciascun vagone c'è al massimo una persona per riga."
+      ),
+    tip: () =>
+      t(
+        "La riga R3 del primo vagone resta libera anche se un'altra persona sta nella R3 del secondo: sono due righe diverse. Un ruolo può valere «uno solo per vagone o piano»."
+      ),
+    world: { map: TWO_WAGONS, labels: true, wagons: { names: WAGON_NAMES, sizes: [3, 3] }, cast: { b: { at: [0, 1] }, c: { at: [2, 4] } } },
+  },
+  {
+    id: "floors-rule",
+    family: "floors",
+    title: () => t("Il grattacielo: piani impilati"),
+    owner: "a",
+    type: null,
+    params: {},
+    explain: () =>
+      t(
+        "Ogni piano è una mappa con le sue righe e colonne (R1, R2… e C1, C2… in ciascun piano). Le persone si dispongono come in un cubo: al massimo una per riga, una per colonna di ogni piano e una per «pilastro», cioè la stessa casella (stessa riga e colonna) su tutti i piani."
+      ),
+    tip: () => t("Le caselle sopra e sotto una persona, nella stessa posizione degli altri piani, sono escluse per tutti."),
+    world: { map: THREE_FLOORS, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, cast: { b: { at: [0, 1] }, c: { at: [3, 2] } } },
+  },
   {
     id: "sameFloor",
     type: "sameFloor",
@@ -874,6 +912,89 @@ export const ENTRIES = [
     params: { floorId: "@f:2" },
     explain: () => t("La persona è in un piano preciso, scelto per nome."),
     world: { map: THREE_FLOORS, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, cast: { b: { at: [0, 0] }, c: { at: [3, 2] } } },
+  },
+  {
+    id: "floors-lift",
+    type: "adjacent",
+    family: "floors",
+    title: () => t("Accanto all'ascensore"),
+    owner: "a",
+    params: { targetId: "@t:elevator" },
+    explain: () =>
+      t(
+        "L'ascensore è un pozzo che attraversa tutti i piani, sempre nella stessa casella (stessa riga e stessa colonna di ciascun piano). Chi sta sull'ascensore di un piano è accanto all'ascensore di tutti gli altri piani; su ogni piano è accanto all'ascensore anche chi sta in una casella vicina."
+      ),
+    tip: () => t("In un pozzo c'è al massimo una persona, e fra piani diversi non si è mai vicini senza ascensore o scale."),
+    world: { map: THREE_FLOORS, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, ways: { lift: [1, 2] }, cast: { b: { at: [0, 0] } } },
+  },
+  {
+    id: "floors-stairs",
+    type: "adjacent",
+    family: "floors",
+    title: () => t("Accanto alle scale"),
+    owner: "a",
+    params: { targetId: "@t:stairs" },
+    explain: () =>
+      t(
+        "Le scale collegano una casella di un piano a una casella del piano sopra o sotto. Chi sta su un'estremità è accanto all'altra estremità; in ogni piano è accanto alle scale anche chi sta in una casella vicina."
+      ),
+    world: {
+      map: THREE_FLOORS,
+      floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] },
+      ways: {
+        stairs: [
+          [1, 0],
+          [2, 2],
+        ],
+      },
+      cast: { b: { at: [4, 1] } },
+    },
+  },
+  {
+    id: "floors-extreme-all",
+    type: "extremeInDirection",
+    family: "floors",
+    title: () => t("Il più a nord di tutti i piani"),
+    owner: "a",
+    params: { direction: "north", scope: "map" },
+    explain: () =>
+      t(
+        "Con «su tutta la mappa» si confrontano tutti i piani: la riga di ciascun piano (la prima è la più a nord) e le colonne. Chi ha la stessa riga in un altro piano è pari: l'indizio è falso. Lo stesso confronto vale per «a nord di tutti i…» di un ruolo."
+      ),
+    world: {
+      map: THREE_FLOORS,
+      labels: true,
+      floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] },
+      cast: { b: { at: [3, 1] }, c: { at: [5, 0] } },
+    },
+  },
+  {
+    id: "floors-extreme-own",
+    type: "extremeInDirection",
+    family: "floors",
+    title: () => t("Il più a nord del suo piano"),
+    owner: "a",
+    params: { direction: "north", scope: "floor" },
+    explain: () => t("Con «nel suo piano» si guardano solo le persone dello stesso piano: negli altri piani nessuno conta."),
+    world: {
+      map: THREE_FLOORS,
+      labels: true,
+      floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] },
+      cast: { b: { at: [3, 1] }, c: { at: [4, 0] } },
+    },
+  },
+  {
+    id: "floors-row",
+    type: "inRowOrCol",
+    family: "floors",
+    title: () => t("Riga e colonna in ogni piano"),
+    owner: "a",
+    params: { axis: "row", index: 2 },
+    explain: () =>
+      t(
+        "In un grattacielo ogni piano ha le sue righe e colonne: «riga 2» è la seconda riga di ciascun piano, «colonna 3» la terza colonna di ciascun piano. Lo stesso vale per pari e dispari."
+      ),
+    world: { map: THREE_FLOORS, labels: true, floors: { names: FLOOR_NAMES, sizes: [2, 2, 2] }, cast: { b: { at: [0, 0] } } },
   },
 
   // ===================================================================== logic
@@ -937,6 +1058,14 @@ export function buildWorld(world, ownerKey = null) {
 
   // A skyscraper: { sizes: [2, 2, 2], names: () => [...] } cuts the grid into floors (see model/sectors.js).
   if (world.floors) setSectors(grid, world.floors.sizes, world.floors.names(), "row");
+  // A train: { sizes: [3, 3], names } cuts the grid into wagons side by side.
+  if (world.wagons) setSectors(grid, world.wagons.sizes, world.wagons.names(), "col");
+  // The ways of a skyscraper: { lift: [row, col] } (a shaft through every floor), { stairs: [[row, col], [row, col]] }.
+  if (world.ways?.lift) placeElevator(grid, ...world.ways.lift);
+  if (world.ways?.stairs) {
+    const [from, to] = world.ways.stairs;
+    placeStairs(grid, { row: from[0], col: from[1] }, { row: to[0], col: to[1] });
+  }
 
   const objects = (world.objects || []).map((o) => placeObject(grid, o.type, o.at[0], o.at[1], o.side));
   for (const seal of world.seals || []) setSeal(grid, seal.at[0], seal.at[1], seal.kind);

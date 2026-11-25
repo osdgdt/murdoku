@@ -1,5 +1,5 @@
 import { roleAllowsCell } from "../../model/roles.js";
-import { hasSectors, sectorIndexAt, sameFloor } from "../../model/sectors.js";
+import { hasSectors, sectorIndexAt, localRow } from "../../model/sectors.js";
 import { isDirection } from "../../util/geometry.js";
 import { posOfCharacter, zoneAt, characterHasProperty } from "./helpers.js";
 
@@ -104,7 +104,15 @@ function roleDirection({ ownerId, puzzle, params }) {
         undecided = true;
         continue;
       }
-      if (!sameFloor(puzzle.grid, a, pos) || !isDirection(params.direction, a, pos)) return false; // only inside one floor
+      // on a skyscraper every floor is compared by the row of its own floor (and the column): «north of all the knights» takes in every floor
+      if (
+        !isDirection(
+          params.direction,
+          { row: localRow(puzzle.grid, a.row), col: a.col },
+          { row: localRow(puzzle.grid, pos.row), col: pos.col }
+        )
+      )
+        return false;
       found++;
     }
     if (undecided) return undefined;

@@ -302,24 +302,27 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
     by_name = {n.lower(): ids[i] for i, n in enumerate(names)}
     zone_by_name = {z["name"].lower(): z["id"] for z in zones}
 
-    def resolve_target(target: dict | None, card_index: int) -> str | None:
+    def who(card_index: int | None) -> str:
+        return f"scheda {cards[card_index]['letter']}" if card_index is not None else "indizio generale"
+
+    def resolve_target(target: dict | None, card_index: int | None) -> str | None:
         if target is None:
             return None
         if "name" in target:
             found = by_name.get(target["name"].lower())
             if not found:
-                problems.append(f"scheda {cards[card_index]['letter']}: il nome «{target['name']}» non corrisponde a nessuna scheda")
+                problems.append(f"{who(card_index)}: il nome «{target['name']}» non corrisponde a nessuna scheda")
             return found
         if "object" in target:
             return "objtype:" + target["object"]
         if "room" in target:
             found = zone_by_name.get(target["room"].lower())
             if not found:
-                problems.append(f"scheda {cards[card_index]['letter']}: la stanza «{target['room']}» non è nella lista delle stanze")
+                problems.append(f"{who(card_index)}: la stanza «{target['room']}» non è nella lista delle stanze")
             return found
         return None
 
-    def resolve_params(params: dict, card_index: int) -> dict:
+    def resolve_params(params: dict, card_index: int | None) -> dict:
         out = {}
         for key, value in params.items():
             if key == "target":
@@ -327,7 +330,7 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
             elif key == "room":
                 out["zoneId"] = zone_by_name.get(str(value).lower())
                 if out["zoneId"] is None:
-                    problems.append(f"scheda {cards[card_index]['letter']}: la stanza «{value}» non è nella lista delle stanze")
+                    problems.append(f"{who(card_index)}: la stanza «{value}» non è nella lista delle stanze")
             elif key in ("a", "b") and isinstance(value, dict):
                 out[key] = {"type": value["type"], "params": resolve_params(value.get("params", {}), card_index)}
             elif isinstance(value, dict) and any(k in value for k in ("name", "object", "room")):  # un bersaglio scelto col menu
@@ -352,6 +355,13 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
             if use_own_words and clue.get("source"):
                 built["text"] = clue["source"]  # le parole scritte dalla persona, non quelle scelte dall'app
             clues.append(built)
+
+    # gli indizi generali (un fatto sulla scena, di nessun personaggio) composti col menu: `general` della bozza
+    for k, item in enumerate(e for e in draft.get("general") or [] if isinstance(e, dict) and e.get("type")):
+        built = {"id": f"clue_g{k}", "characterId": None, "type": item["type"], "params": resolve_params(item.get("params") or {}, None)}
+        if item.get("negate"):
+            built["negate"] = True
+        clues.append(built)
 
     characters = [
         {

@@ -106,6 +106,10 @@ export default {
     "The character's room borders (shares a side with) the given one. The character can't be in that room itself, nor in a room that only touches it at a corner.",
   "Il personaggio sta in un angolo della sua stanza: una casella dove il perimetro della stanza gira ad angolo retto. Diverso da «in un angolo» della mappa, che riguarda solo le quattro caselle d'angolo della griglia.":
     "The character is in a corner of their room: a cell where the room's outline turns a right angle. Different from “in a corner” of the map, which only concerns the four corner cells of the grid.",
+  "Il personaggio ha una certa caratteristica (è seduto su una sedia, è un uomo, è accanto a un oggetto…) e nessun altro, in tutta la mappa, ce l'ha. Se anche una sola altra persona è su una sedia, l'indizio è falso.":
+    "The character has a certain trait (sitting on a chair, being a man, being next to an object…) and nobody else on the whole map has it. If even one other person is on a chair, the clue is false.",
+  "Con «no» diventa «non è l'unica persona…»: o il personaggio non ha quella caratteristica, o ce l'ha anche qualcun altro.":
+    "With “no” it becomes “is not the only person…”: either the character lacks the trait, or somebody else has it too.",
   "Il personaggio è solo nella sua stanza: nessun altro la occupa. Si può indicare anche una stanza precisa.":
     "The character is alone in their room: nobody else is in it. A specific room can be given too.",
   "Il personaggio è nella stessa stanza di quella persona e con nessun altro: stanno in due, soli.":

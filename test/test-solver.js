@@ -1426,6 +1426,90 @@ export const tests = [
     },
   },
   {
+    name: "predicate onlyOneWithProperty: ha la proprietà lui e nessun altro, ovunque sulla mappa",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      placeObject(puzzle.grid, "chair", 0, 0);
+      placeObject(puzzle.grid, "chair", 3, 3);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person3");
+      const clue = addClue(puzzle, a.id, "onlyOneWithProperty", { property: "sittingOn", objectTypeId: "chair" });
+      const predicate = buildPredicate(clue, puzzle);
+      const holds = (cells, complete = true) => predicate(mapOf(cells.map(([ch, row, col]) => [ch.id, { row, col }])), complete);
+      assertEqual(
+        holds([
+          [a, 0, 0],
+          [b, 1, 1],
+          [c, 2, 2],
+        ]),
+        true,
+        "lui sulla sedia, gli altri no"
+      );
+      assertEqual(
+        holds([
+          [a, 0, 0],
+          [b, 3, 3],
+          [c, 2, 2],
+        ]),
+        false,
+        "un altro è su una sedia"
+      );
+      assertEqual(
+        holds([
+          [a, 1, 1],
+          [b, 2, 2],
+          [c, 2, 1],
+        ]),
+        false,
+        "lui non è su una sedia"
+      );
+      assertEqual(
+        holds(
+          [
+            [a, 0, 0],
+            [b, 3, 3],
+          ],
+          false
+        ),
+        false,
+        "un altro sulla sedia basta, anche se c è ancora da piazzare"
+      );
+      assertEqual(
+        holds(
+          [
+            [a, 0, 0],
+            [b, 1, 1],
+          ],
+          false
+        ),
+        undefined,
+        "c non è ancora piazzato"
+      );
+      assertEqual(holds([[b, 1, 1]], false), undefined, "lui non è ancora piazzato");
+      const negated = { ...clue, negate: true };
+      assert(describeClue(clue, puzzle).startsWith("È l'unica persona seduta su una sedia"), describeClue(clue, puzzle));
+      assert(describeClue(negated, puzzle).startsWith("Non è l'unica persona seduta su una sedia"), describeClue(negated, puzzle));
+    },
+  },
+  {
+    name: "predicate onlyOneWithProperty: «unico uomo» si giudica dal genere, senza aspettare le posizioni",
+    fn: () => {
+      const puzzle = basePuzzle(3, 3);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person3");
+      a.gender = "male";
+      b.gender = "female";
+      c.gender = "female";
+      const predicate = buildPredicate(addClue(puzzle, a.id, "onlyOneWithProperty", { property: "male" }), puzzle);
+      assertEqual(predicate(mapOf([]), false), true, "A è l'unico uomo: vero a prescindere da dove stanno");
+      c.gender = "male";
+      const other = buildPredicate(addClue(puzzle, a.id, "onlyOneWithProperty", { property: "male" }), puzzle);
+      assertEqual(other(mapOf([]), false), false, "c'è un altro uomo");
+    },
+  },
+  {
     name: "predicate nextToWall: un lato della casella è muro (fra stanze, con l'esterno o una casella bloccata, o il bordo della mappa)",
     fn: () => {
       const puzzle = basePuzzle(5, 5);

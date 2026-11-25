@@ -104,6 +104,28 @@ export const builders = {
     };
   },
 
+  onlyOneWithProperty: ({ clue, puzzle, ownerId, params }) => {
+    // The owner has the property and no other character does, anywhere on the map. A gender is fixed on the character, so it
+    // settles the verdict without waiting for any position; any other property needs the person to be placed.
+    const hasIt = (pm, c, isComplete) =>
+      params.property === "male" || params.property === "female"
+        ? c.gender === params.property
+        : characterHasProperty(puzzle, pm, c.id, params, isComplete);
+    return (pm, isComplete) => {
+      let undetermined = false;
+      for (const c of puzzle.characters) {
+        const has = hasIt(pm, c, isComplete);
+        if (c.id === ownerId) {
+          if (has === false) return false;
+        } else if (has === true) {
+          return false;
+        }
+        if (has === undefined) undetermined = true;
+      }
+      return undetermined ? undefined : true;
+    };
+  },
+
   aloneInRoom: ({ clue, puzzle, ownerId, params }) => {
     // With no zoneId, "alone" means in whatever room the owner turns out to
     // be in; with one set, it also requires that specific room.

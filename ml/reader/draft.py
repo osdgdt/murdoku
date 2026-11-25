@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
+import subprocess
 from pathlib import Path
 
 from murdoku_ml.record import new_record, save_record
@@ -187,14 +189,38 @@ def card_names(draft: dict) -> list[str]:
     return names
 
 
+_catalog_cache: dict = {}
+
+
+def clue_catalog() -> list[dict]:
+    """I tipi di indizio che si possono comporre col menu (id, nome, parametri), letti dall'app (`tools/ml-catalog.mjs`, serve Node)."""
+    if "types" not in _catalog_cache:
+        node = shutil.which("node")
+        if node is None:
+            raise RuntimeError("Node non è installato: serve per leggere i tipi di indizio dell'app")
+        done = subprocess.run([node, str(REPO_ROOT / "tools" / "ml-catalog.mjs")], capture_output=True, text=True, encoding="utf-8", timeout=60, cwd=REPO_ROOT, check=False)
+        if done.returncode != 0:
+            raise RuntimeError(f"il ponte dei tipi di indizio è uscito con {done.returncode}: {done.stderr.strip()}")
+        _catalog_cache["types"] = json.loads(done.stdout)["types"]
+    return _catalog_cache["types"]
+
+
 def parse_cards(draft: dict) -> list[dict]:
-    """Per ogni scheda: indizi, pezzi non capiti, codici non supportati (la grammatica sulla frase scritta nella bozza)."""
+    """Per ogni scheda: indizi, pezzi non capiti, codici non supportati (la grammatica sulla frase scritta nella bozza).
+
+    Gli indizi composti col menu (`extra`: [{type, negate, params}], con i bersagli simbolici {name|object|room}) si aggiungono a quelli
+    letti dalla frase; un pezzo non capito che la persona ha detto di aver coperto col menu (`covered`) non è più un problema."""
     names = card_names(draft)
     rooms = [r["name"] for r in draft["rooms"]]
     out = []
     for card in draft["cards"]:
         parsed = parse_sentence(card.get("sentence", ""), names, rooms)
-        out.append({"clues": parsed.clues, "unknown": parsed.unknown, "unsupported": parsed.unsupported, "victim": parsed.victim})
+        extra = [e for e in card.get("extra") or [] if isinstance(e, dict) and e.get("type")]
+        covered = set(card.get("covered") or [])
+        if extra:
+            covered.add("")  # una scheda con un indizio composto a mano non è «vuota»
+        clues = parsed.clues + [{"type": e["type"], "params": e.get("params") or {}, "negate": bool(e.get("negate")), "manual": True} for e in extra]
+        out.append({"clues": clues, "unknown": [u for u in parsed.unknown if u not in covered], "unsupported": parsed.unsupported, "victim": parsed.victim})
     return out
 
 
@@ -304,6 +330,8 @@ def assemble(draft: dict) -> tuple[dict | None, list[dict], list[str], list[dict
                     problems.append(f"scheda {cards[card_index]['letter']}: la stanza «{value}» non è nella lista delle stanze")
             elif key in ("a", "b") and isinstance(value, dict):
                 out[key] = {"type": value["type"], "params": resolve_params(value.get("params", {}), card_index)}
+            elif isinstance(value, dict) and any(k in value for k in ("name", "object", "room")):  # un bersaglio scelto col menu
+                out[key] = resolve_target(value, card_index)
             else:
                 out[key] = value
         return out

@@ -93,6 +93,8 @@ export default {
     "Like “shares row/column with”, but with several targets: sharing it with any one of them is enough.",
   "Il personaggio sta nella riga (o colonna) subito accanto a quella del bersaglio: né la stessa, né più lontana.":
     "The character is in the row (or column) right next to the target's: not the same one, not further away.",
+  "Il personaggio sta in una casella con un muro su almeno un lato: la parete fra due stanze, quella fra una stanza e l'esterno (o una casella vuota) o il bordo della mappa. Le caselle in mezzo a una stanza o a un'area aperta non lo sono.":
+    "The character is on a cell with a wall on at least one side: the wall between two rooms, the one between a room and the outside (or an empty cell), or the border of the map. Cells in the middle of a room or of an open area are not.",
   "Il personaggio sta in uno dei quattro angoli della mappa.": "The character is in one of the four corners of the map.",
 
   // rooms

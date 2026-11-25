@@ -17,6 +17,8 @@ export default {
   "Si trova su {v}.": "Stands on {v}.",
   "È seduto/a (su una sedia, uno sgabello, o altro oggetto simile)": "Is seated (on a chair, a stool, or a similar object)",
   "È seduto/a.": "Is seated.",
+  "È accanto a un muro": "Is next to a wall",
+  "È accanto a un muro.": "Is next to a wall.",
   "Sta su una casella sigillo": "Stands on a seal cell",
   "È in mare (o a terra)": "Is at sea (or on land)",
   "È in mare.": "Is at sea.",

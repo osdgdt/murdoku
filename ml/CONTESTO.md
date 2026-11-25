@@ -186,6 +186,7 @@ standard (server su 127.0.0.1), nessun dato nel repository.
 - `reader/review.py` + `review.html`: foto a sinistra (zoom, riquadri A/B/C sulle schede lette), a destra Schede / Mappa / Soluzione
   stampata / Esito. Salvataggio automatico; «Rileggi dalle foto» rifà la bozza da zero.
 - Porte e finestre si segnano a mano sui bordi delle caselle (strumenti «porta» e «finestra» della tab Mappa: `edges` della bozza, `{type, row, col, side}` da 0, scritti come nell'app; la lettura automatica non le trova ancora).
+- Una frase che la grammatica non capisce si può **comporre col menu** («+ indizio con il menu» sotto la scheda): si sceglie il tipo di indizio (l'elenco e i parametri vengono dall'app: `tools/ml-catalog.mjs`, quindi serve Node) e un controllo per ogni parte (persone della bozza, oggetti, stanze, direzione…), con «no (il contrario)». L'indizio sta nella scheda (`extra`: `{type, negate, params}` con bersagli simbolici `{name|object|room}`), si somma a quelli letti dalla frase e non porta parole del libro; il pezzo di frase non capito si segna «fatto col menu» (`covered`). Non ci sono i tipi che dipendono dal caso (ruoli, luoghi da identificare), quelli con un indizio dentro (O) e quelli con proprietà (la persona più a nord…): restano da scrivere nella frase o nella grammatica personale.
 - Limiti noti: il genere dei personaggi resta vuoto; le icone dei personaggi sono
   tutte la stessa (non influiscono sul solver). Il letto di due caselle si segna come «Letto» su entrambe.
 

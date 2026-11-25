@@ -20,6 +20,7 @@ export function rng(seed) {
 export const NEWER_TYPE_IDS = new Set([
   "everyObjectTypeNear",
   "onSeal",
+  "nextToWall",
   "hasRole",
   "roleDirection",
   "roleAllInRoom",

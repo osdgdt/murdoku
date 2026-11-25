@@ -1,6 +1,6 @@
 // Clue types about WHERE a character stands relative to cells, objects, rows/columns and other characters.
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
-import { sealOf } from "../../model/grid.js";
+import { sealOf, isWallEdge } from "../../model/grid.js";
 import { sameFloor, floorBox, localRow } from "../../model/sectors.js";
 import { isDiagonal, isDirection, isDirectionDistance, isSameRowOrCol, manhattan } from "../../util/geometry.js";
 import {
@@ -134,6 +134,15 @@ export const builders = {
       if (!a) return undefined;
       const { top, bottom, right } = floorBox(puzzle.grid, a.row); // the corner of its own floor in a skyscraper
       return (a.row === top || a.row === bottom) && (a.col === 0 || a.col === right);
+    };
+  },
+
+  // A wall on any side of its cell: against another room or the outside, a blocked cell, or the border of the map (of its floor).
+  nextToWall: ({ puzzle, ownerId }) => {
+    return (pm) => {
+      const a = posOfCharacter(pm, ownerId);
+      if (!a) return undefined;
+      return ["N", "E", "S", "W"].some((side) => isWallEdge(puzzle.grid, a.row, a.col, side));
     };
   },
 

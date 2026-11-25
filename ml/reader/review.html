@@ -364,7 +364,8 @@ function cardName(c) { return (c.name || "").trim() || "Personaggio " + c.letter
 function targetOptions(kind, self) {
   const d = state.draft; const persons = d.cards.filter(x => x !== self).map(x => el("option", { value: "n:" + cardName(x) }, cardName(x)));
   if (kind === "zone") return d.rooms.map(r => el("option", { value: "r:" + r.name }, r.name));
-  const objects = Object.entries(meta.objectTypes).map(([id, label]) => el("option", { value: "o:" + id }, label));
+  // porte e finestre non riempiono una casella (stanno sul bordo) ma sono bersagli validi: «accanto a una finestra»
+  const objects = Object.entries({ ...meta.objectTypes, ...(meta.edgeTypes || {}) }).map(([id, label]) => el("option", { value: "o:" + id }, label));
   const groups = [el("optgroup", { label: "Persone" }, ...persons)];
   if (kind === "characterOrObject") groups.push(el("optgroup", { label: "Oggetti" }, el("option", { value: "o:#animal" }, "un animale"), ...objects));
   return groups;
@@ -378,7 +379,7 @@ function manualText(e) {
   const t = typeOf(e.type); if (!t) return e.type;
   const bits = t.params.map(p => {
     const v = (e.params || {})[p.name]; if (v == null) return "";
-    if (typeof v === "object") return v.name || v.room || (v.object === "#animal" ? "un animale" : (meta.objectTypes[v.object] || v.object));
+    if (typeof v === "object") return v.name || v.room || (v.object === "#animal" ? "un animale" : (meta.objectTypes[v.object] || (meta.edgeTypes || {})[v.object] || v.object));
     if (p.kind === "enum") { const o = p.values.find(x => String(x.value) === String(v)); return o ? o.label : v; }
     return v;
   }).filter(Boolean);

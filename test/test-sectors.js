@@ -17,6 +17,7 @@ import {
 import { buildPredicates } from "../src/solver/predicates/index.js";
 import { placeElevator, placeStairs, wayProblems } from "../src/model/floors.js";
 import { typeIdsFor } from "../src/editor/clueDraft.js";
+import { withDeclared } from "../src/model/declared.js";
 import { objectTypeTargetId } from "../src/model/icons.js";
 import { describeClue } from "../src/model/clueTypes.js";
 import { zonesAreAdjacent } from "../src/solver/predicates/helpers.js";
@@ -541,6 +542,39 @@ export const tests = [
     },
   },
   {
+    name: "grattacielo: «a nord di tutti i <ruolo>» confronta la riga di ogni piano, in tutti i piani; si offre coi piani",
+    fn: () => {
+      const puzzle = createPuzzle("Torre");
+      puzzle.grid = resizeGrid(puzzle.grid, 6, 3);
+      assert(setSectors(puzzle.grid, [2, 2, 2], ["Alto", "Medio", "Terra"], "row"));
+      const knight = addRole(puzzle, "Cavaliere", "none");
+      const a = addCharacter(puzzle, "A");
+      const b = addCharacter(puzzle, "B");
+      const c = addCharacter(puzzle, "C");
+      puzzle.solution.roles = { [a.id]: null, [b.id]: knight.id, [c.id]: knight.id };
+      assert(new Set(typeIdsFor(a.id, puzzle)).has("roleDirection"), "si offre coi piani");
+      const holds = (direction, where) => {
+        const clue = addClue(puzzle, a.id, "roleDirection", { direction, roleId: knight.id });
+        const pm = new Map(Object.entries(where).map(([id, [row, col]]) => [id, { row, col }]));
+        const result = buildPredicates(withDeclared(puzzle))
+          .find((p) => p.clue.id === clue.id)
+          .predicate(pm, true);
+        puzzle.clues = puzzle.clues.filter((x) => x.id !== clue.id);
+        return result;
+      };
+      // A in row 1 of the top floor; the knights in row 2 of the middle floor and row 2 of the ground floor: A is north of both
+      assertEqual(
+        holds("north", { [a.id]: [0, 0], [b.id]: [3, 1], [c.id]: [5, 2] }),
+        true,
+        "la riga 1 è a nord della riga 2 di un altro piano"
+      );
+      assertEqual(holds("south", { [a.id]: [0, 0], [b.id]: [3, 1], [c.id]: [5, 2] }), false);
+      // a knight in row 1 of another floor ties with A: not north of him
+      assertEqual(holds("north", { [a.id]: [0, 0], [b.id]: [2, 1], [c.id]: [5, 2] }), false, "stessa riga di un altro piano");
+      assertEqual(holds("east", { [a.id]: [0, 2], [b.id]: [3, 1], [c.id]: [4, 0] }), true, "la colonna è la stessa in ogni piano");
+    },
+  },
+  {
     name: "grattacielo: gli indizi sui piani (stesso piano, più alto/più basso, subito sopra/sotto, al piano…) — verità, negazione, scelta nell'editor e conteggio come la forza bruta",
     fn: () => {
       const puzzle = createPuzzle("Torre");
@@ -577,7 +611,7 @@ export const tests = [
       const offered = (p) => new Set(typeIdsFor(a.id, p));
       for (const id of ["sameFloor", "floorOrder", "onFloor"]) assert(offered(puzzle).has(id), `${id} si offre coi piani`);
       assert(offered(puzzle).has("extremeInDirection"), "«il più a nord di tutti» e «del suo piano» si offrono coi piani");
-      assert(!offered(puzzle).has("roleDirection"), "«a nord di tutti i…» no: le direzioni valgono dentro un piano");
+      assert(!offered(puzzle).has("roleDirection"), "senza ruoli «a nord di tutti i…» non si offre");
       const plain = createPuzzle("Piano");
       addCharacter(plain, "A");
       for (const id of ["sameFloor", "floorOrder", "onFloor"])

@@ -81,10 +81,6 @@ export function draftFromClue(clue) {
   };
 }
 
-// «North of all the cooks» looks at a role's people in every floor, and on a skyscraper directions only count inside one floor:
-// not offered there (the extremes of all or of one's own floor are).
-const NO_FLOORS_TYPES = new Set(["roleDirection"]);
-
 // The types a clue can have: those of a character, or the general ones.
 // The clues about roles are only offered when the case has roles to talk about, those about the names of places when it
 // has places whose name is to be deduced.
@@ -97,7 +93,7 @@ export function typeIdsFor(characterId, puzzle = null) {
     (id) =>
       (hasRoles(puzzle) || !about(id, "roles")) &&
       (hasHiddenNames(puzzle) || !about(id, "placeNames")) &&
-      (floors ? !NO_FLOORS_TYPES.has(id) : !CLUE_TYPES[id].floors)
+      (floors || !CLUE_TYPES[id].floors)
   );
 }
 

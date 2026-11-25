@@ -20,9 +20,9 @@ export default {
   "Fatti sulla scena": "Facts about the scene",
   "Indizi generali: non riguardano un personaggio solo, ma tutta la scena.":
     "General clues: they are not about one character, but about the whole scene.",
-  Piani: "Floors",
-  "Grattacieli: i piani si guardano uno per uno, e due persone sono vicine fra piani diversi solo per scale e ascensore.":
-    "Skyscrapers: floors are read one by one, and two people on different floors are next to each other only through stairs or a lift.",
+  "Treno e grattacielo": "Train and skyscraper",
+  "Casi con più mappe in una: vagoni affiancati (treno) o piani impilati (grattacielo). Ogni piano si guarda da solo, e due persone sono vicine fra piani diversi solo per scale e ascensore.":
+    "Cases with several maps in one: wagons side by side (train) or floors stacked up (skyscraper). Each floor is read on its own, and two people on different floors are next to each other only through stairs or a lift.",
   "Combinare gli indizi": "Combining clues",
   "Come unire due indizi in uno.": "How to join two clues into one.",
 
@@ -216,6 +216,35 @@ export default {
   "Confronta il piano di due persone: più in alto, più in basso, oppure subito sopra o subito sotto (il piano vicino). Il piano più in alto è il primo della lista.":
     "Compares the floors of two people: higher, lower, or just above or just below (the neighbouring floor). The highest floor is the first of the list.",
   "La persona è in un piano preciso, scelto per nome.": "The person is on one particular floor, chosen by name.",
+  Merci: "Freight",
+  Passeggeri: "Passengers",
+  "Il treno: vagoni affiancati": "The train: wagons side by side",
+  "In un caso a treno la mappa è divisa in vagoni, uno accanto all'altro. Le colonne sono numerate da un vagone all'altro (C1…C6) e ognuna ha una sola persona; le righe si ripetono in ogni vagone (R1…R4) e in ciascun vagone c'è al massimo una persona per riga.":
+    "In a train case the map is divided into wagons, one next to the other. The columns are numbered from one wagon to the next (C1…C6) and each has just one person; the rows repeat in every wagon (R1…R4) and in each wagon there is at most one person per row.",
+  "La riga R3 del primo vagone resta libera anche se un'altra persona sta nella R3 del secondo: sono due righe diverse. Un ruolo può valere «uno solo per vagone o piano».":
+    "Row R3 of the first wagon stays free even if someone else is in R3 of the second: they are two different rows. A role can be “only one per wagon or floor”.",
+  "Il grattacielo: piani impilati": "The skyscraper: stacked floors",
+  "Ogni piano è una mappa con le sue righe e colonne (R1, R2… e C1, C2… in ciascun piano). Le persone si dispongono come in un cubo: al massimo una per riga, una per colonna di ogni piano e una per «pilastro», cioè la stessa casella (stessa riga e colonna) su tutti i piani.":
+    "Each floor is a map with its own rows and columns (R1, R2… and C1, C2… on every floor). People are arranged like in a cube: at most one per row, one per column of each floor and one per “pillar”, that is the same cell (same row and column) on all floors.",
+  "Le caselle sopra e sotto una persona, nella stessa posizione degli altri piani, sono escluse per tutti.":
+    "The cells above and below a person, in the same position on the other floors, are ruled out for everybody.",
+  "Accanto all'ascensore": "Next to the lift",
+  "L'ascensore è un pozzo che attraversa tutti i piani, sempre nella stessa casella (stessa riga e stessa colonna di ciascun piano). Chi sta sull'ascensore di un piano è accanto all'ascensore di tutti gli altri piani; su ogni piano è accanto all'ascensore anche chi sta in una casella vicina.":
+    "The lift is a shaft that crosses all floors, always in the same cell (same row and same column of each floor). Whoever stands on the lift of one floor is next to the lift of all the other floors; on each floor, whoever stands in a neighbouring cell is next to the lift too.",
+  "In un pozzo c'è al massimo una persona, e fra piani diversi non si è mai vicini senza ascensore o scale.":
+    "A shaft holds at most one person, and on different floors one is never next to anything without the lift or the stairs.",
+  "Accanto alle scale": "Next to the stairs",
+  "Le scale collegano una casella di un piano a una casella del piano sopra o sotto. Chi sta su un'estremità è accanto all'altra estremità; in ogni piano è accanto alle scale anche chi sta in una casella vicina.":
+    "The stairs join a cell of one floor to a cell of the floor above or below. Whoever stands on one end is next to the other end; on each floor, whoever stands in a neighbouring cell is next to the stairs too.",
+  "Il più a nord di tutti i piani": "The northernmost of all floors",
+  "Con «su tutta la mappa» si confrontano tutti i piani: la riga di ciascun piano (la prima è la più a nord) e le colonne. Chi ha la stessa riga in un altro piano è pari: l'indizio è falso. Lo stesso confronto vale per «a nord di tutti i…» di un ruolo.":
+    "With “on the whole map” all floors are compared: the row of each floor (the first is the northernmost) and the columns. Whoever has the same row on another floor is level: the clue is false. The same comparison holds for “north of all the…” of a role.",
+  "Il più a nord del suo piano": "The northernmost of their floor",
+  "Con «nel suo piano» si guardano solo le persone dello stesso piano: negli altri piani nessuno conta.":
+    "With “on their floor” only the people on the same floor are looked at: on the other floors nobody counts.",
+  "Riga e colonna in ogni piano": "Row and column on every floor",
+  "In un grattacielo ogni piano ha le sue righe e colonne: «riga 2» è la seconda riga di ciascun piano, «colonna 3» la terza colonna di ciascun piano. Lo stesso vale per pari e dispari.":
+    "In a skyscraper every floor has its own rows and columns: “row 2” is the second row of each floor, “column 3” the third column of each floor. The same goes for odd and even.",
   // hidden roles
   "Nobili, villici, cavalieri, fuorilegge, mansioni: ruoli che nessuno dichiara e che si deducono.":
     "Nobles, villagers, knights, outlaws, tasks: roles that nobody declares and that are deduced.",

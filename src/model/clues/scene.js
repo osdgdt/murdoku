@@ -1,5 +1,5 @@
 import { t } from "../../i18n/i18n.js";
-import { targetLabel, axisNoun, describeProperty, describeNestedClue, propertyParams } from "./shared.js";
+import { targetLabel, axisNoun, describeProperty, describeNestedClue, propertyParams, objectTypePhrase } from "./shared.js";
 
 // "No one [who is X] is in the room Z" and its negation ("Someone ..."), for noOneWithProperty.
 function noOneWithPropertySentence(params, puzzle, negated) {
@@ -41,6 +41,41 @@ function peopleNearSentence(params, puzzle, negated) {
   return same
     ? t("Esattamente {count} persone sono accanto a {v}, sempre lo stesso.", { count, v })
     : t("Esattamente {count} persone sono accanto a {v}.", { count, v });
+}
+
+// «Esattamente 2 persone sono sedute su una sedia» (also «un uomo», «2 donne», «accanto a…» or any other condition).
+function exactlyNWithPropertySentence(params, puzzle) {
+  const count = Number.isFinite(params.count) ? params.count : 1;
+  const one = count === 1;
+  switch (params.property) {
+    case "male":
+      return one ? t("Esattamente un uomo.") : t("Esattamente {count} uomini.", { count });
+    case "female":
+      return one ? t("Esattamente una donna.") : t("Esattamente {count} donne.", { count });
+    case "seated":
+      return one ? t("Esattamente una persona è seduta.") : t("Esattamente {count} persone sono sedute.", { count });
+    case "sittingOn": {
+      const object = objectTypePhrase(params.objectTypeId);
+      return one
+        ? t("Esattamente una persona è seduta su {object}.", { object })
+        : t("Esattamente {count} persone sono sedute su {object}.", { count, object });
+    }
+    case "adjacentTo": {
+      const target = targetLabel(puzzle, params.targetId);
+      return one
+        ? t("Esattamente una persona è accanto a {target}.", { target })
+        : t("Esattamente {count} persone sono accanto a {target}.", { count, target });
+    }
+    case "custom": {
+      const condition = describeNestedClue(params.customClue, puzzle);
+      if (!condition) return one ? t("Esattamente una persona che ?.") : t("Esattamente {count} persone che ?.", { count });
+      return one
+        ? t("Esattamente una persona per cui vale: {condition}.", { condition })
+        : t("Esattamente {count} persone per cui vale: {condition}.", { count, condition });
+    }
+    default:
+      return one ? t("Esattamente una persona che ?.") : t("Esattamente {count} persone che ?.", { count });
+  }
 }
 
 export const SCENE_CLUES = {
@@ -102,6 +137,12 @@ export const SCENE_CLUES = {
   },
   // «C'era almeno una persona accanto a ciascun tipo di oggetto»: every type of object on the map (animals too, doors and
   // windows excluded) has somebody next to at least one of its pieces.
+  exactlyNWithProperty: {
+    scope: "generic",
+    label: t("Esattamente N persone hanno questa proprietà..."),
+    params: [{ name: "count", kind: "number", min: 1, label: t("Quante persone") }, ...propertyParams],
+    describe: (params, puzzle) => exactlyNWithPropertySentence(params, puzzle),
+  },
   everyObjectTypeNear: {
     scope: "generic",
     label: t("Qualcuno è accanto a ogni tipo di oggetto"),

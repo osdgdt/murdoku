@@ -10,6 +10,7 @@ import {
   zoneAt,
   zoneCellCount,
   characterHasProperty,
+  personHasProperty,
 } from "./helpers.js";
 
 export const builders = {
@@ -255,6 +256,22 @@ export const builders = {
       }
       if (anyUndetermined) return undefined;
       return isComplete ? true : undefined;
+    };
+  },
+
+  // «Esattamente N persone hanno questa proprietà» (sedute su una sedia, uomini, accanto a una finestra…), in tutta la mappa.
+  exactlyNWithProperty: ({ clue, puzzle, ownerId, params }) => {
+    const wanted = Number.isFinite(params.count) ? params.count : 1;
+    return (pm, isComplete) => {
+      let yes = 0;
+      let undetermined = 0;
+      for (const c of puzzle.characters) {
+        const has = personHasProperty(puzzle, pm, c, params, isComplete);
+        if (has === true) yes++;
+        else if (has === undefined) undetermined++;
+      }
+      if (yes > wanted || yes + undetermined < wanted) return false; // too many already, or not enough left to reach N
+      return undetermined === 0 ? yes === wanted : undefined;
     };
   },
 

@@ -1563,6 +1563,108 @@ export const tests = [
     },
   },
   {
+    name: "predicate exactlyNWithProperty: esattamente N persone sedute su una sedia, in tutta la mappa",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      placeObject(puzzle.grid, "chair", 0, 0);
+      placeObject(puzzle.grid, "chair", 3, 3);
+      placeObject(puzzle.grid, "chair", 1, 2);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person3");
+      const clue = addClue(puzzle, null, "exactlyNWithProperty", { count: 2, property: "sittingOn", objectTypeId: "chair" });
+      const predicate = buildPredicate(clue, puzzle);
+      const holds = (cells, complete = true) => predicate(mapOf(cells.map(([ch, row, col]) => [ch.id, { row, col }])), complete);
+      assertEqual(
+        holds([
+          [a, 0, 0],
+          [b, 3, 3],
+          [c, 2, 1],
+        ]),
+        true,
+        "due su una sedia"
+      );
+      assertEqual(
+        holds([
+          [a, 0, 0],
+          [b, 1, 1],
+          [c, 2, 1],
+        ]),
+        false,
+        "una sola sedia occupata"
+      );
+      assertEqual(
+        holds([
+          [a, 0, 0],
+          [b, 3, 3],
+          [c, 1, 2],
+        ]),
+        false,
+        "tre su una sedia: una di troppo"
+      );
+      assertEqual(
+        holds(
+          [
+            [a, 0, 0],
+            [b, 3, 3],
+            [c, 1, 2],
+          ],
+          false
+        ),
+        false,
+        "una di troppo basta a dirlo falso anche a mappa incompleta"
+      );
+      assertEqual(
+        holds(
+          [
+            [a, 0, 0],
+            [b, 1, 1],
+          ],
+          false
+        ),
+        undefined,
+        "c è ancora da piazzare: può arrivare alla seconda sedia"
+      );
+      assertEqual(
+        holds(
+          [
+            [a, 1, 1],
+            [b, 2, 2],
+          ],
+          false
+        ),
+        false,
+        "nessuna sedia occupata e resta solo c da piazzare: non si arriva a due"
+      );
+      assert(describeClue(clue, puzzle).startsWith("Esattamente 2 persone sono sedute su una sedia"), describeClue(clue, puzzle));
+      assert(
+        describeClue({ ...clue, negate: true }, puzzle).startsWith("Non è vero che esattamente 2"),
+        describeClue({ ...clue, negate: true }, puzzle)
+      );
+      const one = addClue(puzzle, null, "exactlyNWithProperty", { count: 1, property: "seated" });
+      assertEqual(describeClue(one, puzzle), "Esattamente una persona è seduta.");
+    },
+  },
+  {
+    name: "predicate exactlyNWithProperty: «esattamente 2 uomini» si giudica dal genere, senza aspettare le posizioni",
+    fn: () => {
+      const puzzle = basePuzzle(3, 3);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const c = addCharacter(puzzle, "C", "person3");
+      a.gender = "male";
+      b.gender = "male";
+      c.gender = "female";
+      const two = buildPredicate(addClue(puzzle, null, "exactlyNWithProperty", { count: 2, property: "male" }), puzzle);
+      assertEqual(two(mapOf([]), false), true, "gli uomini sono due, ovunque stiano");
+      const three = buildPredicate(addClue(puzzle, null, "exactlyNWithProperty", { count: 3, property: "male" }), puzzle);
+      assertEqual(three(mapOf([]), false), false, "non ci sono tre uomini");
+      const women = addClue(puzzle, null, "exactlyNWithProperty", { count: 2, property: "female" });
+      assertEqual(buildPredicate(women, puzzle)(mapOf([]), false), false, "c'è una donna sola");
+      assertEqual(describeClue(women, puzzle), "Esattamente 2 donne.");
+    },
+  },
+  {
     name: "predicate nextToWall: un lato della casella è muro (fra stanze, con l'esterno o una casella bloccata, o il bordo della mappa)",
     fn: () => {
       const puzzle = basePuzzle(5, 5);

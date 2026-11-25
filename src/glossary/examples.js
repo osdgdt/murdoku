@@ -879,6 +879,29 @@ export const ENTRIES = [
     },
     falseCast: { a: [0, 1], b: [2, 0] },
   },
+  {
+    id: "exactlyNWithProperty",
+    type: "exactlyNWithProperty",
+    family: "scene",
+    owner: null,
+    params: { count: 2, property: "sittingOn", objectTypeId: "chair" },
+    explain: () =>
+      t(
+        "In tutta la mappa ci sono esattamente tante persone con una certa caratteristica (sedute su una sedia, uomini, donne, accanto a un oggetto…). Né una di più né una di meno."
+      ),
+    tip: () => t("Con «no» diventa «non è vero che sono esattamente N»: possono essere di più o di meno."),
+    world: {
+      map: FOUR_ROOMS,
+      rooms: ROOM_NAMES,
+      objects: [
+        { type: "chair", at: [0, 1] },
+        { type: "chair", at: [2, 0] },
+        { type: "chair", at: [3, 3] },
+      ],
+      cast: { a: { at: [0, 1] }, b: { at: [2, 0] }, c: { at: [1, 4] } },
+    },
+    falseCast: { c: [3, 3] },
+  },
 
   // ===================================================================== trains and skyscrapers
   {

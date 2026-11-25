@@ -422,6 +422,7 @@ function buildMenu(host, where) {
     for (const p of t.params.filter(visible)) {
       const raw = m.fields[p.name];
       if (raw == null || raw === "") { if (p.optional) continue; alert("Manca: " + p.label); return; }
+      if (p.kind === "number" && (!(parseInt(raw, 10) >= (p.min == null ? -Infinity : p.min)))) { alert(p.label + ": numero non valido"); return; }
       params[p.name] = p.kind === "number" ? parseInt(raw, 10) : p.kind === "enum" ? (p.values.find(v => String(v.value) === raw) || {}).value : targetValue(raw);
     }
     where.list().push({ type: t.id, negate: m.negate, params }); state.menu = null; renderEditor(); changed();

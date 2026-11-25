@@ -13,7 +13,8 @@ UNSUPPORTED: dict[str, tuple[str, str]] = {
         "L'app ora li rappresenta (nobili, fuorilegge, mansioni: `puzzle.roles`) ma il lettore non li legge ancora: né i ruoli, né i conteggi, né gli indizi sui ruoli",
         "caso 75 «Al circo»",
     ),
-    "not_next_to_wall": ("«Non era accanto a un muro»", "caso 4 «Quattro finestre»"),
+    # (ora c'è: l'indizio «È accanto a un muro», che la grammatica legge; il codice resta per i record già salvati)
+    "not_next_to_wall": ("«Non era accanto a un muro» (ora l'app lo rappresenta)", "caso 4 «Quattro finestre»"),
     "relative_empty_column": (
         "«La colonna direttamente a est/ovest di lei/lui era vuota» (colonna vuota relativa a chi parla)",
         "caso 75",

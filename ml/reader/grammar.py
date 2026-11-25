@@ -304,6 +304,17 @@ def _parse_clause(text: str, names: list[str], rooms: list[str], out: Parsed) ->
             out.clues.append({"type": "orClue", "params": {"a": subs[0], "b": subs[1]}, **({"negate": True} if negate else {})})
         return
 
+    # «Era l'unica persona seduta su una sedia / accanto a una finestra», «l'unica donna»: lei ha la caratteristica e nessun altro sulla mappa
+    m = re.match(r"(?i)l'unic[oa]\s+(?:(uomo|donna)\b|persona\s+(.+))", body)
+    if m:
+        before = len(out.unsupported)
+        prop = _only_one_property(m.group(1), m.group(2), names, rooms, out)
+        if prop is not None:
+            out.clues.append(_clause("onlyOneWithProperty", prop, negate))
+        elif len(out.unsupported) == before:
+            out.unknown.append(text)
+        return
+
     m = re.match(rf"(?i)(?:{POSTURE}\s+)?{ON}(.+)", body)
     if m:
         obj, bad = _object_in(m.group(1))
@@ -330,8 +341,8 @@ def _parse_clause(text: str, names: list[str], rooms: list[str], out: Parsed) ->
 
     m = re.match(r"(?i)(?:accanto|vicino)\s+a(?:ll'|l|lla|llo|i|gli|lle)?\s*(.+)", body)
     if m:
-        if re.search(r"(?i)\bun muro\b|\bmuro\b", m.group(1)):
-            out.unsupported.append("not_next_to_wall" if negate else "unknown_clue")
+        if re.search(r"(?i)\bmuro\b", m.group(1)):  # «accanto a un muro»: un lato della casella è parete
+            out.clues.append(_clause("nextToWall", {}, negate))
             return
         target = _target(m.group(1), names)
         if target:
@@ -391,6 +402,56 @@ def _parse_clause(text: str, names: list[str], rooms: list[str], out: Parsed) ->
                 out.clues.append(_clause("inRoom", {"room": room}, negate))
                 return
     out.unknown.append(text)
+
+
+_seat_cache: set[str] = set()
+
+
+def _seat_types() -> set[str]:
+    """I tipi di oggetto su cui ci si siede (sedia, sgabello…), letti da src/model/icons.js così non si disallineano."""
+    if not _seat_cache:
+        from murdoku_ml.validate import REPO_ROOT
+
+        text = (REPO_ROOT / "src" / "model" / "icons.js").read_text(encoding="utf-8")
+        _seat_cache.update(m.group(1) for m in re.finditer(r"^\s{2}(\w+): \{[^\n]*\bseat: true", text, re.M))
+    return _seat_cache
+
+
+def _only_one_property(gender: str | None, rest: str | None, names: list[str], rooms: list[str], out: Parsed) -> dict | None:
+    """La caratteristica di «l'unica persona …» (parametri di `onlyOneWithProperty`), o None se non si capisce (o non è supportata:
+    il motivo è già in `out.unsupported`)."""
+    if gender:
+        return {"property": "male" if gender.lower() == "uomo" else "female"}
+    rest = re.sub(r"(?i)^che\s+(?:era|è|e'|stava|si\s+trovava)\s+", "", (rest or "").strip())
+    if re.fullmatch(r"(?i)sedut[oa]", rest):
+        return {"property": "seated"}
+    m = re.match(rf"(?i)(?:{POSTURE}\s+)?{ON}(.+)", rest)
+    if m:
+        obj, bad = _object_in(m.group(1))
+        if bad:
+            out.unsupported.append(bad)
+            return None
+        if obj in _seat_types():
+            return {"property": "sittingOn", "objectTypeId": obj}
+        if obj:  # su un tappeto, in sella a un cavallo…: non è una seduta, è «su un oggetto di quel tipo»
+            return {"property": "custom", "customClue": {"type": "onObjectType", "params": {"objectTypeId": obj}}}
+        return None
+    m = re.match(r"(?i)(?:accanto|vicino)\s+a(?:ll'|l|lla|llo|i|gli|lle)?\s*(.+)", rest)
+    if m and not re.search(r"(?i)\bmuro\b", m.group(1)):
+        target = _target(m.group(1), names)
+        if target:
+            return {"property": "adjacentTo", "target": target}
+        if _object_in(m.group(1))[1]:
+            out.unsupported.append(_object_in(m.group(1))[1])
+        return None
+    # qualunque altra condizione che la grammatica sa leggere («nella Cucina», «in un angolo», «a nord di Bors»): indizio annidato
+    sub = Parsed()
+    _parse_clause("Era " + rest, names, rooms, sub)
+    out.unsupported += sub.unsupported
+    if len(sub.clues) == 1 and not sub.unknown and not sub.unsupported:
+        clue = {k: v for k, v in sub.clues[0].items() if k in ("type", "params", "negate")}
+        return {"property": "custom", "customClue": clue}
+    return None
 
 
 def _number(word: str) -> int | None:

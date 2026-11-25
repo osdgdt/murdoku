@@ -229,6 +229,18 @@ def test_indizio_generale_col_menu_non_ha_personaggio_e_si_risolve():
     assert generic[2]["params"]["onlyGender"] == "female"
 
 
+def test_indizio_generale_esattamente_n_persone_col_menu():
+    types = {t["id"]: t for t in D.clue_catalog()}
+    count = {p["name"]: p for p in types["exactlyNWithProperty"]["params"]}["count"]
+    assert types["exactlyNWithProperty"]["scope"] == "generic" and count["kind"] == "number" and count["min"] == 1
+    d = tiny_draft()
+    d["general"] = [{"type": "exactlyNWithProperty", "negate": False, "params": {"count": 2, "property": "sittingOn", "objectTypeId": "chair"}}]
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    clue = [c for c in puzzle["clues"] if c["characterId"] is None][0]
+    assert clue["type"] == "exactlyNWithProperty" and clue["params"] == {"count": 2, "property": "sittingOn", "objectTypeId": "chair"}
+
+
 def test_indizio_generale_con_bersaglio_sconosciuto_e_un_problema():
     d = tiny_draft()
     d["general"] = [{"type": "noOneNear", "negate": False, "params": {"targetId": {"name": "Zeno"}}}]

@@ -317,7 +317,7 @@ function renderCards(ed) {
         el("span", { class: "msg" }, c.conf ? "OCR " + c.conf + "%" : ""), el("span", { style: "flex:1" }),
         el("button", { title: "su", onclick: ev => { ev.stopPropagation(); move(i, -1); } }, "↑"), el("button", { title: "giù", onclick: ev => { ev.stopPropagation(); move(i, 1); } }, "↓"),
         el("button", { title: "elimina la scheda", onclick: ev => { ev.stopPropagation(); if (confirm("Elimino la scheda " + c.letter + "?")) { d.cards.splice(i, 1); relabel(); renderEditor(); changed(); } } }, "✕")),
-      ta, res);
+      ta, res, el("div", { id: "menu" + c.letter, onclick: ev => ev.stopPropagation() }));
     list.append(box);
   });
   ed.replaceChildren(
@@ -330,6 +330,7 @@ function renderCards(ed) {
       list, el("button", { onclick: () => { d.cards.push({ letter: "?", name: "", sentence: "", victim: false }); relabel(); renderEditor(); changed(); } }, "+ aggiungi una scheda (persa dalla lettura)"),
       el("button", { onclick: sortByName, title: "Ordina le schede e assegna A, B, C… dall'ordine alfabetico dei nomi (la vittima è V)" }, "Ordina le lettere per nome")));
   renderResults();
+  d.cards.forEach(renderClueMenu);
 }
 function wordingBox() {
   if (meta.grammarError) return el("p", { class: "msg warn" }, "Errore nella tua grammatica personale: " + meta.grammarError);
@@ -356,14 +357,75 @@ function clueText(c) {
   const p = c.params || {}; const bits = Object.entries(p).map(([k, v]) => `${k}=${typeof v === "object" ? JSON.stringify(v) : v}`);
   return (c.negate ? "NON " : "") + c.type + (bits.length ? " (" + bits.join(", ") + ")" : "");
 }
+// ---------------------------------------------------------------- indizio composto col menu (quando la frase non si capisce)
+// Come nell'editor dell'app: scegli il tipo di indizio, poi un controllo per ogni parte. I tipi e i loro parametri vengono dall'app (meta.clueTypes).
+function cardName(c) { return (c.name || "").trim() || "Personaggio " + c.letter; }
+function targetOptions(kind, self) {
+  const d = state.draft; const persons = d.cards.filter(x => x !== self).map(x => el("option", { value: "n:" + cardName(x) }, cardName(x)));
+  if (kind === "zone") return d.rooms.map(r => el("option", { value: "r:" + r.name }, r.name));
+  const objects = Object.entries(meta.objectTypes).map(([id, label]) => el("option", { value: "o:" + id }, label));
+  const groups = [el("optgroup", { label: "Persone" }, ...persons)];
+  if (kind === "characterOrObject") groups.push(el("optgroup", { label: "Oggetti" }, el("option", { value: "o:#animal" }, "un animale"), ...objects));
+  return groups;
+}
+function targetValue(v) {
+  if (!v) return null; const kind = v[0], text = v.slice(2);
+  return kind === "n" ? { name: text } : kind === "o" ? { object: text } : { room: text };
+}
+function typeOf(id) { return (meta.clueTypes || []).find(t => t.id === id); }
+function manualText(e) {
+  const t = typeOf(e.type); if (!t) return e.type;
+  const bits = t.params.map(p => {
+    const v = (e.params || {})[p.name]; if (v == null) return "";
+    if (typeof v === "object") return v.name || v.room || (v.object === "#animal" ? "un animale" : (meta.objectTypes[v.object] || v.object));
+    if (p.kind === "enum") { const o = p.values.find(x => String(x.value) === String(v)); return o ? o.label : v; }
+    return v;
+  }).filter(Boolean);
+  return (e.negate ? "NON — " : "") + t.label + (bits.length ? ": " + bits.join(", ") : "");
+}
+function renderClueMenu(c) {
+  const host = $("#menu" + c.letter); if (!host) return;
+  const m = state.menu; const open = m && m.letter === c.letter;
+  if (!meta.clueTypes || !meta.clueTypes.length) { host.replaceChildren(el("p", { class: "msg" }, "Il menu degli indizi non c'è" + (meta.clueTypesError ? ": " + meta.clueTypesError : "") + ".")); return; }
+  if (!open) { host.replaceChildren(el("button", { title: "Quando la frase non si capisce: scegli l'indizio da un menu, come nell'editor", onclick: () => { state.menu = { letter: c.letter, type: "", negate: false, fields: {} }; renderClueMenu(c); } }, "+ indizio con il menu")); return; }
+  const typeSel = el("select", { onchange: e => { m.type = e.target.value; m.fields = {}; renderClueMenu(c); } },
+    el("option", { value: "" }, "— che cosa dice l'indizio —"), ...meta.clueTypes.map(t => el("option", { value: t.id }, t.label)));
+  typeSel.value = m.type;
+  const t = typeOf(m.type); const controls = [];
+  if (t) for (const p of t.params) {
+    let input;
+    if (p.kind === "enum") input = el("select", { onchange: e => { m.fields[p.name] = e.target.value; } }, el("option", { value: "" }, "—"), ...p.values.map(v => el("option", { value: String(v.value) }, v.label)));
+    else if (p.kind === "number") input = el("input", { type: "number", min: p.min == null ? "" : String(p.min), class: "small", oninput: e => { m.fields[p.name] = e.target.value; } });
+    else { input = el("select", { onchange: e => { m.fields[p.name] = e.target.value; } }, el("option", { value: "" }, "—"), ...targetOptions(p.kind, c)); }
+    input.value = m.fields[p.name] || "";
+    controls.push(el("label", { class: "msg" }, p.label + " ", input));
+  }
+  const negate = el("input", { type: "checkbox", onchange: e => { m.negate = e.target.checked; } }); negate.checked = m.negate;
+  const add = el("button", { class: "primary", onclick: () => {
+    if (!t) return;
+    const params = {};
+    for (const p of t.params) {
+      const raw = m.fields[p.name];
+      if (raw == null || raw === "") { if (p.kind === "number" && p.name === "distance") continue; alert("Manca: " + p.label); return; }
+      params[p.name] = p.kind === "number" ? parseInt(raw, 10) : p.kind === "enum" ? (p.values.find(v => String(v.value) === raw) || {}).value : targetValue(raw);
+    }
+    (c.extra = c.extra || []).push({ type: t.id, negate: m.negate, params }); state.menu = null; renderEditor(); changed();
+  } }, "Aggiungi l'indizio");
+  host.replaceChildren(el("div", { class: "card" }, el("div", { class: "row" }, typeSel, el("label", {}, negate, " no (il contrario)")),
+    el("div", { class: "row" }, ...controls), el("div", { class: "row" }, add, el("button", { onclick: () => { state.menu = null; renderClueMenu(c); } }, "Annulla"))));
+}
 function renderResults() {
   const a = state.analysis; if (!a || state.tab !== "cards") return;
   state.draft.cards.forEach((c, i) => {
     const box = $("#res" + c.letter); if (!box) return; const r = a.cards[i]; if (!r) return;
+    const manual = r.clues.filter(x => x.manual);
     box.replaceChildren(
-      ...r.clues.map(x => el("div", { class: "clue" }, "✓ " + clueText(x) + ((state.draft.wording || meta.defaultWording) === "mio" && x.source ? "  →  nel gioco: «" + x.source + "»" : ""))),
+      ...r.clues.filter(x => !x.manual).map(x => el("div", { class: "clue" }, "✓ " + clueText(x) + ((state.draft.wording || meta.defaultWording) === "mio" && x.source ? "  →  nel gioco: «" + x.source + "»" : ""))),
+      ...manual.map((x, k) => el("div", { class: "clue" }, "✓ col menu: " + manualText(c.extra[k]) + " ",
+        el("button", { title: "toglie questo indizio", onclick: ev => { ev.stopPropagation(); c.extra.splice(k, 1); renderEditor(); changed(); } }, "✕"))),
       ...(r.victim ? [el("div", { class: "clue" }, "✓ vittima, sola con l'assassino")] : []),
-      ...r.unknown.filter(Boolean).map(x => el("div", { class: "unk" }, "✗ non capita: " + x)),
+      ...r.unknown.filter(Boolean).map(x => el("div", { class: "unk" }, "✗ non capita: " + x + " ",
+        el("button", { title: "L'ho scritto col menu: non è più un problema", onclick: ev => { ev.stopPropagation(); (c.covered = c.covered || []).push(x); renderEditor(); changed(); } }, "fatto col menu"))),
       ...r.unsupported.map(x => el("div", { class: "uns" }, "⚠ non supportata dall'app: " + (meta.unsupported[x] || x))),
       ...(!r.clues.length && !r.unknown.length && !r.unsupported.length && !r.victim ? [el("div", { class: "unk" }, "✗ nessun indizio")] : []));
   });

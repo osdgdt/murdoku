@@ -155,6 +155,11 @@ export const PLACEMENT_CLUES = {
     params: [],
     describe: () => t("Si trova in un angolo della mappa."),
   },
+  nextToWall: {
+    label: t("È accanto a un muro"),
+    params: [],
+    describe: () => t("È accanto a un muro."),
+  },
   onSeal: {
     label: t("Sta su una casella sigillo"),
     // Seals (Egypt / Rome) are drawn on the map by the author; the clue says only which kind

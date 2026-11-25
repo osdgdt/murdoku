@@ -26,6 +26,7 @@ import { placeElevator, placeStairs } from "../model/floors.js";
 // Map letters: a room each ('.' = no room, '#' = blocked cell).
 const OPEN = [".....", ".....", ".....", ".....", "....."];
 const TWO_ROOMS = ["AAABB", "AAABB", "AAABB", "AAABB", "AAABB"];
+const ONE_ROOM = ["AAAAA", "AAAAA", "AAAAA", "AAAAA", "AAAAA"];
 const FOUR_ROOMS = ["AAABB", "AAABB", "CCCDD", "CCCDD", "CCCDD"];
 export const ROOM_NAMES = () => ({ A: t("Cucina"), B: t("Salotto"), C: t("Studio"), D: t("Bagno") });
 // A skyscraper of three floors of two rows each (the highest first); the map is the 6 rows of the three floors one under the other.
@@ -230,6 +231,18 @@ export const ENTRIES = [
         { type: "table", at: [0, 3] },
       ],
     },
+  },
+  {
+    id: "nextToWall",
+    type: "nextToWall",
+    family: "rooms",
+    owner: "a",
+    params: {},
+    explain: () =>
+      t(
+        "Il personaggio sta in una casella con un muro su almeno un lato: la parete fra due stanze, quella fra una stanza e l'esterno (o una casella vuota) o il bordo della mappa. Le caselle in mezzo a una stanza o a un'area aperta non lo sono."
+      ),
+    world: { map: ONE_ROOM, rooms: ROOM_NAMES, cast: { b: { at: [0, 3] }, c: { at: [4, 1] } } },
   },
   {
     id: "onSeal",

@@ -1426,6 +1426,30 @@ export const tests = [
     },
   },
   {
+    name: "predicate nextToWall: un lato della casella è muro (fra stanze, con l'esterno o una casella bloccata, o il bordo della mappa)",
+    fn: () => {
+      const puzzle = basePuzzle(5, 5);
+      const a = addCharacter(puzzle, "A", "person1");
+      const clue = addClue(puzzle, a.id, "nextToWall", {});
+      const predicate = buildPredicate(clue, puzzle);
+      const holds = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
+      assertEqual(predicate(mapOf([]), false), undefined, "non ancora piazzato");
+      assertEqual(holds(2, 2), false, "senza stanze, in mezzo alla mappa: nessun muro");
+      assertEqual(holds(0, 2), true, "sul bordo della mappa");
+      assertEqual(holds(1, 4), true, "sul bordo destro");
+      const room = addZone(puzzle.grid, "Salotto", "#fff");
+      for (let r = 1; r < 4; r++) for (let c = 1; c < 4; c++) paintCellZone(puzzle.grid, r, c, room.id);
+      assertEqual(holds(2, 2), false, "al centro della stanza 3×3: nessun muro");
+      assertEqual(holds(1, 2), true, "nella stanza, contro il suo muro");
+      assertEqual(holds(0, 1), true, "fuori dalla stanza, contro il suo muro");
+      const other = addZone(puzzle.grid, "Studio", "#eee");
+      paintCellZone(puzzle.grid, 2, 3, other.id);
+      assertEqual(holds(2, 2), true, "ora una cella di un'altra stanza gli è accanto");
+      setBlocked(puzzle.grid, 2, 1, true);
+      assertEqual(holds(2, 2), true, "o una casella bloccata");
+    },
+  },
+  {
     name: "predicate inRoomCorner: vero negli angoli della propria stanza, non della mappa",
     fn: () => {
       const puzzle = basePuzzle(4, 4);

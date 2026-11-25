@@ -23,6 +23,7 @@ const LOCAL_TYPES = new Set([
   "inRoomCorner",
   "inCorner",
   "onSeal",
+  "nextToWall",
   "inSea",
   "onShip",
   "inPlaceNamed",

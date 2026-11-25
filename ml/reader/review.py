@@ -148,8 +148,14 @@ class Handler(BaseHTTPRequestHandler):
                     wording, grammar_error = default_wording(), ""
                 except ValueError as error:  # grammatica.json scritto male: si dice, ma la pagina si apre lo stesso
                     wording, grammar_error = "automatico", str(error)
+                try:
+                    clue_types, catalog_error = draft.clue_catalog(), ""
+                except Exception as error:  # senza Node il menu degli indizi non c'è, il resto della pagina sì
+                    clue_types, catalog_error = [], str(error)
                 return self._json(
                     {
+                        "clueTypes": clue_types,
+                        "clueTypesError": catalog_error,
                         "objectTypes": draft.object_types(),
                         "edgeTypes": draft.edge_types(),
                         "unsupported": {code: text for code, (text, _) in UNSUPPORTED.items()},

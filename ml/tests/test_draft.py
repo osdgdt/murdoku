@@ -156,3 +156,58 @@ def test_la_porta_sul_bordo_passa_il_controllo_di_forma_dell_app():
     result = D.check(d)
     assert result["problems"] == []
     assert not [p for p in (result["report"] or {}).get("problems", []) if "porta" in p.lower() or "finestra" in p.lower() or "muro" in p.lower()]
+
+
+# ---- indizi composti col menu (quando la frase non si capisce)
+def test_indizio_col_menu_si_aggiunge_a_quelli_della_frase_e_si_risolve():
+    d = tiny_draft()
+    d["cards"][0]["sentence"] = "Era seduta su una sedia. Mangiava una mela."
+    d["cards"][0]["extra"] = [
+        {"type": "adjacent", "negate": True, "params": {"targetId": {"name": "Bors"}}},
+        {"type": "inRoom", "negate": False, "params": {"zoneId": {"room": "Sala"}}},
+        {"type": "directionDistance", "negate": False, "params": {"direction": "south", "targetId": {"object": "chair"}}},
+    ]
+    puzzle, _, problems, analysis = D.assemble(d)
+    mine = [c for c in puzzle["clues"] if c["type"] != "onObjectType"]
+    assert [c["type"] for c in mine] == ["adjacent", "inRoom", "directionDistance"]
+    assert mine[0]["params"] == {"targetId": "char_V"} and mine[0]["negate"] is True
+    assert mine[1]["params"] == {"zoneId": "zone_0"} and "negate" not in mine[1]
+    assert mine[2]["params"] == {"direction": "south", "targetId": "objtype:chair"}
+    assert "text" not in mine[0]  # nessuna frase del libro: l'app sceglie le sue parole
+    assert [c.get("manual") for c in analysis[0]["clues"]] == [None, True, True, True]
+    assert any("non capita" in p for p in problems)  # la frase «Mangiava una mela» resta un pezzo non capito…
+
+
+def test_pezzo_non_capito_coperto_col_menu_non_e_piu_un_problema():
+    d = tiny_draft()
+    d["cards"][0]["sentence"] = "Era seduta su una sedia. Mangiava una mela."
+    unknown = D.assemble(d)[3][0]["unknown"]
+    assert unknown and unknown[0]
+    d["cards"][0]["covered"] = list(unknown)
+    _, _, problems, analysis = D.assemble(d)
+    assert analysis[0]["unknown"] == [] and not any("non capita" in p for p in problems)
+
+
+def test_scheda_vuota_con_un_indizio_col_menu_non_e_vuota():
+    d = tiny_draft()
+    d["cards"][0]["sentence"] = ""
+    assert any("vuota" in p for p in D.assemble(d)[2])
+    d["cards"][0]["extra"] = [{"type": "inCorner", "negate": False, "params": {}}]
+    _, _, problems, _ = D.assemble(d)
+    assert problems == []
+
+
+def test_bersaglio_del_menu_sconosciuto_e_un_problema():
+    d = tiny_draft()
+    d["cards"][0]["extra"] = [{"type": "adjacent", "negate": False, "params": {"targetId": {"name": "Zeno"}}}]
+    assert any("Zeno" in p for p in D.assemble(d)[2])
+
+
+@needs_node
+def test_il_catalogo_dei_tipi_viene_dall_app():
+    types = {t["id"]: t for t in D.clue_catalog()}
+    assert {"adjacent", "inRoom", "directionDistance", "inCorner", "nextToWall"} <= set(types)
+    assert [p["kind"] for p in types["adjacent"]["params"]] == ["characterOrObject"]
+    direction = next(p for p in types["directionDistance"]["params"] if p["name"] == "direction")
+    assert {v["value"] for v in direction["values"]} == {"north", "south", "east", "west"}
+    assert "hasRole" not in types and "orClue" not in types  # quelli che non si fanno col menu semplice

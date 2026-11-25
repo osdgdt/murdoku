@@ -73,6 +73,45 @@ export const OBJECT_TYPES = {
     icon: paperSvg(OBJECT_ART.arrow_slit),
     edgeIcon: edgeSvg(EDGE_ART.arrow_slit),
   },
+
+  // Animals and outdoor props. `category: "animal"` groups the animals for clues such as "next to an animal" (see
+  // animalTargetId below). `mount: true` = a person can be "in sella" (riding) it: the horse. The horse and the
+  // mud puddle are low enough to stand on; the rest block the cell.
+  horse: {
+    label: t("Cavallo"),
+    article: "un",
+    occupiable: true,
+    mount: true,
+    category: "animal",
+    group: "nature",
+    icon: paperSvg(OBJECT_ART.horse),
+  },
+  mud: { label: t("Pozza di fango"), article: "una", occupiable: true, group: "nature", icon: paperSvg(OBJECT_ART.mud) },
+  boar: { label: t("Cinghiale"), article: "un", category: "animal", group: "nature", icon: paperSvg(OBJECT_ART.boar) },
+  cow: { label: t("Mucca"), article: "una", category: "animal", group: "nature", icon: paperSvg(OBJECT_ART.cow) },
+  tiger: { label: t("Tigre"), article: "una", category: "animal", group: "nature", icon: paperSvg(OBJECT_ART.tiger) },
+  tree: { label: t("Albero"), article: "un", group: "nature", icon: paperSvg(OBJECT_ART.tree) },
+  vase: { label: t("Vaso"), article: "un", group: "nature", icon: paperSvg(OBJECT_ART.vase) },
+  fire: { label: t("Fuoco"), article: "un", group: "nature", icon: paperSvg(OBJECT_ART.fire) },
+  bones: { label: t("Mucchio di ossa"), article: "un", group: "nature", icon: paperSvg(OBJECT_ART.bones) },
+
+  // The sea and the islands (Pirates). The raft and the sand can be stood on; the pig and the shark are animals
+  // ("next to an animal"); the rest blocks the cell. The crate is not only a pirate thing, but it belongs to this book.
+  raft: { label: t("Zattera"), article: "una", occupiable: true, group: "sea", icon: paperSvg(OBJECT_ART.raft) },
+  hammock: { label: t("Amaca"), article: "un'", occupiable: true, group: "sea", icon: paperSvg(OBJECT_ART.hammock) },
+  cannon: { label: t("Cannone"), article: "un", group: "sea", icon: paperSvg(OBJECT_ART.cannon) },
+  sand: { label: t("Sabbia"), article: "della", occupiable: true, group: "sea", icon: paperSvg(OBJECT_ART.sand) },
+  crate: { label: t("Cassa"), article: "una", group: "sea", icon: paperSvg(OBJECT_ART.crate) },
+  pig: { label: t("Maiale"), article: "un", category: "animal", group: "sea", icon: paperSvg(OBJECT_ART.pig) },
+  shark: { label: t("Squalo"), article: "uno", category: "animal", group: "sea", icon: paperSvg(OBJECT_ART.shark) },
+  rock: { label: t("Masso"), article: "un", group: "sea", icon: paperSvg(OBJECT_ART.rock) },
+  rope: { label: t("Corda arrotolata"), article: "una", group: "sea", icon: paperSvg(OBJECT_ART.rope) },
+
+  // The ways between the floors of a skyscraper (see model/floors.js): people can stand on both, and who stands on one end is next
+  // to whoever stands on another end of the same way. The editor places them as a whole (the lift through every floor, the stairs
+  // as a pair), never one by one.
+  elevator: { label: t("Ascensore"), article: "un", occupiable: true, group: "building", icon: paperSvg(OBJECT_ART.elevator) },
+  stairs: { label: t("Scale"), article: "una", occupiable: true, group: "building", icon: paperSvg(OBJECT_ART.stairs) },
 };
 
 // Ids stay stable (referenced by saved puzzles' character.iconId): the first
@@ -199,6 +238,36 @@ export function isObjectTypeTarget(targetId) {
 
 export function parseObjectTypeTarget(targetId) {
   return isObjectTypeTarget(targetId) ? targetId.slice(OBJECT_TYPE_TARGET_PREFIX.length) : null;
+}
+
+// "Any animal" (a whole CATEGORY of types) is the same kind of target, with a `#` before the category name:
+// `objtype:#animal`. Everything that matches objects by type goes through `objectTypeIdsOf`, so a category
+// works wherever "any chair" does.
+export const OBJECT_CATEGORIES = ["animal"];
+
+export function objectCategoryTargetId(category) {
+  return OBJECT_TYPE_TARGET_PREFIX + "#" + category;
+}
+
+export function isObjectCategoryTarget(targetId) {
+  return isObjectTypeTarget(targetId) && targetId.charAt(OBJECT_TYPE_TARGET_PREFIX.length) === "#";
+}
+
+export function parseObjectCategoryTarget(targetId) {
+  return isObjectCategoryTarget(targetId) ? targetId.slice(OBJECT_TYPE_TARGET_PREFIX.length + 1) : null;
+}
+
+// The type ids an `objtype:` target stands for: one type, or every type of a category.
+export function objectTypeIdsOf(targetId) {
+  const category = parseObjectCategoryTarget(targetId);
+  if (category) return Object.keys(OBJECT_TYPES).filter((id) => OBJECT_TYPES[id].category === category);
+  const typeId = parseObjectTypeTarget(targetId);
+  return typeId ? [typeId] : [];
+}
+
+// You can be "in sella" (riding) a horse: a clue about it says so instead of "su".
+export function isObjectTypeMount(typeId) {
+  return !!OBJECT_TYPES[typeId]?.mount;
 }
 
 export function characterIcon(iconId) {

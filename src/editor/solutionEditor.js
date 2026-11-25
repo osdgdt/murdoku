@@ -3,9 +3,40 @@ import { renderBoard } from "../util/boardRender.js";
 import { characterIcon } from "../model/icons.js";
 import { setSolutionPlacement, removeSolutionPlacement, placementFor, characterColor } from "../model/puzzle.js";
 import { isOccupiable } from "../model/grid.js";
+import { lineTracker } from "../model/sectors.js";
+import { hasRoles, setSolutionRole } from "../model/roles.js";
 import { t } from "../i18n/i18n.js";
 
 let selectedCharacterId = null;
+
+// Who has which role in the author's solution: one choice per person. Not chosen yet = unknown (the case checker says
+// so); "nessun ruolo" is a choice of its own, offered unless everybody must have a role.
+function renderRoleChoices(puzzle, onChange) {
+  const box = el("div", { class: "role-choices" }, el("h4", { class: "palette-group", "aria-level": "3" }, t("Ruoli nella soluzione")));
+  for (const character of puzzle.characters) {
+    const current = puzzle.solution.roles ? puzzle.solution.roles[character.id] : undefined;
+    const value = current === undefined ? "" : current === null ? "none" : current;
+    const options = [
+      el("option", { value: "", selected: value === "" || undefined }, t("— da scegliere —")),
+      ...puzzle.roles.defs.map((d) => el("option", { value: d.id, selected: value === d.id || undefined }, d.name)),
+      puzzle.roles.everyone ? null : el("option", { value: "none", selected: value === "none" || undefined }, t("nessun ruolo")),
+    ];
+    const select = el(
+      "select",
+      {
+        "aria-label": t("Ruolo di {name}", { name: character.name }),
+        onChange: (e) => {
+          const next = e.target.value;
+          setSolutionRole(puzzle, character.id, next === "" ? undefined : next === "none" ? null : next);
+          onChange();
+        },
+      },
+      options
+    );
+    box.appendChild(el("div", { class: "role-choice" }, [el("span", {}, character.name + (character.isVictim ? " (V)" : "")), select]));
+  }
+  return box;
+}
 
 export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
   clear(panelEl);
@@ -65,8 +96,10 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
     chips.appendChild(el("span", { class: "chip-with-remove" }, [chip, removeBtn]));
   }
   panelEl.appendChild(chips);
+  if (hasRoles(puzzle)) panelEl.appendChild(renderRoleChoices(puzzle, onChange));
 
   renderBoard(boardEl, puzzle.grid, {
+    roles: puzzle.roles,
     decorateCell: (cellNode, row, col) => {
       const placement = puzzle.solution.placements.find((p) => p.row === row && p.col === col);
       if (placement) {
@@ -92,8 +125,12 @@ export function renderSolutionEditor(panelEl, boardEl, puzzle, onChange) {
         return;
       }
       if (!isOccupiable(puzzle.grid, row, col)) return;
-      const conflict = puzzle.solution.placements.find((p) => p.characterId !== selectedCharacterId && (p.row === row || p.col === col));
-      if (conflict) return;
+      // the line of its own map in a train or a skyscraper (and the pillar, in a skyscraper)
+      const taken = lineTracker(
+        puzzle.grid,
+        puzzle.solution.placements.filter((p) => p.characterId !== selectedCharacterId)
+      );
+      if (taken.has(row, col)) return;
       setSolutionPlacement(puzzle, selectedCharacterId, row, col);
       onChange();
     },

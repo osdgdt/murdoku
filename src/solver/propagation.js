@@ -1,6 +1,7 @@
 import { buildPredicates } from "./predicates/index.js";
 import { dependenciesOf } from "./predicates/dependencies.js";
 import { isOccupiable } from "../model/grid.js";
+import { lineKeyFns } from "../model/sectors.js";
 
 // Lightweight, non-exhaustive deduction engine — a fallback for when a full
 // backtracking search (solvePuzzle) is too expensive to run to completion,
@@ -51,13 +52,21 @@ function key(characterId, row, col) {
 // Are these cells pairwise on different rows AND different columns? A
 // necessary condition for a set of characters to simultaneously occupy all
 // of them (see applyNakedSubsets).
-function pairwiseRowColDistinct(cells) {
+function pairwiseRowColDistinct(cells, rowKey = (row) => row, colKey = (row, col) => col, pillarKey = null) {
   const rows = new Set();
   const cols = new Set();
+  const pillars = new Set();
   for (const { row, col } of cells) {
-    if (rows.has(row) || cols.has(col)) return false;
-    rows.add(row);
-    cols.add(col);
+    const key = rowKey(row, col);
+    const colK = colKey(row, col);
+    if (rows.has(key) || cols.has(colK)) return false;
+    if (pillarKey) {
+      const pillarK = pillarKey(row, col);
+      if (pillars.has(pillarK)) return false;
+      pillars.add(pillarK);
+    }
+    rows.add(key);
+    cols.add(colK);
   }
   return true;
 }
@@ -116,7 +125,15 @@ function hasPerfectMatching(subsetChars, unionCells, domains) {
 // `opsBudget`, which is shared across the whole call and checked before each
 // subset's cost is spent; hitting the cap is always safe (whatever was found
 // already stands, nothing more is claimed).
-export function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
+export function applyNakedSubsets(
+  unplaced,
+  domains,
+  witnessOf,
+  opsBudget,
+  rowKey = (row) => row,
+  colKey = (row, col) => col,
+  pillarKey = null
+) {
   const n = unplaced.length;
   if (n < 2) return { contradiction: null };
 
@@ -145,7 +162,7 @@ export function applyNakedSubsets(unplaced, domains, witnessOf, opsBudget) {
         }
         if (unionCells.length !== size) continue; // not tight — no information yet
 
-        if (!pairwiseRowColDistinct(unionCells) || !hasPerfectMatching(subsetChars, unionCells, domains)) {
+        if (!pairwiseRowColDistinct(unionCells, rowKey, colKey, pillarKey) || !hasPerfectMatching(subsetChars, unionCells, domains)) {
           return { contradiction: { characterId: null, characterIds: subsetChars.map((c) => c.id) } };
         }
 
@@ -287,6 +304,7 @@ export function propagate(
   } = {}
 ) {
   const { rows, cols } = puzzle.grid.size;
+  const { rowKey, colKey, pillarKey } = lineKeyFns(puzzle.grid);
   const predicates = predicatesOverride || buildPredicates(puzzle);
   const dependencies = !incremental ? null : dependenciesOverride || predicates.map(({ clue }) => dependenciesOf(clue, puzzle));
   const opsBudget = createOpsBudget(maxSubsetOps);
@@ -330,10 +348,14 @@ export function propagate(
 
     const usedRows = new Set();
     const usedCols = new Set();
+    const usedPillars = new Set();
     for (const { row, col } of confirmed.values()) {
-      usedRows.add(row);
-      usedCols.add(col);
+      usedRows.add(rowKey(row, col));
+      usedCols.add(colKey(row, col));
+      if (pillarKey) usedPillars.add(pillarKey(row, col));
     }
+    const lineUsed = (r, c) =>
+      usedRows.has(rowKey(r, c)) || usedCols.has(colKey(r, c)) || (pillarKey !== null && usedPillars.has(pillarKey(r, c)));
     // Placing THIS character would complete the board exactly when they're
     // the only one left — constant for the whole round, and the only way to
     // honestly know `isComplete` for a single-tentative-placement map without
@@ -367,7 +389,7 @@ export function propagate(
           const list = evaluationListFor(character.id);
           const tentative = new Map(confirmed);
           const tryCell = (r, c) => {
-            if (usedRows.has(r) || usedCols.has(c)) return true;
+            if (lineUsed(r, c)) return true;
             tentative.set(character.id, { row: r, col: c });
             for (const i of list) {
               evaluations++;
@@ -382,7 +404,6 @@ export function propagate(
             for (const { row, col } of known) if (tryCell(row, col) === null) capped = true;
           } else {
             for (let r = 0; r < rows && !capped; r++) {
-              if (usedRows.has(r)) continue;
               for (let c = 0; c < cols && !capped; c++) {
                 if (isOccupiable(puzzle.grid, r, c) && tryCell(r, c) === null) capped = true;
               }
@@ -399,9 +420,8 @@ export function propagate(
       const survivors = [];
       const tentative = new Map(confirmed);
       for (let r = 0; r < rows; r++) {
-        if (usedRows.has(r)) continue;
         for (let c = 0; c < cols; c++) {
-          if (usedCols.has(c)) continue;
+          if (lineUsed(r, c)) continue;
           if (!isOccupiable(puzzle.grid, r, c)) continue;
           tentative.set(character.id, { row: r, col: c });
           const witnesses = [];
@@ -456,7 +476,7 @@ export function propagate(
     // excludes is picked up by the unchanged `eliminated` construction at
     // the end of this function (lastWitnessOf is a reference to this exact
     // `witnessOf` map, captured above).
-    const subset = applyNakedSubsets(unplaced, domains, witnessOf, opsBudget);
+    const subset = applyNakedSubsets(unplaced, domains, witnessOf, opsBudget, rowKey, colKey, pillarKey);
     if (subset.contradiction) {
       return {
         confirmed,
@@ -491,9 +511,8 @@ export function propagate(
       const allWitnesses = new Set();
       const nakedSubsetsByKey = new Map();
       for (let r = 0; r < rows; r++) {
-        if (usedRows.has(r)) continue;
         for (let c = 0; c < cols; c++) {
-          if (usedCols.has(c)) continue;
+          if (lineUsed(r, c)) continue;
           if (r === cell.row && c === cell.col) continue;
           if (!isOccupiable(puzzle.grid, r, c)) continue;
           const entry = witnessOf.get(key(character.id, r, c));

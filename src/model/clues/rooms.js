@@ -37,6 +37,14 @@ export const ROOMS_CLUES = {
     params: [],
     describe: () => t("La vittima deve trovarsi in una stanza con esattamente un'altra persona: l'assassino."),
   },
+  // Built-in rule of the maps with seals, like victimRoomRule: not offered anywhere, it only has a text for messages.
+  sealRule: {
+    internal: true,
+    scope: "generic",
+    label: t("Sigilli: Anubi vuole la solitudine, Ra la compagnia"),
+    params: [],
+    describe: () => t("Chi sta sul sigillo di Anubi è solo nella sua stanza; chi sta sul sigillo di Ra non è solo."),
+  },
   aloneWithPerson: {
     label: t("È nella stanza solo con (un personaggio)"),
     params: [{ name: "targetId", kind: "character", label: t("Personaggio") }],

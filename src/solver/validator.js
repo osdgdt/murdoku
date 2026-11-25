@@ -2,6 +2,9 @@ import { buildPredicates } from "./predicates/index.js";
 import { describeClue } from "../model/clueTypes.js";
 import { solvePuzzle } from "./solver.js";
 import { t } from "../i18n/i18n.js";
+import { declaredRoleProblems } from "../model/roles.js";
+import { withDeclared } from "../model/declared.js";
+import { lineTracker } from "../model/sectors.js";
 
 function placementsToMap(placements) {
   const map = new Map();
@@ -9,13 +12,11 @@ function placementsToMap(placements) {
   return map;
 }
 
-function hasRowColConflict(placements) {
-  const rows = new Set();
-  const cols = new Set();
+function hasRowColConflict(placements, grid) {
+  const taken = lineTracker(grid);
   for (const p of placements) {
-    if (rows.has(p.row) || cols.has(p.col)) return true;
-    rows.add(p.row);
-    cols.add(p.col);
+    if (taken.has(p.row, p.col)) return true;
+    taken.add(p.row, p.col);
   }
   return false;
 }
@@ -29,12 +30,14 @@ export function validateSolution(puzzle) {
     violations.push({ clueId: null, characterId: null, message: t("Non tutti i personaggi hanno una posizione nella soluzione.") });
   }
 
-  if (hasRowColConflict(placements)) {
+  if (hasRowColConflict(placements, puzzle.grid)) {
     violations.push({ clueId: null, characterId: null, message: t("Due o più personaggi condividono riga o colonna.") });
   }
 
+  for (const message of declaredRoleProblems(puzzle)) violations.push({ clueId: null, characterId: null, message });
+
   const pm = placementsToMap(placements);
-  const predicates = buildPredicates(puzzle);
+  const predicates = buildPredicates(withDeclared(puzzle));
   for (const { clue, predicate } of predicates) {
     const result = predicate(pm, true);
     if (result === false) {

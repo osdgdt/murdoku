@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Correzione Murdoku</title>
+<style>
+  :root { --bg:#f6f3ec; --panel:#fff; --ink:#26221c; --muted:#7a7266; --line:#ddd5c6; --accent:#8a3b12; --ok:#1d7a3a; --bad:#b3261e; --warn:#a86a00; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1d1b18; --panel:#292622; --ink:#ece6da; --muted:#a29a8c; --line:#443f37; --accent:#e0905a; --ok:#58c27a; --bad:#ff7b72; --warn:#e6b450; } }
+  * { box-sizing:border-box; }
+  /* niente zoom della pagina intera (si ingrandirebbe tutto e i tasti − + non sembrerebbero servire): la foto si ingrandisce con − + o col pizzico sulla foto */
+  html, body { touch-action:pan-x pan-y; -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.4 system-ui, sans-serif; height:100vh; height:100dvh; display:flex; flex-direction:column; }
+  header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--line); }
+  header h1 { font-size:15px; margin:0 8px 0 0; }
+  button, select, input, textarea { font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:4px 8px; }
+  button { cursor:pointer; } button:hover { border-color:var(--accent); } button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.5; cursor:default; }
+  main { flex:1; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); min-height:0; }
+  @media (max-width: 900px) { main { grid-template-columns:1fr; grid-template-rows:50dvh minmax(0,1fr); } .pane { border-right:0; } }
+  .viewer { touch-action:pan-x pan-y; -webkit-overflow-scrolling:touch; }
+  table.grid { touch-action:none; }
+  table.grid td.painted { outline:3px solid #2f9e44; outline-offset:-3px; }
+  .tablewrap { overflow-x:auto; max-width:100%; }
+  #bigphoto { display:none; }
+  /* telefono: bersagli da toccare più grandi, testo a 16px (iOS ingrandisce da solo i campi più piccoli), poco spazio perso */
+  @media (max-width: 700px), (pointer: coarse) {
+    body { font-size:15px; }
+    header { padding:6px 8px; gap:6px; }
+    header h1 { display:none; }
+    button, select, input, textarea { font-size:16px; min-height:40px; padding:4px 10px; }
+    button { font-size:14px; min-height:36px; padding:2px 10px; }
+    header button { flex:1 1 auto; }
+    #statusChip { display:none; }
+    input[type=checkbox], input[type=radio] { min-height:0; width:22px; height:22px; }
+    #caseSelect { flex:1 1 9em; min-width:0; max-width:100%; }
+    .card .row input:not([type=checkbox]) { width:auto; flex:1 1 8em; min-width:0; }
+    table.grid td { width:44px; height:44px; font-size:10px; }
+    .tools label { padding:6px 8px; }
+    .tabs { padding:4px 6px; }
+    .hint-desktop { display:none; }
+    #bigphoto { display:inline-block; }
+    body.photo-big main { grid-template-rows:minmax(0,1fr) 0; }
+    body.photo-big .pane + .pane { display:none; }
+    #saved { display:none; }
+  }
+  .pane { display:flex; flex-direction:column; min-height:0; min-width:0; border-right:1px solid var(--line); }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; padding:6px 8px; border-bottom:1px solid var(--line); background:var(--panel); align-items:center; }
+  .tabs button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .viewer { flex:1; overflow:auto; position:relative; background:#444; }
+  .viewer .sheet { position:relative; display:inline-block; transform-origin:0 0; }
+  .viewer img { display:block; max-width:none; } .viewer img.loading { opacity:.45; }
+  .box { position:absolute; border:2px solid #e8590c; border-radius:4px; pointer-events:none; }
+  .box b { position:absolute; left:0; top:-20px; background:#e8590c; color:#fff; padding:0 6px; border-radius:4px 4px 0 0; font-size:12px; }
+  .box.sel { border-color:#2f9e44; } .box.sel b { background:#2f9e44; }
+  .editor { overflow:auto; padding:10px 12px; flex:1; }
+  section h2 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:14px 0 6px; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:8px; margin-bottom:8px; background:var(--panel); }
+  .card.sel { border-color:#2f9e44; box-shadow:0 0 0 2px #2f9e4455; }
+  .card .row { display:flex; gap:6px; align-items:center; margin-bottom:6px; flex-wrap:wrap; } .card .row input:not([type=checkbox]) { width:150px; }
+  .badge { background:var(--accent); color:#fff; border-radius:50%; width:24px; height:24px; display:inline-grid; place-items:center; font-weight:700; }
+  textarea { width:100%; min-height:48px; resize:vertical; }
+  .result { font-size:12px; color:var(--muted); margin-top:4px; }
+  .result .clue { color:var(--ok); } .result .unk { color:var(--bad); } .result .uns { color:var(--warn); }
+  table.grid { border-collapse:collapse; user-select:none; }
+  table.grid td { width:38px; height:38px; border:1px solid #0003; text-align:center; font-size:11px; cursor:pointer; position:relative; }
+  table.grid td.out { background:repeating-linear-gradient(45deg,#555,#555 4px,#444 4px,#444 8px); }
+  table.grid td.blk { background:#9a9a9a !important; }
+  table.grid td.roomedge-r { border-right:3px solid #000; } table.grid td.roomedge-b { border-bottom:3px solid #000; }
+  table.grid td .o { font-weight:700; color:#26221c; } table.grid td .o.q { color:#fff; background:#b3261e; border-radius:50%; padding:0 6px; font-size:14px; }
+  .tools { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px; }
+  .tools label { display:inline-flex; gap:4px; align-items:center; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:var(--panel); }
+  .rooms { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+  .rooms span { display:inline-flex; gap:4px; align-items:center; }
+  .sw { width:14px; height:14px; border-radius:3px; border:1px solid #0004; display:inline-block; }
+  .verdict { font-size:16px; font-weight:700; padding:8px 10px; border-radius:8px; margin-bottom:8px; }
+  .verdict.ok { background:#1d7a3a22; color:var(--ok); } .verdict.da_correggere { background:#a86a0022; color:var(--warn); } .verdict.non_valido { background:#b3261e22; color:var(--bad); }
+  ul.problems { margin:4px 0 8px 18px; padding:0; } ul.problems li { margin:2px 0; }
+  table.sols { border-collapse:collapse; margin:6px 0 10px; font-size:12px; }
+  table.sols th, table.sols td { border:1px solid #0003; padding:3px 8px; text-align:center; }
+  table.sols td.diff { background:#fde68a; color:#26221c; font-weight:700; }
+  table.sols td.name { text-align:left; font-weight:600; }
+  .msg { color:var(--muted); font-size:12px; }
+  .msg.warn { color:#b45309; font-weight:600; }
+  #busy { position:fixed; inset:0; background:#0007; display:none; place-items:center; color:#fff; font-size:18px; z-index:9; }
+  #busy.on { display:grid; }
+  .small { width:64px; }
+  details { margin:6px 0; } summary { cursor:pointer; color:var(--muted); }
+  pre { font-size:11px; background:var(--bg); padding:6px; border-radius:6px; overflow:auto; max-height:240px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Correzione Murdoku</h1>
+  <button id="prev">←</button>
+  <select id="caseSelect" title="Caso"></select>
+  <button id="next">→</button>
+  <span id="statusChip" class="msg"></span>
+  <span style="flex:1"></span>
+  <span id="saved" class="msg"></span>
+  <button id="bigphoto" title="Foto a tutto schermo / foto piccola">🔍 foto</button>
+  <button id="reread" title="Butta la bozza e rilegge le foto">Rileggi dalle foto</button>
+  <button id="check" class="primary">Controlla col solver</button>
+  <button id="accept" title="Scrive il caso corretto in lavoro/record/">Accetta e salva il record</button>
+</header>
+<main>
+  <div class="pane">
+    <div class="tabs" id="photoTabs"></div>
+    <div class="tabs" style="border-top:0">
+      <button id="zoomOut">−</button><button id="zoomFit">adatta</button><button id="zoom100">100%</button><button id="zoomIn">+</button>
+      <span class="msg" id="zoomLabel"></span>
+      <button id="localPhotos" title="Usa le foto che hai già sul telefono (stesso nome del file): niente scaricamenti dal tunnel">📁 foto dal telefono</button>
+      <input type="file" id="localFiles" accept="image/*" multiple hidden>
+      <span class="msg" id="localMsg"></span>
+      <span class="msg hint-desktop">Rotella = scorri · Ctrl+rotella = zoom</span>
+    </div>
+    <div class="viewer" id="viewer"><div class="sheet" id="sheet"><img id="photo" alt="pagina del libro"></div></div>
+  </div>
+  <div class="pane" style="border-right:0">
+    <div class="tabs" id="editTabs">
+      <button data-tab="cards" class="on">Schede</button><button data-tab="map">Mappa</button><button data-tab="sol">Soluzione stampata</button><button data-tab="out">Esito</button>
+    </div>
+    <div class="editor" id="editor"></div>
+  </div>
+</main>
+<div id="busy"><div id="busyText">Leggo il caso…</div></div>
+<script>
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k.startsWith("on")) e[k] = v; else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v); } for (const kid of kids.flat()) e.append(kid instanceof Node ? kid : document.createTextNode(kid)); return e; };
+const ROOM_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8", "#f4a8a8", "#d7f4c2", "#f4c2e2", "#c2f1f4"];
+let meta, state = { number: null, draft: null, photos: [], photo: 0, tab: "cards", selCard: null, analysis: null, outcome: null, tool: { kind: "room", room: 0, object: "chair" }, zoom: 1, fit: true };
+let saveTimer = null, parseTimer = null;
+
+async function api(path, body) {
+  const res = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+function busy(text) { $("#busyText").textContent = text || ""; $("#busy").classList.toggle("on", !!text); }
+
+// ---------------------------------------------------------------- caso
+async function init() {
+  meta = await api("/api/meta");
+  const sel = $("#caseSelect");
+  sel.replaceChildren(...meta.cases.map(c => el("option", { value: c.number }, `${c.number}. ${c.title || "(senza titolo)"} — ${c.status}`)));
+  sel.onchange = () => load(+sel.value);
+  $("#prev").onclick = () => step(-1); $("#next").onclick = () => step(1);
+  $("#check").onclick = runCheck; $("#accept").onclick = runAccept;
+  $("#reread").onclick = async () => { if (!confirm("Butto la bozza di questo caso e rileggo le foto?")) return; busy("Rileggo le foto…"); try { const r = await api("/api/reread", { number: state.number }); state.draft = r.draft; renderAll(); } catch (e) { alert(e.message); } busy(); };
+  document.querySelectorAll("#editTabs button").forEach(b => b.onclick = () => { state.tab = b.dataset.tab; showPhotoFor(state.tab); renderEditor(); });
+  $("#zoomIn").onclick = () => setZoom(state.zoom * 1.25); $("#zoomOut").onclick = () => setZoom(state.zoom / 1.25);
+  $("#zoom100").onclick = () => setZoom(1); $("#zoomFit").onclick = fitZoom;
+  $("#localPhotos").onclick = () => $("#localFiles").click();
+  $("#localFiles").onchange = async e => { await addLocalPhotos([...e.target.files]); e.target.value = ""; };
+  loadLocalPhotos();
+  $("#bigphoto").onclick = () => { document.body.classList.toggle("photo-big"); setTimeout(fitZoom, 0); };
+  let pinch = null; const gap = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  $("#viewer").addEventListener("touchstart", e => { pinch = e.touches.length === 2 ? { d: gap(e.touches), z: state.zoom } : null; }, { passive: true });
+  $("#viewer").addEventListener("touchmove", e => { if (!pinch || e.touches.length !== 2) return; e.preventDefault(); setZoom(pinch.z * gap(e.touches) / pinch.d); }, { passive: false });
+  $("#viewer").addEventListener("touchend", () => { pinch = null; });
+  let lastTap = 0; $("#viewer").addEventListener("pointerup", e => { if (e.pointerType !== "touch") return; const now = Date.now(); if (now - lastTap < 350) fitZoom(); lastTap = now; });
+  $("#viewer").addEventListener("wheel", e => { if (!e.ctrlKey) return; e.preventDefault(); setZoom(state.zoom * (e.deltaY < 0 ? 1.12 : 1 / 1.12)); }, { passive: false });
+  const first = +(location.hash.slice(1)) || meta.cases[0].number;
+  await load(first);
+}
+function step(d) { const nums = meta.cases.map(c => c.number); const i = nums.indexOf(state.number); const n = nums[i + d]; if (n) load(n); }
+
+async function load(number) {
+  busy("Leggo il caso… (la prima volta ci mette un po': OCR)");
+  try {
+    const r = await api("/api/case/" + number);
+    state.number = number; state.draft = r.draft; state.photos = r.photos; state.photo = 0; state.selCard = null; state.outcome = null; state.analysis = null;
+    state.tool.room = 0; $("#caseSelect").value = number; location.hash = number; $("#statusChip").textContent = "stato: " + r.status;
+    renderAll(); scheduleParse(0);
+  } catch (e) { alert(e.message); }
+  busy();
+}
+function showPhotoFor(tab) {
+  // la foto giusta accanto a ciò che si sta correggendo: schede → personaggi, mappa → mappa, soluzione → passaggi
+  const kind = { cards: "personaggi", map: "mappa", sol: "passaggi" }[tab]; if (!kind) return;
+  const i = state.photos.findIndex(p => p.kind === kind); if (i >= 0 && i !== state.photo) { state.photo = i; renderPhotoTabs(); renderPhoto(); }
+}
+function renderAll() { renderPhotoTabs(); renderPhoto(); renderEditor(); }
+
+// ---------------------------------------------------------------- foto
+function renderPhotoTabs() {
+  $("#photoTabs").replaceChildren(...state.photos.map((p, i) => el("button", { class: i === state.photo ? "on" : "", onclick: () => { state.photo = i; renderPhotoTabs(); renderPhoto(); } }, p.label)));
+}
+// ---- foto già sul telefono ----
+// Se la foto del libro è anche sul telefono (stesso nome di file), la pagina la usa da lì invece di scaricarla dal computer
+// attraverso il tunnel. Le foto scelte restano nel browser (IndexedDB) anche dopo una ricarica; non vanno da nessuna parte.
+const local = new Map(); // nome del file (minuscolo) → URL locale
+const baseName = f => String(f).split(/[\\/]/).pop().toLowerCase();
+function db() {
+  return new Promise((resolve, reject) => {
+    const r = indexedDB.open("murdoku-foto", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("foto");
+    r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error);
+  });
+}
+async function loadLocalPhotos() {
+  try {
+    const d = await db(), store = d.transaction("foto").objectStore("foto");
+    await new Promise(resolve => { const c = store.openCursor(); c.onsuccess = () => { const cur = c.result; if (!cur) return resolve(); local.set(cur.key, URL.createObjectURL(cur.value)); cur.continue(); }; c.onerror = resolve; });
+    showLocalCount(); if (state.photos.length) renderPhoto();
+  } catch { /* senza IndexedDB (navigazione privata) le foto restano valide fino alla ricarica */ }
+}
+async function addLocalPhotos(files) {
+  let kept = 0, store = null;
+  try { store = (await db()).transaction("foto", "readwrite").objectStore("foto"); } catch { /* vedi sopra */ }
+  for (const f of files) {
+    const key = baseName(f.name);
+    if (local.has(key)) URL.revokeObjectURL(local.get(key));
+    local.set(key, URL.createObjectURL(f)); kept++;
+    if (store) store.put(f, key);
+  }
+  showLocalCount();
+  const wanted = state.photos.map(p => baseName(p.file));
+  const hits = wanted.filter(n => local.has(n)).length;
+  $("#localMsg").textContent = hits ? `${hits} di ${wanted.length} foto di questo caso dal telefono` : `nessuna foto di questo caso trovata (cerco ${wanted[0] || "?"}): scegli quelle con lo stesso nome`;
+  if (state.photos.length) renderPhoto();
+}
+function showLocalCount() { $("#localPhotos").textContent = local.size ? `📁 foto dal telefono (${local.size})` : "📁 foto dal telefono"; }
+
+function renderPhoto() {
+  const p = state.photos[state.photo]; const img = $("#photo");
+  for (const b of document.querySelectorAll(".box")) b.remove();
+  if (!p) { img.removeAttribute("src"); return; }
+  // La dimensione della foto è nota PRIMA che arrivi (il server la ridimensiona a questa larghezza): così zoom, «adatta» e pizzico
+  // funzionano subito, anche se il collegamento è lento e la foto sta ancora scaricando (prima restava ingrandita e ferma).
+  const width = window.matchMedia("(max-width: 700px), (pointer: coarse)").matches ? 1200 : 1800;
+  if (p.size && p.size[0]) { const w = Math.min(width, p.size[0]); state.nat = [w, Math.round(p.size[1] * w / p.size[0])]; fitZoom(); }
+  else state.nat = null;
+  img.classList.add("loading");
+  const remote = "/img?w=" + width + "&file=" + encodeURIComponent(p.file), mine = local.get(baseName(p.file));
+  img.onload = () => {
+    // una foto del telefono girata diversamente da quella letta dal computer non combacerebbe con i riquadri: si scarica quella del computer
+    if (img.dataset.local === "1" && p.size && (img.naturalWidth > img.naturalHeight) !== (p.size[0] > p.size[1])) { img.dataset.local = ""; img.src = remote; return; }
+    img.classList.remove("loading"); state.nat = [img.naturalWidth, img.naturalHeight]; if (state.fit) fitZoom(); else applyZoom(); drawBoxes();
+    // le altre foto del caso si scaricano ora, in silenzio: quando ci passi sopra sono già nel browser
+    for (const other of state.photos) if (other !== p && !local.has(baseName(other.file))) new Image().src = "/img?w=" + width + "&file=" + encodeURIComponent(other.file);
+  };
+  img.dataset.local = mine ? "1" : "";
+  img.src = mine || remote;
+  if (!mine && img.complete && img.naturalWidth && img.src.endsWith(encodeURIComponent(p.file))) img.onload(); // già nel browser: onload non scatta di nuovo
+}
+// Zoom della foto: − e + (e il pizzico) tengono fermo il punto al centro di quello che si vede; «adatta» fa stare TUTTA la pagina
+// nel riquadro (larghezza e altezza), così si vede subito la differenza anche con una foto alta.
+function setZoom(z) {
+  const v = $("#viewer"), old = state.zoom;
+  const cx = (v.scrollLeft + v.clientWidth / 2) / old, cy = (v.scrollTop + v.clientHeight / 2) / old; // punto centrale, in pixel della foto
+  state.zoom = Math.max(0.05, Math.min(4, z)); state.fit = false; applyZoom();
+  v.scrollLeft = Math.max(0, cx * state.zoom - v.clientWidth / 2); v.scrollTop = Math.max(0, cy * state.zoom - v.clientHeight / 2);
+}
+function fitZoom() {
+  const v = $("#viewer"); if (!state.nat) return;
+  const byWidth = v.clientWidth / state.nat[0], byHeight = v.clientHeight > 50 ? v.clientHeight / state.nat[1] : byWidth;
+  state.zoom = Math.max(0.05, Math.min(byWidth, byHeight, 1.5)); state.fit = true; applyZoom();
+  v.scrollLeft = 0; v.scrollTop = 0;
+}
+function applyZoom() { const img = $("#photo"); if (!state.nat) return; img.style.width = state.nat[0] * state.zoom + "px"; $("#zoomLabel").textContent = Math.round(state.zoom * 100) + "%"; drawBoxes(); }
+function drawBoxes() {
+  for (const b of document.querySelectorAll(".box")) b.remove();
+  const p = state.photos[state.photo]; if (!p || p.kind !== "personaggi" || !state.nat) return;
+  const k = state.nat[0] / p.size[0] * state.zoom;
+  for (const [letter, b] of Object.entries(state.draft.boxes || {})) {
+    if (!state.draft.cards.some(c => c.letter === letter)) continue;
+    const box = el("div", { class: "box" + (state.selCard === letter ? " sel" : "") }, el("b", {}, letter));
+    Object.assign(box.style, { left: b[0] * k + "px", top: b[1] * k + "px", width: (b[2] - b[0]) * k + "px", height: (b[3] - b[1]) * k + "px" });
+    $("#sheet").append(box);
+  }
+}
+
+// ---------------------------------------------------------------- salvataggio e analisi (con attesa)
+function changed() {
+  $("#saved").textContent = "modifiche non salvate…";
+  clearTimeout(saveTimer); saveTimer = setTimeout(async () => { try { await api("/api/save", state.draft); $("#saved").textContent = "salvato"; } catch (e) { $("#saved").textContent = "ERRORE: " + e.message; } }, 600);
+  scheduleParse(400);
+}
+function scheduleParse(ms) {
+  clearTimeout(parseTimer);
+  parseTimer = setTimeout(async () => { try { const r = await api("/api/parse", state.draft); state.analysis = r; if (state.tab === "cards") renderResults(); } catch (e) { /* si vede dall'esito */ } }, ms);
+}
+
+// ---------------------------------------------------------------- editor
+function renderEditor() {
+  document.querySelectorAll("#editTabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === state.tab));
+  const ed = $("#editor");
+  ({ cards: renderCards, map: renderMap, sol: renderSolution, out: renderOutcome })[state.tab](ed);
+}
+function relabel() {
+  // lettere: ordine alfabetico dei nomi; la vittima è l'ultima e porta la V
+  const d = state.draft; const vict = d.cards.filter(c => c.victim); const rest = d.cards.filter(c => !c.victim);
+  const old = d.cards.map(c => c.letter); const boxes = {};
+  d.cards = [...rest, ...vict]; let n = 0;
+  d.cards.forEach((c, i) => { const was = c.letter; c.letter = c.victim ? "V" : String.fromCharCode(65 + n++); if (d.boxes && d.boxes[was]) boxes[c.letter] = d.boxes[was]; });
+  d.boxes = boxes; d.placements = (d.placements || []).filter(p => d.cards.some(c => c.letter === p.letter));
+}
+function renderCards(ed) {
+  const d = state.draft;
+  const list = el("div");
+  d.cards.forEach((c, i) => {
+    const res = el("div", { class: "result", id: "res" + c.letter });
+    const ta = el("textarea", { oninput: e => { c.sentence = e.target.value; changed(); } }); ta.value = c.sentence;
+    const name = el("input", { placeholder: "nome (gotico: da scrivere a mano)", value: c.name || "", oninput: e => { c.name = e.target.value; changed(); } });
+    const victim = el("input", { type: "checkbox", onchange: e => { c.victim = e.target.checked; relabel(); renderEditor(); changed(); } }); victim.checked = !!c.victim;
+    const box = el("div", { class: "card" + (state.selCard === c.letter ? " sel" : ""), onclick: () => { state.selCard = c.letter; drawBoxes(); } },
+      el("div", { class: "row" }, el("span", { class: "badge" }, c.letter), name, el("label", {}, victim, " vittima"),
+        el("span", { class: "msg" }, c.conf ? "OCR " + c.conf + "%" : ""), el("span", { style: "flex:1" }),
+        el("button", { title: "su", onclick: ev => { ev.stopPropagation(); move(i, -1); } }, "↑"), el("button", { title: "giù", onclick: ev => { ev.stopPropagation(); move(i, 1); } }, "↓"),
+        el("button", { title: "elimina la scheda", onclick: ev => { ev.stopPropagation(); if (confirm("Elimino la scheda " + c.letter + "?")) { d.cards.splice(i, 1); relabel(); renderEditor(); changed(); } } }, "✕")),
+      ta, res);
+    list.append(box);
+  });
+  ed.replaceChildren(
+    el("section", {}, el("h2", {}, "Schede dei personaggi"),
+      wordingBox(),
+      el("p", { class: "msg" }, "Scrivi la frase come sta sul libro (la grammatica la capisce se è fra quelle note). I nomi servono solo per i riferimenti: «a sud di Bella». Spunta «vittima» sulla scheda «La vittima»; le lettere (A, B, C…, V) si assegnano da sole."),
+      el("p", { class: d.letters_by_name ? "msg" : "msg warn" }, d.letters_by_name
+        ? "Le lettere vengono dall'ordine alfabetico dei nomi letti."
+        : "Attenzione: i nomi non sono stati letti tutti, le lettere (A, B, C…) sono quelle dell'ordine di lettura e possono essere sbagliate. Controlla i nomi sulla foto, correggili e premi «Ordina le lettere per nome»."),
+      list, el("button", { onclick: () => { d.cards.push({ letter: "?", name: "", sentence: "", victim: false }); relabel(); renderEditor(); changed(); } }, "+ aggiungi una scheda (persa dalla lettura)"),
+      el("button", { onclick: sortByName, title: "Ordina le schede e assegna A, B, C… dall'ordine alfabetico dei nomi (la vittima è V)" }, "Ordina le lettere per nome")));
+  renderResults();
+}
+function wordingBox() {
+  if (meta.grammarError) return el("p", { class: "msg warn" }, "Errore nella tua grammatica personale: " + meta.grammarError);
+  // di chi sono le parole che l'indizio avrà nel gioco: le sue (la frase scritta qui) o quelle scelte dall'app
+  const d = state.draft; const mine = (d.wording || meta.defaultWording) === "mio";
+  const box = el("input", { type: "checkbox", onchange: e => { d.wording = e.target.checked ? "mio" : "automatico"; changed(); renderEditor(); } }); box.checked = mine;
+  return el("p", { class: "msg" }, el("label", {}, box, " Nel gioco gli indizi usano le mie parole (la frase scritta qui, una per ogni «e»). Se non è spuntato le sceglie l'app: «Si trovava su un tappeto»."));
+}
+function sortByName() {
+  // le lettere sono l'ordine alfabetico dei nomi: dopo aver corretto i nomi, un clic mette le schede (e le lettere) in ordine
+  const d = state.draft;
+  if ((d.placements || []).length && !confirm("Le posizioni già lette usano le vecchie lettere: le cancello e le rileggi dopo?")) return;
+  const oldBox = new Map(d.cards.map(c => [c, (d.boxes || {})[c.letter]]));
+  const rest = d.cards.filter(c => !c.victim).sort((a, b) => (a.name || "~").localeCompare(b.name || "~", "it", { sensitivity: "base" }));
+  d.cards = [...rest, ...d.cards.filter(c => c.victim)];
+  let n = 0; const boxes = {};
+  d.cards.forEach(c => { c.letter = c.victim ? "V" : String.fromCharCode(65 + n++); if (oldBox.get(c)) boxes[c.letter] = oldBox.get(c); });
+  d.boxes = boxes; d.placements = []; d.culprit = ""; d.letters_by_name = true;
+  renderEditor(); changed();
+}
+function move(i, dir) { const d = state.draft; const j = i + dir; if (j < 0 || j >= d.cards.length) return; [d.cards[i], d.cards[j]] = [d.cards[j], d.cards[i]]; relabelKeepOrder(); renderEditor(); changed(); }
+function relabelKeepOrder() { const d = state.draft; let n = 0; d.cards.forEach(c => { c.letter = c.victim ? "V" : String.fromCharCode(65 + n++); }); }
+function clueText(c) {
+  const p = c.params || {}; const bits = Object.entries(p).map(([k, v]) => `${k}=${typeof v === "object" ? JSON.stringify(v) : v}`);
+  return (c.negate ? "NON " : "") + c.type + (bits.length ? " (" + bits.join(", ") + ")" : "");
+}
+function renderResults() {
+  const a = state.analysis; if (!a || state.tab !== "cards") return;
+  state.draft.cards.forEach((c, i) => {
+    const box = $("#res" + c.letter); if (!box) return; const r = a.cards[i]; if (!r) return;
+    box.replaceChildren(
+      ...r.clues.map(x => el("div", { class: "clue" }, "✓ " + clueText(x) + ((state.draft.wording || meta.defaultWording) === "mio" && x.source ? "  →  nel gioco: «" + x.source + "»" : ""))),
+      ...(r.victim ? [el("div", { class: "clue" }, "✓ vittima, sola con l'assassino")] : []),
+      ...r.unknown.filter(Boolean).map(x => el("div", { class: "unk" }, "✗ non capita: " + x)),
+      ...r.unsupported.map(x => el("div", { class: "uns" }, "⚠ non supportata dall'app: " + (meta.unsupported[x] || x))),
+      ...(!r.clues.length && !r.unknown.length && !r.unsupported.length && !r.victim ? [el("div", { class: "unk" }, "✗ nessun indizio")] : []));
+  });
+}
+
+// ---------------------------------------------------------------- mappa
+function resizeGrid(rows, cols) {
+  const d = state.draft; const cells = [];
+  for (let r = 0; r < rows; r++) { const line = []; for (let c = 0; c < cols; c++) line.push((d.cells[r] && d.cells[r][c]) || { inside: true, blocked: false, room: 0, object: "" }); cells.push(line); }
+  d.rows = rows; d.cols = cols; d.cells = cells; if (!d.rooms.length) d.rooms = [{ name: "Stanza 1" }];
+}
+function paint(r, c) {
+  const cell = state.draft.cells[r][c]; const t = state.tool;
+  if (t.kind === "out") { cell.inside = false; cell.object = ""; }
+  else if (t.kind === "in") { cell.inside = true; cell.blocked = false; }
+  else if (t.kind === "blocked") { cell.inside = true; cell.blocked = true; cell.object = ""; }
+  else if (t.kind === "room") { cell.inside = true; cell.blocked = false; cell.room = t.room; }
+  else if (t.kind === "object") { cell.inside = true; cell.blocked = false; cell.object = t.object; }
+  else if (t.kind === "noobject") cell.object = "";
+}
+function renderMap(ed) {
+  const d = state.draft;
+  if (!d.rows) { ed.replaceChildren(el("p", {}, "La griglia non è stata letta. Scegli le dimensioni:"), sizeBox(), el("button", { onclick: () => { resizeGrid(6, 6); renderEditor(); changed(); } }, "Crea una griglia 6×6")); return; }
+  const types = meta.objectTypes;
+  const toolRadio = (kind, label, extra) => el("label", {}, el("input", { type: "radio", name: "tool", checked: state.tool.kind === kind, onchange: () => { state.tool.kind = kind; } }), label, extra || "");
+  const roomSel = el("select", { onchange: e => { state.tool.room = +e.target.value; state.tool.kind = "room"; renderEditor(); } }, ...d.rooms.map((r, i) => el("option", { value: i, selected: i === state.tool.room }, `${i + 1}. ${r.name}`)));
+  const objSel = el("select", { onchange: e => { state.tool.object = e.target.value; state.tool.kind = "object"; renderEditor(); } }, ...Object.entries(types).map(([id, label]) => el("option", { value: id, selected: id === state.tool.object }, label)));
+  const table = el("table", { class: "grid" });
+  for (let r = 0; r < d.rows; r++) {
+    const tr = el("tr");
+    for (let c = 0; c < d.cols; c++) {
+      const cell = d.cells[r][c]; const td = el("td", { title: `R${r + 1} C${c + 1}` });
+      const usable = cell.inside && !cell.blocked;
+      if (!cell.inside) td.className = "out"; else if (cell.blocked) td.className = "blk";
+      else { td.style.background = ROOM_COLORS[cell.room % ROOM_COLORS.length]; const rt = d.cells[r][c + 1], bt = d.cells[r + 1] && d.cells[r + 1][c];
+        if (!rt || !rt.inside || rt.blocked || rt.room !== cell.room) td.classList.add("roomedge-r"); if (!bt || !bt.inside || bt.blocked || bt.room !== cell.room) td.classList.add("roomedge-b"); }
+      if (usable && cell.object) td.append(el("span", { class: "o" + (cell.object === "?" ? " q" : "") }, cell.object === "?" ? "?" : (types[cell.object] || cell.object).slice(0, 5)));
+      td.dataset.r = r; td.dataset.c = c;
+      tr.append(td);
+    }
+    table.append(tr);
+  }
+  // si dipinge con il mouse o col dito, anche trascinando; la mappa si ridisegna quando si stacca (durante il tocco si segnano solo le caselle)
+  const touched = new Set();
+  const paintTd = td => {
+    if (!td || !table.contains(td) || td.dataset.r === undefined) return;
+    const key = td.dataset.r + "," + td.dataset.c; if (touched.has(key)) return;
+    touched.add(key); paint(+td.dataset.r, +td.dataset.c); td.classList.add("painted");
+  };
+  table.addEventListener("pointerdown", ev => { const td = ev.target.closest("td"); if (!td) return; ev.preventDefault(); state.painting = true; touched.clear(); paintTd(td); });
+  table.addEventListener("pointermove", ev => { if (state.painting) paintTd(document.elementFromPoint(ev.clientX, ev.clientY)?.closest("td")); });
+  const roomsBox = el("div", { class: "rooms" }, ...d.rooms.map((room, i) => el("span", {}, el("span", { class: "sw", style: `background:${ROOM_COLORS[i % ROOM_COLORS.length]}` }), el("input", { value: room.name, size: 14, oninput: e => { room.name = e.target.value; changed(); } }))),
+    el("button", { onclick: () => { d.rooms.push({ name: "Stanza " + (d.rooms.length + 1) }); renderEditor(); changed(); } }, "+ stanza"),
+    el("button", { onclick: () => { if (d.rooms.length > 1 && confirm("Tolgo l'ultima stanza (le sue caselle passano alla 1)?")) { const gone = d.rooms.length - 1; d.rooms.pop(); d.cells.flat().forEach(c => { if (c.room >= gone) c.room = 0; }); state.tool.room = 0; renderEditor(); changed(); } } }, "− stanza"));
+  ed.replaceChildren(
+    el("section", {}, el("h2", {}, "Mappa"),
+      el("p", { class: "msg" }, "Guarda la foto della mappa: dipingi le caselle con lo strumento scelto (puoi trascinare). Le righe spesse nere sono i muri fra stanze diverse. «?» in rosso = oggetto di cui manca il tipo."),
+      sizeBox(),
+      el("div", { class: "tools" }, toolRadio("room", "stanza ", roomSel), toolRadio("object", "oggetto ", objSel), toolRadio("noobject", "toglie oggetto"), toolRadio("blocked", "casella grigia (bloccata)"), toolRadio("out", "fuori dalla mappa"), toolRadio("in", "dentro (libera)")),
+      table, el("h2", {}, "Stanze (nome come scritto sulla mappa)"), roomsBox,
+      el("p", { class: "msg" }, "Il letto, che nel libro occupa due caselle, si segna come «Letto» su tutte e due. Porte e finestre (sui bordi) non si segnano ancora: il caso ne risulterà privo.")));
+}
+function renderMapKeep() { const s = $("#editor").scrollTop; renderMap($("#editor")); $("#editor").scrollTop = s; changed(); }
+function sizeBox() {
+  const d = state.draft;
+  const rows = el("input", { type: "number", class: "small", min: 2, max: 20, value: d.rows || 6 }), cols = el("input", { type: "number", class: "small", min: 2, max: 20, value: d.cols || 6 });
+  return el("div", { class: "tools" }, "Righe", rows, "Colonne", cols, el("button", { onclick: () => { resizeGrid(+rows.value, +cols.value); renderEditor(); changed(); } }, "applica"));
+}
+const stopPainting = () => { if (!state.painting) return; state.painting = false; renderMapKeep(); };
+document.addEventListener("pointerup", stopPainting); document.addEventListener("pointercancel", stopPainting);
+
+// ---------------------------------------------------------------- soluzione stampata
+function renderSolution(ed) {
+  const d = state.draft; d.placements = d.placements || [];
+  const get = l => d.placements.find(p => p.letter === l) || (d.placements.push({ letter: l, row: "", col: "" }), d.placements.at(-1));
+  const culprit = el("select", { onchange: e => { d.culprit = e.target.value; changed(); } }, el("option", { value: "" }, "—"), ...d.cards.filter(c => !c.victim).map(c => el("option", { value: c.letter, selected: d.culprit === c.letter }, `${c.letter} ${c.name || ""}`)));
+  const rows = d.cards.map(c => { const p = get(c.letter);
+    const doubt = p.via !== "solver" && p.conf !== undefined && (p.conf < 60 || p.margin > 0.3);
+    const via = p.via === "solver" ? " (scelta dal solver)" : p.via === "testo" ? " (dal testo)" : "";
+    return el("tr", {}, el("td", {}, el("span", { class: "badge" }, c.letter), " " + (c.name || (c.victim ? "vittima" : "")), doubt ? el("span", { class: "uns", title: "lettura incerta: guarda la foto" }, " ⚠") : "", via ? el("span", { class: "msg" }, via) : ""),
+      el("td", {}, "R", el("input", { class: "small", type: "number", min: 1, max: d.rows || 20, value: p.row, oninput: e => { p.row = e.target.value === "" ? "" : +e.target.value; delete p.conf; delete p.fr; delete p.via; changed(); } })),
+      el("td", {}, "C", el("input", { class: "small", type: "number", min: 1, max: d.cols || 20, value: p.col, oninput: e => { p.col = e.target.value === "" ? "" : +e.target.value; delete p.conf; delete p.fr; delete p.via; changed(); } }))); });
+  ed.replaceChildren(el("section", {}, el("h2", {}, "Soluzione stampata (pagina dei passaggi)"),
+    el("p", { class: "msg" }, "Guarda la pagina dei passaggi: «R3 C2» = riga 3, colonna 2 (si conta da 1, come nel libro). Il solver confronta questa con quella che trova da solo."),
+    el("div", { class: "tools" }, el("button", { onclick: readSolution }, "Leggi assassino e posizioni dalla foto"), el("span", { class: "msg" }, "(sostituisce quello che c'è; ~1 minuto)"),
+      el("button", { onclick: refineSolution, title: "Per le pedine dubbie sceglie fra le caselle vicine quella della soluzione unica del solver" }, "Risolvi i dubbi col solver")),
+    ...(state.refineNotes && state.refineNotes.length ? [el("div", { class: "result" }, ...state.refineNotes.map(x => el("div", { class: x.startsWith("✔") ? "msg" : "uns" }, x)))] : []),
+    ...(d.solution_source && d.solution_source.issues.length ? [el("div", { class: "result" }, ...d.solution_source.issues.map(x => el("div", { class: "uns" }, "⚠ " + x)))] : []),
+    ...(d.solution_source && d.solution_source.culprit_name ? [el("div", { class: "msg" }, "assassino letto dal libro: «" + d.solution_source.culprit_name + "»")] : []),
+    el("div", { class: "tools" }, "L'assassino è ", culprit), el("table", {}, ...rows),
+    el("h2", {}, "Elementi che l'app non rappresenta"),
+    el("p", { class: "msg" }, "Spunta quelli che il caso usa: il caso resta fuori dal dataset ma si sa perché."),
+    ...Object.entries(meta.unsupported).map(([code, text]) => el("label", { style: "display:block;margin:3px 0" }, el("input", { type: "checkbox", checked: (d.unsupported || []).includes(code), onchange: e => { d.unsupported = (d.unsupported || []).filter(x => x !== code); if (e.target.checked) d.unsupported.push(code); changed(); } }), " " + text)),
+    el("h2", {}, "Note"), el("textarea", { oninput: e => { d.notes = e.target.value; changed(); } }, d.notes || "")));
+  ed.querySelector("textarea").value = d.notes || "";
+}
+
+// ---------------------------------------------------------------- esito
+async function readSolution() {
+  busy("Leggo assassino e posizioni dalla pagina dei passaggi… (circa un minuto)");
+  try { const r = await api("/api/readsolution", state.draft); state.draft = r.draft; renderEditor(); changed(); }
+  catch (e) { alert(e.message); }
+  busy();
+}
+async function refineSolution() {
+  busy("Il solver sceglie fra le caselle vicine…");
+  try {
+    const r = await api("/api/refine", state.draft); state.draft = r.draft;
+    state.refineNotes = [...r.changed.map(c => `✔ ${c.letter}: da R${c.from[0]} C${c.from[1]} a R${c.to[0]} C${c.to[1]} (scelta dal solver)`), ...r.notes];
+    if (!state.refineNotes.length) state.refineNotes = ["Nessuna pedina dubbia da correggere: le posizioni coincidono con la soluzione del solver."];
+    renderEditor(); changed();
+  } catch (e) { alert(e.message); }
+  busy();
+}
+async function runCheck() {
+  busy("Il solver sta giudicando…");
+  try { state.outcome = await api("/api/check", state.draft); state.analysis = { cards: state.outcome.cards, problems: state.outcome.problems }; state.tab = "out"; renderEditor(); }
+  catch (e) { alert(e.message); }
+  busy();
+}
+async function runAccept() {
+  if (!confirm("Scrivo il record di questo caso? Diventa «verificato» solo se il solver conferma tutto (unica soluzione = stampata); altrimenti «incerto».")) return;
+  busy("Scrivo il record…");
+  try { const r = await api("/api/accept", state.draft); alert("Record scritto: stato «" + r.status + "»\n" + r.path); const c = meta.cases.find(x => x.number === state.number); if (c) c.status = r.status; $("#statusChip").textContent = "stato: " + r.status; }
+  catch (e) { alert(e.message); }
+  busy();
+}
+// Quando le soluzioni sono più d'una: una colonna per soluzione, evidenziate le posizioni che cambiano (cioè dove gli indizi non bastano).
+function solutionsTable(rep) {
+  const sols = rep.solutions || [];
+  if (sols.length < 2) return [];
+  const names = sols[0].placements.map(p => p.name);
+  const at = (sol, name) => { const p = sol.placements.find(q => q.name === name); return p ? `R${p.row + 1} C${p.col + 1}` : "—"; };
+  const differs = name => new Set(sols.map(s => at(s, name))).size > 1;
+  const head = el("tr", {}, el("th", {}, "persona"), ...sols.map((s, i) => el("th", {}, "soluzione " + (i + 1))));
+  const rows = names.map(name => el("tr", {}, el("td", { class: "name" }, name), ...sols.map(s => el("td", { class: differs(name) ? "diff" : "" }, at(s, name)))));
+  const culprits = el("tr", {}, el("td", { class: "name" }, "assassino"), ...sols.map(s => el("td", {}, s.culprit || "?")));
+  const capped = rep.solutionCount > sols.length ? [el("p", { class: "msg" }, "Mostro le prime " + sols.length + " soluzioni; ce ne sono altre.")] : [];
+  const who = names.filter(differs);
+  return [
+    el("h2", {}, "Le soluzioni trovate"),
+    el("p", { class: "msg" }, "In giallo le posizioni che cambiano da una soluzione all'altra" + (who.length ? ": " + who.join(", ") + "." : ".") + " Numeri di riga e colonna come sulla mappa (da 1)."),
+    el("div", { class: "tablewrap" }, el("table", { class: "sols" }, head, ...rows, culprits)),
+    ...capped,
+  ];
+}
+function renderOutcome(ed) {
+  const o = state.outcome;
+  if (!o) { ed.replaceChildren(el("p", {}, "Premi «Controlla col solver» in alto.")); return; }
+  const rep = o.report; const labels = { ok: "TORNA: unica soluzione, uguale a quella stampata", da_correggere: "DA CORREGGERE", non_valido: "NON VALIDO" };
+  const parts = [el("div", { class: "verdict " + o.verdict }, labels[o.verdict] || o.verdict)];
+  if (o.problems.length) parts.push(el("h2", {}, "Problemi"), el("ul", { class: "problems" }, ...o.problems.map(p => el("li", {}, p))));
+  if (o.unsupported.length) parts.push(el("h2", {}, "Non supportato dall'app"), el("ul", { class: "problems" }, ...o.unsupported.map(c => el("li", {}, meta.unsupported[c] || c))));
+  if (rep) {
+    parts.push(el("h2", {}, "Il solver"),
+      el("ul", { class: "problems" },
+        el("li", {}, "soluzioni trovate: " + (rep.solutionCount ?? "?") + (rep.unique ? " (unica)" : (rep.solutionCount === 0 ? " — nessuna: indizi o griglia sbagliati" : " — più di una: manca qualche indizio o una scheda"))),
+        ...(rep.matchesPrinted === false ? [el("li", {}, "NON coincide con la stampata: " + (rep.mismatches || []).map(m => typeof m === "string" ? m : JSON.stringify(m)).join("; "))] : []),
+        ...(rep.matchesPrinted === true ? [el("li", {}, "coincide con la soluzione stampata ✓")] : []),
+        ...(rep.problems && rep.problems.length ? rep.problems.map(p => el("li", {}, "forma: " + p)) : [])),
+      ...solutionsTable(rep),
+      el("details", {}, el("summary", {}, "rapporto completo"), el("pre", {}, JSON.stringify(rep, null, 1))));
+  }
+  if (!o.printed_complete) parts.push(el("p", { class: "msg" }, "Manca la soluzione stampata completa (tutti i personaggi e l'assassino): il record non potrà essere «verificato»."));
+  ed.replaceChildren(el("section", {}, parts));
+}
+init().catch(e => { busy(); alert(e.message); });
+</script>
+</body>
+</html>

@@ -214,6 +214,7 @@ export function renderPlayerBoard(container, puzzle, state, onCellTap, onCellHol
     (...args) =>
       board.handlers[name]?.(...args);
   renderBoard(container, puzzle.grid, {
+    roles: puzzle.roles,
     onLabelTap: onLineTap ? call("onLineTap") : undefined,
     onLabelHold: onLineHold ? call("onLineHold") : undefined,
     decorateLabel: (node, kind, index) => decorateLabelNode(node, puzzle, state, kind, index, selectedId),

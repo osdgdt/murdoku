@@ -1,6 +1,11 @@
 import { buildPredicates } from "./predicates/index.js";
 import { dependenciesOf } from "./predicates/dependencies.js";
 import { isOccupiable } from "../model/grid.js";
+import { lineKeyFns, capacityOf } from "../model/sectors.js";
+import { hasRoles } from "../model/roles.js";
+import { solveWithRoles } from "./roles.js";
+import { hasHiddenNames } from "../model/placeNames.js";
+import { solveWithNames } from "./names.js";
 import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FORWARD_CHECK_MAX_SUBSET_OPS } from "./propagation.js";
 
 // Backtracking search over row/column-distinct placements of every character
@@ -86,7 +91,16 @@ import { propagate, FORWARD_CHECK_MAX_ROUNDS, FORWARD_CHECK_MAX_EVALUATIONS, FOR
 // A node weighs this many clue evaluations when work is added up (measured: ~1 us per node and ~0.33 us per evaluation).
 export const WORK_NODE_WEIGHT = 3;
 
-export function solvePuzzle(
+// A case with hidden roles (model/roles.js) is searched once for every assignment of roles worth trying (solver/roles.js);
+// each of those searches is the plain one below, with the assignment in `puzzle.roleOf`. The same for the places whose
+// name is to be deduced (model/placeNames.js, solver/names.js: `puzzle.nameOf`). Everything else is untouched.
+export function solvePuzzle(puzzle, options = {}) {
+  if (hasHiddenNames(puzzle) && !puzzle.nameOf) return solveWithNames(puzzle, options, solvePuzzle);
+  if (hasRoles(puzzle) && !puzzle.roleOf) return solveWithRoles(puzzle, options, solvePuzzle);
+  return solvePlacements(puzzle, options);
+}
+
+function solvePlacements(
   puzzle,
   {
     maxSolutions = 2,
@@ -107,6 +121,7 @@ export function solvePuzzle(
 ) {
   const characters = puzzle.characters;
   const { rows, cols } = puzzle.grid.size;
+  const { rowKey, colKey, pillarKey } = lineKeyFns(puzzle.grid); // a line is its number, or (map, number) in a case with several maps
   const predicates = buildPredicates(puzzle);
   const solutions = [];
 
@@ -144,6 +159,7 @@ export function solvePuzzle(
 
   const usedRows = new Set();
   const usedCols = new Set();
+  const usedPillars = new Set(); // skyscraper only: the vertical lines
   const placementMap = new Map();
   let nodesVisited = 0;
   // The work done, in clue evaluations (every predicate call, the search's own and the forward checks'): unlike the
@@ -205,7 +221,8 @@ export function solvePuzzle(
 
   const sliceDepth = order.length >= 2 ? 1 : 0; // the level of the tree at which a slice's share is dealt out
   let sliceCounter = 0;
-  const isFree = ({ row, col }) => !usedRows.has(row) && !usedCols.has(col);
+  const isFree = ({ row, col }) =>
+    !usedRows.has(rowKey(row, col)) && !usedCols.has(colKey(row, col)) && !(pillarKey && usedPillars.has(pillarKey(row, col)));
 
   // How many cells `character` still has (stops counting at `limit`).
   function countFree(character, limit) {
@@ -261,8 +278,9 @@ export function solvePuzzle(
 
   function tryPlace(character, r, c) {
     placementMap.set(character.id, { row: r, col: c });
-    usedRows.add(r);
-    usedCols.add(c);
+    usedRows.add(rowKey(r, c));
+    usedCols.add(colKey(r, c));
+    if (pillarKey) usedPillars.add(pillarKey(r, c));
     if (!(incremental ? violatesAfterPlacing(character.id) : violatesAny())) {
       // Forward-check: does everyone still unplaced after this placement
       // still have at least one viable candidate cell? A CAPPED propagate()
@@ -287,8 +305,9 @@ export function solvePuzzle(
       }
       if (stillPromising) backtrack();
     }
-    usedRows.delete(r);
-    usedCols.delete(c);
+    usedRows.delete(rowKey(r, c));
+    usedCols.delete(colKey(r, c));
+    if (pillarKey) usedPillars.delete(pillarKey(r, c));
     placementMap.delete(character.id);
   }
 
@@ -333,7 +352,7 @@ export function solvePuzzle(
     }
   }
 
-  if (order.length > 0 && order.length <= rows && order.length <= cols) {
+  if (order.length > 0 && order.length <= capacityOf(puzzle.grid)) {
     backtrack();
   }
 

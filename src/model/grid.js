@@ -1,5 +1,7 @@
 import { makeId } from "../util/id.js";
 import { isObjectTypeOccupiable, isEdgeObjectType } from "./icons.js";
+import { fitSectors, syncFloorPadding, floorPadding, isFloorPadding, sameFloor } from "./sectors.js";
+import { pruneWays } from "./floors.js";
 
 export function createGrid(rows = 6, cols = 6) {
   const cells = [];
@@ -31,7 +33,15 @@ export function resizeGrid(grid, rows, cols) {
       if (objId && !objects.find((o) => o.id === objId)) cells[r][c].objectId = null;
     }
   }
-  return { size: { rows, cols }, cells, zones: grid.zones, objects };
+  const resized = { size: { rows, cols }, cells, zones: grid.zones, objects };
+  if (grid.sectors) {
+    resized.sectors = grid.sectors.map((s) => ({ ...s }));
+    if (grid.sectorAxis) resized.sectorAxis = grid.sectorAxis;
+    fitSectors(resized);
+    syncFloorPadding(resized, floorPadding(grid)); // the empty cells of the narrow floors follow the new shape
+  }
+  pruneWays(resized); // the stairs and the lift that lost an end go
+  return resized;
 }
 
 export function inBounds(grid, row, col) {
@@ -64,13 +74,58 @@ export function isOccupiable(grid, row, col) {
   return !!obj && isObjectTypeOccupiable(obj.typeId);
 }
 
+// Seals (Egypt / Rome): a cell can carry a seal that says who may stand on it, always counted within
+// the cell's own room. Anubis: whoever is here must be alone in the room. Ra: whoever is here must NOT
+// be alone. A seal is an optional `seal` property on the cell (absent = no seal), so every older
+// puzzle is still valid as it is.
+export const SEAL_KINDS = ["anubis", "ra"];
+
+export function isSealKind(kind) {
+  return SEAL_KINDS.includes(kind);
+}
+
+// The seal on a cell ("anubis" | "ra") or null.
+export function sealOf(grid, row, col) {
+  const seal = cellAt(grid, row, col)?.seal;
+  return isSealKind(seal) ? seal : null;
+}
+
+// Does the map have any seal at all?
+export function hasSeals(grid) {
+  return grid.cells.some((row) => row.some((cell) => isSealKind(cell.seal)));
+}
+
+// Every sealed cell, row by row: [{ row, col, seal }].
+export function sealedCells(grid) {
+  const out = [];
+  grid.cells.forEach((cells, row) => cells.forEach((cell, col) => isSealKind(cell.seal) && out.push({ row, col, seal: cell.seal })));
+  return out;
+}
+
+// Puts a seal on a cell, or takes it off (kind null). A seal needs a place a person can stand: a blocked
+// cell or one holding a tall piece of furniture takes none. Returns whether the cell now has `kind`.
+export function setSeal(grid, row, col, kind) {
+  const cell = cellAt(grid, row, col);
+  if (!cell) return false;
+  if (!isSealKind(kind)) {
+    delete cell.seal;
+    return true;
+  }
+  if (!isOccupiable(grid, row, col)) return false;
+  cell.seal = kind;
+  return true;
+}
+
 export function setBlocked(grid, row, col, blocked) {
   const cell = cellAt(grid, row, col);
   if (!cell) return;
+  if (!blocked && isFloorPadding(grid, row, col)) return; // the empty cells of a narrow floor stay empty
   cell.blocked = blocked;
   if (blocked) {
     if (cell.objectId) removeObject(grid, cell.objectId);
     cell.zoneId = null;
+    delete cell.seal;
+    delete cell.roleCell;
     // A door/window between this cell and a usable one stays (it is now on the
     // outer wall of that room); one left with no usable cell at all goes.
     for (const edge of edgeObjectsAt(grid, row, col)) {
@@ -169,7 +224,8 @@ export function edgeKey(obj) {
 export function edgeCells(grid, obj) {
   const cells = [{ row: obj.row, col: obj.col }];
   const other = edgeNeighbor(obj.row, obj.col, obj.side || "N");
-  if (inBounds(grid, other.row, other.col)) cells.push(other);
+  // the border between two floors is an outer wall of each: nothing lies between them
+  if (inBounds(grid, other.row, other.col) && sameFloor(grid, obj, other)) cells.push(other);
   return cells;
 }
 
@@ -183,7 +239,7 @@ const zoneKeyAt = (grid, r, c) => {
 // same open area (no wall). The border of the map has its own frame, so it is
 // not counted here (see isWallEdge for the pieces that sit on it).
 export function wallBetween(grid, r1, c1, r2, c2) {
-  if (!inBounds(grid, r2, c2)) return false;
+  if (!inBounds(grid, r2, c2) || !sameFloor(grid, { row: r1 }, { row: r2 })) return false;
   const a = zoneKeyAt(grid, r1, c1);
   const b = zoneKeyAt(grid, r2, c2);
   if (a === null && b === null) return false;
@@ -196,7 +252,7 @@ export function wallBetween(grid, r1, c1, r2, c2) {
 export function isWallEdge(grid, row, col, side = "N") {
   if (!inBounds(grid, row, col)) return false;
   const other = edgeNeighbor(row, col, side);
-  if (!inBounds(grid, other.row, other.col)) return true;
+  if (!inBounds(grid, other.row, other.col) || !sameFloor(grid, { row }, other)) return true;
   return wallBetween(grid, row, col, other.row, other.col);
 }
 
@@ -223,6 +279,8 @@ export function placeObject(grid, typeId, row, col, side = "N") {
   const obj = { id: makeId("obj"), typeId, row, col };
   grid.objects.push(obj);
   grid.cells[row][col].objectId = obj.id;
+  if (!isObjectTypeOccupiable(typeId)) delete grid.cells[row][col].seal; // nobody can stand there: no seal either
+  if (!isObjectTypeOccupiable(typeId)) delete grid.cells[row][col].roleCell;
   return obj;
 }
 
@@ -253,6 +311,9 @@ export function removeObject(grid, objectId) {
   grid.objects = grid.objects.filter((o) => o.id !== objectId);
   const cell = cellAt(grid, obj.row, obj.col);
   if (cell && cell.objectId === objectId) cell.objectId = null;
+  // the stairs and the lift are one thing with several ends: take away one, they all go
+  const way = obj.shaftId ?? obj.linkId;
+  if (way) for (const other of grid.objects.filter((o) => (o.shaftId ?? o.linkId) === way)) removeObject(grid, other.id);
 }
 
 export function zoneOfCell(grid, row, col) {

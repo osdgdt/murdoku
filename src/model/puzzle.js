@@ -1,8 +1,14 @@
 import { makeId } from "../util/id.js";
-import { createGrid, isOccupiable } from "./grid.js";
+import { createGrid, isOccupiable, isSealKind } from "./grid.js";
 import { isObjectTypeTarget } from "./icons.js";
 import { dropUnknownFromLists } from "./clueRefs.js";
 import { isSafeId, isSafeColor } from "../util/safe.js";
+import { MAX_CLUE_TEXT } from "./clueText.js";
+import { roleProblems } from "./roles.js";
+import { terrainProblems } from "./terrain.js";
+import { placeNameProblems } from "./placeNames.js";
+import { sectorProblems, capacityOf } from "./sectors.js";
+import { wayProblems } from "./floors.js";
 
 import { CURRENT_SCHEMA_VERSION, schemaVersionOf } from "./migrations.js";
 import { t } from "../i18n/i18n.js";
@@ -190,6 +196,7 @@ export function removeCharacter(puzzle, characterId) {
     return !dropUnknownFromLists(cl.params, (id) => id !== characterId);
   });
   puzzle.solution.placements = puzzle.solution.placements.filter((p) => p.characterId !== characterId);
+  if (puzzle.solution.roles) delete puzzle.solution.roles[characterId];
   // Un passo di suggerimento manuale che evidenziava questo personaggio perde
   // solo l'evidenziazione (characterId/row/col), non l'intero passo: il testo
   // scritto dall'autore resta prezioso anche orfano di bersaglio.
@@ -230,13 +237,16 @@ export function setClueNegate(puzzle, clueId, negate) {
 
 // Replaces the type, parameters and negation of a clue, keeping its id and its owner and its
 // place in the list (what editing a clue in the clue wizard does).
-export function replaceClue(puzzle, clueId, { type, params, negate }) {
+export function replaceClue(puzzle, clueId, { type, params, negate, text }) {
   const clue = puzzle.clues.find((c) => c.id === clueId);
   if (!clue) return false;
   clue.type = type;
   clue.params = JSON.parse(JSON.stringify(params || {}));
   if (negate) clue.negate = true;
   else delete clue.negate;
+  const words = typeof text === "string" ? text.trim().slice(0, MAX_CLUE_TEXT) : "";
+  if (words) clue.text = words;
+  else delete clue.text;
   touch(puzzle);
   return true;
 }
@@ -357,6 +367,9 @@ function validateUntrustedStrings(puzzle, errors) {
     }
     badId("zona", z.id);
     badColor("zona", z.color);
+    if (z.kind !== undefined && z.kind !== "noble") errors.push(t("Il tipo di una stanza non è valido."));
+    if (z.terrain !== undefined && z.terrain !== "water" && z.terrain !== "ship") errors.push(t("Il terreno di una stanza non è valido."));
+    if (z.nameHidden !== undefined && z.nameHidden !== true) errors.push(t("Il nome nascosto di una stanza non è valido."));
   }
   for (const o of Array.isArray(puzzle.grid?.objects) ? puzzle.grid.objects : []) {
     if (!o || typeof o !== "object") {
@@ -364,6 +377,7 @@ function validateUntrustedStrings(puzzle, errors) {
       continue;
     }
     badId("oggetto", o.id);
+    for (const way of [o.shaftId, o.linkId]) if (way !== undefined) badId("collegamento", way);
   }
   for (const cl of Array.isArray(puzzle.clues) ? puzzle.clues : []) {
     if (!cl || typeof cl !== "object") {
@@ -371,6 +385,8 @@ function validateUntrustedStrings(puzzle, errors) {
       continue;
     }
     badId("indizio", cl.id);
+    if (cl.text !== undefined && (typeof cl.text !== "string" || cl.text.length > MAX_CLUE_TEXT * 2))
+      errors.push(t("Il testo di un indizio deve essere una frase breve."));
   }
   const cells = puzzle.grid?.cells;
   const size = puzzle.grid?.size;
@@ -381,6 +397,8 @@ function validateUntrustedStrings(puzzle, errors) {
       cells.some((row) => !Array.isArray(row) || row.length !== size.cols || row.some((cell) => !cell || typeof cell !== "object")))
   ) {
     errors.push(t("Le celle della griglia non corrispondono alle sue dimensioni."));
+  } else if (Array.isArray(cells) && cells.some((row) => row.some((cell) => cell.seal !== undefined && !isSealKind(cell.seal)))) {
+    errors.push(t("Un sigillo non è valido."));
   }
 }
 
@@ -410,6 +428,11 @@ export function validatePuzzleShape(puzzle) {
     );
   }
   validateUntrustedStrings(puzzle, errors);
+  errors.push(...roleProblems(puzzle));
+  errors.push(...terrainProblems(puzzle));
+  errors.push(...placeNameProblems(puzzle));
+  errors.push(...(puzzle.grid?.size ? sectorProblems(puzzle.grid) : []));
+  errors.push(...(Array.isArray(puzzle.grid?.objects) && puzzle.grid?.size ? wayProblems(puzzle.grid) : []));
   if (!Array.isArray(puzzle.characters)) errors.push(t("Manca l'elenco personaggi."));
   if (!Array.isArray(puzzle.clues)) errors.push(t("Manca l'elenco indizi."));
   if (!puzzle.solution || !Array.isArray(puzzle.solution.placements)) errors.push(t("Manca la soluzione."));
@@ -433,7 +456,8 @@ export function validatePuzzleShape(puzzle) {
     // own 3-16 UI clamp (which never runs on an imported puzzle).
     if (puzzle.grid?.size) {
       const { rows, cols } = puzzle.grid.size;
-      if (puzzle.characters.length > rows || puzzle.characters.length > cols) {
+      const room = sectorProblems(puzzle.grid).length === 0 ? capacityOf(puzzle.grid) : Math.min(rows, cols);
+      if (puzzle.characters.length > room) {
         errors.push(
           t("Troppi personaggi ({length}) per una griglia {rows}×{cols}: al massimo uno per riga e uno per colonna.", {
             length: puzzle.characters.length,

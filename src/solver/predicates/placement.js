@@ -1,5 +1,7 @@
 // Clue types about WHERE a character stands relative to cells, objects, rows/columns and other characters.
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
+import { sealOf } from "../../model/grid.js";
+import { sameFloor, floorBox, localRow } from "../../model/sectors.js";
 import { isDiagonal, isDirection, isDirectionDistance, isSameRowOrCol, manhattan } from "../../util/geometry.js";
 import {
   isNextTo,
@@ -31,7 +33,7 @@ export const builders = {
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);
       if (targets === null) return undefined;
       if (targets.length === 0) return false;
-      return targets.some((t) => isDiagonal(a, t));
+      return targets.some((t) => sameFloor(puzzle.grid, a, t) && isDiagonal(a, t));
     };
   },
 
@@ -71,7 +73,7 @@ export const builders = {
         if (inside(a)) continue;
         for (const b of targetsB) {
           if (inside(b)) continue;
-          if (isStrictlyBetween(owner, a, b)) return true;
+          if (sameFloor(puzzle.grid, owner, a) && sameFloor(puzzle.grid, owner, b) && isStrictlyBetween(owner, a, b)) return true;
         }
       }
       return false;
@@ -87,8 +89,8 @@ export const builders = {
       if (targets.length === 0) return false;
       return targets.some((t) => {
         if (params.axis === "row") return a.row === t.row;
-        if (params.axis === "col") return a.col === t.col;
-        return isSameRowOrCol(a, t);
+        if (params.axis === "col") return a.col === t.col && sameFloor(puzzle.grid, a, t);
+        return isSameRowOrCol(a, t) && sameFloor(puzzle.grid, a, t);
       });
     };
   },
@@ -100,7 +102,9 @@ export const builders = {
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);
       if (targets === null) return undefined;
       if (targets.length === 0) return false;
-      return targets.some((t) => (params.axis === "row" ? Math.abs(a.row - t.row) === 1 : Math.abs(a.col - t.col) === 1));
+      return targets.some(
+        (t) => sameFloor(puzzle.grid, a, t) && (params.axis === "row" ? Math.abs(a.row - t.row) === 1 : Math.abs(a.col - t.col) === 1)
+      );
     };
   },
 
@@ -117,7 +121,7 @@ export const builders = {
           anyUndetermined = true;
           continue;
         }
-        const matches = targets.some((t) => (params.axis === "row" ? a.row === t.row : a.col === t.col));
+        const matches = targets.some((t) => (params.axis === "row" ? a.row === t.row : a.col === t.col && sameFloor(puzzle.grid, a, t)));
         if (matches) return true;
       }
       return anyUndetermined ? undefined : false;
@@ -128,8 +132,18 @@ export const builders = {
     return (pm) => {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
-      const { rows, cols } = puzzle.grid.size;
-      return (a.row === 0 || a.row === rows - 1) && (a.col === 0 || a.col === cols - 1);
+      const { top, bottom, right } = floorBox(puzzle.grid, a.row); // the corner of its own floor in a skyscraper
+      return (a.row === top || a.row === bottom) && (a.col === 0 || a.col === right);
+    };
+  },
+
+  onSeal: ({ puzzle, ownerId, params }) => {
+    return (pm) => {
+      const a = posOfCharacter(pm, ownerId);
+      if (!a) return undefined;
+      const seal = sealOf(puzzle.grid, a.row, a.col);
+      if (!seal) return false;
+      return !params.sealKind || params.sealKind === "any" || params.sealKind === seal;
     };
   },
 
@@ -140,7 +154,7 @@ export const builders = {
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);
       if (targets === null) return undefined;
       if (targets.length === 0) return false;
-      return targets.some((t) => isSameRowOrCol(a, t));
+      return targets.some((t) => isSameRowOrCol(a, t) && sameFloor(puzzle.grid, a, t));
     };
   },
 
@@ -153,8 +167,8 @@ export const builders = {
       const targets = resolveTargetPositions(pm, puzzle, params.targetId);
       if (targets === null) return undefined;
       if (targets.length === 0) return false;
-      if (!params.distance) return targets.some((t) => isDirection(params.direction, a, t));
-      return targets.some((t) => isDirectionDistance(params.direction, params.distance, a, t));
+      if (!params.distance) return targets.some((t) => sameFloor(puzzle.grid, a, t) && isDirection(params.direction, a, t));
+      return targets.some((t) => sameFloor(puzzle.grid, a, t) && isDirectionDistance(params.direction, params.distance, a, t));
     };
   },
 
@@ -178,6 +192,7 @@ export const builders = {
           anyUndetermined = true;
           continue;
         }
+        if (!sameFloor(puzzle.grid, a, pos)) continue; // north/south/east/west only count inside one floor
         const positionMatches = params.distance
           ? isDirectionDistance(params.direction, params.distance, pos, a)
           : isDirection(params.direction, pos, a);
@@ -203,9 +218,9 @@ export const builders = {
       if (targetsA === null || targetsB === null) return undefined;
       if (targetsA.length === 0 || targetsB.length === 0) return false;
       let distA = Infinity;
-      for (const t of targetsA) distA = Math.min(distA, manhattan(a, t));
+      for (const t of targetsA) if (sameFloor(puzzle.grid, a, t)) distA = Math.min(distA, manhattan(a, t));
       let distB = Infinity;
-      for (const t of targetsB) distB = Math.min(distB, manhattan(a, t));
+      for (const t of targetsB) if (sameFloor(puzzle.grid, a, t)) distB = Math.min(distB, manhattan(a, t));
       return distA < distB;
     };
   },
@@ -215,7 +230,8 @@ export const builders = {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
       const idx = params.index - 1;
-      return params.axis === "row" ? a.row === idx : a.col === idx;
+      // the rows count from the top of each floor, as the columns do from the left
+      return params.axis === "row" ? localRow(puzzle.grid, a.row) === idx : a.col === idx;
     };
   },
 
@@ -224,7 +240,7 @@ export const builders = {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
       // 1-indexed, matching the R1/C1... labels shown on the board.
-      const value = (params.axis === "row" ? a.row : a.col) + 1;
+      const value = (params.axis === "row" ? localRow(puzzle.grid, a.row) : a.col) + 1;
       const isOdd = value % 2 === 1;
       return params.parity === "odd" ? isOdd : !isOdd;
     };
@@ -239,6 +255,9 @@ export const builders = {
       if (ownProperty === false) return false;
       const za = params.scope === "room" ? zoneAt(puzzle, a) : null;
       if (params.scope === "room" && za === null) return false;
+      // on a skyscraper everybody is compared by the row of their own floor and the column: «of all» takes in every floor,
+      // «of their floor» only the one they stand on
+      const mine = { row: localRow(puzzle.grid, a.row), col: a.col };
 
       let anyUndetermined = false;
       for (const c of puzzle.characters) {
@@ -249,13 +268,14 @@ export const builders = {
           continue;
         }
         if (params.scope === "room" && zoneAt(puzzle, pos) !== za) continue;
+        if (params.scope === "floor" && !sameFloor(puzzle.grid, a, pos)) continue;
         const theirProperty = characterHasProperty(puzzle, pm, c.id, params, isComplete);
         if (theirProperty === undefined) {
           anyUndetermined = true;
           continue;
         }
         if (!theirProperty) continue;
-        if (!isMoreExtreme(params.direction, a, pos)) return false; // someone qualifying ties or beats the owner
+        if (!isMoreExtreme(params.direction, mine, { row: localRow(puzzle.grid, pos.row), col: pos.col })) return false; // someone qualifying ties or beats the owner
       }
       if (anyUndetermined) return undefined;
       return isComplete ? true : undefined;

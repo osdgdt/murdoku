@@ -1,6 +1,7 @@
 import { solvePuzzle } from "./solver.js";
 import { attachTechniques } from "./techniques/hintTechniques.js";
 import { isOccupiable } from "../model/grid.js";
+import { lineTracker } from "../model/sectors.js";
 import { buildPredicates } from "./predicates/index.js";
 import { propagate } from "./propagation.js";
 import {
@@ -232,15 +233,13 @@ function computeWave(puzzle, confirmed, budget, candidates, onProgress = null) {
         forcedIds.add(character.id);
       }
     }
-    const usedRows = new Set([...prop.confirmed.values()].map((p) => p.row));
-    const usedCols = new Set([...prop.confirmed.values()].map((p) => p.col));
+    const taken = lineTracker(puzzle.grid, prop.confirmed.values());
     for (const character of stillUnplaced) {
       if (forcedIds.has(character.id)) continue;
       const set = index.get(character.id) || new Set();
       for (let r = 0; r < rows; r++) {
-        if (usedRows.has(r)) continue;
         for (let c = 0; c < cols; c++) {
-          if (usedCols.has(c)) continue;
+          if (taken.has(r, c)) continue;
           if (!isOccupiable(puzzle.grid, r, c)) continue;
           if (!set.has(`${r},${c}`)) exhaustiveEliminated.push({ characterId: character.id, row: r, col: c });
         }

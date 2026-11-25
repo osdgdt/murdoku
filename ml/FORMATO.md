@@ -23,20 +23,22 @@ l'editor, il solver e `npm run check:case` lo capiscono senza conversioni.
   "extraction": {
     "status": "ok",
     "issues": ["il nome del personaggio C è incerto (OCR 61%)"],
-    "report": { "...": "il rapporto di tools/ml-validate.mjs" }
+    "report": { "...": "il rapporto di tools/ml-validate.mjs" },
+    "stages": { "griglia": { "righe": 6, "colonne": 6, "stanze": 4 }, "personaggi": { "schede": 6 } }
   },
   "unsupported": []
 }
 ```
 
-| Campo | Significato |
-|---|---|
-| `source` | Da dove viene: numero del caso, titolo, sottotitolo, le foto (percorsi relativi alla cartella dei dati) |
-| `puzzle` | Il caso come lo legge l'app. `null` se non si è riusciti a ricostruirlo |
-| `printed` | Quello che dice il libro: colpevole, soluzione (righe e colonne **da 0**), passaggi logici in italiano |
+| Campo               | Significato                                                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source`            | Da dove viene: numero del caso, titolo, sottotitolo, le foto (percorsi relativi alla cartella dei dati)                                                          |
+| `puzzle`            | Il caso come lo legge l'app. `null` se non si è riusciti a ricostruirlo                                                                                          |
+| `printed`           | Quello che dice il libro: colpevole, soluzione (righe e colonne **da 0**), passaggi logici in italiano                                                           |
 | `extraction.status` | `incerto` (da guardare), `ok` (il solver dice: soluzione unica uguale alla stampata), `scartato`, `verificato` (guardato dall'autore nella pagina di correzione) |
-| `extraction.report` | Il rapporto del giudice (`tools/ml-validate.mjs`): unicità, soluzione, colpevole, livello del solver umano |
-| `unsupported` | Codici degli elementi del caso che l'app non rappresenta (`murdoku_ml/unsupported.py`). Un caso con codici non entra nel dataset |
+| `extraction.report` | Il rapporto del giudice (`tools/ml-validate.mjs`): unicità, soluzione, colpevole, livello del solver umano                                                       |
+| `extraction.stages` | Cosa ha letto ogni fase del lettore (griglia, personaggi…): serve a vedere dove un caso si ferma. Facoltativo                                                    |
+| `unsupported`       | Codici degli elementi del caso che l'app non rappresenta (`murdoku_ml/unsupported.py`). Un caso con codici non entra nel dataset                                 |
 
 Regole: lettere dei personaggi = ordine alfabetico dei nomi (V = vittima); la vittima è l'ultima; un oggetto che nel libro occupa
 due caselle (il letto) sono due oggetti dell'app.

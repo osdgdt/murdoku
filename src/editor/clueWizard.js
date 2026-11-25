@@ -14,11 +14,15 @@
 // Not part of the editor's page that is re-drawn on every change: the wizard is a panel of its
 // own (a side drawer on a PC, a bottom sheet on a phone) that keeps its state between redraws.
 import { el, clear } from "../util/dom.js";
-import { CLUE_TYPES, describeClue } from "../model/clueTypes.js"; // first: clues/shared.js and clueTypes.js import each other
+import { CLUE_TYPES, describeClue } from "../model/clueTypes.js";
+import { MAX_CLUE_TEXT } from "../model/clueText.js"; // first: clues/shared.js and clueTypes.js import each other
 import { targetLabel } from "../model/clues/shared.js";
 import { addClue, replaceClue } from "../model/puzzle.js";
 import { FAMILIES, ENTRIES } from "../glossary/examples.js";
 import { buildPredicate } from "../solver/predicates/index.js";
+import { roleName } from "../model/roles.js";
+import { enumValuesFor } from "../model/sectors.js";
+import { withDeclared } from "../model/declared.js";
 import { resolveClueHoverCells } from "../solver/hoverTargets.js";
 import { declaredPlacementMap, suggestClues } from "../solver/suggestions.js";
 import { composeCluesAsync } from "../solver/solverClient.js";
@@ -34,6 +38,9 @@ import {
   convertParams,
   defaultParams,
   objectTypeChoices,
+  roleChoices,
+  placeNameChoices,
+  floorChoices,
   cleanParamLabel,
   targetsAtCell,
   eligibleCells,
@@ -257,7 +264,7 @@ function firstSentence(text) {
 
 function renderTypeStep(body, footer, puzzle) {
   const catalog = typeCatalog();
-  const allowed = new Set(typeIdsFor(session.ownerId));
+  const allowed = new Set(typeIdsFor(session.ownerId, puzzle));
   const search = el("input", {
     type: "search",
     class: "clue-search",
@@ -342,6 +349,7 @@ function chooseType(typeId) {
       ...session.draft,
       type: typeId,
       params: convertParams(session.draft.type, session.draft.params, typeId, puzzle),
+      text: typeId === session.draft.type ? session.draft.text : "", // the words of a clue of another type would be wrong
     };
   } else {
     session.draft = newDraft(typeId, session.ownerId, puzzle);
@@ -380,7 +388,7 @@ function evaluateDraft(puzzle) {
   const pm = declaredPlacementMap(puzzle);
   if (!pm || missingParams(session.draft).length > 0) return undefined;
   try {
-    const result = buildPredicate({ id: "draft", ...session.draft }, puzzle)(pm, true);
+    const result = buildPredicate({ id: "draft", ...session.draft }, withDeclared(puzzle))(pm, true);
     return result === true ? true : result === false ? false : undefined;
   } catch {
     return undefined;
@@ -444,6 +452,30 @@ function renderSentenceStep(body, footer, puzzle) {
     ])
   );
 
+  // The author's own words for this clue (empty = the automatic sentence, shown as the suggestion).
+  const wordsInput = el("input", {
+    type: "text",
+    class: "clue-text-input",
+    maxlength: String(MAX_CLUE_TEXT),
+    value: draft.text || "",
+    placeholder: describeClue(draft, puzzle, { auto: true }),
+    "aria-label": t("Parole dell'indizio"),
+    onInput: (e) => {
+      draft.text = e.target.value;
+    },
+  });
+  body.appendChild(
+    el("div", { class: "clue-slot", role: "group", "aria-label": t("Parole dell'indizio") }, [
+      el("span", { class: "clue-slot-label" }, t("Parole dell'indizio")),
+      wordsInput,
+      el(
+        "p",
+        { class: "muted" },
+        t("Vuoto: la frase la scrive il programma. Scrivi qui se vuoi dirlo con parole tue: la frase intera, così com'è.")
+      ),
+    ])
+  );
+
   if (session.notice) body.appendChild(el("p", { class: "violation", role: "alert" }, session.notice));
 
   const canSave = missing.length === 0 && !hasDuplicateTargets(draft);
@@ -481,6 +513,7 @@ function save({ another }) {
   } else {
     const clue = addClue(puzzle, draft.characterId, draft.type, JSON.parse(JSON.stringify(draft.params)));
     if (draft.negate) clue.negate = true;
+    if (typeof draft.text === "string" && draft.text.trim()) clue.text = draft.text.trim().slice(0, MAX_CLUE_TEXT);
     if (another) {
       session.step = 1;
       session.draft = null;
@@ -526,7 +559,7 @@ function renderSlots(spec, path, puzzle) {
 // A nested clue: its type (a grouped list) and then its own parameters.
 function renderNested(spec, path, puzzle) {
   const wrap = el("div", { class: "clue-nested" });
-  const subTypeIds = typeIdsFor("character-scope").filter((id) => !CLUE_TYPES[id].combinator);
+  const subTypeIds = typeIdsFor("character-scope", puzzle).filter((id) => !CLUE_TYPES[id].combinator);
   const catalog = typeCatalog();
   const select = el(
     "select",
@@ -564,8 +597,22 @@ function renderParamControl(p, spec, path, puzzle) {
   const value = spec.params?.[p.name];
   const keyBase = `${path.join(".")}|${p.name}`;
   if (p.kind === "enum") {
-    const labels = p.labels || {};
-    const values = p.name === "objectTypeId" ? objectTypeChoices(puzzle, p) : p.values;
+    const labels =
+      p.dynamic === "roles"
+        ? { ...(p.labels || {}), ...Object.fromEntries((puzzle.roles?.defs || []).map((d) => [d.id, roleName(puzzle, d.id)])) }
+        : p.dynamic === "floors"
+          ? Object.fromEntries(floorChoices(puzzle).map((id) => [id, puzzle.grid.sectors.find((s) => s.id === id)?.name ?? id]))
+          : p.labels || {};
+    const values =
+      p.dynamic === "roles"
+        ? roleChoices(puzzle, p)
+        : p.dynamic === "floors"
+          ? floorChoices(puzzle)
+          : p.dynamic === "placeNames"
+            ? placeNameChoices(puzzle)
+            : p.name === "objectTypeId"
+              ? objectTypeChoices(puzzle, p)
+              : enumValuesFor(p, puzzle.grid);
     // a long list (all the object types) is a menu, a short one chips
     if (values.length > 8) {
       return el(

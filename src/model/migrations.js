@@ -140,6 +140,11 @@ const MIGRATIONS = [
 
     if (Array.isArray(p.clues)) p.clues = p.clues.filter((clue) => upgrade(clue));
   },
+  // 4 -> 5: cells may carry a seal (`cell.seal`: "anubis" | "ra"), and a case may have hidden roles (`puzzle.roles`,
+  // `zone.kind: "noble"`, `cell.roleCell`, `solution.roles`: see model/roles.js). All of it is optional and absent means
+  // "none", so nothing in an older document changes; the version number is there so that an older app refuses a case
+  // with seals or roles instead of playing it without the rule.
+  () => {},
 ];
 
 export const CURRENT_SCHEMA_VERSION = MIGRATIONS.length;

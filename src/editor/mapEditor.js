@@ -13,6 +13,8 @@ import {
   removeObject,
   resizeGrid,
   setBlocked,
+  setSeal,
+  sealOf,
   edgeObjectsAt,
   edgeObjectOnSide,
   misplacedEdgeObjects,
@@ -20,6 +22,14 @@ import {
 import { OBJECT_TYPES, EDGE_SIDES, isEdgeObjectType, sideLabel } from "../model/icons.js";
 import { ZONE_TEXTURES, floorStyle } from "../model/textures.js";
 import { t } from "../i18n/i18n.js";
+import { sealIcon } from "../skin/paper/seals.js";
+import { renderRolePanel } from "./roleEditor.js";
+import { renderTerrainPanel } from "./terrainEditor.js";
+import { renderPlaceNamePanel } from "./placeNameEditor.js";
+import { renderSectorPanel } from "./sectorEditor.js";
+import { setRoleCell, roleCellOf } from "../model/roles.js";
+import { hasFloors } from "../model/sectors.js";
+import { placeElevator, placeStairs } from "../model/floors.js";
 
 const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4d3c2", "#c2f4e8", "#e8e8e8"];
 
@@ -27,7 +37,9 @@ const ZONE_COLORS = ["#f4c2c2", "#c2e0f4", "#c9f4c2", "#f4ecc2", "#e0c2f4", "#f4
 let edgeSide = "N";
 // Why the last door/window could not be placed (shown under the palette until the next try).
 let edgeNotice = "";
-let tool = null; // { kind: 'zone', zoneId } | { kind: 'object', typeId } | { kind: 'block' } | { kind: 'erase' }
+// Stairs take two clicks (where they start, where they come out): the first cell, while the second is awaited.
+let stairsFrom = null;
+let tool = null; // { kind: 'zone', zoneId } | { kind: 'object', typeId } | { kind: 'block' } | { kind: 'seal', seal } | { kind: 'roleCell', roleId } | { kind: 'erase' }
 
 // Enter/Space equivalent of a click, for custom (non-<button>) widgets like
 // the zone swatches and object-palette items below — they're plain <div>s so
@@ -82,6 +94,14 @@ function eraseObjectAt(grid, row, col, side) {
 // chair must not also wipe the room under it.
 function eraseCell(grid, row, col, side) {
   if (eraseObjectAt(grid, row, col, side)) return;
+  if (sealOf(grid, row, col)) {
+    setSeal(grid, row, col, null);
+    return;
+  }
+  if (roleCellOf(grid, row, col)) {
+    setRoleCell(grid, row, col, null);
+    return;
+  }
   grid.cells[row][col].zoneId = null;
 }
 
@@ -122,6 +142,9 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(
     el("div", { class: "field-row" }, [el("label", {}, t("Righe")), rowsInput, el("label", {}, t("Colonne")), colsInput, applySize])
   );
+
+  // Several maps in one (the train: wagons side by side; the skyscraper: floors stacked).
+  renderSectorPanel(panelEl, puzzle, { onChange });
 
   // Zones
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Stanze / Zone")));
@@ -265,14 +288,19 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   // Objects
   panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Oggetti / Mobili")));
   // The classic furniture first, then a group of medieval / dark-fantasy props.
-  for (const group of ["classic", "medieval"]) {
+  for (const group of ["classic", "medieval", "nature", "sea", "building"]) {
+    if (group === "building" && !hasFloors(puzzle.grid)) continue; // the lift and the stairs only make sense between floors
     if (group === "medieval") panelEl.appendChild(el("h4", { class: "palette-group", "aria-level": "3" }, t("Medioevo e fantasy")));
+    if (group === "nature") panelEl.appendChild(el("h4", { class: "palette-group", "aria-level": "3" }, t("Animali e natura")));
+    if (group === "sea") panelEl.appendChild(el("h4", { class: "palette-group", "aria-level": "3" }, t("Mare e isole")));
+    if (group === "building") panelEl.appendChild(el("h4", { class: "palette-group", "aria-level": "3" }, t("Scale e ascensore")));
     const objectPalette = el("div", { class: "object-palette" });
     for (const [typeId, def] of Object.entries(OBJECT_TYPES)) {
       if ((def.group || "classic") !== group) continue;
       const selectObject = () => {
         tool = { kind: "object", typeId };
-        edgeNotice = "";
+        stairsFrom = null;
+        edgeNotice = typeId === "stairs" ? t("Scale: clicca la casella di partenza, poi quella d'arrivo nel piano sopra o sotto.") : "";
         onChange();
       };
       const item = el("div", {
@@ -358,6 +386,59 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
     )
   );
 
+  // Seals (Egypt / Rome): the author marks the cells; Anubis wants whoever stands there alone in the room, Ra wants company.
+  panelEl.appendChild(el("h3", { "aria-level": "2" }, t("Sigilli")));
+  const sealRow = el("div", { class: "field-row" });
+  for (const [seal, label] of [
+    ["anubis", t("Sigillo di Anubi")],
+    ["ra", t("Sigillo di Ra")],
+  ]) {
+    const active = tool?.kind === "seal" && tool.seal === seal;
+    const iconNode = el("span", { class: "seal-tool-icon", "aria-hidden": "true" });
+    iconNode.innerHTML = sealIcon(seal);
+    const btn = el(
+      "button",
+      {
+        class: "seal-tool",
+        "aria-pressed": active ? "true" : "false",
+        onClick: () => {
+          tool = { kind: "seal", seal };
+          edgeNotice = "";
+          onChange();
+        },
+      },
+      [iconNode, active ? t("{label} (attivo)", { label }) : label]
+    );
+    sealRow.appendChild(btn);
+  }
+  panelEl.appendChild(sealRow);
+  panelEl.appendChild(
+    el(
+      "p",
+      { class: "muted" },
+      t(
+        "Chi sta sul sigillo di Anubi deve essere solo nella sua stanza; chi sta sul sigillo di Ra non può esserlo. Clicca su una cella per metterlo o toglierlo."
+      )
+    )
+  );
+
+  // Hidden roles: the roles themselves, the noble areas and the cells reserved to a role.
+  renderRolePanel(panelEl, puzzle, {
+    tool,
+    selectTool: (next) => {
+      tool = next;
+      edgeNotice = "";
+      onChange();
+    },
+    onChange,
+  });
+
+  // Sea and land (Pirates): what each room is.
+  renderTerrainPanel(panelEl, puzzle, { onChange });
+
+  // Places whose name is to be deduced («???»).
+  renderPlaceNamePanel(panelEl, puzzle, { onChange });
+
   const eraseBtn = el(
     "button",
     {
@@ -372,6 +453,7 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
   panelEl.appendChild(el("div", { class: "field-row" }, [eraseBtn]));
 
   renderBoard(boardEl, puzzle.grid, {
+    roles: puzzle.roles,
     onCellClick: (row, col, e) => {
       if (!tool) return;
       const cell = puzzle.grid.cells[row][col];
@@ -381,12 +463,36 @@ export function renderMapEditor(panelEl, boardEl, puzzle, onChange) {
         // ignore paint/object/erase attempts on blocked cells
       } else if (tool.kind === "zone") {
         paintCellZone(puzzle.grid, row, col, tool.zoneId);
+      } else if (tool.kind === "object" && tool.typeId === "elevator") {
+        const result = placeElevator(puzzle.grid, row, col);
+        edgeNotice = result.ok ? "" : result.message;
+      } else if (tool.kind === "object" && tool.typeId === "stairs") {
+        if (!stairsFrom) {
+          stairsFrom = { row, col };
+          edgeNotice = t("Scale: ora clicca la casella d'arrivo, nel piano sopra o sotto.");
+        } else {
+          const result = placeStairs(puzzle.grid, stairsFrom, { row, col });
+          stairsFrom = null;
+          edgeNotice = result.ok ? t("Scale: clicca la casella di partenza, poi quella d'arrivo nel piano sopra o sotto.") : result.message;
+        }
       } else if (tool.kind === "object") {
         const placed = placeObject(puzzle.grid, tool.typeId, row, col, isEdgeObjectType(tool.typeId) ? edgeSide : undefined);
         edgeNotice =
           placed || !isEdgeObjectType(tool.typeId)
             ? ""
             : t("Qui non c'è un muro: porte e finestre vanno tra due stanze, tra una stanza e l'esterno, o sul bordo della mappa.");
+      } else if (tool.kind === "seal") {
+        const same = sealOf(puzzle.grid, row, col) === tool.seal;
+        edgeNotice =
+          setSeal(puzzle.grid, row, col, same ? null : tool.seal) || same
+            ? ""
+            : t("Un sigillo va su una casella dove una persona può stare: non su un mobile alto.");
+      } else if (tool.kind === "roleCell") {
+        const same = roleCellOf(puzzle.grid, row, col) === tool.roleId;
+        edgeNotice =
+          setRoleCell(puzzle.grid, row, col, same ? null : tool.roleId) || same
+            ? ""
+            : t("Una casella riservata va dove una persona può stare: non su un mobile alto.");
       } else if (tool.kind === "erase") {
         eraseCell(puzzle.grid, row, col, nearestSide(e));
       }

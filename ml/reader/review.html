@@ -74,6 +74,11 @@
   table.grid td .edge-N { top:-4px; } table.grid td .edge-S { bottom:-4px; } table.grid td .edge-W { left:-4px; } table.grid td .edge-E { right:-4px; }
   table.grid td .edge-door { background:#8a3b12; } table.grid td .edge-window { background:#39a0e6; }
   table.grid td .edge.bad { box-shadow:0 0 0 2px #b3261e; }
+  .pawn { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; font-size:13px; border:2px solid #fff; box-shadow:0 0 0 1px #0007; }
+  .pawn.sel { outline:3px solid #2f9e44; outline-offset:1px; } .pawn.dup { background:#b3261e; }
+  table.grid td .pawn { position:absolute; inset:0; margin:auto; z-index:3; }
+  .pawnrow { display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:4px 6px; border:1px solid var(--line); border-radius:6px; margin:3px 0; cursor:pointer; }
+  .pawnrow.sel { outline:2px solid #2f9e44; background:var(--panel); }
   .tools { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:8px; }
   .tools label { display:inline-flex; gap:4px; align-items:center; padding:2px 6px; border:1px solid var(--line); border-radius:6px; background:var(--panel); }
   .rooms { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
@@ -599,24 +604,66 @@ const stopPainting = () => { if (!state.painting) return; state.painting = false
 document.addEventListener("pointerup", stopPainting); document.addEventListener("pointercancel", stopPainting);
 
 // ---------------------------------------------------------------- soluzione stampata
+// Le pedine si piazzano sulla mappa: si sceglie il personaggio (nell'elenco o toccando la sua pedina) e si tocca la casella.
+// Una pedina sulla stessa riga o colonna di un'altra è rossa (nel gioco non può succedere).
+function pawnPicker(d, get) {
+  const placed = c => { const p = get(c.letter); return p.row !== "" && p.col !== "" && p.row != null && p.col != null; };
+  if (!state.pawn || !d.cards.some(c => c.letter === state.pawn)) state.pawn = (d.cards.find(c => !placed(c)) || d.cards[0] || {}).letter;
+  const redraw = () => { const sc = $("#editor").scrollTop; renderSolution($("#editor")); $("#editor").scrollTop = sc; changed(); };
+  const spots = d.cards.filter(placed).map(c => ({ letter: c.letter, r: get(c.letter).row - 1, c: get(c.letter).col - 1 }));
+  const dup = new Set(spots.filter(a => spots.some(b => b !== a && (b.r === a.r || b.c === a.c))).map(a => a.letter));
+  const at = {}; for (const a of spots) (at[a.r + "," + a.c] = at[a.r + "," + a.c] || []).push(a.letter);
+  const types = meta.objectTypes;
+  const table = el("table", { class: "grid" });
+  for (let r = 0; r < d.rows; r++) {
+    const tr = el("tr");
+    for (let c = 0; c < d.cols; c++) {
+      const cell = d.cells[r][c]; const td = el("td", { title: `R${r + 1} C${c + 1}` });
+      const usable = cell.inside && !cell.blocked;
+      if (!cell.inside) td.className = "out"; else if (cell.blocked) td.className = "blk";
+      else { td.style.background = ROOM_COLORS[cell.room % ROOM_COLORS.length]; const rt = d.cells[r][c + 1], bt = d.cells[r + 1] && d.cells[r + 1][c];
+        if (!rt || !rt.inside || rt.blocked || rt.room !== cell.room) td.classList.add("roomedge-r"); if (!bt || !bt.inside || bt.blocked || bt.room !== cell.room) td.classList.add("roomedge-b"); }
+      if (usable && cell.object) td.append(el("span", { class: "o" + (cell.object === "?" ? " q" : "") }, cell.object === "?" ? "?" : (types[cell.object] || cell.object).slice(0, 5)));
+      for (const letter of at[r + "," + c] || []) td.append(el("span", { class: "pawn" + (letter === state.pawn ? " sel" : "") + (dup.has(letter) ? " dup" : "") }, letter));
+      td.onclick = () => {
+        const here = at[r + "," + c] || [];
+        if (here.length && !(here.length === 1 && here[0] === state.pawn)) { state.pawn = here.includes(state.pawn) ? state.pawn : here[0]; redraw(); return; } // tocca una pedina: la prende in mano
+        if (here.length) { state.pawn = null; redraw(); return; } // tocca di nuovo la sua: la lascia
+        if (!usable || !state.pawn) return;
+        const letter = state.pawn, p = get(letter), wasPlaced = p.row !== "" && p.col !== "" && p.row != null;
+        p.row = r + 1; p.col = c + 1; delete p.conf; delete p.fr; delete p.via; delete p.margin;
+        if (!wasPlaced) { const next = d.cards.find(x => !placed(x)); if (next) state.pawn = next.letter; } // dopo averne piazzata una nuova, passa alla prossima
+        redraw();
+      };
+      tr.append(td);
+    }
+    table.append(tr);
+  }
+  const list = d.cards.map(c => {
+    const p = get(c.letter); const doubt = p.via !== "solver" && p.conf !== undefined && (p.conf < 60 || p.margin > 0.3);
+    const via = p.via === "solver" ? " (scelta dal solver)" : p.via === "testo" ? " (dal testo)" : "";
+    return el("div", { class: "pawnrow" + (c.letter === state.pawn ? " sel" : ""), onclick: () => { state.pawn = c.letter; redraw(); } },
+      el("span", { class: "badge" }, c.letter), el("span", {}, c.name || (c.victim ? "vittima" : "")),
+      el("b", {}, placed(c) ? `R${p.row} C${p.col}` : "da piazzare"),
+      dup.has(c.letter) ? el("span", { class: "uns", title: "un'altra pedina è sulla sua stessa riga o colonna" }, "⚠ riga/colonna doppia") : "",
+      doubt ? el("span", { class: "uns", title: "lettura incerta: guarda la foto" }, " ⚠ incerta") : "", via ? el("span", { class: "msg" }, via) : "",
+      placed(c) ? el("button", { title: "toglie la pedina dalla mappa", onclick: ev => { ev.stopPropagation(); p.row = ""; p.col = ""; delete p.conf; delete p.fr; delete p.via; delete p.margin; state.pawn = c.letter; redraw(); } }, "togli") : "");
+  });
+  if (!d.rows) return [el("p", { class: "uns" }, "La mappa non c'è ancora: crea la griglia nella tab Mappa, poi torna qui per piazzare le pedine.")];
+  return [table, el("div", {}, ...list)];
+}
 function renderSolution(ed) {
   const d = state.draft; d.placements = d.placements || [];
   const get = l => d.placements.find(p => p.letter === l) || (d.placements.push({ letter: l, row: "", col: "" }), d.placements.at(-1));
   const culprit = el("select", { onchange: e => { d.culprit = e.target.value; changed(); } }, el("option", { value: "" }, "—"), ...d.cards.filter(c => !c.victim).map(c => el("option", { value: c.letter, selected: d.culprit === c.letter }, `${c.letter} ${c.name || ""}`)));
-  const rows = d.cards.map(c => { const p = get(c.letter);
-    const doubt = p.via !== "solver" && p.conf !== undefined && (p.conf < 60 || p.margin > 0.3);
-    const via = p.via === "solver" ? " (scelta dal solver)" : p.via === "testo" ? " (dal testo)" : "";
-    return el("tr", {}, el("td", {}, el("span", { class: "badge" }, c.letter), " " + (c.name || (c.victim ? "vittima" : "")), doubt ? el("span", { class: "uns", title: "lettura incerta: guarda la foto" }, " ⚠") : "", via ? el("span", { class: "msg" }, via) : ""),
-      el("td", {}, "R", el("input", { class: "small", type: "number", min: 1, max: d.rows || 20, value: p.row, oninput: e => { p.row = e.target.value === "" ? "" : +e.target.value; delete p.conf; delete p.fr; delete p.via; changed(); } })),
-      el("td", {}, "C", el("input", { class: "small", type: "number", min: 1, max: d.cols || 20, value: p.col, oninput: e => { p.col = e.target.value === "" ? "" : +e.target.value; delete p.conf; delete p.fr; delete p.via; changed(); } }))); });
   ed.replaceChildren(el("section", {}, el("h2", {}, "Soluzione stampata (pagina dei passaggi)"),
-    el("p", { class: "msg" }, "Guarda la pagina dei passaggi: «R3 C2» = riga 3, colonna 2 (si conta da 1, come nel libro). Il solver confronta questa con quella che trova da solo."),
+    el("p", { class: "msg" }, "Guarda la pagina dei passaggi e piazza le pedine sulla mappa: scegli il personaggio (nell'elenco o toccando la sua pedina) e tocca la casella. «R3 C2» = riga 3, colonna 2 (si conta da 1, come nel libro). Il solver confronta questa con quella che trova da solo."),
     el("div", { class: "tools" }, el("button", { onclick: readSolution }, "Leggi assassino e posizioni dalla foto"), el("span", { class: "msg" }, "(sostituisce quello che c'è; ~1 minuto)"),
       el("button", { onclick: refineSolution, title: "Per le pedine dubbie sceglie fra le caselle vicine quella della soluzione unica del solver" }, "Risolvi i dubbi col solver")),
     ...(state.refineNotes && state.refineNotes.length ? [el("div", { class: "result" }, ...state.refineNotes.map(x => el("div", { class: x.startsWith("✔") ? "msg" : "uns" }, x)))] : []),
     ...(d.solution_source && d.solution_source.issues.length ? [el("div", { class: "result" }, ...d.solution_source.issues.map(x => el("div", { class: "uns" }, "⚠ " + x)))] : []),
     ...(d.solution_source && d.solution_source.culprit_name ? [el("div", { class: "msg" }, "assassino letto dal libro: «" + d.solution_source.culprit_name + "»")] : []),
-    el("div", { class: "tools" }, "L'assassino è ", culprit), el("table", {}, ...rows),
+    el("div", { class: "tools" }, "L'assassino è ", culprit), ...pawnPicker(d, get),
     el("h2", {}, "Elementi che l'app non rappresenta"),
     el("p", { class: "msg" }, "Spunta quelli che il caso usa: il caso resta fuori dal dataset ma si sa perché."),
     ...Object.entries(meta.unsupported).map(([code, text]) => el("label", { style: "display:block;margin:3px 0" }, el("input", { type: "checkbox", checked: (d.unsupported || []).includes(code), onchange: e => { d.unsupported = (d.unsupported || []).filter(x => x !== code); if (e.target.checked) d.unsupported.push(code); changed(); } }), " " + text)),

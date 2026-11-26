@@ -245,6 +245,26 @@ export const ENTRIES = [
     world: { map: ONE_ROOM, rooms: ROOM_NAMES, cast: { b: { at: [0, 3] }, c: { at: [4, 1] } } },
   },
   {
+    id: "objectInRoom",
+    type: "objectInRoom",
+    family: "rooms",
+    owner: "a",
+    params: { objectTypeId: "table" },
+    explain: () =>
+      t(
+        "Nella stanza dove sta il personaggio c'è almeno un oggetto di quel tipo, anche se non è accanto a lui. Una porta o una finestra sta nel muro fra due caselle e vale per le stanze di tutte e due."
+      ),
+    world: {
+      map: TWO_ROOMS,
+      rooms: ROOM_NAMES,
+      objects: [
+        { type: "table", at: [3, 1] },
+        { type: "chair", at: [0, 4] },
+      ],
+      cast: { b: { at: [0, 1] }, c: { at: [2, 3] } },
+    },
+  },
+  {
     id: "onSeal",
     type: "onSeal",
     family: "near",

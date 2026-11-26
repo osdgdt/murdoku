@@ -23,6 +23,7 @@ export const NEWER_TYPE_IDS = new Set([
   "nextToWall",
   "onlyOneWithProperty",
   "exactlyNWithProperty",
+  "objectInRoom",
   "hasRole",
   "roleDirection",
   "roleAllInRoom",

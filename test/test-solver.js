@@ -1665,6 +1665,44 @@ export const tests = [
     },
   },
   {
+    name: "predicate objectInRoom: nella stanza della persona c'è un oggetto di quel tipo (anche lontano da lei)",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const left = addZone(puzzle.grid, "Ovest", "#cfe");
+      const right = addZone(puzzle.grid, "Est", "#fec");
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) paintCellZone(puzzle.grid, r, c, (c < 2 ? left : right).id);
+      placeObject(puzzle.grid, "table", 0, 0);
+      const a = addCharacter(puzzle, "A", "person1");
+      const clue = addClue(puzzle, a.id, "objectInRoom", { objectTypeId: "table" });
+      const predicate = buildPredicate(clue, puzzle);
+      const at = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
+      assertEqual(predicate(mapOf([]), false), undefined, "non ancora piazzato");
+      assertEqual(at(3, 1), true, "nella stanza del tavolo, lontano da esso");
+      assertEqual(at(1, 0), true, "accanto al tavolo, nella stessa stanza");
+      assertEqual(at(2, 3), false, "nell'altra stanza il tavolo non c'è");
+      const negated = { ...clue, negate: true };
+      assertEqual(describeClue(clue, puzzle), "Nella sua stanza c'è un tavolo.");
+      assertEqual(describeClue(negated, puzzle), "Nella sua stanza non c'è un tavolo.");
+    },
+  },
+  {
+    name: "predicate objectInRoom: una finestra sul muro fra due stanze vale per tutte e due; fuori da ogni stanza è falso",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const left = addZone(puzzle.grid, "Ovest", "#cfe");
+      const right = addZone(puzzle.grid, "Est", "#fec");
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) paintCellZone(puzzle.grid, r, c, (c < 2 ? left : right).id);
+      paintCellZone(puzzle.grid, 3, 3, null);
+      assert(placeObject(puzzle.grid, "window", 1, 1, "E"), "la finestra sul muro fra le due stanze");
+      const a = addCharacter(puzzle, "A", "person1");
+      const predicate = buildPredicate(addClue(puzzle, a.id, "objectInRoom", { objectTypeId: "window" }), puzzle);
+      const at = (row, col) => predicate(mapOf([[a.id, { row, col }]]), true);
+      assertEqual(at(0, 0), true, "stanza di sinistra");
+      assertEqual(at(2, 3), true, "stanza di destra");
+      assertEqual(at(3, 3), false, "fuori da ogni stanza");
+    },
+  },
+  {
     name: "predicate nextToWall: un lato della casella è muro (fra stanze, con l'esterno o una casella bloccata, o il bordo della mappa)",
     fn: () => {
       const puzzle = basePuzzle(5, 5);

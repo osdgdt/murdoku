@@ -108,6 +108,8 @@ export default {
     "The character is in a corner of their room: a cell where the room's outline turns a right angle. Different from “in a corner” of the map, which only concerns the four corner cells of the grid.",
   "Il personaggio ha una certa caratteristica (è seduto su una sedia, è un uomo, è accanto a un oggetto…) e nessun altro, in tutta la mappa, ce l'ha. Se anche una sola altra persona è su una sedia, l'indizio è falso.":
     "The character has a certain trait (sitting on a chair, being a man, being next to an object…) and nobody else on the whole map has it. If even one other person is on a chair, the clue is false.",
+  "Nella stanza dove sta il personaggio c'è almeno un oggetto di quel tipo, anche se non è accanto a lui. Una porta o una finestra sta nel muro fra due caselle e vale per le stanze di tutte e due.":
+    "The room the character is in has at least one object of that type, even if it is not next to them. A door or a window sits in the wall between two cells and counts for the rooms on both sides.",
   "In tutta la mappa ci sono esattamente tante persone con una certa caratteristica (sedute su una sedia, uomini, donne, accanto a un oggetto…). Né una di più né una di meno.":
     "Across the whole map exactly that many people have a given trait (sitting on a chair, men, women, next to an object…). Not one more, not one fewer.",
   "Con «no» diventa «non è vero che sono esattamente N»: possono essere di più o di meno.":

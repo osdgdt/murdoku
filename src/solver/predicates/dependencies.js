@@ -21,6 +21,7 @@
 const LOCAL_TYPES = new Set([
   "inRoom",
   "inRoomCorner",
+  "objectInRoom",
   "inCorner",
   "onSeal",
   "nextToWall",

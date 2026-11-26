@@ -2,6 +2,7 @@
 // Each builder: ({ clue, puzzle, ownerId, params }) -> predicate (pm, isComplete) -> true|false|undefined.
 import {
   isNextTo,
+  objectPositions,
   posOfCharacter,
   resolveTargetPositions,
   zoneAt,
@@ -18,6 +19,24 @@ export const builders = {
       const a = posOfCharacter(pm, ownerId);
       if (!a) return undefined;
       return zoneAt(puzzle, a) === params.zoneId;
+    };
+  },
+
+  // The rooms that hold an object of that type are fixed by the map: the verdict is "is the owner in one of them". A door or window
+  // lies in the wall between two cells, so it counts for the rooms of both (like "next to a window"). Outside any room: false.
+  objectInRoom: ({ clue, puzzle, ownerId, params }) => {
+    const rooms = new Set();
+    for (const obj of puzzle.grid.objects) {
+      if (obj.typeId !== params.objectTypeId) continue;
+      for (const pos of objectPositions(puzzle, obj)) {
+        const zone = zoneAt(puzzle, pos);
+        if (zone !== null && zone !== undefined) rooms.add(zone);
+      }
+    }
+    return (pm) => {
+      const a = posOfCharacter(pm, ownerId);
+      if (!a) return undefined;
+      return rooms.has(zoneAt(puzzle, a));
     };
   },
 

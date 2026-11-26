@@ -199,6 +199,23 @@ def test_il_pappagallo_non_e_ancora_supportato():
     assert not found and parsed.unsupported == ["parrot"]
 
 
+# ---- «Nella sua stanza c'era un …»
+def test_nella_sua_stanza_c_era_un_oggetto():
+    parsed, found = clues("Nella sua stanza c'era un tavolo.")
+    assert found == [("objectInRoom", {"objectTypeId": "table"}, False)] and not parsed.unknown and not parsed.unsupported
+    _, found = clues("Nella sua stanza non c'era una sedia.")
+    assert found == [("objectInRoom", {"objectTypeId": "chair"}, True)]
+    _, found = clues("Nella stanza c'è una finestra.")
+    assert found == [("objectInRoom", {"objectTypeId": "window"}, False)]
+
+
+def test_nella_sua_stanza_c_era_un_pappagallo_non_e_supportato_e_un_animale_qualunque_non_si_capisce():
+    parsed, found = clues("Nella sua stanza c'era un pappagallo.")
+    assert not found and parsed.unsupported == ["parrot"]
+    parsed, found = clues("Nella sua stanza c'era un animale.")
+    assert not found and parsed.unknown
+
+
 # ---- «accanto a un muro» e «l'unica persona…»
 def test_accanto_a_un_muro_e_il_suo_contrario():
     parsed, found = clues("Era accanto a un muro.")

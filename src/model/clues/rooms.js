@@ -1,11 +1,26 @@
 import { t } from "../../i18n/i18n.js";
-import { targetLabel, propertyClause, propertyParams, objectTypePhrase, describeNestedClue } from "./shared.js";
+import {
+  targetLabel,
+  propertyClause,
+  propertyParams,
+  objectTypePhrase,
+  describeNestedClue,
+  OBJECT_TYPE_IDS,
+  OBJECT_TYPE_LABELS,
+} from "./shared.js";
 
 export const ROOMS_CLUES = {
   inRoom: {
     label: t("Si trova nella stanza"),
     params: [{ name: "zoneId", kind: "zone", label: t("Stanza") }],
     describe: (params, puzzle) => t("Si trova nella stanza {v}.", { v: targetLabel(puzzle, params.zoneId) }),
+  },
+  // «Nella sua stanza c'è un tavolo»: the room the person stands in has at least one object of that type.
+  objectInRoom: {
+    label: t("Nella sua stanza c'è un oggetto"),
+    params: [{ name: "objectTypeId", kind: "enum", values: OBJECT_TYPE_IDS, labels: OBJECT_TYPE_LABELS, label: t("Tipo di oggetto") }],
+    describe: (params) => t("Nella sua stanza c'è {object}.", { object: objectTypePhrase(params.objectTypeId) }),
+    negatedDescribe: (params) => t("Nella sua stanza non c'è {object}.", { object: objectTypePhrase(params.objectTypeId) }),
   },
   zoneAdjacentTo: {
     label: t("Si trova in una stanza adiacente a"),

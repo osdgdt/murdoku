@@ -377,6 +377,17 @@ def _parse_clause(text: str, names: list[str], rooms: list[str], out: Parsed) ->
             out.unknown.append(text)
         return
 
+    # «Nella sua stanza c'era un tavolo» (anche «non c'era», «c'è», «Nella stanza c'era…»): c'è un oggetto di quel tipo nella stanza della persona
+    m = re.match(r"(?i)nella\s+(?:sua\s+)?stanza\s+(non\s+)?c'(?:era|erano|è|e')\s+(.+)", body)
+    if m:
+        found, unsupported = _object_in(m.group(2))
+        if unsupported:
+            out.unsupported.append(unsupported) if unsupported not in out.unsupported else None
+        elif found and not found.startswith("#"):
+            out.clues.append(_clause("objectInRoom", {"objectTypeId": found}, negate != bool(m.group(1))))
+        else:
+            out.unknown.append(text)
+        return
     if re.search(r"(?i)\bangolo\b", body):
         out.clues.append(_clause("inCorner", {}, negate))
         return

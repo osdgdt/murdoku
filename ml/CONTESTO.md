@@ -198,7 +198,9 @@ trova i due blocchi (intestazione «L'assassino è…» o riga finale), legge il
 legge le etichette R/C (più letture; le mancanti si cercano dove devono stare), ricava un reticolo affine (incrocio fra la riga di «R1» e
 la colonna di «C1», senza ipotesi sulle distanze) e riporta su di esso il centro di ogni lettera trovata (soglia locale, 6 letture OCR per
 candidato, una pedina per lettera). Si avvia dalla pagina di correzione (scheda «Soluzione stampata», ~1 minuto per caso: non è
-nell'apertura automatica) e **sostituisce** assassino e posizioni della bozza.
+nell'apertura automatica) e **sostituisce** assassino e posizioni della bozza. Le posizioni si correggono **piazzando le pedine sulla mappa** (non si
+scrivono più riga e colonna): si sceglie il personaggio nell'elenco o toccando la sua pedina, si tocca la casella; una pedina sulla stessa
+riga o colonna di un'altra è rossa, «togli» la leva dalla mappa.
 
 - **Tre aiuti oltre alla lettera** (tutti segnati sulla pagina di correzione):
   1. _Colore_: ogni lettera ha la sua pedina colorata (la B è verde, la C azzurra, la G arancione…, in tutto il libro). `reader/pawn_colors.json`

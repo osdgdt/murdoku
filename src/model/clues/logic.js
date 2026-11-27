@@ -2,24 +2,32 @@ import { describeNestedClue, upperFirst } from "./shared.js";
 import { t } from "../../i18n/i18n.js";
 
 // "A, oppure B" / "A, e inoltre B": the same sentence for the clues of a character and for the general ones.
+// A part that is itself a combination is put in brackets, so "(A, e inoltre B), oppure C" does not read as "A, e inoltre B, oppure C".
+const partText = (spec, puzzle, first) => {
+  if (!spec?.type) return "?";
+  const text = describeNestedClue(spec, puzzle) ?? "?";
+  const nested = CLUE_TYPES_COMBINATORS.has(spec.type) ? `(${text})` : text;
+  return first ? upperFirst(nested) : nested;
+};
+const CLUE_TYPES_COMBINATORS = new Set(["orClue", "andClue", "orGeneral", "andGeneral"]);
 const orSentence = (params, puzzle) => {
-  const descA = upperFirst(describeNestedClue(params.a, puzzle) ?? "?");
-  const descB = params.b?.type ? describeNestedClue(params.b, puzzle) : "?";
+  const descA = partText(params.a, puzzle, true);
+  const descB = partText(params.b, puzzle, false);
   return t("{descA}, oppure {descB}.", { descA, descB });
 };
 const notOrSentence = (params, puzzle) => {
-  const descA = describeNestedClue(params.a, puzzle) ?? "?";
-  const descB = params.b?.type ? describeNestedClue(params.b, puzzle) : "?";
+  const descA = partText(params.a, puzzle, false);
+  const descB = partText(params.b, puzzle, false);
   return t("Non è vero che {descA}, oppure {descB}.", { descA, descB });
 };
 const andSentence = (params, puzzle) => {
-  const descA = upperFirst(describeNestedClue(params.a, puzzle) ?? "?");
-  const descB = params.b?.type ? describeNestedClue(params.b, puzzle) : "?";
+  const descA = partText(params.a, puzzle, true);
+  const descB = partText(params.b, puzzle, false);
   return t("{descA}, e inoltre {descB}.", { descA, descB });
 };
 const notAndSentence = (params, puzzle) => {
-  const descA = describeNestedClue(params.a, puzzle) ?? "?";
-  const descB = params.b?.type ? describeNestedClue(params.b, puzzle) : "?";
+  const descA = partText(params.a, puzzle, false);
+  const descB = partText(params.b, puzzle, false);
   return t("Non è vero che {descA}, e inoltre {descB}.", { descA, descB });
 };
 

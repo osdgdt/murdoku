@@ -4,7 +4,7 @@
 // zero-cost default; a missing English entry simply falls back to the
 // Italian text (and `npm run i18n` lists them).
 //
-// Interpolation uses `{name}` placeholders: t("Aggiornato il {date}", { date }).
+// Interpolation uses `{name}` placeholders: t(key, { name }).
 // Static markup in the .html pages is translated at load by translateDom(),
 // so pages need no per-element annotations.
 

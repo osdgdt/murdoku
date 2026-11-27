@@ -560,7 +560,7 @@ function renderSlots(spec, path, puzzle) {
 function renderNested(spec, path, puzzle) {
   const wrap = el("div", { class: "clue-nested" });
   // the parts of a combination are of the same kind as it: about a character, or general
-  const subTypeIds = typeIdsFor(session.ownerId ? "character-scope" : null, puzzle).filter((id) => !CLUE_TYPES[id].combinator);
+  const subTypeIds = typeIdsFor(session.ownerId ? "character-scope" : null, puzzle);
   const catalog = typeCatalog();
   const select = el(
     "select",

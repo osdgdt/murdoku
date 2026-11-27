@@ -8,7 +8,7 @@ globalThis.__MURDOKU_LANG__ = "it";
 const { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds } = await import("../src/model/clueTypes.js");
 
 const SIMPLE_KINDS = new Set(["character", "characterOrObject", "zone", "enum", "number"]);
-// l'unico indizio dentro un altro che il menu sa comporre è la condizione di «un'altra condizione»
+// gli indizi dentro un altro che il menu sa comporre: la condizione di «un'altra condizione» e le due parti di un composto (O / E)
 const isNestedCondition = (p) => p.kind === "clueRef" && p.name === "customClue";
 // i ruoli e i luoghi da identificare dipendono dal caso (la bozza non ha né gli uni né gli altri)
 const HIDDEN_PARAMS = new Set(["roleId", "placeName"]);
@@ -38,6 +38,11 @@ for (const [scope, ids] of [
 ]) {
   for (const id of ids) {
     const def = CLUE_TYPES[id];
+    // «O»/«E» fra due indizi interi: il menu li compone con due sotto-menu (parti `a` e `b`, dello stesso ambito del composto)
+    if (def.combinator && !def.internal) {
+      types.push({ id, scope, label: def.label, combinator: true, params: [] });
+      continue;
+    }
     const params = def.params || [];
     if (
       def.combinator ||

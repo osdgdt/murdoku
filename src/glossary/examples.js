@@ -1087,6 +1087,44 @@ export const ENTRIES = [
       ),
     world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "plant", at: [0, 1] }] },
   },
+  {
+    id: "andClue",
+    type: "andClue",
+    family: "logic",
+    owner: "a",
+    params: { a: { type: "adjacent", params: { targetId: "@o:0" } }, b: { type: "inRoom", params: { zoneId: "@z:A" } } },
+    explain: () =>
+      t(
+        "Due indizi qualsiasi uniti da un «e inoltre»: devono essere veri tutti e due. Da solo equivale a scrivere due indizi; serve quando l'insieme dev'essere una parte di un «oppure» o va negato tutto insieme."
+      ),
+    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, objects: [{ type: "plant", at: [0, 1] }] },
+  },
+  {
+    id: "orGeneral",
+    type: "orGeneral",
+    family: "logic",
+    owner: null,
+    params: { a: { type: "noOneInRoom", params: { zoneId: "@z:A" } }, b: { type: "noOneInRoom", params: { zoneId: "@z:C" } } },
+    explain: () =>
+      t(
+        "Due fatti generali (non su una persona sola) uniti da un «oppure»: basta che sia vero uno dei due, o tutti e due. Per esempio «nessuno è in cucina, oppure nessuno è nel bagno»."
+      ),
+    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { a: { at: [0, 1] }, b: { at: [2, 3] }, c: { at: [4, 4] } } },
+    falseCast: { b: [3, 0] },
+  },
+  {
+    id: "andGeneral",
+    type: "andGeneral",
+    family: "logic",
+    owner: null,
+    params: { a: { type: "noOneInRoom", params: { zoneId: "@z:B" } }, b: { type: "noOneInRoom", params: { zoneId: "@z:D" } } },
+    explain: () =>
+      t(
+        "Due fatti generali (non su una persona sola) uniti da un «e inoltre»: devono essere veri tutti e due. Negato, basta che uno dei due sia falso."
+      ),
+    world: { map: FOUR_ROOMS, rooms: ROOM_NAMES, cast: { a: { at: [0, 1] }, b: { at: [2, 2] }, c: { at: [3, 0] } } },
+    falseCast: { b: [1, 4] },
+  },
 ];
 
 // --- building a world and judging a clue -------------------------------------------

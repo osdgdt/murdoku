@@ -1703,6 +1703,69 @@ export const tests = [
     },
   },
   {
+    name: "predicate andClue: vero solo se lo sono entrambi i rami, falso appena uno lo è, indeterminato altrimenti",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const clue = addClue(puzzle, a.id, "andClue", {
+        a: { type: "inCorner", params: {} },
+        b: { type: "adjacent", params: { targetId: b.id } },
+      });
+      const predicate = buildPredicate(clue, puzzle);
+      const at = (cells, complete = true) => predicate(mapOf(cells.map(([ch, row, col]) => [ch.id, { row, col }])), complete);
+      assertEqual(at([[a, 0, 0]], false), undefined, "angolo, ma B non c'è ancora");
+      assertEqual(
+        at([
+          [a, 0, 0],
+          [b, 0, 1],
+        ]),
+        true,
+        "in un angolo e accanto a B"
+      );
+      assertEqual(
+        at([
+          [a, 0, 0],
+          [b, 3, 3],
+        ]),
+        false,
+        "in un angolo ma lontano da B"
+      );
+      assertEqual(at([[a, 1, 1]], false), false, "non è in un angolo: falso anche senza B");
+      assert(describeClue(clue, puzzle).includes(", e inoltre "), describeClue(clue, puzzle));
+      assert(describeClue({ ...clue, negate: true }, puzzle).startsWith("Non è vero che"), describeClue({ ...clue, negate: true }, puzzle));
+    },
+  },
+  {
+    name: "predicate orGeneral e andGeneral: due fatti generali uniti da oppure / e inoltre",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const left = addZone(puzzle.grid, "Ovest", "#cfe");
+      const right = addZone(puzzle.grid, "Est", "#fec");
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) paintCellZone(puzzle.grid, r, c, (c < 2 ? left : right).id);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const sides = { a: { type: "noOneInRoom", params: { zoneId: left.id } }, b: { type: "noOneInRoom", params: { zoneId: right.id } } };
+      const orClue = addClue(puzzle, null, "orGeneral", sides);
+      const orPredicate = buildPredicate(orClue, puzzle);
+      const andPredicate = buildPredicate(addClue(puzzle, null, "andGeneral", sides), puzzle);
+      const placed = (cells) => mapOf(cells.map(([ch, row, col]) => [ch.id, { row, col }]));
+      const bothWest = placed([
+        [a, 0, 0],
+        [b, 2, 1],
+      ]);
+      const split = placed([
+        [a, 0, 0],
+        [b, 2, 3],
+      ]);
+      assertEqual(orPredicate(bothWest, true), true, "nessuno a est: vero uno dei due");
+      assertEqual(orPredicate(split, true), false, "c'è qualcuno in tutte e due le stanze");
+      assertEqual(andPredicate(bothWest, true), false, "uno dei due è falso");
+      assertEqual(andPredicate(placed([]), false), undefined, "nessuno ancora piazzato");
+      assert(describeClue(orClue, puzzle).includes(", oppure "), describeClue(orClue, puzzle));
+    },
+  },
+  {
     name: "predicate nextToWall: un lato della casella è muro (fra stanze, con l'esterno o una casella bloccata, o il bordo della mappa)",
     fn: () => {
       const puzzle = basePuzzle(5, 5);

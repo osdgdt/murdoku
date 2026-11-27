@@ -210,7 +210,11 @@ def test_il_catalogo_dei_tipi_viene_dall_app():
     assert [p["kind"] for p in types["adjacent"]["params"]] == ["characterOrObject"]
     direction = next(p for p in types["directionDistance"]["params"] if p["name"] == "direction")
     assert {v["value"] for v in direction["values"]} == {"north", "south", "east", "west"}
-    assert "hasRole" not in types and "orClue" not in types  # quelli che non si fanno col menu semplice
+    assert "hasRole" not in types  # quelli che dipendono dal caso non si fanno col menu
+    # i composti (O / E) ci sono, con due parti: per le persone e per i fatti generali
+    assert {i: types[i]["scope"] for i in ("orClue", "andClue", "orGeneral", "andGeneral")} == {
+        "orClue": "character", "andClue": "character", "orGeneral": "generic", "andGeneral": "generic"}
+    assert all(types[i].get("combinator") and types[i]["params"] == [] for i in ("orClue", "andClue", "orGeneral", "andGeneral"))
 
 
 def test_indizio_generale_col_menu_non_ha_personaggio_e_si_risolve():
@@ -255,6 +259,26 @@ def test_indizio_generale_con_un_altra_condizione_annidata():
     clue = [c for c in puzzle["clues"] if c["characterId"] is None][0]
     assert clue["params"]["property"] == "custom"
     assert clue["params"]["customClue"] == {"type": "inRoom", "negate": True, "params": {"zoneId": "zone_0"}}
+
+
+def test_indizi_compositi_col_menu_specifici_e_generali():
+    d = tiny_draft()
+    d["cards"][0]["extra"] = [
+        {"type": "orClue", "negate": False, "params": {"a": {"type": "inCorner", "negate": False, "params": {}}, "b": {"type": "inRoom", "negate": True, "params": {"zoneId": {"room": "Sala"}}}}},
+        {"type": "andClue", "negate": True, "params": {"a": {"type": "inCorner", "params": {}}, "b": {"type": "nextToWall", "params": {}}}},
+    ]
+    d["general"] = [
+        {"type": "orGeneral", "negate": False, "params": {"a": {"type": "noOneInRoom", "params": {"zoneId": {"room": "Sala"}}}, "b": {"type": "noOneNear", "negate": True, "params": {"targetId": {"object": "chair"}}}}},
+        {"type": "andGeneral", "negate": False, "params": {"a": {"type": "noOneInRoom", "params": {"zoneId": {"room": "Sala"}}}, "b": {"type": "noOneNear", "params": {"targetId": {"object": "chair"}}}}},
+    ]
+    puzzle, _, problems, _ = D.assemble(d)
+    assert problems == []
+    by_type = {c["type"]: c for c in puzzle["clues"]}
+    assert by_type["orClue"]["params"]["b"] == {"type": "inRoom", "negate": True, "params": {"zoneId": "zone_0"}}
+    assert by_type["andClue"]["negate"] is True and by_type["andClue"]["characterId"] is not None
+    assert by_type["orGeneral"]["characterId"] is None
+    assert by_type["orGeneral"]["params"]["b"] == {"type": "noOneNear", "negate": True, "params": {"targetId": "objtype:chair"}}
+    assert by_type["andGeneral"]["params"]["a"]["params"] == {"zoneId": "zone_0"}
 
 
 def test_indizio_generale_con_bersaglio_sconosciuto_e_un_problema():

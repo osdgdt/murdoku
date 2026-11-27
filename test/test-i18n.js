@@ -102,8 +102,11 @@ export const tests = [
             params: sampleParams(def, ids),
             negate: false,
           };
-          if (type === "orClue")
-            clue.params = { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: ids.other } } };
+          if (def.combinator)
+            clue.params =
+              def.scope === "generic"
+                ? { a: { type: "noOneInRoom", params: { zoneId: ids.zone } }, b: { type: "noOneNear", params: { targetId: ids.other } } }
+                : { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: ids.other } } };
           // Static labels are built once at module load (so can't follow a mid-session
           // language switch); their dictionary coverage is enforced by `npm run i18n -- --strict`.
           const texts = [describeClue(clue, puzzle), describeClue({ ...clue, negate: true }, puzzle)];

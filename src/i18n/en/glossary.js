@@ -110,6 +110,12 @@ export default {
     "The character has a certain trait (sitting on a chair, being a man, being next to an object…) and nobody else on the whole map has it. If even one other person is on a chair, the clue is false.",
   "Nella stanza dove sta il personaggio c'è almeno un oggetto di quel tipo, anche se non è accanto a lui. Una porta o una finestra sta nel muro fra due caselle e vale per le stanze di tutte e due.":
     "The room the character is in has at least one object of that type, even if it is not next to them. A door or a window sits in the wall between two cells and counts for the rooms on both sides.",
+  "Due indizi qualsiasi uniti da un «e inoltre»: devono essere veri tutti e due. Da solo equivale a scrivere due indizi; serve quando l'insieme dev'essere una parte di un «oppure» o va negato tutto insieme.":
+    "Any two clues joined by an “and also”: both must be true. On its own it is the same as writing two clues; it is useful when the pair has to be one side of an “or”, or is denied as a whole.",
+  "Due fatti generali (non su una persona sola) uniti da un «oppure»: basta che sia vero uno dei due, o tutti e due. Per esempio «nessuno è in cucina, oppure nessuno è nel bagno».":
+    "Two general facts (not about one person) joined by an “or”: it is enough that one of them is true, or both. For example “nobody is in the kitchen, or nobody is in the bathroom”.",
+  "Due fatti generali (non su una persona sola) uniti da un «e inoltre»: devono essere veri tutti e due. Negato, basta che uno dei due sia falso.":
+    "Two general facts (not about one person) joined by an “and also”: both must be true. Denied, it is enough that one of them is false.",
   "In tutta la mappa ci sono esattamente tante persone con una certa caratteristica (sedute su una sedia, uomini, donne, accanto a un oggetto…). Né una di più né una di meno.":
     "Across the whole map exactly that many people have a given trait (sitting on a chair, men, women, next to an object…). Not one more, not one fewer.",
   "Con «no» diventa «non è vero che sono esattamente N»: possono essere di più o di meno.":

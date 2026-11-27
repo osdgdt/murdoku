@@ -55,7 +55,11 @@ function everyClue(ids) {
   for (const [type, def] of Object.entries(CLUE_TYPES)) {
     if (def.internal) continue;
     const clue = { id: "c", type, characterId: def.scope === "generic" ? null : ids.owner, params: sampleParams(def, ids), negate: false };
-    if (type === "orClue") clue.params = { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: ids.other } } };
+    if (def.combinator)
+      clue.params =
+        def.scope === "generic"
+          ? { a: { type: "noOneInRoom", params: { zoneId: ids.zone } }, b: { type: "noOneNear", params: { targetId: ids.other } } }
+          : { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: ids.other } } };
     for (const negate of [false, true]) clues.push({ ...clue, negate });
   }
   return clues;

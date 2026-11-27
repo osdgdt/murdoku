@@ -559,7 +559,8 @@ function renderSlots(spec, path, puzzle) {
 // A nested clue: its type (a grouped list) and then its own parameters.
 function renderNested(spec, path, puzzle) {
   const wrap = el("div", { class: "clue-nested" });
-  const subTypeIds = typeIdsFor("character-scope", puzzle).filter((id) => !CLUE_TYPES[id].combinator);
+  // the parts of a combination are of the same kind as it: about a character, or general
+  const subTypeIds = typeIdsFor(session.ownerId ? "character-scope" : null, puzzle).filter((id) => !CLUE_TYPES[id].combinator);
   const catalog = typeCatalog();
   const select = el(
     "select",

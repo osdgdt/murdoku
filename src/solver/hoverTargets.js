@@ -184,7 +184,7 @@ function resolveClueHoverCellsUnsafe(clue, puzzle, placementMap) {
   // orClue: due sotto-indizi annidati in params.a/params.b, mai dichiarati
   // nell'array `params` del tipo (clueBuilder.js li renderizza a parte) —
   // unione di entrambi i bersagli.
-  if (clue.type === "orClue") {
+  if (["orClue", "andClue", "orGeneral", "andGeneral"].includes(clue.type)) {
     if (clue.params?.a?.type) cells.push(...resolveClueHoverCellsUnsafe(clue.params.a, puzzle, placementMap));
     if (clue.params?.b?.type) cells.push(...resolveClueHoverCellsUnsafe(clue.params.b, puzzle, placementMap));
   }

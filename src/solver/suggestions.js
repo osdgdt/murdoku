@@ -14,7 +14,7 @@ import { placeNameLabels, isNameHidden } from "../model/placeNames.js";
 import { hasFloors, longestFloor, enumValuesFor } from "../model/sectors.js";
 
 // orClue needs two sub-clues (not enumerable here); victimRoomRule is the built-in base rule.
-const SKIP_TYPES = new Set(["orClue", "victimRoomRule", "sealRule", "roleRule"]);
+const SKIP_TYPES = new Set(["orClue", "andClue", "orGeneral", "andGeneral", "victimRoomRule", "sealRule", "roleRule"]);
 
 // Every parameter combination of a clue type that makes sense on this map, for one owner.
 export function enumerateParams(def, puzzle, ownerId) {

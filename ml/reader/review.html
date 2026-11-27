@@ -382,6 +382,7 @@ function targetValue(v) {
 function typeOf(id) { return (meta.clueTypes || []).find(t => t.id === id); }
 function manualText(e) {
   const t = typeOf(e.type); if (!t) return e.type;
+  if (t.combinator) { const joiner = e.type.startsWith("and") ? " e inoltre " : " oppure "; return (e.negate ? "NON — " : "") + "(" + manualText(e.params.a) + ")" + joiner + "(" + manualText(e.params.b) + ")"; }
   const bits = t.params.map(p => {
     const v = (e.params || {})[p.name]; if (v == null) return "";
     if (p.kind === "clueRef") return "(" + manualText(v) + ")";
@@ -399,10 +400,14 @@ function renderGeneralMenu() { const d = state.draft; buildMenu($("#menuGeneral"
 function paramVisible(p, fields) { return !p.showIf || Object.entries(p.showIf).every(([k, v]) => fields[k] === v); }
 // I controlli dei parametri di un tipo di indizio. `fields` tiene i valori scelti; un parametro «clueRef» («un'altra condizione») è un indizio intero
 // dentro l'indizio, composto con lo stesso menu.
+// I parametri di un tipo: un composto (O / E) ha due parti, ognuna un indizio intero.
+function paramsOf(t) { return t.combinator ? [{ name: "a", kind: "clueRef", label: "Prima parte" }, { name: "b", kind: "clueRef", label: "Seconda parte" }] : t.params; }
+// L'ambito degli indizi annidati: quelli di un composto sono dello stesso tipo del composto; la condizione di una proprietà è sempre di una persona.
+function nestedScope(t) { return t.combinator ? (t.scope || "character") : "character"; }
 function paramControls(t, fields, self, redraw) {
   const controls = [];
-  for (const p of t.params.filter(q => paramVisible(q, fields))) {
-    if (p.kind === "clueRef") { controls.push(nestedClueControl(p, fields, redraw)); continue; }
+  for (const p of paramsOf(t).filter(q => paramVisible(q, fields))) {
+    if (p.kind === "clueRef") { controls.push(nestedClueControl(p, fields, redraw, nestedScope(t))); continue; }
     let input;
     const onPick = e => { fields[p.name] = e.target.value; if (t.params.some(q => q.showIf && p.name in q.showIf)) redraw(); };
     const blank = el("option", { value: "" }, p.optional ? "(qualsiasi)" : "—");
@@ -414,9 +419,9 @@ function paramControls(t, fields, self, redraw) {
   }
   return controls;
 }
-function nestedClueControl(p, fields, redraw) {
+function nestedClueControl(p, fields, redraw, scope) {
   const n = fields[p.name] = fields[p.name] || { type: "", negate: false, fields: {} };
-  const catalog = (meta.clueTypes || []).filter(t => (t.scope || "character") === "character");
+  const catalog = (meta.clueTypes || []).filter(t => (t.scope || "character") === scope && !t.combinator);
   const sel = el("select", { onchange: e => { n.type = e.target.value; n.fields = {}; redraw(); } },
     el("option", { value: "" }, "— quale condizione —"), ...catalog.map(t => el("option", { value: t.id }, t.label)));
   sel.value = n.type;
@@ -428,7 +433,7 @@ function nestedClueControl(p, fields, redraw) {
 // I parametri scelti, pronti per la bozza (`{ params }`), oppure `{ error }` col nome di quello che manca.
 function buildParams(t, fields) {
   const params = {};
-  for (const p of t.params.filter(q => paramVisible(q, fields))) {
+  for (const p of paramsOf(t).filter(q => paramVisible(q, fields))) {
     if (p.kind === "clueRef") {
       const n = fields[p.name]; const nt = n && typeOf(n.type);
       if (!nt) return { error: "Manca: " + p.label };

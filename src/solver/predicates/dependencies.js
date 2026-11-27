@@ -72,8 +72,8 @@ function collect(spec, ownerId, characterIds, into) {
 export function dependenciesOf(clue, puzzle) {
   const characterIds = new Set(puzzle.characters.map((c) => c.id));
   const ids = new Set();
-  if (clue.type === "orClue") {
-    // An OR depends on both sides; if either side is not local, neither is the OR.
+  if (clue.type === "orClue" || clue.type === "andClue") {
+    // An OR (or an AND) depends on both sides; if either side is not local, neither is the OR.
     const a = clue.params?.a;
     const b = clue.params?.b;
     if (!collect(a, clue.characterId, characterIds, ids) || !collect(b, clue.characterId, characterIds, ids)) return ALL;

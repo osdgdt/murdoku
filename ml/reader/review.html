@@ -421,7 +421,7 @@ function paramControls(t, fields, self, redraw) {
 }
 function nestedClueControl(p, fields, redraw, scope) {
   const n = fields[p.name] = fields[p.name] || { type: "", negate: false, fields: {} };
-  const catalog = (meta.clueTypes || []).filter(t => (t.scope || "character") === scope && !t.combinator);
+  const catalog = (meta.clueTypes || []).filter(t => (t.scope || "character") === scope);
   const sel = el("select", { onchange: e => { n.type = e.target.value; n.fields = {}; redraw(); } },
     el("option", { value: "" }, "— quale condizione —"), ...catalog.map(t => el("option", { value: t.id }, t.label)));
   sel.value = n.type;

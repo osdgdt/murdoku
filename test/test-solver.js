@@ -5,6 +5,7 @@ import { CLUE_TYPES, characterClueTypeIds, genericClueTypeIds, describeClue } fr
 import { buildPredicate } from "../src/solver/predicates/index.js";
 import { solvePuzzle } from "../src/solver/solver.js";
 import { checkUniqueness, validateSolution } from "../src/solver/validator.js";
+import { dependenciesOf } from "../src/solver/predicates/dependencies.js";
 import { propagate } from "../src/solver/propagation.js";
 import { assert, assertEqual } from "./assert.js";
 
@@ -1734,6 +1735,37 @@ export const tests = [
       assertEqual(at([[a, 1, 1]], false), false, "non è in un angolo: falso anche senza B");
       assert(describeClue(clue, puzzle).includes(", e inoltre "), describeClue(clue, puzzle));
       assert(describeClue({ ...clue, negate: true }, puzzle).startsWith("Non è vero che"), describeClue({ ...clue, negate: true }, puzzle));
+    },
+  },
+  {
+    name: "predicate composti annidati: «(A e B) oppure C», con le parentesi nella frase e le dipendenze locali",
+    fn: () => {
+      const puzzle = basePuzzle(4, 4);
+      const a = addCharacter(puzzle, "A", "person1");
+      const b = addCharacter(puzzle, "B", "person2");
+      const clue = addClue(puzzle, a.id, "orClue", {
+        a: {
+          type: "andClue",
+          params: { a: { type: "inCorner", params: {} }, b: { type: "adjacent", params: { targetId: b.id } } },
+        },
+        b: { type: "inRowOrCol", params: { axis: "row", index: 4 } },
+      });
+      const predicate = buildPredicate(clue, puzzle);
+      const at = (cells, complete = true) => predicate(mapOf(cells.map(([ch, row, col]) => [ch.id, { row, col }])), complete);
+      assertEqual(at([[a, 3, 2]], false), true, "il ramo semplice basta");
+      assertEqual(
+        at([
+          [a, 0, 0],
+          [b, 0, 1],
+        ]),
+        true,
+        "il ramo composto basta"
+      );
+      assertEqual(at([[a, 1, 1]], true), false, "nessun ramo regge");
+      assertEqual(at([[a, 0, 0]], false), undefined, "angolo ma B non c'è ancora");
+      const text = describeClue(clue, puzzle);
+      assert(text.includes("(") && text.includes(", e inoltre "), text);
+      assert(dependenciesOf(clue, puzzle).ids, "annidato locale: dipende solo da A e B");
     },
   },
   {

@@ -63,6 +63,10 @@ function addNamedCharacters(params, characterIds, into) {
 
 // `spec`: a clue, or a nested clue of an orClue ({ type, params }); `ownerId` the clue's owner.
 function collect(spec, ownerId, characterIds, into) {
+  // a combination nested in a combination: local when both of its sides are
+  if (spec && (spec.type === "orClue" || spec.type === "andClue")) {
+    return collect(spec.params?.a, ownerId, characterIds, into) && collect(spec.params?.b, ownerId, characterIds, into);
+  }
   if (!spec || !LOCAL_TYPES.has(spec.type)) return false;
   if (ownerId) into.add(ownerId);
   addNamedCharacters(spec.params, characterIds, into);
